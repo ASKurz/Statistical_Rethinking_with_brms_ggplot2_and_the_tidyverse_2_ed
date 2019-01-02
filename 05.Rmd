@@ -425,7 +425,7 @@ head(sim_d)
 
 If we use the `update()` function, we can refit the last models in haste.
 
-```{r b5.1_sim_through_b5.3_sim, cache = T, warning = F, message = F}
+```{r b5.1_sim_through_b5.3_sim, cache = T, warning = F, message = F, results = "hide"}
 b5.1_sim <- 
   update(b5.1, 
          newdata = sim_d, 
@@ -893,7 +893,7 @@ d <-
 
 McElreath has us starting off our first `milk` model with more permissive priors than we've used in the past. Although we should note that from a historical perspective, these priors are pretty informative. Times keep changing.
 
-```{r b5.5_draft, cache = T, message = F, warning = F}
+```{r b5.5_draft, cache = T, message = F, warning = F, results = "hide"}
 b5.5_draft <- 
   brm(data = d, family = gaussian,
       kcal.per.g_s ~ 0 + Intercept + neocortex.perc_s,
@@ -917,7 +917,7 @@ dcc <-
 
 We'll use `update()` to refit the model with the altered data.
 
-```{r b5.5_draft_v2, cache = T, message = F, warning = F}
+```{r b5.5_draft_v2, cache = T, message = F, warning = F, results = "hide"}
 b5.5_draft <- 
   update(b5.5_draft,
          newdata = dcc)
@@ -1273,7 +1273,7 @@ p3 <-
 
 Now we stitch our three plot objects together with `gridExtra::grid.arrange()`.
 
-```{r, fig.width = 8, fig.height = 1.5}
+```{r, fig.width = 8, fig.height = 1.5, warning = F, message = F}
 library(gridExtra)
 
 grid.arrange(p1, p2, p3, ncol = 3)
@@ -1439,11 +1439,11 @@ tibble(mu_female = rnorm(1e4, mean = 178, sd = 20)) %>%
 Make the `sex` variable.
 
 ```{r}
-(
-  d <-
+d <-
   d %>% 
   mutate(sex = ifelse(male == 1, 2, 1))
-  )
+
+head(d)
 ```
 
 For our version of this model, we will continue using the simple $\mu = 1$ exponential prior on $\sigma$, rather than the uniform. The exponential is just much easier on Stan than the uniform. But if you prefer to go uniform, have at it.
@@ -1467,7 +1467,7 @@ print(b5.8)
 
 Note that for us, there was no `depth=2` argument to get all the model output. Rather, if you looked closely in the `brm()` function, we augmented the model data so that `sex` was used as a factor. When you fit a model in brms that excludes the typical intercept parameter (i.e., with the `0 + ...` syntax), you'll get a separate intercept for each of your factor variables. The `brm()` function noticed there were two levels for our `sex` factor, and therefore gave use two intercepts: `sex1` and `sex2`. Here's how you might compute the difference score.
 
-```{r}
+```{r, warning = F, message = F}
 library(tidybayes)
 
 posterior_samples(b5.8) %>% 
