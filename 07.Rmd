@@ -1,0 +1,1464 @@
+---
+title: "Ch. 7 Overfitting, Regularization, and Information Criteria"
+author: "A Solomon Kurz"
+date: "`r format(Sys.Date())`"
+output:
+  github_document
+---
+
+# Overfitting, Regularization, and Information Criteria
+
+In this chapter we contend with two contrasting kinds of statistical error:
+
+* overfitting, "which leads to poor prediction by learning too *much* from the data"
+* underfitting, "which leads to poor prediction by learning too *little* from the data" (p. 188, *emphasis* added) 
+
+#### Rethinking stargazing.
+
+"Whatever you think about null hypothesis significance testing in general, using it to select among structurally different models is a mistake--$p$-values are not designed to help you navigate between underfitting and overfitting" (p. 189). As you’ll may have noticed by now, we will generally eschew $p$-values and NHST in this project.
+
+## The problem with parameters
+
+The $R^2$ is a popular way to measure how well you can retrodict the data. It traditionally follows the form
+
+$$R^2 = \frac{\text{var(outcome)} - \text{var(residuals)}}{\text{var(outcome)}} = 1 - \frac{\text{var(residuals)}}{\text{var(outcome)}}$$
+
+By $\text{var()}$, of course, we meant variance (i.e., the `var()` function in R).
+
+McElreath's not a fan of the $R^2$. But it's important in my field, so instead of a summary at the end of the chapter, we will cover the Bayesian version of $R^2$ and how to use it in brms.
+
+### More parameters always improve fit.
+
+We'll start off by making the data with brain size and body size for seven `species`.
+
+```{r, warning = F, message = F}
+library(tidyverse)
+
+(
+  d <- 
+  tibble(species = c("afarensis", "africanus", "habilis", "boisei", "rudolfensis", "ergaster", "sapiens"), 
+         brain   = c(438, 452, 612, 521, 752, 871, 1350), 
+         mass    = c(37.0, 35.5, 34.5, 41.5, 55.5, 61.0, 53.5))
+  )
+```
+
+Let's get ready for Figure 7.2. The plots in this chapter will be characterized by `theme_classic() + theme(text = element_text(family = "Courier"))`. Our color palette will come from the [rcartocolor package](https://cran.r-project.org/web/packages/rcartocolor/index.html), which provides color schemes [designed by 'CARTO'](https://carto.com/carto-colors/).
+
+```{r}
+# install.packages("rcartocolor", dependencies = T)
+library(rcartocolor)
+```
+
+The specific palette we'll be using is "BurgYl." In addition to palettes, the rcartocolor package offers a few convenience functions which make it easier to use their palettes. The `carto_pal()` function will return the HEX numbers associated with a given palette's colors and the `display_carto_pal()` function will display the actual colors.
+
+```{r, fig.width = 6, fig.height = 2.25}
+carto_pal(7, "BurgYl")
+display_carto_pal(7, "BurgYl")
+```
+
+We'll be using a diluted version of the third color for the panel background (i.e., `theme(panel.background = element_rect(fill = alpha(carto_pal(7, "BurgYl")[3], 1/4)))`) and the darker purples for other plot elements. Here's the plot.
+
+```{r, fig.width = 3.5, fig.height = 3, message = F, warning = F}
+library(ggrepel)
+
+d %>%
+  ggplot(aes(x =  mass, y = brain, label = species)) +
+  geom_point(color = carto_pal(7, "BurgYl")[5]) +
+  geom_text_repel(size = 3, color = carto_pal(7, "BurgYl")[7], family = "Courier", seed = 438) +
+  coord_cartesian(xlim = 30:65) +
+  labs(x = "body mass (kg)",
+       y = "brain volume (cc)",
+       subtitle = "Average brain volume by body\nmass for six hominin species") +
+  theme_classic() +
+  theme(text = element_text(family = "Courier"),
+        panel.background = element_rect(fill = alpha(carto_pal(7, "BurgYl")[3], 1/4)))
+```
+
+Before fitting our models,
+
+> we want to standardize body mass--give it mean zero and standard deviation one--and rescale the outcome, brain volume, so that the largest observed value is 1. Why not standardize brain volume as well? Because we want to preserve zero as a reference point: no brain at all. You can’t have negative brain. I don’t think. (p. 191)
+
+```{r}
+d <-
+  d %>% 
+  mutate(mass_std  = (mass - mean(mass)) / sd(mass),
+         brain_std = brain / max(brain))
+```
+
+Our first statistical model will follow the form
+
+\begin{align}
+\text{brain_std}_i & \sim \text{Normal}(\mu_i, \sigma) \\
+\mu_i              & = \alpha + \beta \text{mass_std}_i \\
+\alpha             & \sim \text{Normal}(0.5, 1) \\
+\beta              & \sim \text{Normal}(0, 10) \\
+\sigma             & \sim \text{Log-Normal}(0, 1)
+\end{align}
+
+> The proper thing to do with those priors is to simulate the prior predictive distribution. But let’s go with the priors above, for the sake of the lesson. The first lesson of these priors is what they imply. The prior for $\alpha$ is just centered on the mean brain volume (rescaled) in the data. So it says that the average species with an average body mass has a brain volume with an 89% credible interval from about −1 to 2. That is ridiculously wide and includes impossible (negative) values. The prior for $\beta$ is very flat and centered on zero. It allows for absurdly large positive and negative relationships. The second lesson of these priors is that they allow for absurd inferences, especially as the model gets more complex. (p. 192)
+
+Warning: These priors are a mess with brms. This will become very clear when we plot, below. If you want to reign in the widths of the posteriors, try reducing the $\beta$ prior to something more like $\text{Normal} (0, 2)$.
+
+Load brms.
+
+```{r, message = F, warning = F}
+library(brms)
+```
+
+Fit the model.
+
+```{r b7.1, cache = T, message = F, warning = F}
+b7.1 <- 
+  brm(data = d, family = gaussian,
+      brain_std ~ 1 + mass_std,
+      prior = c(prior(normal(0.5, 1), class = Intercept),
+                prior(normal(0, 10), class = b),
+                prior(lognormal(0, 1), class = sigma)),
+      iter = 3000, warmup = 1000, chains = 4, cores = 4,
+      seed = 7)
+```
+
+The brms package already has a convenience function for the $R^2$, which will give us a summary of the entire posterior in addition to a point estimate.
+
+```{r}
+bayes_R2(b7.1)
+```
+
+The next statistical model will follow the form
+
+\begin{align}
+\text{brain_std}_i & \sim \text{Normal}(\mu_i, \sigma) \\
+\mu_i   & = \alpha + \beta_1 \text{mass_std}_i + \beta_2 \text{mass_std}_i^2 \\
+\alpha  & \sim \text{Normal}(0.5, 1) \\
+\beta_j & \sim \text{Normal}(0, 10) ~~~~~~~~~~~ \text{ for } j = 1..2 \\
+\sigma  & \sim \text{Log-Normal}(0, 1)
+\end{align}
+
+```{r b7.2, cache = T, message = F, warning = F}
+b7.2 <- 
+  update(b7.1,
+         formula = brain_std ~ 1 + mass_std + I(mass_std^2),
+         cores = 4)
+```
+
+We'll fit the next three in similar fashion. 
+
+```{r b7.3_through_b7.5, cache = T, message = F, warning = F}
+b7.3 <- 
+  update(b7.1,
+         formula = brain_std ~ 1 + mass_std + I(mass_std^2) + I(mass_std^3),
+         cores = 4,
+         control = list(adapt_delta = .99))
+
+b7.4 <- 
+  update(b7.3,
+         formula = brain_std ~ 1 + mass_std + I(mass_std^2) + I(mass_std^3) + I(mass_std^4),
+         cores = 4,
+         control = list(adapt_delta = .99,
+                        max_treedepth = 11))
+
+b7.5 <- 
+  update(b7.3,
+         formula = brain_std ~ 1 + mass_std + I(mass_std^2) + I(mass_std^3) + I(mass_std^4) + I(mass_std^5),
+         cores = 4,
+         control = list(adapt_delta = .999,
+                        max_treedepth = 13))
+```
+
+McElreath's trick fixing `sigma = 0.001` works in brms, too. But note that in `brm()`, we do so within the `bf()` function.
+
+```{r b7.6, cache = T, message = F, warning = F}
+b7.6 <- 
+  brm(data = d, family = gaussian,
+      bf(brain_std ~ 1 + mass_std + I(mass_std^2) + I(mass_std^3) + I(mass_std^4) + I(mass_std^5) + I(mass_std^6),
+         sigma = 0.001),
+      prior = c(prior(normal(0.5, 1), class = Intercept),
+                prior(normal(0, 10), class = b)),
+      iter = 3000, warmup = 1000, chains = 4, cores = 4,
+      control = list(max_treedepth = 12),
+      seed = 7)
+```
+
+Let's do our prep work in bulk.
+
+```{r, warning = F, message = F}
+# simplify our `fitted()` settings in a wrapper
+my_fitted <- function(fit) {
+  fit %>% 
+    fitted(newdata = nd,
+           # note we have two sets of intervals
+           probs = c(.055, .945, .25, .75)) %>% 
+    as_tibble() %>% 
+    select(-Est.Error) %>% 
+    mutate_all(funs(. * max(d$brain))) %>% 
+    bind_cols(nd)
+}
+
+# define our `nd` data
+nd <-
+  tibble(mass_std = seq(from = -3, to = 3, length.out = 200)) %>% 
+  mutate(mass     = mass_std * sd(d$mass) + mean(d$mass))
+
+# simplify the code necessary to get the R2 estimates
+format_r2 <- function(fit) {
+  fit %>% 
+    bayes_R2() %>% 
+    as_tibble() %>% 
+    transmute(r2 = round(Estimate, digits = 2))
+}
+
+# wrangle
+f <-
+  tibble(name   = str_c("b7.", 1:6)) %>%
+  mutate(fit    = map(name, get)) %>%
+  mutate(r2     = map(fit, format_r2)) %>% 
+  unnest(r2) %>% 
+  mutate(fitted = map(fit, my_fitted)) %>% 
+  unnest(fitted) %>% 
+  mutate(label  = str_c(name, ": R^2 == ", r2))
+
+head(f)
+```
+
+Here's our version of Figure 7.3. Note we've superimposed 50% intervals atop of 89% intervals.
+
+```{r, fig.width = 6, fig.height = 8, warning = F, message = F}
+f %>% 
+  ggplot(aes(x = mass)) +
+  geom_smooth(aes(y = Estimate, ymin = Q5.5, ymax = Q94.5),
+              stat = "identity",
+              fill = "firebrick", color = "firebrick4", alpha = 1/5, size = 1/2) +
+  geom_ribbon(aes(ymin = Q25, ymax = Q75),
+              fill = "firebrick", alpha = 1/5) +
+  geom_point(data = d,
+             aes(y = brain),
+             color = carto_pal(7, "BurgYl")[7]) +
+  scale_x_continuous(limits = c(30, 65), 
+                     breaks = c(35, 47, 60),
+                     expand = c(0, 0)) +
+  scale_y_continuous(breaks = c(450, 900, 1300)) +
+  coord_cartesian(ylim = c(300, 1500)) +
+  labs(x = "body mass (kg)",
+       y = "brain volume (cc)") +
+  theme_classic() +
+  theme(text = element_text(family = "Courier"),
+        panel.background = element_rect(fill = alpha(carto_pal(7, "BurgYl")[3], 1/4)),
+        strip.background = element_rect(size = 0)) +
+  facet_wrap(~label, ncol = 2, labeller = label_parsed)
+```
+
+#### Rethinking: OLS and Bayesian anti-essentialism.
+
+Let's use OLS to refit the models in bulk. First we'll make a custom function, `fit_lm()`, into which we'll feed the desired names and formulas of our models. We'll make a tibble initially composed of those names (i.e., `model`) and formulas (i.e., `formula`). Via `purrr::map2()` within `mutate()`, we'll then fit the models and save the model objects within the tibble. The [broom package](https://cran.r-project.org/web/packages/broom/index.html) provides an array of convenience functions to convert statistical analysis summaries into tidy data objects. We'll employ `broom::tidy()` and `broom::glance()` to extract information from the model fits.
+
+```{r, message = F, warning = F}
+library(broom)
+
+fit_lm <- function(model, formula){
+  model <- lm(data = d, formula = formula)
+}
+
+fits <-
+  tibble(model   = str_c("ols6.", 1:6),
+         formula = c("brain ~ mass", 
+                     "brain ~ mass + I(mass^2)", 
+                     "brain ~ mass + I(mass^2) + I(mass^3)", 
+                     "brain ~ mass + I(mass^2) + I(mass^3) + I(mass^4)", 
+                     "brain ~ mass + I(mass^2) + I(mass^3) + I(mass^4) + I(mass^5)", 
+                     "brain ~ mass + I(mass^2) + I(mass^3) + I(mass^4) + I(mass^5) + I(mass^6)")) %>% 
+  mutate(fit     = map2(model, formula, fit_lm)) %>% 
+  mutate(tidy    = map(fit, tidy),
+         glance  = map(fit, glance))
+
+# what did we just do?
+print(fits)
+```
+
+Our `fits` object is a [nested tibble](https://tidyr.tidyverse.org/reference/nest.html). To learn more about this bulk approach to fitting models, check out Hadley Wickham's talk [Managing many models with R](https://www.youtube.com/watch?v=rz3_FDVt9eg&t=2339s&frags=pl%2Cwn). As you might learn in the talk, we can extract the $R^2$ from each model with `map_dbl("r.squared")`, which we'll then display in a plot.
+
+```{r, fig.width = 8, fig.height = 1.5}
+fits <-
+  fits %>% 
+  mutate(r2      = glance %>% map_dbl("r.squared")) %>% 
+  mutate(r2_text = round(r2, digits = 2) %>% as.character() %>% str_replace(., "0.", "."))
+
+fits %>% 
+  ggplot(aes(x = r2, y = formula, label = r2_text)) +
+  geom_text(color = carto_pal(7, "BurgYl")[7], size = 3.5)  +
+  labs(x = expression(italic(R)^2),
+       y = NULL) +
+  scale_x_continuous(limits = 0:1, breaks = 0:1) +
+  theme_classic() +
+  theme(axis.text.y  = element_text(hjust = 0),
+        axis.ticks.y = element_blank(),
+        text         = element_text(family = "Courier"),
+        panel.background = element_rect(fill = alpha(carto_pal(7, "BurgYl")[3], 1/4)))
+```
+
+If we wanted to look at the model coefficients, we could `unnest(tidy)` and wrangle a bit.  
+
+```{r}
+fits %>% 
+  unnest(tidy) %>% 
+  select(model, term:estimate) %>% 
+  mutate_if(is.double, round, digits = 1) %>% 
+  complete(term = distinct(., term), model) %>% 
+  spread(key = term, value = estimate) %>% 
+  select(model, `(Intercept)`, mass, everything())
+```
+
+For an OLS version of Figure 7.3, we'll make each plot individually and them glue them together with `gridExtra::grid.arrange()`. Since they all share a common stucture, we'll start by specifying a base plot which we'll save as `p`.
+
+```{r}
+p <-
+  d %>% 
+  ggplot(aes(x = mass, y = brain)) +
+  geom_point(color = carto_pal(7, "BurgYl")[7]) +
+  scale_x_continuous(limits = c(33, 62), expand = c(0, 0)) +
+  coord_cartesian(ylim = c(300, 1500)) +
+  labs(x = "body mass (kg)",
+       y = "brain volume (cc)") +
+  theme_classic() +
+  theme(text = element_text(family = "Courier"),
+        panel.background = element_rect(fill = alpha(carto_pal(7, "BurgYl")[3], 1/4)))
+```
+
+Now for each subplot, we'll tack the subplot-specific components onto `p`. The main action is in `stat_smooth()`. For each subplot, the first three lines in `stat_smooth()` are identical, with only the bottom `formula` line differing. Like McElreath did in the text, we also adjust the y-axis range for the last two plots.
+
+```{r, warning = F, message = F}
+# linear
+p1 <- 
+  p +
+  stat_smooth(method = "lm", fullrange = TRUE, level = .89,  # Note our rare use of 89% confidence intervals
+              color = carto_pal(7, "BurgYl")[6], fill = carto_pal(7, "BurgYl")[6], 
+              size = 1/2, alpha = 1/3,
+              formula = y ~ x) +
+  ggtitle(NULL, subtitle = expression(paste(italic(R)^2, " = .49")))
+  
+# quadratic
+p2 <-
+  p + 
+  stat_smooth(method = "lm", fullrange = TRUE, level = .89,
+              color = carto_pal(7, "BurgYl")[6], fill = carto_pal(7, "BurgYl")[6], 
+              size = 1/2, alpha = 1/3,              
+              formula = y ~ poly(x, 2)) +
+  ggtitle(NULL, subtitle = expression(paste(italic(R)^2, " = .54")))
+
+# cubic
+p3 <-
+  p + 
+  stat_smooth(method = "lm", fullrange = TRUE, level = .89,
+              color = carto_pal(7, "BurgYl")[6], fill = carto_pal(7, "BurgYl")[6], 
+              size = 1/2, alpha = 1/3,              
+              formula = y ~ poly(x, 3)) +
+  ggtitle(NULL, subtitle = expression(paste(italic(R)^2, " = .68")))
+
+# fourth-order polynomial
+p4 <-
+  p + 
+  stat_smooth(method = "lm", fullrange = TRUE, level = .89,
+              color = carto_pal(7, "BurgYl")[6], fill = carto_pal(7, "BurgYl")[6], 
+              size = 1/2, alpha = 1/3,              
+              formula = y ~ poly(x, 4)) +
+  ggtitle(NULL, subtitle = expression(paste(italic(R)^2, " = .81")))
+
+# fifth-order polynomial
+p5 <-
+  p + 
+  stat_smooth(method = "lm", fullrange = TRUE, level = .89,
+              color = carto_pal(7, "BurgYl")[6], fill = carto_pal(7, "BurgYl")[6], 
+              size = 1/2, alpha = 1/3,              
+              formula = y ~ poly(x, 5)) +
+  coord_cartesian(ylim = c(150, 1900)) +  # We're adjusting the y-axis range for this plot (and the next)
+  ggtitle(NULL, subtitle = expression(paste(italic(R)^2, " = .99")))
+  
+# sixth-order polynomial
+p6 <-
+  p + 
+  geom_hline(yintercept = 0, color = carto_pal(7, "BurgYl")[2], linetype = 2) +  # to mark off 0 on the y-axis
+  stat_smooth(method = "lm", fullrange = TRUE, level = .89,
+              color = carto_pal(7, "BurgYl")[6], fill = carto_pal(7, "BurgYl")[6], 
+              size = 1/2, alpha = 1/3,              
+              formula = y ~ poly(x, 6)) +
+  coord_cartesian(ylim = c(-300, 1500)) +
+  ggtitle(NULL, subtitle = expression(paste(italic(R)^2, " = 1")))
+```
+
+Okay, now we're ready to combine the six subplots and produce our version of Figure 6.3.
+
+```{r, fig.width = 6, fig.height = 8, warning = F, message = F}
+library(gridExtra)
+
+grid.arrange(p1, p2, p3, p4, p5, p6, ncol = 2)
+```
+
+### Too few parameters hurts, too.
+
+The underfit statistical model will follow the form
+
+\begin{align}
+\text{brain_std}_i & \sim \text{Normal}(\mu_i, \sigma) \\
+\mu_i              & = \alpha \\
+\alpha             & \sim \text{Normal}(0.5, 1) \\
+\sigma             & \sim \text{Exponential}(1)
+\end{align}
+
+Fit the intercept only model, `b7.7`.
+
+```{r b7.7, cache = T, message = F, warning = F}
+b7.7 <- 
+  brm(data = d, family = gaussian,
+      brain_std ~ 1,
+      prior = c(prior(normal(0.5, 1), class = Intercept),
+                prior(lognormal(0, 1), class = sigma)),
+      iter = 3000, warmup = 1000, chains = 4, cores = 4,
+      seed = 7)
+```
+
+With the intercept-only model, the $R^2$ value is zero.
+
+```{r}
+bayes_R2(b7.7) %>% 
+  round(3)
+```
+
+McElreath commented that his $R^2$ value was slightly negative. If you omit the `round(2)` line and just return `bayes_R2(b7.7)` you'll discover that ours does not fall below zero. This is because of how the `brms::bayes_R2()` calculates the Bayesian $R^2$. But you'll also note that our estimates are not exactly zero. Much like McElreath put it, "this indicates nothing other than approximation error" (p. 197).
+
+Here's our Figure 7.4.
+
+```{r, fig.width = 3, fig.height = 2.67} 
+b7.7 %>% 
+  my_fitted() %>% 
+  
+  ggplot(aes(x = mass)) +
+  geom_smooth(aes(y = Estimate, ymin = Q5.5, ymax = Q94.5),
+              stat = "identity",
+              fill = "firebrick", color = "firebrick4", alpha = 1/5, size = 1/2) +
+  geom_ribbon(aes(ymin = Q25, ymax = Q75),
+              fill = "firebrick", alpha = 1/5) +
+  geom_point(data = d,
+             aes(y = brain),
+             color = carto_pal(7, "BurgYl")[7]) +
+  scale_x_continuous(limits = c(30, 65), 
+                     breaks = c(35, 47, 60),
+                     expand = c(0, 0)) +
+  scale_y_continuous(breaks = c(450, 900, 1300)) +
+  coord_cartesian(ylim = c(300, 1500)) +
+  labs(subtitle = expression(paste("b7.7: ", italic(R)^2, " = 0")),
+       x = "body mass (kg)",
+       y = "brain volume (cc)") +
+  theme_classic() +
+  theme(text = element_text(family = "Courier"),
+        panel.background = element_rect(fill = alpha(carto_pal(7, "BurgYl")[3], 1/4)),
+        strip.background = element_rect(size = 0))
+```
+
+#### Overthinking: Dropping rows.
+
+You can `filter()` by `row_number()` to drop rows in a [tidyverse kind of way](https://dplyr.tidyverse.org/reference/slice.html). For example, we can drop the second row of `d` like this.
+
+```{r}
+ d %>%
+    filter(row_number() != 2)
+```
+
+We can then extend that logic into a custom function, `make_lines()`, that will drop a row from `d`, fit the simple model `brain ~ mass`, and then use base R `predict()` to return the model-implied trajectory over new data values.
+
+
+```{r}
+# because these lines are straight, we only need new data over two points of `mass`
+nd <- 
+  tibble(mass_std = c(-3, 3)) %>% 
+  mutate(mass     = mass_std * sd(d$mass) + mean(d$mass))
+
+make_lines <- function(row){
+  my_fit <-
+    update(b7.1,
+           newdata = d %>% filter(row_number() != row))
+  
+  my_fit %>% 
+    fitted(newdata = nd) %>% 
+    as_tibble() %>% 
+    transmute(brain_std = Estimate) %>% 
+    bind_cols(nd) %>% 
+    mutate(brain = brain_std * max(d$brain))
+}
+```
+
+Here we’ll make a tibble, `lines`, which will specify rows 1 through 7 in the `row` column. We’ll then feed those `row` numbers into our custom `make_lines()` function, which will return the predicted values and their corresponding `mass` values, per model.
+
+```{r drop_linear, cache = T, message = F, warning = F}
+(
+  lines_1 <-
+  tibble(row = 1:7) %>% 
+  mutate(p = map(row, make_lines)) %>% 
+  unnest(p)
+  )
+```
+
+Now we're ready to plot the left panel of Figure 6.5.
+
+```{r, fig.width = 3.5, fig.height = 2.75, warning = F, message = F}
+p + 
+  scale_x_continuous(expand = c(0, 0)) +
+  geom_line(data = lines_1, 
+            aes(x = mass, y = brain, group = row),
+            color = carto_pal(7, "BurgYl")[6], alpha = 1/2, size = 1/2) +
+  coord_cartesian(xlim = 33:63,
+                  ylim = 450:1350)
+```
+
+To make the right panel for Figure 7.5, we’ll need to increase the number of `mass_std` points in our `nd` data and redefine the `make_lines()` function to fit the fourth-order-polynomial model.
+
+```{r drop_4th_order, cache = T, message = F, warning = F}
+# because these lines will be very curvy, we'll need new data over many points of `mass_std`
+nd <- 
+  tibble(mass_std = seq(from = -3, to = 3, length.out = 200)) %>% 
+  mutate(mass     = mass_std * sd(d$mass) + mean(d$mass))
+
+# redefine our `make_lines()` function
+make_lines <- function(row){
+  my_fit <-
+    update(b7.4,
+           newdata = d %>% filter(row_number() != row))
+  
+  my_fit %>% 
+    fitted(newdata = nd) %>% 
+    as_tibble() %>% 
+    transmute(brain_std = Estimate) %>% 
+    bind_cols(nd) %>% 
+    mutate(brain = brain_std * max(d$brain))
+}
+
+# use `make_lines()`
+lines_4 <-
+  tibble(row = 1:7) %>% 
+  mutate(p = map(row, make_lines)) %>% 
+  unnest(p)
+
+# what does this look like?
+head(lines_4)
+```
+
+Now we're ready to plot.
+
+```{r, fig.width = 3.5, fig.height = 2.75, warning = F, message = F}
+p + 
+  scale_x_continuous(expand = c(0, 0)) +
+  geom_line(data = lines_4, 
+            aes(x = mass, y = brain, group = row),
+            color = carto_pal(7, "BurgYl")[6], alpha = 1/2, size = 1/2) +
+  coord_cartesian(xlim = 33:63,
+                  ylim = 0:2000)
+```
+
+## Entropy and accuracy
+
+> Whether you end up using regularization or information criteria or both, the first thing you must do is pick a criterion of model performance. What do you want the model to do well at? We’ll call this criterion the *target*, and in this section you’ll see how information theory provides a common and useful target...
+>
+> This material is complicated. You don't have to understand everything at first. (p. 199, *emphasis* in the original)
+
+### Firing the weatherperson.
+
+If you let rain = 1 and sun = 0, here's a way to make a plot of the first table of page 199, the weatherperson's predictions.
+
+```{r, fig.width = 6, fig.height = 1.5}
+weatherperson <-
+  tibble(day        = 1:10,
+         prediction = rep(c(1, 0.6), times = c(3, 7)),
+         observed   = rep(c(1, 0), times = c(3, 7))) 
+
+weatherperson %>% 
+  gather(key, value, -day) %>% 
+  
+  ggplot(aes(x = day, y = key, fill = value)) +
+  geom_tile(color = "white") +
+  geom_text(aes(label = value, color = value == 0)) +
+  scale_x_continuous(breaks = 1:10, expand = c(0, 0)) +
+  scale_y_discrete(NULL, expand = c(0, 0)) +
+  scale_fill_viridis_c(direction = -1) +
+  scale_color_manual(values = c("white", "black")) +
+  theme(legend.position = "none",
+        axis.ticks.y = element_blank(),
+        text = element_text(family = "Courier"))
+```
+
+Here's how the newcomer fared:
+
+```{r, fig.width = 6, fig.height = 1.5}
+newcomer <-
+  tibble(day        = 1:10,
+         prediction = 0,
+         observed   = rep(c(1, 0), times = c(3, 7)))
+
+newcomer %>% 
+  gather(key, value, -day) %>%
+  
+  ggplot(aes(x = day, y = key, fill = value)) +
+  geom_tile(color = "white") +
+  geom_text(aes(label = value, color = value == 0)) +
+  scale_x_continuous(breaks = 1:10, expand = c(0, 0)) +
+  scale_y_discrete(NULL, expand = c(0, 0)) +
+  scale_fill_viridis_c(direction = -1) +
+  scale_color_manual(values = c("white", "black")) +
+  theme(legend.position = "none",
+        axis.ticks.y = element_blank(),
+        text = element_text(family = "Courier"))
+```
+
+If we do the math entailed in the tibbles, we'll see why the newcomer could boast "I'm the best person for the job" (p. 200).
+
+```{r}
+weatherperson %>% 
+  bind_rows(newcomer) %>% 
+  mutate(person = rep(c("weatherperson", "newcomer"), each = n()/2),
+         hit    = ifelse(prediction == observed, 1, 1 - prediction - observed)) %>% 
+  group_by(person) %>% 
+  summarise(hit_rate = mean(hit))
+```
+
+#### Costs and benefits.
+
+Our new `points` variable doesn't fit into the nice color-based `geom_tile()` plots from above. But we can still do the math.
+
+```{r}
+weatherperson %>% 
+  bind_rows(newcomer) %>% 
+  mutate(person = rep(c("weatherperson", "newcomer"), each = n()/2),
+         points = ifelse(observed == 1 & prediction != 1, -5,
+                         ifelse(observed == 1 & prediction == 1, -1,
+                                -1 * prediction))) %>% 
+  group_by(person) %>% 
+  summarise(happiness = sum(points))
+```
+
+#### Measuring accuracy.
+
+> But even if we ignore costs and benefits of any actual decision based upon the forecasts, there’s still ambiguity about which measure of "accuracy" to adopt. There’s nothing special about "hit rate." Consider for example computing the probability of predicting the exact sequence of days. (p. 200)
+
+```{r}
+weatherperson %>% 
+  bind_rows(newcomer) %>% 
+  mutate(person = rep(c("weatherperson", "newcomer"), each = n() / 2),
+         hit    = ifelse(prediction == observed, 1, 1 - prediction - observed)) %>% 
+  group_by(person, hit) %>% 
+  count() %>% 
+  ungroup() %>% 
+  mutate(power = hit ^ n,
+         term  = rep(letters[1:2], times = 2)) %>% 
+  select(person, term, power) %>% 
+  spread(key = term, value = power) %>% 
+  mutate(probability_correct_sequence = a * b)
+```
+
+#### Rethinking: What is a true model?
+
+I really like this little snip:
+
+> It’s hard to define "true" probabilities, because all models are false. So what does "truth" mean in this context? It means the right probabilities, given our state of ignorance. Our state of ignorance is described by the model. The probability is in the model, not in the world. (p. 201)
+
+In my experience, we constantly forget this.
+
+### Information and uncertainty.
+
+The formula for information entropy is:
+
+$$H(p) = - \text{E log} (p_i) = - \sum_{i = 1}^n p_i \text{log} (p_i)$$
+
+McElreath put it in words as "the uncertainty contained in a probability distribution is the average log-probability of the event" (p. 198). We'll compute the information entropy for weather at the first unnamed location, which we'll call `McElreath's house`, and `Abu Dhabi` at once.
+
+```{r}
+tibble(place  = c("McElreath's house", "Abu Dhabi"),
+       p_rain = c(.3, .01)) %>% 
+  mutate(p_shine = 1 - p_rain) %>% 
+  group_by(place) %>% 
+  mutate(H_p = (p_rain * log(p_rain) + p_shine * log(p_shine)) %>% mean() * -1)
+```
+
+The uncertainty is less in Abu Dhabi because it rarely rains, there. If you have sun, rain and snow, the entropy for weather is:
+
+```{r}
+p <- c(.7, .15, .15)
+-sum(p * log(p))
+```
+
+### From entropy to accuracy.
+
+The formula for the Kullback-Leibler divergence (i.e., K-L divergence) is
+
+$$D_{\text{KL}} (p, q) = \sum_i p_i \big ( \text{log} (p_i) - \text{log} (q_i) \big ) = \sum_i p_i \text{log} \Bigg ( \frac{p_i}{q_i} \Bigg )$$
+
+which, in plainer language, is what McElreath described as "the average difference in log probability between the target (p) and model (q)" (p. 200).
+
+In McElreath's example
+
+* $p_1 = .3$
+* $p_2 = .7$
+* $q_1 = .25$
+* $q_2 = .75$
+
+With those values, we can compute $D_{\text{KL}} (p, q)$ within a tibble like so:
+
+```{r}
+tibble(p_1    = .3,
+       p_2    = .7,
+       q_1    = .25,
+       q_2    = .75) %>%
+  mutate(d_kl = (p_1 * log(p_1 / q_1)) + (p_2 * log(p_2 / q_2)))
+```
+
+Our systems in this section are binary (e.g., $q = \lbrace q_i, q_2 \rbrace$). Thus if you know $q_1 = .3$ you know of a necessity $q_2 = 1 - q_1$. Therefore we can code the tibble for the next example of when $p = q$ like this:
+
+```{r}
+tibble(p_1    = .3) %>% 
+  mutate(p_2  = 1 - p_1,
+         q_1  = p_1) %>% 
+  mutate(q_2  = 1 - q_1) %>%
+  mutate(d_kl = (p_1 * log(p_1 / q_1)) + (p_2 * log(p_2 / q_2)))
+```
+
+Building off of that, you can make the data required for Figure 7.6 like this.
+
+```{r}
+t <- 
+  tibble(p_1  = .3,
+         p_2  = .7,
+         q_1  = seq(from = .01, to = .99, by = .01)) %>% 
+  mutate(q_2  = 1 - q_1) %>%
+  mutate(d_kl = (p_1 * log(p_1 / q_1)) + (p_2 * log(p_2 / q_2)))
+
+head(t)
+```
+
+Now we have the data, plotting Figure 7.6 is a just `geom_line()` with stylistic flourishes.
+
+```{r, fig.width = 3, fig.height = 2.75}
+t %>% 
+  ggplot(aes(x = q_1, y = d_kl)) +
+  geom_vline(xintercept = .3, color = carto_pal(7, "BurgYl")[5], linetype = 2) +
+  geom_line(color = carto_pal(7, "BurgYl")[7], size = 1.5) +
+  annotate(geom = "text", x = .4, y = 1.5, label = "q = p",
+           color = carto_pal(7, "BurgYl")[5], family = "Courier", size = 3.5) +
+  labs(x = "q[1]",
+       y = "Divergence of q from p") +
+  theme_classic() +
+  theme(text = element_text(family = "Courier"),
+        panel.background = element_rect(fill = alpha(carto_pal(7, "BurgYl")[3], 1/4)))
+```
+
+#### Rethinking: Divergence depends upon direction.
+
+Here we see $H(p, q) \neq H(q, p)$. That is, direction matters.
+
+```{r}
+tibble(direction = c("Earth to Mars", "Mars to Earth"),
+       p_1    = c(.01, .7),
+       q_1    = c(.7, .01)) %>% 
+  mutate(p_2  = 1 - p_1,
+         q_2  = 1 - q_1) %>%
+  mutate(d_kl = (p_1 * log(p_1 / q_1)) + (p_2 * log(p_2 / q_2)))
+```
+
+The $D_{\text{KL}}$ was double when applying Martian estimates to Terran estimates.
+
+### Estimating divergence.
+
+> The point of all the preceding material about information theory and divergence is to establish both:
+>
+> 1. How to measure the distance of a model from our target. Information theory gives us the distance measure we need, the K-L divergence.
+>
+> 2. How to estimate the divergence. Having identified the right measure of distance, we now need a way to estimate it in real statistical modeling tasks. (p. 206)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Now we'll start working on item #2.
+
+We define deviance as:
+
+$$D(q) = -2 \sum_i \text{log}(p_i)$$
+
+In the formula, $i$ indexes each case and $q_i$ is the likelihood for each case. Here's the deviance from the OLS version of model `b7.1`.
+
+```{r}
+lm(data = d,
+   brain ~ mass) %>% 
+  logLik() * -2
+```
+
+#### Overthinking: Computing deviance.
+
+To follow along with the text, we'll specify the initial values and fit the model.
+
+```{r b7.8, cache = T, message = F, warning = F}
+# Here we specify our starting values
+inits <- list(intercept = mean(d$brain),
+              mass_std  = 0,
+              sigma     = sd(d$brain))
+
+inits_list <-list(inits, inits, inits, inits)
+
+# The model
+b7.8 <- 
+  brm(data = d, family = gaussian,
+      brain ~ 1 + mass_std,
+      prior = c(prior(normal(714, 1000), class = Intercept),
+                prior(normal(0, 1000), class = b),
+                prior(exponential(.003), class = sigma)),
+      iter = 2000, warmup = 1000, chains = 4, cores = 4,
+      inits = inits_list,  # Here we put our start values in the `brm()` function
+      seed = 7)
+```
+
+Before we move on, we should clarify where that `exponential(.003)` prior on $\sigma$ came from. Recall that the parameter in the exponential distribution is the rate, $\lambda$. To get the mean of the exponential distribution, you take the reciprocal of the rate.
+
+$$\mu_y = \frac{1}{\lambda}$$
+
+Since I wanted a diffuse prior for sigma with the mean centered around `sd(d$brain)`, a quick computation revealed that the appropriate $\lambda$ would be about 0.003.
+
+```{r}
+1 / sd(d$brain)
+```
+
+```{r}
+print(b7.8)
+```
+
+**Details about `inits`**: You don’t have to specify your `inits` lists outside of the `brm()` function the way we did, here. This is just how I currently prefer. When you specify start values for the parameters in your Stan models, you need to do so with a list of lists. You need as many lists as HMC chains—four in this example. And then you put your—in this case—four lists inside a list. Lists within lists. Also, we were lazy and specified the same start values across all our chains. You can mix them up across chains if you want.
+
+Anyway, the brms function `log_lik()` returns a matrix. Each occasion gets a column and each HMC chain iteration gets a row.
+
+```{r}
+ll <-
+  b7.8 %>%
+  log_lik() %>%
+  as_tibble()
+
+ll %>%
+  glimpse()
+```
+
+Deviance is the sum of the occasion-level LLs multiplied by -2.
+
+```{r}
+ll <-
+  ll %>%
+  mutate(sums     = rowSums(.),
+         deviance = -2 * sums)
+
+head(ll)
+```
+
+Because we used HMC, deviance is a distribution rather than a single number.
+
+```{r, fig.width = 3.75, fig.height = 2.5, warning = F, message = F}
+library(tidybayes)
+
+ll %>%
+  ggplot(aes(x = deviance, y = 0)) +
+  geom_halfeyeh(fill = carto_pal(7, "BurgYl")[5], color = carto_pal(7, "BurgYl")[7],
+                point_interval = median_qi, .width = .95) +
+  scale_x_continuous(breaks = quantile(ll$deviance, c(.025, .5, .975)),
+                     labels = quantile(ll$deviance, c(.025, .5, .975)) %>% round(1)) +
+  scale_y_continuous(NULL, breaks = NULL) +
+  labs(title = "The deviance distribution") +
+  theme_classic() +
+  theme(text = element_text(family = "Courier"),
+        panel.background = element_rect(fill = alpha(carto_pal(7, "BurgYl")[3], 1/4)))
+```
+
+But notice our deviance distribution was centered right around the sole value McElreath reported in the text.
+
+### From deviance to out-of-sample.
+
+> Deviance is a principled way to measure distance from the target. But deviance as computed in the previous section has the same flaw as $R^2$: It always improves as the model gets more complex, at least for the types of models we have considered so far. Just like $R^2$, deviance in-sample is a measure of retrodictive accuracy, not predictive accuracy.
+
+In the next subsection, we'll see this in a simulation.
+
+#### Overthinking: Simulated training and testing.
+
+I find the `rethinking::sim.train.test()` function opaque. If you're curious, you can find McElreath's code [here](https://github.com/rmcelreath/rethinking/blob/a309712d904d1db7af1e08a76c521ab994006fd5/R/sim_train_test.R). You could also take a look by executing `print(rethinking::sim.train.test)`. Let's just simulate and see what happens.
+
+```{r, eval = F}
+library(rethinking)
+
+n       <- 20
+kseq    <- 1:5
+# I've reduced this number by one order of magnitude to reduce computation time
+n_sim   <- 1e3
+n_cores <- 4
+
+# here's our dev object based on `N <- 20`
+dev_20 <-
+  sapply(kseq, function(k) {
+    print(k);
+    r <- mcreplicate(n_sim, sim.train.test(N = n, k = k),
+                     mc.cores = n_cores);
+    c(mean(r[1, ]), mean(r[2, ]), sd(r[1, ]), sd(r[2, ]))
+    })
+
+# here's our dev object based on N <- 100
+n       <- 100
+dev_100 <- 
+  sapply(kseq, function(k) {
+    print(k);
+    r <- mcreplicate(n_sim, sim.train.test(N = n, k = k), 
+                     mc.cores = n_cores);
+    c(mean(r[1, ]), mean(r[2, ]), sd(r[1, ]), sd(r[2, ]))
+    })
+```
+
+```{r, echo = F}
+# Even after reducing `n_sim` by an order of magnitude, that simulation takes a long time to
+# complete. So instead of completing it on the fly for each new version of this project, I’ve
+# saved the results in an external file. 
+
+# save(list = c("dev_100", "dev_20", "kseq", "n_sim", "n_cores"), file = "06_sims/sim_1.rda")
+
+load("06_sims/sim_1.rda")
+```
+
+If you didn't quite catch it, the simulation yields `dev_20` and `dev_100`. We'll want to convert them to tibbles, bind them together, and wrangle extensively before we're ready to plot.
+
+```{r}
+dev_tibble <-
+  dev_20 %>% 
+  as_tibble() %>% 
+  bind_rows(
+    dev_100 %>%
+      as_tibble()
+  ) %>% 
+  mutate(n = rep(c("n = 20", "n = 100"), each = 4),
+         statistic = rep(c("mean", "sd"), each = 2) %>% rep(., times = 2),
+         sample    = rep(c("in", "out"), times = 2) %>% rep(., times = 2)) %>% 
+  gather(n_par, value, -n, -statistic, -sample) %>% 
+  spread(key = statistic, value = value) %>% 
+  mutate(n     = factor(n, levels = c("n = 20", "n = 100")),
+         n_par = str_remove(n_par, "V") %>% as.double()) %>% 
+  mutate(n_par = ifelse(sample == "in", n_par - .075, n_par + .075))
+
+head(dev_tibble)
+```
+
+Now we're ready to make Figure 7.7.
+
+```{r, fig.width = 6, fig.height = 3}
+# this intermediary tibble will make `geom_text()` easier
+dev_text <-
+  dev_tibble %>% 
+  filter(n_par > 1.5, 
+         n_par < 2.5) %>% 
+  mutate(n_par = ifelse(sample == "in", n_par - .2, n_par + .28))
+  
+# the plot
+dev_tibble %>% 
+  ggplot(aes(x     = n_par, y = mean,
+             ymin  = mean - sd, ymax = mean + sd,
+             group = sample,
+             color = sample, 
+             fill  = sample)) +
+  geom_pointrange(shape = 21) +
+  geom_text(data = dev_text,
+            aes(label = sample)) +
+  scale_color_manual(values = c(carto_pal(7, "BurgYl")[7], carto_pal(7, "BurgYl")[5])) +
+  scale_fill_manual(values  = c(carto_pal(7, "BurgYl")[5], carto_pal(7, "BurgYl")[7])) +
+  labs(x = "number of parameters",
+       y = "deviance") +
+  theme_classic() +
+  theme(text             = element_text(family = "Courier"),
+        legend.position  = "none",
+        strip.background = element_rect(fill = alpha(carto_pal(7, "BurgYl")[1], 1/4), color = "white"),
+        panel.background = element_rect(fill = alpha(carto_pal(7, "BurgYl")[3], 1/4))) +
+  facet_wrap(~n, scale = "free_y")
+```
+
+Even with a substantially smaller $N$, our simulation results matched up well with those in the text.
+
+## Regularization
+
+> The root of overfitting is a model's tendency to get overexcited by the training sample... One way to prevent a model from getting too excited by the training sample is to give it a skeptical prior. By "skeptical," I mean a prior that slows the rate of learning from the sample. (p. 206)
+
+In case you were curious, here's how you might do Figure 7.8 with ggplot2. All the action is in the `geom_ribbon()` portions.
+
+```{r, fig.width = 3, fig.height = 3}
+tibble(x = seq(from = - 3.5, 
+               to   = 3.5, 
+               by   = .01)) %>%
+  
+  ggplot(aes(x = x)) +
+  geom_ribbon(aes(ymin = 0, ymax = dnorm(x, mean = 0, sd = 0.2)), 
+              fill = carto_pal(7, "BurgYl")[7], alpha = 1/2) +
+  geom_ribbon(aes(ymin = 0, ymax = dnorm(x, mean = 0, sd = 0.5)), 
+              fill = carto_pal(7, "BurgYl")[6], alpha = 1/2) +
+  geom_ribbon(aes(ymin = 0, ymax = dnorm(x, mean = 0, sd = 1)), 
+              fill = carto_pal(7, "BurgYl")[5], alpha = 1/2) +
+  scale_y_continuous(NULL, breaks = NULL) +
+  labs(x = "parameter value") +
+  coord_cartesian(xlim = c(-3, 3)) +
+  theme_classic() +
+  theme(text = element_text(family = "Courier"),
+        panel.background = element_rect(fill = alpha(carto_pal(7, "BurgYl")[3], 1/4)))
+```
+
+In our version of the plot, darker purple = more regularizing.
+
+But to prepare for Figure 7.9, let's simulate. This time we'll wrap the basic simulation code we used before into a function we'll call `make_sim()`. Our `make_sim()` function has two parameters, `N` and `b_sigma`, both of which come from McElreath's simulation code. So you'll note that instead of hard coding the values for `N` and `b_sigma` within the simulation, we're leaving them adjustable (i.e., `sim.train.test(N = n, k = k, b_sigma = b_sigma)`). Also notice that instead of saving the simulation results as objects, like before, we're just converting them to tibbles with the `as_tibble()` function at the bottom. Our goal is to use `make_sim()` within a `purrr::map2()` statement. The result will be a nested tibble into which we've saved the results of 6 simulations based off of two sample sizes (i.e., `n = c(20, 100)`) and three values of $\sigma$ for our Gaussian $\beta$ prior (i.e., `b_sigma = c(1, .5, .2)`).
+
+```{r, eval = F}
+library(rethinking)
+
+# I've reduced this number by one order of magnitude to reduce computation time
+n_sim <- 1e3
+
+make_sim <- function(n, b_sigma){
+  sapply(kseq, function(k) {
+    print(k);
+    r <- mcreplicate(n_sim, sim.train.test(N = n, k = k, b_sigma = b_sigma),  # this is an augmented line of code
+                     mc.cores = n_cores);
+    c(mean(r[1, ]), mean(r[2, ]), sd(r[1, ]), sd(r[2, ])) }) %>% 
+    
+    # this is a new line of code
+    as_tibble()
+}
+
+s <-
+  tibble(n       = rep(c(20, 100), each = 3),
+         b_sigma = rep(c(1, .5, .2), times = 2)) %>% 
+  mutate(sim     = map2(n, b_sigma, make_sim)) %>% 
+  unnest()
+```
+
+```{r, echo = F}
+# Even after reducing `n_sim` by an order of magnitude, that simulation takes a long time to
+# complete. So instead of completing it on the fly for each new version of this project, I’ve
+# saved the results in an external file. 
+
+# save("s", file = "06_sims/sim_2.rda")
+
+load("06_sims/sim_2.rda")
+s <-
+  s %>% 
+  rename(n = N)
+```
+
+We'll follow the same principles for wrangling these data as we did those from the previous simulation, `dev_tibble`. And after wrangling, we'll feed the data directly into the code for our version of Figure 7.9.
+
+```{r, fig.width = 6, fig.height = 3}
+# wrangle the simulation data
+s %>% 
+  mutate(statistic = rep(c("mean", "sd"), each = 2) %>% rep(., times = 3 * 2),
+         sample    = rep(c("in", "out"), times = 2) %>% rep(., times = 3 * 2)) %>% 
+  gather(n_par, value, -n, -b_sigma, -statistic, -sample) %>% 
+  spread(key = statistic, value = value) %>% 
+  mutate(n     = str_c("n = ", n) %>% factor(., levels = c("n = 20", "n = 100")),
+         n_par = str_remove(n_par, "V") %>% as.double())  %>% 
+  
+  # now plot
+  ggplot(aes(x = n_par, y = mean,
+             group = interaction(sample, b_sigma))) +
+  geom_line(aes(color = sample, size = b_sigma %>% as.character())) +
+  # this function contains the data from the previous simulation
+  geom_point(data = dev_tibble, 
+             aes(x = n_par, y = mean, group = sample, fill = sample),
+             color = "black", shape = 21, size = 2.5, stroke = .1) +
+  scale_fill_manual(values = c(carto_pal(7, "BurgYl")[7], carto_pal(7, "BurgYl")[5])) +
+  scale_color_manual(values = c(carto_pal(7, "BurgYl")[7], carto_pal(7, "BurgYl")[5])) +
+  scale_size_manual(values = c(1, .5, .2)) +
+  labs(x = "number of parameters",
+       y = "deviance") +
+  theme_classic() +
+  theme(text             = element_text(family = "Courier"),
+        legend.position  = "none",
+        strip.background = element_rect(fill = alpha(carto_pal(7, "BurgYl")[1], 1/4), color = "white"),
+        panel.background = element_rect(fill = alpha(carto_pal(7, "BurgYl")[3], 1/4))) +
+  facet_wrap(~n, scale = "free_y")
+```
+
+Our results don’t perfectly align with those in the text. I suspect his is because we used `1e3` iterations, rather than the `1e4` of the text. If you’d like to wait all night long for the simulation to yield more stable results, be my guest.
+
+> Regularizing priors are great, because they reduce overfitting. But if they are too skeptical, they prevent the model from learning from the data. So to use them effectively, you need some way to tune them. Tuning them isn't always easy. (p. 209)
+
+For more on this how to choose your priors, consider Gelman, Simpson, and Betancourt's [*The prior can generally only be understood in the context of the likelihood*](https://arxiv.org/abs/1708.07487), a paper that will probably make more sense after Chapter 9. And if you’re feeling feisty, also check out Simpson’s related blog post [*(It’s never a) Total Eclipse of the Prior*](http://andrewgelman.com/2017/09/05/never-total-eclipse-prior/).
+
+#### Rethinking: Ridge regression.
+
+Within the brms framework, you can do something like this with the horseshoe prior via the `horseshoe()` function. You can learn all about it from the `horseshoe` section of the [brms reference manual (version 2.7.0)](https://cran.r-project.org/web/packages/brms/brms.pdf). Here's an extract from the section:
+
+> The horseshoe prior is a special shrinkage prior initially proposed by [Carvalho et al. (2009)](http://proceedings.mlr.press/v5/carvalho09a/carvalho09a.pdf). It is symmetric around zero with fat tails and an infinitely large spike at zero. This makes it ideal for sparse models that have many regression coefficients, although only a minority of them is non- zero. The horseshoe prior can be applied on all population-level effects at once (excluding the intercept) by using `set_prior("horseshoe(1)")`. (p. 70)
+
+And to dive even deeper into the horseshoe prior, check out Michael Betancourt's tutorial, [*Bayes Sparse Regression*](https://betanalpha.github.io/assets/case_studies/bayes_sparse_regression.html#35_the_horseshoe).
+
+## Information criteria
+
+The data from our initial simulation isn't formatted well to plot Figure 7.10. We'll have to wrangle a little.
+
+```{r}
+(
+  dev_tibble <-
+  dev_tibble %>% 
+  select(-sd) %>% 
+  mutate(n_par  = ifelse(sample == "in", n_par + .075, n_par - .075)) %>% 
+  spread(key = sample, value = mean) %>% 
+  mutate(height = (out - `in`) %>% round(digits = 1) %>% as.character(),
+         dash   = `in` + 2 * n_par)
+)
+```
+
+Now we're ready to plot.
+
+```{r, fig.width = 6, fig.height = 3}
+dev_tibble  %>% 
+  ggplot(aes(x = n_par)) +
+  geom_line(aes(y = dash),
+            linetype = 2, color = carto_pal(7, "BurgYl")[5]) +
+  geom_point(aes(y = `in`),
+             color = carto_pal(7, "BurgYl")[7], size = 2) +
+  geom_point(aes(y = out),
+             color = carto_pal(7, "BurgYl")[5], size = 2) +
+  geom_errorbar(aes(x = n_par + .15,
+                    ymin = `in`, ymax = out),
+                width = .1, color = carto_pal(7, "BurgYl")[6]) +
+  geom_text(aes(x = n_par + .4,
+                y = (out + `in`) / 2,
+                label = height),
+            family = "Courier", size = 3, color = carto_pal(7, "BurgYl")[6]) +
+  labs(x = "number of parameters",
+       y = "deviance") +
+  theme_classic() +
+  theme(text             = element_text(family = "Courier"),
+        strip.background = element_rect(fill = alpha(carto_pal(7, "BurgYl")[1], 1/4), color = "white"),
+        panel.background = element_rect(fill = alpha(carto_pal(7, "BurgYl")[3], 1/4))) +
+  facet_wrap(~n, scale = "free_y")
+```
+
+Again, our numbers aren't the exact same as McElreath's because a) this is a simulation and b) our number of simulations was an order of magnitude smaller than his. But the overall pattern is the same. More to the point, the distances between the in- and out-of-sample points 
+
+> are nearly the same, for each model, at both $N = 20$ (left) and $N = 100$ (right). Each distance is nearly twice the number of parameters, as labeled on the horizontal axis. The dashed lines show exactly the [dark purple] points plus twice the number of parameters, tracing closely along the average out-of-sample deviance for each model.
+>
+> This is the phenomenon behind information criteria. (p. 209)
+
+In the text, McElreach focused on the DIC and WAIC. As you'll see, the LOO has increased in popularity since he published the text. Going forward, we’ll juggle the WAIC and the LOO in this project. But we will respect the text and work in a little DIC talk.
+
+### DIC.
+
+The DIC has been widely used for some time, now. For a great talk on the DIC, check out the authoritative David Spiegelhalter's [*Retrospective read paper: Bayesian measure of model complexity and fit*](https://www.youtube.com/watch?v=H-59eqmHuuQ&frags=pl%2Cwn). If we define $D$ as the deviance's posterior distribution, $\bar{D}$ as its mean and $\hat{D}$ as the deviance when computed at the posterior mean, then we define the DIC as
+
+$$\text{DIC} = \bar{D} + (\bar{D} + \hat{D}) + \bar{D} + p_D$$
+
+And $p_D$ is the number of effective parameters in the model, which is also sometimes referred to as the penalty term. As you'll see, you can get the $p_D$ for `brms::brm()` models. However, I'm not aware of a way to that brms or the loo package--to be introduced shortly--offer convenience functions that yield the DIC.
+
+### WAIC.
+
+It's okay that the brms and loo packages don't yield the DIC because 
+
+> even better than the DIC is the Widely Applicable Information Criterion (WAIC)...
+>
+> Define $\text{Pr} (y_i)$ as the average likelihood of observation $i$ in the training sample. This means we compute the likelihood of $y_i$ for each set of parameters sampled from the posterior distribution. Then we average the likelihoods for each observation $i$ and finally sum over all observations. This produces the first part of WAIC, the log-pointwise-predictive-density, lppd:
+>
+> $$\text{lppd} = \sum_{i = 1}^N \text{log Pr} (y_i)$$
+>
+> You might say this out loud as:
+>
+>> *The log-pointwise-predictive-density is the total across observations of the logarithm of the average likelihood of each observation.*
+>
+>... The second piece of WAIC is the effect number of parameters $p_{\text{WAIC}}$. Define $V(y_i)$ as the variance in log-likelihood for observation $i$ in the training sample. This means we compute the log-likelihood for observation $y_i$ for each sample from the posterior distribution. Then we take the variance of those values. This is $V(y_i)$. Now $p_{\text{WAIC}}$ is defined as:
+> 
+> $$p_{\text{WAIC}} = \sum_{i=1}^N V (y_i)$$
+>
+> Now WAIC is defined as:
+>
+> $$\text{WAIC} = -2 (\text{lppd} - p_{\text{WAIC}})$$
+>
+> And this value is yet another estimate of out-of-sample deviance. (pp. 191--192)
+
+You'll see how to compute the WAIC in brms in just a bit.
+
+#### Overthinking: WAIC calculation. 
+
+Here is how to fit the pre-WAIC model in brms.
+
+```{r b, cache = T, message = F, warning = F}
+data(cars)
+
+b <- 
+  brm(data = cars, family = gaussian,
+      dist ~ 1 + speed,
+      prior = c(prior(normal(0, 100), class = Intercept),
+                prior(normal(0, 10), class = b),
+                prior(exponential(0.04), class = sigma)),
+      iter = 2000, warmup = 1000, chains = 4, cores = 4,
+      seed = 7)
+```
+
+Here's where that exponential $\lambda$ value came from.
+
+```{r}
+1 / sd(cars$dist)
+```
+
+Behold the posterior summary.
+
+```{r}
+print(b)
+```
+
+In brms, you return the loglikelihood with `log_lik()`.
+
+```{r, results = "hide"}
+ll <-
+  b %>%
+  log_lik() %>%
+  as_tibble()
+```
+
+Computing the lppd, the "Bayesian deviance", takes a bit of leg work.
+
+```{r}
+dfmean <-
+  ll %>%
+  exp() %>%
+  summarise_all(mean) %>%
+  gather(key, means) %>%
+  select(means) %>%
+  log()
+
+(
+  lppd <-
+  dfmean %>%
+  sum()
+)
+```
+
+Comupting the effective number of parameters, $p_{\text{WAIC}}$, isn't much better.
+
+```{r}
+dfvar <-
+  ll %>%
+  summarise_all(var) %>%
+  gather(key, vars) %>%
+  select(vars) 
+
+pwaic <-
+  dfvar %>%
+  sum()
+
+pwaic
+```
+
+Finally, here's what we've been working so hard for: our hand calculated WAIC value. Compare it to the value returned by the brms `waic()` function.
+
+```{r, message = F, warning = F}
+-2 * (lppd - pwaic)
+
+waic(b)
+```
+
+Here's how we get the WAIC standard error.
+
+```{r}
+dfmean %>%
+  mutate(waic_vec   = -2 * (means - dfvar$vars)) %>%
+  summarise(waic_se = (var(waic_vec) * nrow(dfmean)) %>% sqrt())
+```
+
+### DIC and WAIC as estimates of deviance.
+
+Once again, we'll wrap McElreath's `sim.train.test()`-based simulation code within a custom function, `make_sim()`. This time we've adjusted `make_sim()` to take one argument, `b_sigma`. We will then feed that value into the same-named argument within `sim.train.test()`. Also notice that within `sim.train.test()`, we've specified `TRUE` for the information criteria and deviance arguments. Be warned: it takes extra time to compute the WAIC. Because we do that for every model, this simulation takes longer than the previous ones. To get a taste, try running it with something like `n_sim <- 5` first.
+
+```{r, eval = F}
+n_sim <- 1e3
+
+make_sim <- function(b_sigma){
+  sapply(kseq, function(k) {
+    print(k);
+    r <- mcreplicate(n_sim, 
+                     sim.train.test(N         = 20,
+                                    k         = k,
+                                    b_sigma   = b_sigma,
+                                    DIC       = T,
+                                    WAIC      = T, 
+                                    devbar    = T, 
+                                    devbarout = T),
+                     mc.cores = n_cores);
+    
+    c(dev_in    = mean(r[1, ]),
+      dev_out   = mean(r[2, ]),
+      DIC       = mean(r[3, ]), 
+      WAIC      = mean(r[4, ]), 
+      devbar    = mean(r[5, ]), 
+      devbarout = mean(r[6, ])) 
+  }
+  ) %>% 
+    data.frame() %>% 
+    rownames_to_column() %>% 
+    rename(statistic = rowname)
+}
+
+s <-
+  tibble(b_sigma = c(100, .5)) %>% 
+  mutate(sim = purrr::map(b_sigma, make_sim)) %>% 
+  unnest()
+```
+
+```{r, echo = F}
+# Even after reducing `n_sim` by an order of magnitude, that simulation takes a long time to
+# complete. So instead of completing it on the fly for each new version of this project, I’ve
+# saved the results in an external file. 
+
+# save("s", file = "06_sims/sim_3.rda")
+
+load("06_sims/sim_3.rda")
+```
+
+Here we wrangle and plot.
+
+```{r, fig.height = 4.5, fig.width = 3.25}
+s %>% 
+  gather(n_par, value, -b_sigma, -statistic) %>% 
+  mutate(n_par = str_remove(n_par, "X") %>% as.double()) %>% 
+  filter(statistic != "devbar" & statistic != "devbarout") %>% 
+  spread(key = statistic, value = value) %>% 
+  gather(ic, value, -b_sigma, -n_par, -dev_in, -dev_out) %>% 
+  gather(sample, deviance, -b_sigma, -n_par, -ic, -value) %>% 
+  filter(sample == "dev_out") %>% 
+  mutate(b_sigma = b_sigma %>% as.character()) %>% 
+  
+  ggplot(aes(x = n_par)) +
+  geom_point(aes(y = deviance, color = b_sigma),
+             size = 2.5) +
+  geom_line(aes(y = value, group = b_sigma, color = b_sigma)) +
+  scale_color_manual(values = c(carto_pal(7, "BurgYl")[7], carto_pal(7, "BurgYl")[5])) +
+  # scale_color_manual(values = c("steelblue", "black")) +
+  labs(subtitle = "n = 20",
+       x = "number of parameters",
+       y = "deviance") +
+  theme_classic() +
+  theme(text             = element_text(family = "Courier"),
+        strip.background = element_rect(fill = alpha(carto_pal(7, "BurgYl")[1], 1/4), color = "white"),
+        panel.background = element_rect(fill = alpha(carto_pal(7, "BurgYl")[3], 1/4)),
+        legend.position  = "none") +
+  facet_wrap(~ic, ncol = 1)
+```
+
+And again, our results don’t perfectly match those in the text because a) we’re simulating and b) we used fewer iterations than McElreath did. But the overall pattern remains.
+
+## Using information criteria
+
+In contrast to model selection, "this section provides a brief example of model *comparison* and *averaging*" (p. 216, *emphasis* in the original).
+
+### Model comparison. 
+
+Load the `milk` data from earlier in the text.
+
+```{r, message = F}
+library(rethinking)
+data(milk)
+
+d <- 
+  milk %>%
+  drop_na(ends_with("_s"))
+rm(milk)
+
+d <-
+  d %>%
+  mutate(neocortex = neocortex.perc / 100)
+```
+
+The dimensions of `d` are:
+
+```{r}
+dim(d)
+```
+
+Load brms.
+
+```{r, message = F, warning = F}
+detach(package:rethinking, unload = T)
+library(brms)
+```
+
+We're ready to fit the competing `kcal.per.g` models. Note our use of `update()` in the last two models.
+
+```{r b6.11_through_b6.14, cache = T, message = F, warning = F, results = 'hide'}
+inits <- list(Intercept = mean(d$kcal.per.g),
+              sigma     = sd(d$kcal.per.g))
+
+inits_list <-list(inits, inits, inits, inits)
+
+b6.11 <- 
+  brm(data = d, family = gaussian,
+      kcal.per.g ~ 1,
+      prior = c(prior(uniform(-1000, 1000), class = Intercept),
+                prior(uniform(0, 100), class = sigma)),
+      iter = 2000, warmup = 1000, chains = 4, cores = 4,
+      inits = inits_list,
+      seed = 6)
+
+inits <- list(Intercept = mean(d$kcal.per.g),
+              neocortex = 0,
+              sigma     = sd(d$kcal.per.g))
+b6.12 <- 
+  brm(data = d, family = gaussian,
+      kcal.per.g ~ 1 + neocortex,
+      prior = c(prior(uniform(-1000, 1000), class = Intercept),
+                prior(uniform(-1000, 1000), class = b),
+                prior(uniform(0, 100), class = sigma)),
+      iter = 2000, warmup = 1000, chains = 4, cores = 4,
+      inits = inits_list,
+      seed = 6)
+
+inits <- list(Intercept   = mean(d$kcal.per.g),
+              `log(mass)` = 0,
+              sigma       = sd(d$kcal.per.g))
+b6.13 <-
+  update(b6.12, 
+         newdata = d,
+         formula = kcal.per.g ~ 1 + log(mass),
+         inits   = inits_list)
+
+inits <- list(Intercept   = mean(d$kcal.per.g),
+              neocortex   = 0,
+              `log(mass)` = 0,
+              sigma       = sd(d$kcal.per.g))
+b6.14 <- 
+  update(b6.13, 
+         newdata = d,
+         formula = kcal.per.g ~ 1 + neocortex + log(mass),
+         inits   = inits_list)
+```
+
+## Reference {-}
+
+[McElreath, R. (2016). *Statistical rethinking: A Bayesian course with examples in R and Stan.* Chapman & Hall/CRC Press.](https://xcelab.net/rm/statistical-rethinking/)
+
+## Session info {-}
+
+```{r}
+sessionInfo()
+```
+
+```{r, echo = F, eval = F}
+rm(d, fit_lm, fits, p, p1, p2, p3, p4, p5, p6, b6.7, nd, make_lines, lines, weatherperson, newcomer, t, inits, inits_list, b6.8, dfLL, kseq, n_sim, n_cores, dev_20, dev_100, dev_tibble, dev_text, s, b, dfmean, lppd, dfvar, pwaic, b6.11, b6.12, b6.13, b6.14, w_b6.11, w_b6.12, w_b6.13, w_b6.14, compare_waic, waic_tibble, w_d, diff, my_coef_tab, wrangled_my_coef_tab, p11, p12, p13, p14, f, r2_b6.13, r2_b6.14, r2_combined)
+```
+
+```{r, echo = F, message = F, warning = F, results = "hide", eval = F}
+pacman::p_unload(pacman::p_loaded(), character.only = TRUE)
+
+ggplot2::theme_set(ggplot2::theme_grey())
+
+bayesplot::color_scheme_set("blue")
+```
