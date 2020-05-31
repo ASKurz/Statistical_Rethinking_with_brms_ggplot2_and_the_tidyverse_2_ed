@@ -302,7 +302,7 @@ The posterior is a combination of the prior and the likelihood. When the prior i
 
 ### The data.
 
-Let's load the Howell [@howell2001demography; @howell2010life] data from McElreath's [-@R-rethinking] [**rethinking** package](https://xcelab.net/rm/software/).
+Let's load the Howell [-@howell2001demography; -@howell2010life] data from McElreath's [-@R-rethinking] [**rethinking** package](https://xcelab.net/rm/software/).
 
 ```{r, message = F}
 library(rethinking)
@@ -373,7 +373,8 @@ One of the neat things about the `histospark()` function is you can insert the o
 
 ```{r}
 d %>%
-  select(height)
+  select(height) %>% 
+  glimpse()
 ```
 
 If you want the values in a numeric vector rather than in a data fame, try `pull(d, height)`.
@@ -388,7 +389,7 @@ d2 <-
 
 #### Overthinking: Data frames and indexes.
 
-For more on indexing, check out [chapter 9](https://bookdown.org/rdpeng/rprogdatascience/subsetting-r-objects.html) of Peng's [-@pengProgrammingDataScience2019] *R programming for data science* or even the [Subsetting](http://r4ds.had.co.nz/vectors.html#subsetting-1) subsection from *R4DS*.
+For more on indexing, check out [Chapter 9](https://bookdown.org/rdpeng/rprogdatascience/subsetting-r-objects.html) of Peng's [-@pengProgrammingDataScience2019] *R programming for data science* or even the [Subsetting](http://r4ds.had.co.nz/vectors.html#subsetting-1) subsection from *R4DS*.
 
 This probably reflects my training history, but the structure of a data frame seems natural and inherently appealing, to me. If you're in the other camp, do check out either of these two data wrangling talks ([here](https://www.youtube.com/watch?v=4MfUCX_KpdE&t=23s&frags=pl%2Cwn) and [here](https://www.youtube.com/watch?v=GapSskrtUzU&t=1249s&frags=pl%2Cwn)) by the ineffable [Jenny Bryan](https://twitter.com/JennyBryan?ref_src=twsrc%5Egoogle%7Ctwcamp%5Eserp%7Ctwgr%5Eauthor).
 
@@ -410,7 +411,7 @@ and our prior for $\sigma$ will be
 
 $$\sigma \sim \operatorname{Uniform}(0, 50).$$
 
-Here's the shape of the prior for $\mu$, $\mathcal N(178, 20)$.
+Here's the shape of the prior for $\mu$, $\operatorname N(178, 20)$.
 
 ```{r, fig.width = 3, fig.height = 2.5}
 p1 <-
@@ -442,7 +443,7 @@ p2
 
 We can simulate from both priors at once to get a prior probability distribution of `heights`.
 
-```{r}
+```{r, fig.width = 3, fig.height = 2.5}
 n <- 1e4
 
 set.seed(4)
@@ -530,7 +531,7 @@ sim %>%
   mutate(percent = 100 * n / sum(n))
 ```
 
-Here's the break down compared to the tallest man on record, [Robert Pershing Wadlow (1918--1940)](https://en.wikipedia.org/wiki/Robert_Wadlow).
+Here's the break down compared to the tallest man on record, [Robert Pershing Wadlow](https://en.wikipedia.org/wiki/Robert_Wadlow) (1918--1940).
 
 ```{r}
 sim %>% 
@@ -840,9 +841,7 @@ rbind(summary(b4.1_hc)$fixed,
 vcov(b4.1_hc)
 ```
 
-This only returns the first element in the matrix it did for **rethinking**. That is, it appears `brms::vcov()` only returns the variance/covariance matrix for the single-level $\beta$ parameters (i.e., those used to model $\mu$).
-
-However, if you really wanted this information, you could get it after putting the HMC chains in a data frame. We do that with the `posterior_samples()`, which we'll be using a lot of as we go along.
+This only returns the first element in the matrix it did for **rethinking**. That is, it appears `brms::vcov()` only returns the variance/covariance matrix for the single-level $\beta$ parameters. However, if you really wanted this information, you could get it after putting the HMC chains in a data frame. We do that with the `posterior_samples()`, which we'll be using a lot of as we go along.
 
 ```{r}
 post <- posterior_samples(b4.1_hc)
@@ -856,8 +855,6 @@ Now `select()` the columns containing the draws from the desired parameters and 
 select(post, b_Intercept:sigma) %>% 
   cov()
 ```
-
-That was "(1) a vector of variances for the parameters and (2) a correlation matrix" for them (p. 90). Here are just the variances (i.e., the diagonal elements) and the correlation matrix.
 
 That was "(1) a vector of variances for the parameters and (2) a correlation matrix" for them (p. 90). Here are just the variances (i.e., the diagonal elements) and the correlation matrix.
 
@@ -1068,7 +1065,7 @@ tibble(rnorm           = rnorm(1e5, mean = 0, sd = 1),
 They are the same within simulation variance. Also, did you notice how we simulated those log-normal data with `mean = 0, sd = 1`? Those values are what the mean and standard deviation of the output from the `rlnorm()` function **after** they are log transformed. The formulas for the actual mean and standard deviation for the log-normal distribution itself are complicated (see [here](https://en.wikipedia.org/wiki/Log-normal_distribution)). They are
 
 \begin{align*}
-\text{mean}               & = \exp \left (\mu + \frac{\sigma^2}{2} \right) &\text{and} \\
+\text{mean}               & = \exp \left (\mu + \frac{\sigma^2}{2} \right) \\
 \text{standard deviation} & = \sqrt{[\exp(\sigma ^{2})-1]\exp(2\mu +\sigma ^{2})}.
 \end{align*}
 
@@ -1135,7 +1132,7 @@ Good luck with that question. Hang around on academic Twitter long enough and yo
 
 ##### Rethinking: Prior predictive simulation and $p$-hacking
 
-"We don't pay any attention to $p$-values in this book" (p. 97). Off hand, I'm not sure of the exact origin of the term $p$-hacking. But the by Simmons, Nelson and Simonsohn [-@simmonsFalsepositivePsychologyUndisclosed2011], [*False-positive psychology: Undisclosed flexibility in data collection and analysis allows presenting anything as significant*](https://doi.org/10.1177/0956797611417632) is often cited as an introduction to the problem.
+"We don't pay any attention to $p$-values in this book" (p. 97). Off hand, I'm not sure of the exact origin of the term $p$-hacking. But the paper by Simmons, Nelson and Simonsohn [-@simmonsFalsepositivePsychologyUndisclosed2011], [*False-positive psychology: Undisclosed flexibility in data collection and analysis allows presenting anything as significant*](https://doi.org/10.1177/0956797611417632), is often cited as an introduction to the problem.
 
 ### Finding the posterior distribution.
 
@@ -1147,13 +1144,13 @@ d2 <-
   mutate(weight_c = weight - mean(weight))
 ```
 
-The `brms::brm()` syntax doesn't mirror the statistical notation. But here are the analogues to the exposition at the bottom of page 97.
+The `brms::brm()` syntax doesn't mirror the statistical notation. But here are the analogues to the exposition at the bottom of page 97:
 
-* $\text{height}_i \sim \operatorname{Normal}(\mu_i, \sigma)$: `family = gaussian`
-* $\mu_i = \alpha + \beta \text{weight}_i$: `height ~ 1 + weight_c`
-* $\alpha \sim \operatorname{Normal}(178, 20)$: `prior(normal(178, 20), class = Intercept`
-* $\beta \sim \operatorname{Log-Normal}(0, 1)$: ` prior(lognormal(0, 1), class = b)`
-* $\sigma \sim \operatorname{Uniform}(0, 50)$: `prior(uniform(0, 50), class = sigma)`
+* $\text{height}_i \sim \operatorname{Normal}(\mu_i, \sigma)$: `family = gaussian`,
+* $\mu_i = \alpha + \beta \text{weight}_i$: `height ~ 1 + weight_c`,
+* $\alpha \sim \operatorname{Normal}(178, 20)$: `prior(normal(178, 20), class = Intercept`,
+* $\beta \sim \operatorname{Log-Normal}(0, 1)$: ` prior(lognormal(0, 1), class = b)`, and
+* $\sigma \sim \operatorname{Uniform}(0, 50)$: `prior(uniform(0, 50), class = sigma)`.
 
 Thus, to add a predictor you just the `+` operator in the model `formula`.
       
@@ -1497,7 +1494,7 @@ mu <-
   mutate(iter = 1:n())
 ```
 
-Anticipating **ggplot2**, we went ahead and converted the output to a data frame. But we might do a little more data processing with the aid of `tidyr::pivot_longer()`, which will convert the data from the wide format to the long format. If you are new to the distinction between wide and long data, you can learn more from the [*Pivot data from wide to long*](https://tidyr.tidyverse.org/reference/pivot_longer.html) vignette from the **tidyverse** team [-@PivotDataWide2020]; Simon Ejdemyr's blog post, [*Wide & long data*](https://sejdemyr.github.io/r-tutorials/basics/wide-and-long/); or Karen Grace-Martin's blog post, [*The wide and long data format for repeated measures data*].
+Anticipating **ggplot2**, we went ahead and converted the output to a data frame. But we might do a little more data processing with the aid of `tidyr::pivot_longer()`, which will convert the data from the wide format to the long format. If you are new to the distinction between wide and long data, you can learn more from the [*Pivot data from wide to long*](https://tidyr.tidyverse.org/reference/pivot_longer.html) vignette from the **tidyverse** team [-@PivotDataWide2020]; Simon Ejdemyr's blog post, [*Wide & long data*](https://sejdemyr.github.io/r-tutorials/basics/wide-and-long/); or Karen Grace-Martin's blog post, [*The wide and long data format for repeated measures data*](https://www.theanalysisfactor.com/wide-and-long-data/).
 
 ```{r}
 mu <- 
@@ -1571,7 +1568,7 @@ Similar to `rethinking::link()`, `brms::fitted()` uses the formula from your mod
 
 Even though our full statistical model (omitting priors for the sake of simplicity) is
 
-$$\text{height}_i \sim \operatorname{Normal}(\mu_i = \alpha + \beta x_, \sigma)$$
+$$\text{height}_i \sim \operatorname{Normal}(\mu_i = \alpha + \beta x_, \sigma),$$
 
 we've only been plotting the $\mu$ part. In order to bring in the variability expressed by $\sigma$, we'll have to switch to the `predict()` function. Much as `brms::fitted()` was our analogue to `rethinking::link()`, `brms::predict()` is our analogue to `rethinking::sim()`. 
 
@@ -1973,7 +1970,7 @@ ggplot(data = d,
                      labels = round(at*sd(d$weight) + mean(d$weight), 1))
 ```
 
-### Splines
+### Splines.
 
 Load the `cherry_blossoms` data.
 
@@ -2036,7 +2033,7 @@ d2 <-
 ```
 In the text, McElreath indirectly explained how to make Figure 4.12 by walking through the workflow for making Figure 4.13. Here we mimic that ordering. 
 
-> First, we choose the knots. Remember, the knots are just values of year that serve as pivots for our spline. Where should the knots go? There are different ways to answer this question. You can, in principle, put the knots wherever you like. Their locations are part of the model, and you are responsible for them. Let's do what we did in the simple example above, place the knots at different evenly-spaced quantiles of the predictor variable. This gives you more knots where there are more observations. We used only 5 knots in the first example. Now let's go for 15:
+> First, we choose the knots. Remember, the knots are just values of year that serve as pivots for our spline. Where should the knots go? There are different ways to answer this question. You can, in principle, put the knots wherever you like. Their locations are part of the model, and you are responsible for them. Let's do what we did in the simple example above, place the knots at different evenly-spaced quantiles of the predictor variable. This gives you more knots where there are more observations. We used only 5 knots in the first example. Now let's go for 15: (p. 117)
 
 ```{r}
 num_knots <- 15
@@ -2114,7 +2111,7 @@ b %>%
 
 In order two elucidate what's going on in that plot, we might breaks it up with `facet_wrap()`.
 
-```{r, fig.width = 6, fig.height = 6}
+```{r, fig.width = 6, fig.height = 8}
 b %>% 
   mutate(bias_function = str_c("bias function ", bias_function)) %>% 
   
@@ -2129,7 +2126,7 @@ b %>%
   facet_wrap(~bias_function, ncol = 1)
 ```
 
-We have come to a point in the text where we need to address a difficulty in the aim of this project. We're trying to translate McElreath's **rethinking** and base **R** code into a more **brms**/**tidyverse** oriented workflow. It's usually quite feasible to switch out the data manipulation and plotting steps from base **R** to their **tidyverse** counterparts. As for the statistical modeling part, **rethinking** and **brms** both function as user-friendly interfaces with the [Stan probabilistic programming language](https://mc-stan.org/) [@carpenterStanProbabilisticProgramming2017] and they share a lot of overlap in their functionality [for an outdated comparison, see @burknerBrmsPackageBayesian2017]. But they differ in important ways, too. For example, **brms** was not designed to fit models with the quadratic approximation the way McElreath can with `rethinking::quap()`. That's why we just jumped right to using HMC. This section in the book reveals another important difference. Whereas McElreath is showcasing the use of B-splines with functionality based on the **splines** package, which [is a part of base **R**](https://www.rdocumentation.org/packages/splines/versions/3.6.2), **brms** offers spines and other smoothing approaches using functions for the [**mgcv** package] [@R-mgcv; @mgcv2003; @mgcv2004; @mgcv2011; @mgcv2017; @mgcv2016].
+We have come to a point in the text where we need to address a difficulty in the aim of this project. We're trying to translate McElreath's **rethinking** and base **R** code into a more **brms**/**tidyverse** oriented workflow. It's usually quite feasible to switch out the data manipulation and plotting steps from base **R** to their **tidyverse** counterparts. As for the statistical modeling part, **rethinking** and **brms** both function as user-friendly interfaces with the [Stan probabilistic programming language](https://mc-stan.org/) [@carpenterStanProbabilisticProgramming2017] and they share a lot of overlap in their functionality [for a somewhat outdated comparison, see @burknerBrmsPackageBayesian2017]. But they differ in important ways, too. For example, **brms** was not designed to fit models with the quadratic approximation the way McElreath can with `rethinking::quap()`. That's why we just jumped right to using HMC. This section in the book reveals another important difference. Whereas McElreath is showcasing the use of B-splines with functionality based on the **splines** package, which [is a part of base **R**](https://www.rdocumentation.org/packages/splines/versions/3.6.2), **brms** offers spines and other smoothing approaches using functions for the [**mgcv** package](https://CRAN.R-project.org/package=mgcv) [@R-mgcv; @mgcv2003; @mgcv2004; @mgcv2011; @mgcv2017; @mgcv2016].
 
 Another important detail concerns how **brms** implements splines. From the "Splines" subsection of the `set_prior` section of the [**brms** reference manual](https://CRAN.R-project.org/package=brms/brms.pdf) [@brms2020RM, p. 181], we read: "Splines are implemented in brms using the 'random effects' formulation." As we are many chapters before McElreath introduces us to exciting world of random effects, the main point to get here is that **brms** does not implement splines like **rethinking** does. In the grand scheme of things, this is all fine. I like it that different packages afford us different options. But in the short term, this is going to break up our flow. Although we will retain our **tidyverse**-oriented workflow, we are going to fit the B-spline models in this section using **rethinking**. At the end of the chapter, we'll fit them again with **brms** and talk a little bit about the differences.
 
@@ -2330,7 +2327,7 @@ Now combine the subplots with **patchwork** syntax and plot.
         panel.grid = element_blank())
 ```
 
-### 4.5.3. Smooth functions for a rough world. 
+### Smooth functions for a rough world. 
 
 > The splines in the previous section are just the beginning. A entire class of models, **generalized additive models** (GAMs), focuses on predicting an outcome variable using smooth functions of some predictor variables. The topic is deep enough to deserve its own book. (p. 120, **emphasis** in the original)
 
