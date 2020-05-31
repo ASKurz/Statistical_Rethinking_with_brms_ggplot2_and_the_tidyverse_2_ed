@@ -2406,8 +2406,7 @@ $$
 posterior_summary(b4.7)
 ```
 
-,
-      file = "fits/b04.05"
+
       
 ```{r}
 
@@ -2429,11 +2428,11 @@ b4.7 <-
 ```
 
 ```{r}
-k - m[1] + 1
+# k - m[1] + 1
 19 - 3 + 1
 ```
 
-```{r}
+```{r, eval = F}
 knots <- list(year = c(809, 810, 811, unname(knot_list), 2016, 2017, 2018))
 
 ## check we can create the basis
@@ -2441,7 +2440,7 @@ smX <- mgcv::smoothCon(s(year, bs = "bs", k = 17), data = d2, knots = knots)
 str(smX)
 ```
 
-```{r}
+```{r, eval = F}
 m <- mgcv::gam(doy ~ s(year, bs = "bs", k = 17), data = d2, knots = knots,
                method = "REML")
 
@@ -2453,12 +2452,12 @@ m$coefficients
 ```
 
 
-```{r}
+```{r, eval = F}
 schoenberg::draw(m)
 ```
 
 
-```{r}
+```{r, eval = F}
 b4.7 <-
   brm(data = d2,
       family = gaussian,
@@ -2475,26 +2474,26 @@ b4.7 <-
 
 Check the summary.
 
-```{r}
+```{r, eval = F}
 print(b4.7)
 ```
 
-```{r}
+```{r, eval = F}
 precis(m4.7, depth = 2)
 ```
 
-```{r}
+```{r, eval = F}
 posterior_summary(b4.7)
 ```
 
-```{r}
+```{r, eval = F}
 conditional_effects(b4.7) %>% 
   plot(points = T,
        point_args = list(alpha = 1/2, size = .75))
 ```
 
 
-```{r}
+```{r, eval = F}
 fitted(b4.7) %>% 
   data.frame() %>% 
   bind_cols(select(d2, year, doy)) %>% 
@@ -2511,18 +2510,18 @@ fitted(b4.7) %>%
 
 
 
-```{r}
+```{r, eval = F}
 conditional_effects(b4.7)
 conditional_smooths(b4.7)
 ```
 
 
-```{r}
+```{r, eval = F}
 posterior_samples(b4.7)
 ```
 
 
-```{r}
+```{r, eval = F}
 posterior_summary(b4.7) %>% 
   data.frame() %>% 
   rownames_to_column("parameter") %>% 
@@ -2532,7 +2531,7 @@ posterior_summary(b4.7) %>%
 ```
 
 
-```{r}
+```{r, eval = F}
 posterior_summary(b4.7) %>% 
   data.frame() %>% 
   rownames_to_column("parameter") %>% 
@@ -2542,7 +2541,7 @@ posterior_summary(b4.7) %>%
          year = d2$year)
 ```
 
-```{r}
+```{r, eval = F}
 bind_cols(select(d2, year),
           data.frame(B)) %>%
   set_names(c("year", 1:17)) %>% 
@@ -2564,7 +2563,7 @@ bind_cols(select(d2, year),
 ```
 
 
-```{r}
+```{r, eval = F}
 posterior_summary(b4.7) %>% 
   data.frame() %>% 
   rownames_to_column("parameter") %>% 
@@ -2574,12 +2573,12 @@ posterior_summary(b4.7) %>%
          year = d2$year)
 ```
 
-```{r}
+```{r, eval = F}
 bind_cols(select(d2, year),
           data.frame(B))
 ```
 
-```{r}
+```{r, eval = F}
 tibble(w = 1:17,
        brms = posterior_summary(b4.7)[5:21, "Estimate"],
        rethinking = apply( post$w , 2 , mean )) %>% 
@@ -2589,15 +2588,15 @@ tibble(w = 1:17,
   geom_line(aes(y = rethinking), color = "red")
 ```
 
-```{r}
+```{r, eval = F}
 apply( post$w , 2 , mean )
 ```
 
-```{r}
+```{r, eval = F}
 str(B)
 ```
 
-```{r}
+```{r, eval = F}
 post <- extract.samples( m4.7 )
 w <- apply( post$w , 2 , mean )
 plot( NULL , xlim=range(d2$year) , ylim=c(-6,6) ,
@@ -2605,7 +2604,7 @@ plot( NULL , xlim=range(d2$year) , ylim=c(-6,6) ,
 for ( i in 1:ncol(B) ) lines( d2$year , w[i]*B[,i] )
 ```
 
-```{r}
+```{r, eval = F}
 mu <- link( m4.7 )
 mu_PI <- apply(mu,2,PI,0.97)
 plot( d2$year , d2$doy , col=col.alpha(rangi2,0.3) , pch=16 )
@@ -2643,7 +2642,7 @@ bayesplot::color_scheme_set("blue")
 
 
 
-```{r}
+```{r, eval = F}
 library(mgcv)
 set.seed(5)
 dat <- gamSim(1,n=400,dist="normal",scale=2)
@@ -2651,7 +2650,7 @@ dat <- gamSim(1,n=400,dist="normal",scale=2)
 dat
 ```
 
-```{r}
+```{r, eval = F}
 f3 <- function(x) 0.2 * x^11 * (10 * (1 - x))^6 + 10 * (10 * x)^3 * 
               (1 - x)^10 ## test function
   n <- 100;x <- runif(n)
@@ -2666,7 +2665,7 @@ f3 <- function(x) 0.2 * x^11 * (10 * (1 - x))^6 + 10 * (10 * x)^3 *
   b
 ```
 
-```{r}
+```{r, eval = F}
 f3 <- function(x) 0.2 * x^11 * (10 * (1 - x))^6 + 10 * (10 * x)^3 * (1 - x)^10 ## test function
 n <- 100
 dat <- tibble(x = runif(n),
@@ -2680,15 +2679,10 @@ dat <- tibble(x = runif(n),
 b
 ```
 
-brm(data = d2,
-      family = gaussian,
-      doy ~ 1 + s(year, bs = "bs", m = 3, k = 11), #, k = 15
-      knots = list(year = knot_list),
-      # outer.ok = TRUE,
-      # knots = list(year = knot_list[-c(1, num_knots)]),
+
       
       
-```{r}
+```{r, eval = F}
 gam(data = d2,
     doy ~ 1 + s(year, bs = "bs", m = c(3, 2), k = 13),
     knots = list(year = c(knot_list[c(1, num_knots)], knot_list)),
@@ -2696,7 +2690,7 @@ gam(data = d2,
 ```
 
 
-```{r}
+```{r, eval = F}
 c(knot_list[c(1, num_knots)], knot_list)
 ```
 
