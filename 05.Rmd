@@ -9,6 +9,7 @@ output:
 ```{r, echo = F, cache = F}
 knitr::opts_chunk$set(fig.retina = 2.5)
 knitr::opts_chunk$set(fig.align = "center")
+options(width = 100)
 ```
 
 # The Many Variables & The Spurious Waffles
@@ -297,7 +298,7 @@ library(ggdag)
 
 If all you want is a quick and dirty DAG for our three variables, you can execute something like this.
 
-```{r, fig.width = 3, fig.height = 1.5}
+```{r, fig.width = 3, fig.height = 1.75}
 set.seed(5)
 
 dagify(M ~ A,
@@ -1746,11 +1747,11 @@ prior %>%
 
 We might visualize the two prior predictive distributions as overlapping densities.
 
-```{r, fig.width = 4, fig.height = 3}
+```{r, fig.width = 3.5, fig.height = 2.75}
 prior %>% 
   pivot_longer(everything()) %>% 
   ggplot(aes(x = value, fill = name, color = name)) +
-  geom_density(size = 1, alpha = 2/3) +
+  geom_density(size = 3/4, alpha = 2/3) +
   scale_fill_manual(NULL, values = c("firebrick4", "black")) +
   scale_color_manual(NULL, values = c("firebrick4", "black")) +
   scale_y_continuous(NULL, breaks = NULL) +
@@ -1925,7 +1926,7 @@ Because **bayesplot** returns a **ggplot2** object, the plot was adjustable with
 
 The `tidybayes::stat_pointintervalh()` function offers a third way, this time with a more ground-up **ggplot2** workflow.
 
-```{r, message = F, warning = F, fig.width = 6, fig.height = 1.25}
+```{r, message = F, warning = F, fig.width = 6, fig.height = 1.33}
 library(tidybayes)
 
 post %>% 
@@ -2025,7 +2026,7 @@ print(b5.11)
 
 Finally, here's how we might visualize the results in a faceted coefficient plot.
 
-```{r, fig.width = 8, fig.height = 1.25}
+```{r, fig.width = 8, fig.height = 1.33}
 posterior_samples(b5.11) %>% 
   pivot_longer(starts_with("b_")) %>% 
   mutate(name = str_remove(name, "b_") %>% 
