@@ -6,6 +6,11 @@ output:
   github_document
 ---
 
+```{r, echo = F, cache = F}
+knitr::opts_chunk$set(fig.retina = 2.5)
+knitr::opts_chunk$set(fig.align = "center")
+```
+
 # The Many Variables & The Spurious Waffles
 
 > Because correlation in general is not surprising. In large data sets, every pair of variables has a statistically discernible non-zero correlation. But since most correlations do not indicate causal relationships, we need tools for distinguishing mere association from evidence of causation. This is why so much effort is devoted to **multiple regression**, using more than one predictor variable to simultaneously model an outcome. [@mcelreathStatisticalRethinkingBayesian2020, p. 124, **emphasis** in the original]

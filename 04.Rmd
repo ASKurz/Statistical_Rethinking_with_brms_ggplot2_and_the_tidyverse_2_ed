@@ -6,7 +6,9 @@ output:
   github_document
 ---
 
-```{r set-options_04, echo = F, cache = F}
+```{r, echo = F, cache = F}
+knitr::opts_chunk$set(fig.retina = 2.5)
+knitr::opts_chunk$set(fig.align = "center")
 options(width = 100)
 ```
 
