@@ -33,10 +33,6 @@ By $\text{var()}$, of course, we meant variance (i.e., what you get from the `va
 
 ### More parameters (almost) always improve fit.
 
-
-
-
-
 We'll start off by making the data with brain size and body size for seven `species`.
 
 ```{r, warning = F, message = F}
@@ -50,7 +46,7 @@ library(tidyverse)
   )
 ```
 
-Let's get ready for Figure 7.2. The plots in this chapter will be characterized by `theme_classic() + theme(text = element_text(family = "Courier"))`. Our color palette will come from the [rcartocolor package](https://cran.r-project.org/web/packages/rcartocolor/index.html), which provides color schemes [designed by 'CARTO'](https://carto.com/carto-colors/).
+Let's get ready for Figure 7.2. The plots in this chapter will be characterized by `theme_classic() + theme(text = element_text(family = "Courier"))`. Our color palette will come from the [**rcartocolor** package](https://CRAN.R-project.org/package=rcartocolor) [@R-rcartocolor], which provides color schemes [designed by 'CARTO'](https://carto.com/carto-colors/).
 
 ```{r}
 # install.packages("rcartocolor", dependencies = T)
@@ -69,22 +65,25 @@ We'll be using a diluted version of the third color for the panel background (i.
 ```{r, fig.width = 3.5, fig.height = 3, message = F, warning = F}
 library(ggrepel)
 
+theme_set(
+  theme_classic() +
+    theme(text = element_text(family = "Courier"),
+          panel.background = element_rect(fill = alpha(carto_pal(7, "BurgYl")[3], 1/4)))
+)
+
 d %>%
   ggplot(aes(x =  mass, y = brain, label = species)) +
   geom_point(color = carto_pal(7, "BurgYl")[5]) +
   geom_text_repel(size = 3, color = carto_pal(7, "BurgYl")[7], family = "Courier", seed = 438) +
-  coord_cartesian(xlim = 30:65) +
-  labs(x = "body mass (kg)",
-       y = "brain volume (cc)",
-       subtitle = "Average brain volume by body\nmass for six hominin species") +
-  theme_classic() +
-  theme(text = element_text(family = "Courier"),
-        panel.background = element_rect(fill = alpha(carto_pal(7, "BurgYl")[3], 1/4)))
+  labs(subtitle = "Average brain volume by body\nmass for six hominin species",
+       x = "body mass (kg)",
+       y = "brain volume (cc)") +
+  xlim(30, 65)
 ```
 
 Before fitting our models,
 
-> we want to standardize body mass--give it mean zero and standard deviation one--and rescale the outcome, brain volume, so that the largest observed value is 1. Why not standardize brain volume as well? Because we want to preserve zero as a reference point: no brain at all. You can’t have negative brain. I don’t think. (p. 191)
+> we want to standardize body mass--give it mean zero and standard deviation one--and rescale the outcome, brain volume, so that the largest observed value is 1. Why not standardize brain volume as well? Because we want to preserve zero as a reference point: No brain at all. You can't have negative brain. I don’t think. (p. 191)
 
 ```{r}
 d <-
@@ -95,19 +94,19 @@ d <-
 
 Our first statistical model will follow the form
 
-\begin{align}
-\text{brain_std}_i & \sim \text{Normal}(\mu_i, \sigma) \\
+\begin{align*}
+\text{brain_std}_i & \sim \operatorname{Normal}(\mu_i, \sigma) \\
 \mu_i              & = \alpha + \beta \text{mass_std}_i \\
-\alpha             & \sim \text{Normal}(0.5, 1) \\
-\beta              & \sim \text{Normal}(0, 10) \\
-\sigma             & \sim \text{Log-Normal}(0, 1)
-\end{align}
+\alpha             & \sim \operatorname{Normal}(0.5, 1) \\
+\beta              & \sim \operatorname{Normal}(0, 10) \\
+\sigma             & \sim \operatorname{Log-Normal}(0, 1).
+\end{align*}
 
-> The proper thing to do with those priors is to simulate the prior predictive distribution. But let’s go with the priors above, for the sake of the lesson. The first lesson of these priors is what they imply. The prior for $\alpha$ is just centered on the mean brain volume (rescaled) in the data. So it says that the average species with an average body mass has a brain volume with an 89% credible interval from about −1 to 2. That is ridiculously wide and includes impossible (negative) values. The prior for $\beta$ is very flat and centered on zero. It allows for absurdly large positive and negative relationships. The second lesson of these priors is that they allow for absurd inferences, especially as the model gets more complex. (p. 192)
+> This simply says that the average brain volume $b_i$ of species $i$ is a linear function of its body mass $m_i$. Now consider what the priors imply. The prior for $\alpha$ is just centered on the mean brain volume (rescaled) in the data. So it says that the average species with an average body mass has a brain volume with an 89% credible interval from about −1 to 2. That is ridiculously wide and includes impossible (negative) values. The prior for $\beta$ is very flat and centered on zero. It allows for absurdly large positive and negative relationships. These priors allow for absurd inferences, especially as the model gets more complex. And that's part of the lesson. (p. 196)
 
-Warning: These priors are a mess with brms. This will become very clear when we plot, below. If you want to reign in the widths of the posteriors, try reducing the $\beta$ prior to something more like $\text{Normal} (0, 2)$.
+Warning: These priors are a mess with **brms**. This will become very clear when we plot, below. If you want to reign in the widths of the posteriors, try reducing the $\beta$ prior to something more like $\operatorname{Normal}(0, 2)$.
 
-Load brms.
+Load **brms**.
 
 ```{r, message = F, warning = F}
 library(brms)
@@ -115,9 +114,10 @@ library(brms)
 
 Fit the model.
 
-```{r b7.1, cache = T, message = F, warning = F}
+```{r b7.1}
 b7.1 <- 
-  brm(data = d, family = gaussian,
+  brm(data = d, 
+      family = gaussian,
       brain_std ~ 1 + mass_std,
       prior = c(prior(normal(0.5, 1), class = Intercept),
                 prior(normal(0, 10), class = b),
@@ -126,7 +126,7 @@ b7.1 <-
       seed = 7)
 ```
 
-The brms package already has a convenience function for the $R^2$, which will give us a summary of the entire posterior in addition to a point estimate.
+The **brms** package already has a convenience function for the $R^2$, which will give us a summary of the entire posterior in addition to a point estimate.
 
 ```{r}
 bayes_R2(b7.1)
@@ -134,34 +134,39 @@ bayes_R2(b7.1)
 
 The next statistical model will follow the form
 
-\begin{align}
-\text{brain_std}_i & \sim \text{Normal}(\mu_i, \sigma) \\
+$$
+\begin{align*}
+\text{brain_std}_i & \sim \operatorname{Normal}(\mu_i, \sigma) \\
 \mu_i   & = \alpha + \beta_1 \text{mass_std}_i + \beta_2 \text{mass_std}_i^2 \\
-\alpha  & \sim \text{Normal}(0.5, 1) \\
-\beta_j & \sim \text{Normal}(0, 10) ~~~~~~~~~~~ \text{ for } j = 1..2 \\
-\sigma  & \sim \text{Log-Normal}(0, 1)
-\end{align}
+\alpha  & \sim \operatorname{Normal}(0.5, 1) \\
+\beta_j & \sim \operatorname{Normal}(0, 10) \;\;\;\;\; \text{ for } j = 1..2 \\
+\sigma  & \sim \operatorname{Log-Normal}(0, 1).
+\end{align*}
+$$
 
-```{r b7.2, cache = T, message = F, warning = F}
+```{r b7.2}
 b7.2 <- 
   update(b7.1,
          formula = brain_std ~ 1 + mass_std + I(mass_std^2),
-         cores = 4)
+         cores = 4,
+         seed = 7)
 ```
 
 We'll fit the next three in similar fashion. 
 
-```{r b7.3_through_b7.5, cache = T, message = F, warning = F}
+```{r b7.3}
 b7.3 <- 
   update(b7.1,
          formula = brain_std ~ 1 + mass_std + I(mass_std^2) + I(mass_std^3),
          cores = 4,
+         seed = 7,
          control = list(adapt_delta = .99))
 
 b7.4 <- 
   update(b7.3,
          formula = brain_std ~ 1 + mass_std + I(mass_std^2) + I(mass_std^3) + I(mass_std^4),
          cores = 4,
+         seed = 7,
          control = list(adapt_delta = .99,
                         max_treedepth = 11))
 
@@ -169,23 +174,72 @@ b7.5 <-
   update(b7.3,
          formula = brain_std ~ 1 + mass_std + I(mass_std^2) + I(mass_std^3) + I(mass_std^4) + I(mass_std^5),
          cores = 4,
-         control = list(adapt_delta = .999,
-                        max_treedepth = 13))
+         seed = 7,
+         control = list(adapt_delta = .99999),
+         warmup = 20000, iter = 22000)
 ```
 
-McElreath's trick fixing `sigma = 0.001` works in brms, too. But note that in `brm()`, we do so within the `bf()` function.
+```{r}
+b7.5
+```
 
-```{r b7.6, cache = T, message = F, warning = F}
+
+McElreath's trick fixing `sigma = 0.001` works for **brms**, too. But note that in `brm()`, we do so within the `bf()` function.
+
+```{r}
+lm(data = d, 
+   brain_std ~ 1 + mass_std + I(mass_std^2) + I(mass_std^3) + I(mass_std^4) + I(mass_std^5) + I(mass_std^6)) %>% 
+  summary()
+```
+
+
+
+```{r b7.6}
+
+inits <- list(Intercept   = 0.5069,
+              mass_std    = 0.8814,
+              Imass_stdE2 = 1.7007,
+              Imass_stdE3 = -0.6121,
+              Imass_stdE4 = -3.4761,
+              Imass_stdE5 = -0.3472,
+              Imass_stdE6 = 1.6262)
+
+my_inits_list <- list(inits, inits, inits, inits)
+
 b7.6 <- 
   brm(data = d, family = gaussian,
       bf(brain_std ~ 1 + mass_std + I(mass_std^2) + I(mass_std^3) + I(mass_std^4) + I(mass_std^5) + I(mass_std^6),
          sigma = 0.001),
       prior = c(prior(normal(0.5, 1), class = Intercept),
-                prior(normal(0, 10), class = b)),
-      iter = 3000, warmup = 1000, chains = 4, cores = 4,
-      control = list(max_treedepth = 12),
-      seed = 7)
+                prior(normal(0, 2), class = b)),
+      iter = 3000, warmup = 1000, chains = 4, cores = 4, thin = 10,
+      control = list(max_treedepth = 10),
+      #seed = 7,
+      inits = my_inits_list)
+
+b7.6
 ```
+
+```{r}
+plot(b7.6)
+```
+
+```{r ggmcmc::ggs, eval = F, echo = F}
+ggmcmc::ggs(b7.6) %>%
+  mutate(chain = factor(Chain)) %>% 
+  
+  ggplot(aes(x = Iteration, y = value)) +
+  # this marks off the warmups
+  annotate(geom = "rect", 
+           xmin = 0, xmax = 27000, ymin = -Inf, ymax = Inf,
+           fill = "grey80", alpha = 1/2, size = 0) +
+  geom_line(aes(color = chain),
+            size = .25) +
+  scale_color_viridis_d(end = .75) +
+  theme_classic() +
+  facet_wrap(~Parameter, ncol = 1)
+```
+
 
 Let's do our prep work in bulk.
 
