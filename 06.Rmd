@@ -420,7 +420,7 @@ posterior_summary(b6.5) %>% round(digits = 2)
 
 Here's a quick `paris()` plot.
 
-```{r, fig.width = 4, fig.height = 3.5}
+```{r, fig.width = 4, fig.height = 4}
 d %>% 
   select(kcal.per.g, perc.fat, perc.lactose) %>% 
   pairs(col = "darkgreen")
@@ -428,7 +428,7 @@ d %>%
 
 Now here's the custom **GGally** version.
 
-```{r, fig.width = 4, fig.height = 3.5, message = F}
+```{r, fig.width = 4, fig.height = 4, message = F}
 library(GGally)
 
 my_diag <- function(data, mapping, ...) {
@@ -661,22 +661,22 @@ p       & = \alpha + \beta_1 \text{treatment}_i + \beta_2 \text{fungus}_i \\
 \end{align*}
 $$
 
-That is, now the "proportion of growth $p$ is now a function of the predictor variables" (p. 172). Although we will fit the equivalent of McElreath's model in **brms**, I'm not aware that we can translate it directly into **brms** syntax. But take a look at the critical two lines from above.
+That is, now the "proportion of growth $p$ is now a function of the predictor variables" (p. 172). Although we will fit the equivalent of McElreath's model in **brms**, I'm not aware that we can translate it directly into **brms** syntax. But take a look at the critical two lines from above:
 
 $$
 \begin{align*}
 \mu_i & = h_{0,i} \times p \\
-p     & = \alpha + \beta_1 \text{treatment}_i + \beta_2 \text{fungus}_i \\
+p     & = \alpha + \beta_1 \text{treatment}_i + \beta_2 \text{fungus}_i. \\
 \end{align*}
 $$
 
 With just a little algebra, we can re-express that as
 
 $$
-\mu_i = h_{0i} \times (\alpha + \beta_1 \text{treatment}_i + \beta_2 \text{fungus}_i)
+\mu_i = h_{0i} \times (\alpha + \beta_1 \text{treatment}_i + \beta_2 \text{fungus}_i).
 $$
 
-With **brms**, we fit models like that using the [non-linear syntax](https://CRAN.R-project.org/package=brms/vignettes/brms_nonlinear.html) [-@Bürkner2020Non_linear], which we introduced at the end of Chapter 5. Here it is for `b6.7`.
+With **brms**, we fit models like that using the [non-linear syntax](https://CRAN.R-project.org/package=brms/vignettes/brms_nonlinear.html) [@Bürkner2020Non_linear], which we introduced at the end of Chapter 5. Here it is for `b6.7`.
 
 ```{r b6.7}
 b6.7 <- 
@@ -981,7 +981,7 @@ d %>%
   
   ggplot(aes(x = age, y = happiness)) +
   geom_point(aes(color = married), size = 1.75) +
-  scale_color_manual(NULL, values = c("grey80", "darkgreen")) +
+  scale_color_manual(NULL, values = c("grey85", "darkgreen")) +
   scale_x_continuous(expand = c(.015, .015)) +
   theme(panel.grid = element_blank())
 ```
@@ -1073,7 +1073,7 @@ It gets worse. "Unmeasured causes can still induce collider bias. So I'm sorry t
 
 Here's the unhaunted DAG.
 
-```{r, fig.width = 2.5, fig.height = 2}
+```{r, fig.width = 2.25, fig.height = 2}
 dag_coords <-
   tibble(name = c("G", "P", "C"),
          x    = c(1, 2, 2),
@@ -1179,7 +1179,7 @@ Now the posterior for $\beta_\text g$ is hovering around 0, where it belongs.
 
 "Let's define **confounding** as any context in which the association between an outcome $Y$ and a predictor of interest $X$ is not the same as it would be, if we had experimentally determined the values of $X$" (p. 183, **emphasis** in the original)
 
-Here's the $E$-$U$-$W$$ DAG to help us sort this out.
+Here's the $E$-$U$-$W$ DAG to help us sort this out.
 
 ```{r, fig.width = 3, fig.height = 1.5, message = F, warning = F}
 dag_coords <-
@@ -1366,7 +1366,7 @@ library(brms)
 
 The only focal variable we did not standardize was `South`, which is binary. Technically, you can standardize binary variables and not break the regression model. However, my preference it so leave them in their 0/1 metric. To do otherwise would complicate how you'd interpret the result of any model including them. Here is our `ggpairs()` of all five focal variables. Remember, the central issue is the causal relation between `w` and `d`.
 
-```{r, fig.width = 5, fig.height = 4.5, message = F}
+```{r, fig.width = 5, fig.height = 5, message = F}
 ggpairs(data = d, columns = c(14:16, 18, 17),
         diag = list(continuous = my_diag),
         lower = list(continuous = my_lower))
