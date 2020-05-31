@@ -336,7 +336,7 @@ d %>%
 
 We might make the histograms like this.
 
-```{r, fig.width = 6, fig.height = 3.5, message = F}
+```{r, fig.width = 5.5, fig.height = 4.25, message = F}
 d %>%
   pivot_longer(everything()) %>% 
   mutate(name = factor(name, levels = c("height", "weight", "age", "male"))) %>% 
@@ -346,7 +346,7 @@ d %>%
   facet_wrap(~name, scales = "free", ncol = 1)
 ```
 
-If you're curious, McElreath made those tiny histograms with help from Wickham's [`histospark()` function](https://github.com/hadley/precis/blob/master/R/histospark.R). 
+If you're curious, McElreath made those tiny histograms with help from Wickham's [`histospark()` function](https://github.com/hadley/precis/blob/master/R/histospark.R). Here's the code.
 
 ```{r}
 sparks <- c("\u2581", "\u2582", "\u2583", "\u2585", "\u2587")
@@ -965,17 +965,17 @@ ggplot(data = d2,
 
 > The strategy is to make the parameter for the mean of a Gaussian distribution, $\mu$, into a linear function of the predictor variable and other, new parameters that we invent. This strategy is often simply called the **linear model**. The linear model strategy instructs the golem to assume that the predictor variable has a constant and additive relationship to the mean of the outcome. The golem then computes the posterior distribution of this constant relationship. (p. 92, **emphasis** in the original)
 
-In our new univariable model:
+In our new univariable model,
 
 \begin{align*}
 \text{height}_i    & \sim \operatorname{Normal}(\mu_i, \sigma) \\
 \mu_i  & = \alpha + \beta (\text{weight}_i - \overline{\text{weight}}) \\
 \alpha & \sim \operatorname{Normal}(178, 20) \\
 \beta  & \sim \operatorname{Normal}(0, 10) \\
-\sigma & \sim \operatorname{Uniform}(0, 50)
+\sigma & \sim \operatorname{Uniform}(0, 50).
 \end{align*}
 
-Do note that $(\text{weight}_i - \overline{\text{weight}})$ part. As we’ll see, it’s often advantageous to mean center our predictors.
+Do note that $(\text{weight}_i - \overline{\text{weight}})$ part. As we'll see, it's often advantageous to mean center our predictors.
 
 #### Probability of the data
 
@@ -2113,7 +2113,7 @@ b %>%
 
 In order two elucidate what's going on in that plot, we might breaks it up with `facet_wrap()`.
 
-```{r, fig.width = 6, fig.height = 8}
+```{r, fig.width = 6, fig.height = 9}
 b %>% 
   mutate(bias_function = str_c("bias function ", bias_function)) %>% 
   
@@ -2124,7 +2124,8 @@ b %>%
   theme_bw() +
   theme(panel.background = element_rect(fill = "#4f455c"),
         panel.grid = element_blank(),
-        strip.background = element_rect(fill = alpha("#ffb7c5", .25), color = "transparent")) +
+        strip.background = element_rect(fill = alpha("#ffb7c5", .25), color = "transparent"),
+        strip.text = element_text(size = 8)) +
   facet_wrap(~bias_function, ncol = 1)
 ```
 
@@ -2333,7 +2334,7 @@ Now combine the subplots with **patchwork** syntax and plot.
 
 > The splines in the previous section are just the beginning. A entire class of models, **generalized additive models** (GAMs), focuses on predicting an outcome variable using smooth functions of some predictor variables. The topic is deep enough to deserve its own book. (p. 120, **emphasis** in the original)
 
-McElreath ended that block quote with a reference to his endnote #78. On page 562, we read: "A very popular and comprehensive text is @woodGeneralizedAdditiveModels2017." Simon Wood, as it turns out, is the author/maintainer of the **mgcv** package.
+McElreath ended that block quote with a reference to his endnote #78. On page 562, we read: "A very popular and comprehensive text is Wood [-@woodGeneralizedAdditiveModels2017]." Simon Wood, as it turns out, is the author/maintainer of the **mgcv** package.
 
 ## ~~Summary~~ B-splines with **brms**
 
