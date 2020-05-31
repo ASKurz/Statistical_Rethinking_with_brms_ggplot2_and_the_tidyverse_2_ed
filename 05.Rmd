@@ -18,13 +18,13 @@ But back to the text, McElreath's listed reasons for multivaraiable regression i
 * multiple/complex causation
 * interactions
 
-We'll approach the first two in this chapter. Interactions are reserved for Chapter 6.
+We'll approach the first two in this chapter. Interactions are reserved for Chapter 7.
 
 #### Rethinking: Causal inference.
 
 "Despite its central importance, there is no unified approach to causal inference yet in the sciences or in statistics" (p. 124).  To dip into the topic, you might check out the recent blog post by Finn Lattimore and David Rohde, [*Causal inference with Bayes rule*](https://gradientinstitute.org/blog/6/).
 
-## 5.1 Spurious associations
+## Spurious associations
 
 Load the [Waffle House](https://www.snopes.com/fact-check/fema-waffle-house-index/) data.
 
@@ -107,12 +107,12 @@ left_join(
           size = 0) +
   scale_fill_gradient(low = "#f8eaea", high = "firebrick4") +
   theme_void() +
-  theme(legend.position  = "none",
+  theme(legend.position = "none",
         strip.text = element_text(margin = margin(0, 0, .5, 0))) +
   facet_wrap(~name) 
 ```
 
-One of the advantages of this visualization method is it just became clear that Nevada is missing from the WaffleDivorce data. Execute `d %>% distinct(Location)` to see for yourself and click [here](https://github.com/rmcelreath/rethinking/issues/62) to find out why it's missing. Those missing data should motivate the skills we’ll cover in Chapter 14. But let's get back on track.
+One of the advantages of this visualization method is it just became clear that Nevada is missing from the WaffleDivorce data. Execute `d %>% distinct(Location)` to see for yourself and click [here](https://github.com/rmcelreath/rethinking/issues/62) to find out why it's missing. Those missing data should motivate the skills we’ll cover in Chapter 15. But let's get back on track.
 
 Here's the standard deviation for `MedianAgeMarriage` in its current metric.
 
@@ -277,7 +277,7 @@ fitted(b5.2, newdata = nd) %>%
 >
 > To make sense of this, we're going to have to think causally. And then, only after we've done some thinking, a bigger regression model that includes both age at marriage and marriage rate will help us. (pp. 127--128)
 
-### 5.1.1. Think before you regress.
+### Think before you regress.
 
 > It is helpful to introduce a particular type of causal graph known as a **DAG**, short for **directed acyclic graph**. *Graph* means it is nodes and connections. *Directed* means the connections have arrows that indicate directions of causal influence. And *acyclic* means that causes do not eventually flow back on themselves. A DAG is a way of describing qualitative causal relationships among variables. It isn't as detailed as a full model description, but it contains information that a purely statistical model does not. Unlike a statistical model, a DAG will tell you the consequences of intervening to change a variable. But only if the DAG is correct. There is no inference without assumption. (p. 128, **emphasis** in the original)
 
@@ -325,7 +325,7 @@ p1 <-
 p1
 ```
 
-We could have left out the `coords` argument and let the `dagify()` function set the layout of the nodes on its own. But since we were picky and wanted to ape McElreath, we first specified our coordinates in a tibble and then included that tibble in the `coords` argument. For more on the topic, check out the Barrett’s [*An Introduction to ggdag*](https://cran.r-project.org/web/packages/ggdag/vignettes/intro-to-ggdag.html) vignette.
+We could have left out the `coords` argument and let the `dagify()` function set the layout of the nodes on its own. But since we were picky and wanted to ape McElreath, we first specified our coordinates in a tibble and then included that tibble in the `coords` argument. For more on the topic, check out the Barrett's [-@barrettAnIntroduction2020] vignette, [*An Introduction to ggdag*](https://CRAN.R-project.org/package=ggdag/vignettes/intro-to-ggdag.html).
 
 Buy anyway, our DAG
 
@@ -365,11 +365,11 @@ p2
 
 > Questions of causation can become bogged down in philosophical debates. These debates are worth having. But they don't usually intersect with statistical concerns. Knowing a cause in statistics means being able to correctly predict the consequences of an intervention. There are contexts in which even this is complicated. (p. 129)
 
-### 5.1.2. Testable implications.
+### Testable implications.
 
 So far, we have entertained two DAGs. Here we use **patchwork** to combine them into one plot.
 
-```{r, fig.width = 5, fig.height = 1.5}
+```{r, fig.width = 5.5, fig.height = 1.5}
 library(patchwork)
 
 p1 | p2
@@ -523,7 +523,7 @@ dagitty('dag{divorce <- age -> marriage}') %>%
 
 Here are the quick `pairs()` plots.
 
-```{r, fig.width = 3.5, fig.height = 3}
+```{r, fig.width = 4, fig.height = 3.5}
 pairs(sim_d, col = "firebrick4")
 ```
 
@@ -626,7 +626,7 @@ f <-
   data.frame() %>%
   bind_cols(d)
 
-head(f)
+glimpse(f)
 ```
 
 After a little data processing, we can make the upper left panel of Figure 5.4.
@@ -652,7 +652,7 @@ p1 <-
 p1
 ```
 
-We get the residuals with the well-named `residuals()` function. Much like with `brms::fitted()`, `brms::residuals()` returns a four-vector matrix with the number of rows equal to the number of observations in the original data (by default, anyway). The vectors have the familiar names: `Estimate`, `Est.Error`, `Q2.5`, and `Q97.5`. See the [brms reference manual](https://cran.r-project.org/web/packages/brms/brms.pdf) for details.
+We get the residuals with the well-named `residuals()` function. Much like with `brms::fitted()`, `brms::residuals()` returns a four-vector matrix with the number of rows equal to the number of observations in the original data (by default, anyway). The vectors have the familiar names: `Estimate`, `Est.Error`, `Q2.5`, and `Q97.5`. See the [brms reference manual](https://CRAN.R-project.org/package=brms/brms.pdf) [@brms2020RM] for details.
 
 With our residuals in hand, we just need a little more data processing to make lower left panel of Figure 5.4.
 
@@ -768,7 +768,8 @@ p1 + p2 + p3 + p4
 Let's hammer this point home. Recall how `brms::residuals()` returns four columns: `Estimate`, `Est.Error`, `Q2.5`, and `Q97.5`.
 
 ```{r}
-r
+r %>% 
+  glimpse()
 ```
 
 In the residual plots from the lower two panels of Figure 5.4, we focused on the means of the residuals (i.e., `Estimate`). However, we can express the uncertainty in the residuals by including error bars for the 95% intervals. Here's what that might look like with a slight reworking of the lower right panel of Figure 5.4.
@@ -799,7 +800,7 @@ Look at that. If you were to fit a follow-up model based on only the point estim
 
 #### Posterior prediction plots.
 
-"It's important to check the model's implied predictions against the observed data" (p. 138). For more on the topic, check out Gabry and colleagues' [-@gabry2019visualization] [*Visualization in Bayesian workflow*](https://arxiv.org/abs/1709.01449) or Simpson's related blog post [*Touch me, I want to feel your data*](http://andrewgelman.com/2017/09/07/touch-want-feel-data/).
+"It's important to check the model's implied predictions against the observed data" (p. 138). For more on the topic, check out Gabry and colleagues' [-@gabry2019visualization] [*Visualization in Bayesian workflow*](https://arxiv.org/abs/1709.01449) or Simpson's related blog post, [*Touch me, I want to feel your data*](http://andrewgelman.com/2017/09/07/touch-want-feel-data/).
 
 ```{r, fig.width = 3, fig.height = 3}
 fitted(b5.3) %>%
@@ -937,7 +938,7 @@ p1 <-
   ggplot(aes(x = a, y = Estimate, ymin = Q2.5, ymax = Q97.5)) +
   geom_smooth(stat = "identity",
               fill = "firebrick", color = "firebrick4", alpha = 1/5, size = 1/4) +
-  labs(title = "Total counterfactual effect of A on D",
+  labs(subtitle = "Total counterfactual effect of A on D",
        x = "manipulated A",
        y = "counterfactual D") +
   coord_cartesian(ylim = c(-2, 2)) +
@@ -964,7 +965,7 @@ p2 <-
   ggplot(aes(x = a, y = Estimate, ymin = Q2.5, ymax = Q97.5)) +
   geom_smooth(stat = "identity",
               fill = "firebrick", color = "firebrick4", alpha = 1/5, size = 1/4) +
-  labs(title = "Counterfactual effect of A on M",
+  labs(subtitle = "Counterfactual effect of A on M",
        x = "manipulated A",
        y = "counterfactual M") +
   coord_cartesian(ylim = c(-2, 2)) +
@@ -1029,7 +1030,7 @@ predict(b5.3_A,
   ggplot(aes(x = m, y = Estimate, ymin = Q2.5, ymax = Q97.5)) +
   geom_smooth(stat = "identity",
               fill = "firebrick", color = "firebrick4", alpha = 1/5, size = 1/4) +
-  labs(title = "Total counterfactual effect of M on D",
+  labs(subtitle = "Total counterfactual effect of M on D",
        x = "manipulated M",
        y = "counterfactual D") +
   coord_cartesian(ylim = c(-2, 2)) +
@@ -1552,7 +1553,7 @@ p1 <-
 
 Now make Figure 5.8, bottom right, and combine the two.
 
-```{r, fig.width = 6, fig.height = 3, warning = F, message = F}
+```{r, fig.width = 6, fig.height = 3.25, warning = F, message = F}
 nd <- tibble(log_mass_s = seq(from = -2.5, to = 2.5, length.out = 30),
              neocortex.perc_s = 0)
 
@@ -1919,7 +1920,7 @@ Because **bayesplot** returns a **ggplot2** object, the plot was adjustable with
 
 The `tidybayes::stat_pointintervalh()` function offers a third way, this time with a more ground-up **ggplot2** workflow.
 
-```{r, message = F, warning = F, fig.width = 6, fig.height = 1.125}
+```{r, message = F, warning = F, fig.width = 6, fig.height = 1.25}
 library(tidybayes)
 
 post %>% 
@@ -1989,7 +1990,7 @@ $$
 \end{align*}
 $$
 
-where there is an $\alpha_\text{clade}}$ "intercept" for each of the four levels of `clade` and an $\alpha_\text{house}}$ "intercept" for each of the four levels of `house`. But there is no **overall** intercept, $\alpha$, that stands for the expected value when all the predictors are set to 0. 
+where there is an $\alpha_\text{clade}$ "intercept" for each of the four levels of `clade` and an $\alpha_\text{house}$ "intercept" for each of the four levels of `house`. But there is no **overall** intercept, $\alpha$, that stands for the expected value when all the predictors are set to 0. 
 
 When we use the typical `formula` syntax with **brms**, we can suppress the overall intercept when for a single index variable with the `<criterion> ~ 0 + <index variable>` syntax. That's exactly what we did with our `b5.9` model. The catch is that this approach only works with one index variable with **brms**. The result is even though we suppressed the default interecept with our `b5.10` formula, `kcal.per.g_s ~ 0 + clade + house`, we ended up loosing the first category of the second variable, `house`.
 
@@ -2019,7 +2020,7 @@ print(b5.11)
 
 Finally, here's how we might visualize the results in a faceted coefficient plot.
 
-```{r, fig.width = 8, fig.height = 1.125}
+```{r, fig.width = 8, fig.height = 1.25}
 posterior_samples(b5.11) %>% 
   pivot_longer(starts_with("b_")) %>% 
   mutate(name = str_remove(name, "b_") %>% 
