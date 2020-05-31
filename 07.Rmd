@@ -1,33 +1,41 @@
 ---
-title: "Ch. 7 Overfitting, Regularization, and Information Criteria"
+title: "Ch. 7 Ulysses' Compass"
 author: "A Solomon Kurz"
 date: "`r format(Sys.Date())`"
 output:
   github_document
 ---
 
-# Overfitting, Regularization, and Information Criteria
+# Ulysses' Compass
 
 In this chapter we contend with two contrasting kinds of statistical error:
 
 * overfitting, "which leads to poor prediction by learning too *much* from the data"
-* underfitting, "which leads to poor prediction by learning too *little* from the data" (p. 188, *emphasis* added) 
+* underfitting, "which leads to poor prediction by learning too *little* from the data" [@mcelreathStatisticalRethinkingBayesian2020, p. 192, *emphasis* added]
+
+> Our job is to carefully navigate among these monsters. There are two common families of approaches. The first approach is to use a **regularizing prior** to tell the model not to get too excited by the data. This is the same device that non-Bayesian methods refer to as "penalized likelihood." The second approach is to use some scoring device, like **information criteria** or **cross-validation**, to model the prediction task and estimate predictive accuracy. Both families of approaches are routinely used in the natural and social sciences. Furthermore, they can be--maybe should be--used in combination. So it's worth under- standing both, as you’re going to need both at some point. (p. 192, **emphasis** in the original)
 
 #### Rethinking stargazing.
 
-"Whatever you think about null hypothesis significance testing in general, using it to select among structurally different models is a mistake--$p$-values are not designed to help you navigate between underfitting and overfitting" (p. 189). As you’ll may have noticed by now, we will generally eschew $p$-values and NHST in this project.
+> The most common form of model selection among practicing scientists is to search for a model in which every coefficient is statistically significant. Statisticians sometimes call this **stargazing**, as it is embodied by scanning for asterisks ($^{\star \star}$) trailing after estimates....
+>
+> Whatever you think about null hypothesis significance testing in general, using it to select among structurally different models is a mistake--$p$-values are not designed to help you navigate between underfitting and overfitting" (p. 193). 
+
+McElreath spent little time discussing $p$-values and null hypothesis testing in the text. If you'd like to learn more from a Bayesian perspective, you might check out the first several chapters (particularly 10--13) in Kruschke's [-@kruschkeDoingBayesianData2015] [text](https://sites.google.com/site/doingbayesiandataanalysis/) and my [-@kurzDoingBayesianData2020] [ebook translating it to brms and the tidyverse](https://bookdown.org/content/3686/). The great [Frank Harrell](https://twitter.com/f2harrell) has complied [*A Litany of Problems With p-values*](https://www.fharrell.com/post/pval-litany/), which you might also find of use.
 
 ## The problem with parameters
 
 The $R^2$ is a popular way to measure how well you can retrodict the data. It traditionally follows the form
 
-$$R^2 = \frac{\text{var(outcome)} - \text{var(residuals)}}{\text{var(outcome)}} = 1 - \frac{\text{var(residuals)}}{\text{var(outcome)}}$$
+$$R^2 = \frac{\text{var(outcome)} - \text{var(residuals)}}{\text{var(outcome)}} = 1 - \frac{\text{var(residuals)}}{\text{var(outcome)}}.$$
 
-By $\text{var()}$, of course, we meant variance (i.e., the `var()` function in R).
+By $\text{var()}$, of course, we meant variance (i.e., what you get from the `var()` function in **R**). McElreath's not a fan of the $R^2$. But it's important in my field, so instead of a summary at the end of the chapter, we will cover the Bayesian version of $R^2$ and how to use it in **brms**.
 
-McElreath's not a fan of the $R^2$. But it's important in my field, so instead of a summary at the end of the chapter, we will cover the Bayesian version of $R^2$ and how to use it in brms.
+### More parameters (almost) always improve fit.
 
-### More parameters always improve fit.
+
+
+
 
 We'll start off by making the data with brain size and body size for seven `species`.
 
