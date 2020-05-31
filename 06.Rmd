@@ -1343,10 +1343,6 @@ library(rethinking)
 data(WaffleDivorce)
 d <- WaffleDivorce
 
-rm(WaffleDivorce)
-detach(package:rethinking, unload = T)
-library(brms)
-
 # standardize the continuous focal variables.
 d <-
   d %>% 
@@ -1355,6 +1351,11 @@ d <-
          m = standardize(Marriage),
          s = factor(South),
          w = standardize(WaffleHouses))
+
+# tidy up
+rm(WaffleDivorce)
+detach(package:rethinking, unload = T)
+library(brms)
 ```
 
 The only focal variable we did not standardize was `South`, which is binary. Technically, you can standardize binary variables and not break the regression model. However, my preference it so leave them in their 0/1 metric. To do otherwise would complicate how you'd interpret the result of any model including them. Here is our `ggpairs()` of all five focal variables. Remember, the central issue is the causal relation between `w` and `d`.
