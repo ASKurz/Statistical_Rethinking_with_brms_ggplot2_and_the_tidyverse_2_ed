@@ -283,7 +283,7 @@ b8.1b <-
 
 Now we'll use `prior_samples(b8.1b)` to make the left panel of Figure 8.3 and present both panels together with a little **patchwork** syntax.
 
-```{r, fig.width = 6.5, fig.height = 3.25}
+```{r, fig.width = 6, fig.height = 3.25}
 set.seed(8)
 
 p2 <-
@@ -305,7 +305,8 @@ p2 <-
                   ylim = c(0.5, 1.5))
 
 p1 + p2 + 
-  plot_annotation(title = "Simulating in search of reasonable priors for the terrain ruggedness example.")
+  plot_annotation(title = "Simulating in search of reasonable priors for the terrain ruggedness example.",
+                  theme = theme(plot.title = element_text(size = 12)))
 ```
 
 Now check the summary for `b8.1b`.
@@ -430,8 +431,9 @@ dd %>%
        x = "ruggedness (standardized)",
        y = "log GDP (as proportion of mean)") +
   coord_cartesian(xlim = c(0, 1)) +
-  theme(legend.direction = "horizontal",
-        legend.position = c(.69, .94),
+  theme(legend.background = element_blank(),
+        legend.direction = "horizontal",
+        legend.position = c(.67, .93),
         legend.title = element_blank())
 ```
 
@@ -471,8 +473,9 @@ fitted(b8.2,
        x = "ruggedness (standardized)",
        y = "log GDP (as proportion of mean)") +
   coord_cartesian(xlim = c(0, 1)) +
-  theme(legend.direction = "horizontal",
-        legend.position = c(.69, .94),
+  theme(legend.background = element_blank(),
+        legend.direction = "horizontal",
+        legend.position = c(.67, .93),
         legend.title = element_blank())
 ```
 
