@@ -18,7 +18,7 @@ options(width = 100)
 >
 > To model deeper conditionality--where the importance of one predictor depends upon another predictor--we need **interaction** (also known as **moderation**). Interaction is a kind of conditioning, a way of allowing parameters (really their posterior distributions) to be conditional on further aspects of the data. The simplest kind of interaction, a linear interaction, is built by extending the linear modeling strategy to parameters within the linear model. So it is akin to placing epicycles on epicycles in the Ptolemaic and Kopernikan models. It is descriptive, but very powerful.
 >
-> More generally, interactions are central to most statistical models beyond the cozy world of Gaussian outcomes and linear models of the mean. In generalized linear models (GLMs, Chapter 10 and onwards), even when one does not explicitly define variables as interacting, they will always interact to some degree. Multilevel models induce similar effects. [@mcelreathStatisticalRethinkingBayesian2020; p. 238, **emphasis** in the original]
+> More generally, interactions are central to most statistical models beyond the cozy world of Gaussian outcomes and linear models of the mean. In generalized linear models (GLMs, Chapter 10 and onwards), even when one does not explicitly define variables as interacting, they will always interact to some degree. Multilevel models induce similar effects. [@mcelreathStatisticalRethinkingBayesian2020, p. 238, **emphasis** in the original]
 
 ## Building an interaction.
 
@@ -67,9 +67,9 @@ dagify(R ~ U,
   
   ggplot(aes(x = x, y = y, xend = xend, yend = yend)) +
   geom_dag_point(aes(color = name == "U"),
-                 alpha = 1/2, size = 6.5, show.legend = F) +
+                 alpha = 1/2, size = 6, show.legend = F) +
   geom_point(x = 2, y = 1, 
-             size = 6.5, shape = 1, stroke = 1, color = palette_pander(n = 2)[2]) +
+             size = 6, shape = 1, stroke = 3/4, color = palette_pander(n = 2)[2]) +
   geom_dag_text(color = "black", family = "Times") +
   geom_dag_edges() +
   scale_colour_pander() +
@@ -89,7 +89,7 @@ It's generally not a good idea to split up your data and run separate analyses w
 
 Here's the DAG for a fuller model for the data.
 
-```{r, fig.width = 3, fig.height = 1.5, message = F, warning = F}
+```{r, fig.width = 3, fig.height = 1.75, message = F, warning = F}
 dag_coords <-
   tibble(name = c("G", "R", "H", "C", "U"),
          x    = c(1, 1.5, 2.5, 3.5, 1),
@@ -102,9 +102,9 @@ dagify(G ~ R + U + H,
   
   ggplot(aes(x = x, y = y, xend = xend, yend = yend)) +
   geom_dag_point(aes(color = name == "U"),
-                 alpha = 1/2, size = 6.5, show.legend = F) +
+                 alpha = 1/2, size = 6, show.legend = F) +
   geom_point(x = 1, y = 1, 
-             size = 6.5, shape = 1, stroke = 1, color = palette_pander(n = 2)[2]) +
+             size = 6, shape = 1, stroke = 3/4, color = palette_pander(n = 2)[2]) +
   geom_dag_text(color = "black", family = "Times") +
   geom_dag_edges() +
   scale_colour_pander() +
@@ -134,7 +134,7 @@ dd <-
 
 Before we fit our first Bayesian models, let's back track a bit and make our version of Figure 8.2. In the title, McElreath indicated it was a depiction of two linear regressions separated by whether the nations were African. A fairly simple way to make those plots is to simultaneously fit and plot the two regression models using OLS via the `geom_smooth()` function using the `method = "lm"` argument. After dividing the data with `cont_africa`, make each plot separately and then combine them with **patchwork** syntax.
 
-```{r, fig.width = 6, fig.height = 3.25}
+```{r, fig.width = 6, fig.height = 3}
 library(ggrepel)
 library(patchwork)
 
@@ -282,7 +282,7 @@ b8.1b <-
 
 Now we'll use `prior_samples(b8.1b)` to make the left panel of Figure 8.3 and present both panels together with a little **patchwork** syntax.
 
-```{r, fig.width = 6, fig.height = 3.25}
+```{r, fig.width = 6.5, fig.height = 3.25}
 set.seed(8)
 
 p2 <-
@@ -327,7 +327,7 @@ dd <-
 
 In case you were curious, here's a plot showing how the `cid` index works.
 
-```{r, fig.width = 3.5, fig.height = 8}
+```{r, fig.width = 3, fig.height = 10}
 dd %>% 
   mutate(cid = str_c("cid: ", cid)) %>% 
   arrange(cid, country) %>% 
@@ -335,7 +335,7 @@ dd %>%
   mutate(rank = 1:n()) %>% 
   
   ggplot(aes(x = cid, y = rank, label = country)) +
-  geom_text(size = 2, hjust = 0, family = "Times") +
+  geom_text(size = 2.25, hjust = 0, family = "Times") +
   scale_y_reverse() +
   theme_void() +
   facet_wrap(~cid, scales = "free_x")
@@ -412,7 +412,7 @@ head(f)
 
 Behold our Figure 8.4.
 
-```{r, fig.height = 2.75, fig.width = 3}
+```{r, fig.height = 3, fig.width = 3}
 dd %>%
   mutate(cont_africa = ifelse(cont_africa == 1, "Africa", "not Africa")) %>%
   
@@ -444,7 +444,7 @@ Did you notice the `probs = c(.015, .985)` argument in our `fitted()` code, abov
 
 Building off of McElreath's "boundaries are meaningless" point, here we use a combination of `summary = F` within `fitted()` and a little `tidybayes::stat_lineribbon()` magic to reimagine Figure 8.4. This time we use a sequence of overlapping semitransparent credible intervals to give the posterior a 3D-like appearance.
 
-```{r, fig.height = 2.75, fig.width = 3}
+```{r, fig.height = 3, fig.width = 3}
 fitted(b8.2, 
        newdata = nd,
        summary = F) %>%
@@ -521,7 +521,7 @@ model_weights(b8.1b, b8.2, b8.3, weights = "loo") %>% round(digits = 2)
 
 We can get a Pareto $k$ diagnostic plot for `b8.3` by feeding the results of the `loo()` function into `plot()`.
 
-```{r, fig.width = 5, fig.height = 3}
+```{r, fig.width = 5, fig.height = 3.75}
 loo(b8.3) %>% 
   plot(label_points = T)
 ```
@@ -569,7 +569,7 @@ loo_compare(b8.3, b8.3t, criterion = "loo") %>% print(simplify = F)
 
 Here we might make our own diagnostic plot to compare the two likelihoods by the Pareto $k$ values. To get a nice fine-grain sense of the distributions, we'll employ the handy `tidybayes::stat_dotsh()` function which will display each value as an individual dot.
 
-```{r, fig.width = 5, fig.height = 3}
+```{r, fig.width = 4.5, fig.height = 2.75}
 tibble(Normal      = b8.3$criteria$loo$diagnostics$pareto_k,
        `Student-t` = b8.3t$criteria$loo$diagnostics$pareto_k) %>% 
   pivot_longer(everything(),
@@ -597,7 +597,7 @@ fixef(b8.3t) %>% round(digits = 2)
 
 The code for Figure 8.5 is a minor extension of the code we used for Figure 8.4. Other than which fit we use, the code we use for `fitted()` is the same for both plots. Two of the largest changes are the addition of labels with `ggrepel::geom_text_repel()` and using `facet_wrap()` to split the plot into two panels.
 
-```{r, fig.height = 2.75, fig.width = 6}
+```{r, fig.height = 3, fig.width = 6}
 countries <- c("Equatorial Guinea", "South Africa", "Seychelles", "Swaziland", "Lesotho", "Rwanda", "Burundi", "Luxembourg", "Greece", "Switzerland", "Lebanon", "Yemen", "Tajikistan", "Nepal")
 
 f <-
