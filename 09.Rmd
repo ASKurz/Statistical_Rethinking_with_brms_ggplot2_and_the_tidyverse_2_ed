@@ -678,7 +678,9 @@ nuts_params(b9.2) %>%
 This indicates that among the 3,000 post-warmup draws, 399 were classified as divergent transitions. We can use the `np` argument within `brms::pairs()` to include this information in the `pairs()` plot.
 
 ```{r, fig.width = 4, fig.height = 3.5, message = F, warning = F}
-pairs(b9.2, np = nuts_params(b9.2))
+pairs(b9.2, 
+      np = nuts_params(b9.2),
+      off_diag_args = list(size = 1/4))
 ```
 
 That `np = nuts_params(b9.2)` trick will work in a similar way with **bayesplot** functions like `mcmc_pairs()` and `mcmc_trace()`. The red x marks show us where the divergent transitions are within the bivariate posterior. To my eye, the patter in this plot isn’t very strong. Sometimes the pattern of divergent transitions can give you clear clues about where the problems are in the model.
