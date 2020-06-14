@@ -60,7 +60,7 @@ d %>%
   cor()
 ```
 
-For the plots in this chapter, we'll take some aesthetic cues from Aki Vehtari's great [*Bayesian Data Analysis demos for R*](https://github.com/avehtari/BDA_R_demos).
+For the plots in this chapter, we'll take some aesthetic cues from Aki Vehtari's great GitHub repo, [*Bayesian Data Analysis R Demos*](https://github.com/avehtari/BDA_R_demos).
 
 ```{r}
 theme_set(theme_minimal())
@@ -83,8 +83,8 @@ d %>%
             aes(label = label)) +
   geom_smooth(data = . %>% filter(selected == TRUE),
               method = "lm", fullrange = T,
-              color = "orange", se = F, size = 1/2) +
-  scale_color_manual(values = c("black", "orange")) +
+              color = "lightblue", se = F, size = 1/2) +
+  scale_color_manual(values = c("black", "lightblue")) +
   scale_shape_manual(values = c(1, 19)) +
   scale_x_continuous(limits = c(-3, 3.9), expand = c(0, 0)) +
   coord_cartesian(ylim = range(d$trustworthiness)) +
@@ -128,7 +128,7 @@ Have you ever even seen a $\rho = .9997$ correlation, before? Here it is in a pl
 ```{r, fig.width = 3, fig.height = 3}
 d %>%
   ggplot(aes(x = leg_left, y = leg_right)) +
-  geom_point(alpha = 1/2, color = "darkgreen")
+  geom_point(alpha = 1/2, color = "forestgreen")
 ```
 
 Load **brms**.
@@ -235,7 +235,7 @@ sim %>%
   mutate(seed = str_c("seed ", seed)) %>% 
   
   ggplot(aes(x = value, y = name)) +
-  stat_pointintervalh(.width = .95, color = "darkgreen") +
+  stat_pointintervalh(.width = .95, color = "forestgreen") +
   labs(x = "posterior", y = NULL) +
   theme(axis.text.y = element_text(hjust = 0),
         panel.grid.minor = element_blank(),
@@ -264,7 +264,7 @@ post <- posterior_samples(b6.1)
   
 post %>% 
   ggplot(aes(x = b_leg_left, y = b_leg_right)) +
-  geom_point(color = "darkgreen", alpha = 1/10, size = 1/2)
+  geom_point(color = "forestgreen", alpha = 1/10, size = 1/2)
 ```
 
 While we're at it, you can make a similar plot with the `mcmc_scatter()` function [see @gabryPlottingMCMCDraws2019, [*Plotting MCMC draws using the bayesplot package*](https://CRAN.R-project.org/package=bayesplot/vignettes/plotting-mcmc-draws.html)].
@@ -423,7 +423,7 @@ Here's a quick `paris()` plot.
 ```{r, fig.width = 4, fig.height = 4}
 d %>% 
   select(kcal.per.g, perc.fat, perc.lactose) %>% 
-  pairs(col = "darkgreen")
+  pairs(col = "forestgreen")
 ```
 
 Now here's the custom **GGally** version.
@@ -440,7 +440,7 @@ my_lower <- function(data, mapping, ...) {
   ggplot(data = data, mapping = mapping) + 
     geom_smooth(method = "lm", color = "orange", size = 1/3, 
                 fill = "orange", alpha = 1/4) +
-    geom_point(alpha = .8, size = 1/4)
+    geom_point(alpha = .8, size = 1/4, color = "blue")
   }
 
 # plug those custom functions into `ggpairs()`
@@ -981,7 +981,7 @@ d %>%
   
   ggplot(aes(x = age, y = happiness)) +
   geom_point(aes(color = married), size = 1.75) +
-  scale_color_manual(NULL, values = c("grey85", "darkgreen")) +
+  scale_color_manual(NULL, values = c("grey85", "forestgreen")) +
   scale_x_continuous(expand = c(.015, .015)) +
   theme(panel.grid = element_blank())
 ```
@@ -1152,7 +1152,7 @@ d %>%
   stat_smooth(data = . %>% filter(centile == "a"),
               method = "lm", se = F, size = 1/2, color = "black", fullrange = T) +
   scale_shape_manual(values = c(19, 1)) +
-  scale_color_manual(values = c("black", "orange")) +
+  scale_color_manual(values = c("black", "lightblue")) +
   theme(legend.position = "none")
 ```
 
@@ -1445,7 +1445,7 @@ tibble(fit = str_c("b6.1", 3:7)) %>%
   
   ggplot(aes(x = b_w, y = y, color = fit %in% c("b6.14", "b6.15"))) +
   stat_pointintervalh(.width = .95) +
-  scale_color_manual(values = c("grey50", "darkgreen")) +
+  scale_color_manual(values = c("grey50", "forestgreen")) +
   labs(x = expression(beta[w]),
        y = NULL) +
   coord_cartesian(xlim = c(-0.4, 0.6)) +
