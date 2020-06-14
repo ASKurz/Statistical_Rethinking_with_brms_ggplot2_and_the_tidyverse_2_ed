@@ -14,7 +14,7 @@ options(width = 100)
 
 # Geocentric Models
 
-> **Linear regression** is the geocentric model of applied statistics. By "linear regression," we will mean a family of simple statistical golems that attempt to learn about the mean and variance of some measurement, using an additive combination of other measurements. Like geocentrism, linear regression can usefully describe a very large variety of natural phenomena. Like geocentrism, linear regression is a descriptive model that corresponds to many different process models. If we read its structure too literally, we’re likely to make mistakes. But used wisely, these little linear golems continue to be useful. [@mcelreathStatisticalRethinkingBayesian2020, p. 71, **emphasis**, in the original]
+> **Linear regression** is the geocentric model of applied statistics. By "linear regression," we will mean a family of simple statistical golems that attempt to learn about the mean and variance of some measurement, using an additive combination of other measurements. Like geocentrism, linear regression can usefully describe a very large variety of natural phenomena. Like geocentrism, linear regression is a descriptive model that corresponds to many different process models. If we read its structure too literally, we're likely to make mistakes. But used wisely, these little linear golems continue to be useful. [@mcelreathStatisticalRethinkingBayesian2020, p. 71, **emphasis**, in the original]
 
 ## Why normal distributions are normal
 
@@ -204,22 +204,22 @@ We'll dive deeper into why the Gaussian is such a natural expression of ignoranc
 
 #### Rethinking: Heavy tails. 
 
-> The Gaussian distribution is common in nature and has some nice properties. But there are some risks in using it as a default data model. The extreme ends of a distribution are known as its tails. And the Gaussian distribution has some very thin tails—there is very little probability in them. Instead most of the mass in the Gaussian lies within one standard deviation of the mean. Many natural (and unnatural) processes have much heavier tails. (p. 76)
+> The Gaussian distribution is common in nature and has some nice properties. But there are some risks in using it as a default data model. The extreme ends of a distribution are known as its tails. And the Gaussian distribution has some very thin tails--there is very little probability in them. Instead most of the mass in the Gaussian lies within one standard deviation of the mean. Many natural (and unnatural) processes have much heavier tails. (p. 76)
 
-You have no idea how excited I am that we’ll be covering some of these heavy-tailed alternatives!
+You have no idea how excited I am that we'll be covering some of these heavy-tailed alternatives!
 
 #### Overthinking: Gaussian distribution.
 
 In this section McElreath gave the formula for the Gaussian probability density function. Let $y$ be the criterion, $\mu$ be the mean, and $\sigma$ be the standard deviation. Then the probability density of some Gaussian value $y$ is
 
-$$p(y|\mu, \sigma) = \frac{1}{\sqrt{2 \pi \sigma^2}} \exp \Bigg (- \frac{(y - \mu)^2}{2 \sigma^2} \Bigg)$$
+$$p(y|\mu, \sigma) = \frac{1}{\sqrt{2 \pi \sigma^2}} \exp \left (- \frac{(y - \mu)^2}{2 \sigma^2} \right)$$
 
 McElreath's right. "This looks monstrous" (p. 76). Why not demystify that monster with a little **R** code? For simplicity, we'll compute $p(y|\mu, \sigma)$ for a series of $y$-values ranging from -1 to 1, holding $\mu = 0$ and $\sigma = 0.1$. Then we'll plot.
 
 ```{r, fig.width = 4, fig.height = 2.75}
-tibble(mu    = 0,
-       sigma = 0.1,
-       y     = seq(from = -1, to = 1, by = .01)) %>% 
+tibble(y     = seq(from = -1, to = 1, by = .01),
+       mu    = 0,
+       sigma = 0.1) %>% 
   # compute p(y) with a hand-made Gaussian probability density function
   mutate(p = (1 / sqrt(2 * pi * sigma^2)) * exp(-((y - mu)^2 / (2 * sigma^2)))) %>% 
   
@@ -423,7 +423,7 @@ p1 <-
   geom_line() +
   scale_x_continuous(breaks = seq(from = 100, to = 250, by = 75)) +
   labs(title = "mu ~ dnorm(178, 20)",
-       y     = "density")
+       y = "density")
 
 p1
 ```
@@ -506,8 +506,8 @@ p4 <-
   sim %>% 
   ggplot(aes(x = height)) +
   geom_density(fill = "black", size = 0) +
-  geom_vline(xintercept = 0, color = "grey92", linetype = 3) +
-  geom_vline(xintercept = 272, color = "grey92") +
+  geom_vline(xintercept = 0, color = "grey92") +
+  geom_vline(xintercept = 272, color = "grey92", linetype = 3) +
   geom_text(data = text,
             aes(y = y, label = label, angle = angle),
             color = "grey92") +
@@ -743,7 +743,7 @@ d_grid_samples %>%
   facet_wrap(~name, scales = "free", labeller = label_parsed)
 ```
 
-That `labeller = label_parsed` bit in the `facet_wrap()` function is what converted our subplot strip labels into Greek. Anyway, our posterior for $\sigma$ isn't so Gaussian with that small $n$.
+That `labeller = label_parsed` bit in the `facet_wrap()` function is what converted our subplot strip labels into Greek. You can learn more about `labeller` [here](https://ggplot2.tidyverse.org/reference/labeller.html). Anyway, our posterior for $\sigma$ isn't so Gaussian with that small $n$.
 
 This is the point in the project where we hop off the grid-approximation train. On the one hand, I think this is a great idea. Most of y'all reading this will never use grid approximation in a real-world applied data analysis. On the other hand, there is some pedagogical utility in practicing with it. It can help you grasp what it is we're dong when we apply Bayes' theorem. If you'd like more practice, check out the first several chapters in John Kruschke's [-@kruschkeDoingBayesianData2015] [textbook](https://sites.google.com/site/doingbayesiandataanalysis/) and the corresponding chapters in my [-@kurzDoingBayesianData2020] [ebook](https://bookdown.org/content/3686/) translating it into **brms** and **tidyverse**.
 
@@ -763,7 +763,7 @@ b4.1 <-
       file = "fits/b04.01")
 ```
 
-McElreath's uniform prior for $\sigma$ was rough on **brms**. It took an unusually-large number of warmup iterations before the chains sampled properly. As McElreath covered in Chapter 8, Hamiltonian Monte Carlo (HMC) tends to work better when you default to a half Cauchy for $\sigma$. Here's how to do so.
+McElreath's uniform prior for $\sigma$ was rough on **brms**. It took an unusually-large number of warmup iterations before the chains sampled properly. As McElreath covered in Chapter 9, Hamiltonian Monte Carlo (HMC) tends to work better when you default to an exponential or half Cauchy for $\sigma$. Here's how to do so with the half Cauchy [^1].
 
 ```{r b4.1_hc}
 b4.1_hc <- 
@@ -778,15 +778,13 @@ b4.1_hc <-
       file = "fits/b04.01_hc")
 ```
 
-This leads to an important point. After running a model fit with HMC, it's a good idea to inspect the chains. As we'll see, McElreath coverd this in Chapter 8. Here's a typical way to do so with **brms**.
+This leads to an important point. After running a model fit with HMC, it's a good idea to inspect the chains. As we'll see, McElreath coverd this in Chapter 9. Here's a typical way to do so with **brms**.
 
 ```{r, fig.width = 6, fig.height = 2.5}
 plot(b4.1_hc)
 ```
 
-If you want detailed diagnostics for the HMC chains, call `launch_shinystan(b4.1)`. That'll keep you busy for a while. But anyway, the chains look good. We can reasonably trust the results.
-
-Here's how to get the model summary of our `brm()` object.
+If you want detailed diagnostics for the HMC chains, call `launch_shinystan(b4.1)`. That'll keep you busy for a while. But anyway, the chains look good. We can reasonably trust the results. Here's how to get the model summary of our `brm()` object.
 
 ```{r}
 print(b4.1_hc)
@@ -892,7 +890,7 @@ Here's one option using the transpose of a `quantile()` call nested within `appl
 t(apply(post[, 1:2], 2, quantile, probs = c(.5, .025, .75)))
 ```
 
-The base **R** code is compact, but somewhat opaque. Here's how to do something similar with more explicit tidyverse code.
+The base **R** code is compact, but somewhat opaque. Here's how to do something similar with more explicit **tidyverse** code.
 
 ```{r}
 post %>%
@@ -943,7 +941,7 @@ post %>%
 
 #### Overthinking: Under the hood with multivariate sampling.
 
-Again, `brms::posterior_samples()` is not the same as `rethinking::extract.samples()`. Rather than use the `MASS::mvnorm()`, **brms** takes the draws from the HMC chains. McElreath coverd all of this in Chapter 8 and we will too. You might also look at the **brms** [reference manual](https://cran.r-project.org/package=brms/brms.pdf) or [GitHub page](https://github.com/paul-buerkner/brms) for details. To get documentation in a hurry, you could also just execute `?posterior_samples`.
+Again, `brms::posterior_samples()` is not the same as `rethinking::extract.samples()`. Rather than use the `MASS::mvnorm()`, **brms** takes the draws from the HMC chains. McElreath coverd all of this in Chapter 9 and we will too. You might also look at the **brms** [reference manual](https://cran.r-project.org/package=brms/brms.pdf) or [GitHub page](https://github.com/paul-buerkner/brms) for details. To get documentation in a hurry, you could also just execute `?posterior_samples`.
 
 ## Linear prediction
 
@@ -1138,7 +1136,7 @@ Good luck with that question. Hang around on academic Twitter long enough and yo
 
 ### Finding the posterior distribution.
 
-Unlike with McElreath’s `quap()` formula syntax, I’m not aware that you can just specify something like `weight – xbar` in the `formula` argument in `brm()`. However, the alternative is easy: Just make a new variable in the data that is equivalent to `weight – mean(weight)`. We'll call it `weight_c`.
+Unlike with McElreath's `quap()` formula syntax, I’m not aware that you can just specify something like `weight – xbar` in the `formula` argument in `brm()`. However, the alternative is easy: Just make a new variable in the data that is equivalent to `weight – mean(weight)`. We'll call it `weight_c`.
 
 ```{r}
 d2 <-
@@ -1217,7 +1215,7 @@ vcov(b4.3) %>%
 
 No $\sigma$, however. To get that, we'll have to extract the posterior draws and use the `cov()` function, instead.
 
-```{r}
+```{r, fig.width = 4, fig.height = 3.5}
 posterior_samples(b4.3) %>%
   select(-lp__) %>%
   cov() %>%
@@ -1226,7 +1224,7 @@ posterior_samples(b4.3) %>%
 
 The `pairs()` function will work for a **brms** fit much like it would one from **rethinking**. It will show "both the marginal posteriors and the covariance" (p. 100).
 
-```{r}
+```{r, fig.width = 4.5, fig.height = 4}
 pairs(b4.3)
 ```
 
@@ -1275,7 +1273,7 @@ post %>%
   slice(1:5)  # this serves a similar function as `head()`
 ```
 
-Here are the four models leading up to McElreath's Figure 4.7. To reduce my computation time, I used a half Cauchy(0, 1) prior on $\sigma$. If you are willing to wait for the warmups, switching that out for McElreath's uniform prior should work fine as well.
+Here are the four models leading up to McElreath's Figure 4.7.
 
 ```{r b10_through_b352, cache = T, message = F, warning = F}
 N <- 10
@@ -1818,7 +1816,6 @@ ggmcmc::ggs(b4.6) %>%
   mutate(chain = factor(Chain)) %>% 
   
   ggplot(aes(x = Iteration, y = value)) +
-  # this marks off the warmups
   annotate(geom = "rect", 
            xmin = 0, xmax = 39000, ymin = -Inf, ymax = Inf,
            fill = "grey80", alpha = 1/2, size = 0) +
@@ -1849,7 +1846,6 @@ ggmcmc::ggs(b4.7) %>%
   mutate(chain = factor(Chain)) %>% 
   
   ggplot(aes(x = Iteration, y = value)) +
-  # this marks off the warmups
   annotate(geom = "rect", 
            xmin = 0, xmax = 39000, ymin = -Inf, ymax = Inf,
            fill = "grey80", alpha = 1/2, size = 0) +
@@ -2033,6 +2029,7 @@ d2 <-
   d %>% 
   drop_na(doy)
 ```
+
 In the text, McElreath indirectly explained how to make Figure 4.12 by walking through the workflow for making Figure 4.13. Here we mimic that ordering. 
 
 > First, we choose the knots. Remember, the knots are just values of year that serve as pivots for our spline. Where should the knots go? There are different ways to answer this question. You can, in principle, put the knots wherever you like. Their locations are part of the model, and you are responsible for them. Let's do what we did in the simple example above, place the knots at different evenly-spaced quantiles of the predictor variable. This gives you more knots where there are more observations. We used only 5 knots in the first example. Now let's go for 15: (p. 117)
@@ -2072,7 +2069,6 @@ B <- bs(d2$year,
         intercept = TRUE)
 ```
 
-
 Look closely at McElreath's tricky `knot_list[-c(1, num_knots)]` code. Whereas `knot_list` contains 15 ordered `year` values, McElreath shaved off the first and last `year` values with `knot_list[-c(1, num_knots)]`, leaving 13. This is because, by default, the `bs()` function places knots at the boundaries. Since the first and 15^th^ values in `knot_list` were boundary values for `year`, we removed them to avoid redundancies. We can confirm this with the code, below.
 
 ```{r}
@@ -2085,7 +2081,7 @@ Look at the second to last line, `- attr(*, "Boundary.knots")= int [1:2] 812 201
 knot_list[c(1, num_knots)]
 ```
 
-By the `degree = 3` argument, we indicated we wanted a cubic spline. McElreath used `degree = 1` for Figure 4.12. For reasons I'm not prepared to get into, here, splines don’t always include intercept parameters. Indeed, the `bs()` default is `intercept = FALSE`. McElreath's code indicated he wanted to fit a B-spline that included an intercept. Thus: `intercept = TRUE`.
+By the `degree = 3` argument, we indicated we wanted a cubic spline. McElreath used `degree = 1` for Figure 4.12. For reasons I'm not prepared to get into, here, splines don't always include intercept parameters. Indeed, the `bs()` default is `intercept = FALSE`. McElreath's code indicated he wanted to fit a B-spline that included an intercept. Thus: `intercept = TRUE`.
 
 Here's how we might make our version of the top panel of Figure 4.13.
 
@@ -2129,26 +2125,25 @@ b %>%
   facet_wrap(~bias_function, ncol = 1)
 ```
 
-We have come to a point in the text where we need to address a difficulty in the aim of this project. We're trying to translate McElreath's **rethinking** and base **R** code into a more **brms**/**tidyverse** oriented workflow. It's usually quite feasible to switch out the data manipulation and plotting steps from base **R** to their **tidyverse** counterparts. As for the statistical modeling part, **rethinking** and **brms** both function as user-friendly interfaces with the [Stan probabilistic programming language](https://mc-stan.org/) [@carpenterStanProbabilisticProgramming2017] and they share a lot of overlap in their functionality [for a somewhat outdated comparison, see @burknerBrmsPackageBayesian2017]. But they differ in important ways, too. For example, **brms** was not designed to fit models with the quadratic approximation the way McElreath can with `rethinking::quap()`. That's why we just jumped right to using HMC. This section in the book reveals another important difference. Whereas McElreath is showcasing the use of B-splines with functionality based on the **splines** package, which [is a part of base **R**](https://www.rdocumentation.org/packages/splines/versions/3.6.2), **brms** offers spines and other smoothing approaches using functions for the [**mgcv** package](https://CRAN.R-project.org/package=mgcv) [@R-mgcv; @mgcv2003; @mgcv2004; @mgcv2011; @mgcv2017; @mgcv2016].
+We have come to a point in the text where we need to address a difficulty in the aim of this project. We're trying to translate McElreath's **rethinking** and base **R** code into a more **brms**/**tidyverse** oriented workflow. It's usually quite feasible to switch out the data manipulation and plotting steps from base **R** to their **tidyverse** counterparts. As for the statistical modeling part, **rethinking** and **brms** both function as user-friendly interfaces with the [Stan probabilistic programming language](https://mc-stan.org/) [@carpenterStanProbabilisticProgramming2017] and they share a lot of overlap in their functionality [for a somewhat outdated comparison, see @burknerBrmsPackageBayesian2017]. But they differ in important ways, too. For example, **brms** was not designed to fit models with the quadratic approximation the way McElreath can with `rethinking::quap()`. That's why we just jumped right to using HMC. This section in the book reveals another important difference. Whereas McElreath showcased the use of B-splines with functionality based on the **splines** package, which [is a part of base **R**](https://www.rdocumentation.org/packages/splines/versions/3.6.2), **brms** offers spines and other smoothing approaches using functions for the [**mgcv** package](https://CRAN.R-project.org/package=mgcv) [@R-mgcv; @mgcv2003; @mgcv2004; @mgcv2011; @mgcv2017; @mgcv2016].
 
 Another important detail concerns how **brms** implements splines. From the "Splines" subsection of the `set_prior` section of the [**brms** reference manual](https://CRAN.R-project.org/package=brms/brms.pdf) [@brms2020RM, p. 181], we read: "Splines are implemented in brms using the 'random effects' formulation." As we are many chapters before McElreath introduces us to exciting world of random effects, the main point to get here is that **brms** does not implement splines like **rethinking** does. In the grand scheme of things, this is all fine. I like it that different packages afford us different options. But in the short term, this is going to break up our flow. Although we will retain our **tidyverse**-oriented workflow, we are going to fit the B-spline models in this section using **rethinking**. At the end of the chapter, we'll fit them again with **brms** and talk a little bit about the differences.
 
-> Now to get the parameter weights for each basis function, we need to actually define the
-model and make it run. The model is just a linear regression. The synthetic basis functions do all the work. We'll use each column of the matrix `B` as a variable. We'll also have an intercept to capture the average blossom day. This will make it easier to define priors on the basis weights, because then we can just conceive of each as a deviation from the intercept. (p. 117)
+> Now to get the parameter weights for each basis function, we need to actually define the model and make it run. The model is just a linear regression. The synthetic basis functions do all the work. We'll use each column of the matrix `B` as a variable. We'll also have an intercept to capture the average blossom day. This will make it easier to define priors on the basis weights, because then we can just conceive of each as a deviation from the intercept. (p. 117)
 
 That last line is another indication for why we set `intercept = TRUE`. Our model will follow the form
 
 \begin{align*}
 \text{day in year}_i & \sim \operatorname{Normal} (\mu_i, \sigma) \\
-\mu_i & = \alpha + \sum_{k=1}^K w_k B_{k, i} \\
+\mu_i  & = \alpha + \sum_{k=1}^K w_k B_{k, i} \\
 \alpha & \sim \operatorname{Normal}(100, 100) \\
-w_j & \sim \operatorname{Normal}(0, 10) \\
+w_j    & \sim \operatorname{Normal}(0, 10) \\
 \sigma & \sim \operatorname{Exponential}(1),
 \end{align*}
 
 where $\alpha$ is the intercept, $B_{k, i}$ is the value of the $k^\text{th}$ bias function on the $i^\text{th}$ row of the data, and $w_k$ is the estimated weight for the corresponding $k^\text{th}$ bias function. 
 
-Throughout this chapter, I’ve griped a bit about using the uniform prior for $\sigma$. Now that McElreath has introduced the exponential distribution as an alternative, those gripes are coming to an end. The exponential distribution is controlled by a single parameter, $\lambda$, which is also called the rate. As it turns out, the mean of the exponential distribution is the inverse of the rate, $1 / \lambda$. Here we use the `dexp()` function to get a sense of what that prior looks like.
+Throughout this chapter, I've griped a bit about using the uniform prior for $\sigma$. Now that McElreath has introduced the exponential distribution as an alternative, those gripes are coming to an end. The exponential distribution is controlled by a single parameter, $\lambda$, which is also called the rate. As it turns out, the mean of the exponential distribution is the inverse of the rate, $1 / \lambda$. Here we use the `dexp()` function to get a sense of what that prior looks like.
       
 ```{r, fig.width = 4, fig.height = 2.5}
 tibble(x = seq(from = 0, to = 10, by = 0.1)) %>% 
@@ -2186,8 +2181,7 @@ Here's the summary.
 precis(m4.7, depth = 2)
 ```
 
-The weights are indexed as `w[1]` through `w[17]`. McElreath's comments are in line with the general consensus on spline modes: the parameter estimates are very difficult to interpret directly. It’s often easier to just plot the results.
-
+The weights are indexed as `w[1]` through `w[17]`. McElreath's comments are in line with the general consensus on spline modes: the parameter estimates are very difficult to interpret directly. It's often easier to just plot the results. First we'll use `extract.samples()`.
 
 ```{r}
 post <- extract.samples(m4.7)
@@ -2338,287 +2332,95 @@ McElreath ended that block quote with a reference to his endnote #78. On page 56
 
 ## ~~Summary~~ B-splines with **brms**
 
-It's convenient for use how McElreath ended that last section with a reference to Simon Wood's work because **brms**, recall, employs his **mgcv** package for computing smooths, of which B-splines are a special case.
-
+It's convenient for use how McElreath ended that last section with a reference to Simon Wood's work because **brms**, recall, employs his **mgcv** package for computing smooths, of which B-splines are a special case. The two smooth functions **brms** imports from **mgcv** are `s()` and `t2()`. We'll be using `s()`. We might use the `brms::get_prior()` function to get a sense of how to set up the priors when using `s()`.
 
 ```{r}
 get_prior(data = d2,
-      family = gaussian,
-      temp ~ 1 + s(year, k = 19, bs = "cr"))
+          family = gaussian,
+          doy ~ 1 + s(year))
 ```
 
-```{r}
-num_knots <- 15
-knot_list <- quantile(d2$year, probs = seq(from = 0, to = 1, length.out = num_knots))
-```
- 
+We have an overall intercept (`class = Intercept`), a single $\beta$ parameter for `year` (`class = b`), a $\sigma$ parameter (`class = sigma`), and an unfamiliar parameter of `class = sds`. I'm not going to go into that last parameter in any detail, here. We'll need to work our way up through Chapter 13 and the multilevel model to get a full picture of what it means. The important thing to note here is that the priors for our **brms** version of McElreath's `m4.7` are going to be a little different. Here's how we might fit our **brms**-based `b4.8`.
 
-```{r}
-tibble(year = knot_list[-c(1, num_knots)])
-```
-
-```{r}
-knot_list[-c(1, num_knots)]
-```
-
-```{r}
-d2 <-
-  d2 %>% 
-  full_join(tibble(year = knot_list[-c(1, num_knots)]),
-            by = "year") %>% 
-  mutate(k = ifelse(year %in% knot_list[-c(1, num_knots)], 1, 0))
-```
-
-```{r}
-seq(from = 812, to = 2015, length.out = 19)
-```
-
-```{r}
-knot_list
-```
-
-```{r}
-longer_knot_list <-
-  c(knot_list[1] - 3, knot_list[1] - 2, knot_list[1] - 1, 
-  knot_list,
-  knot_list[num_knots] + 1, knot_list[num_knots] + 2, knot_list[num_knots] + 3)
-
-longer_knot_list
-```
-
-
-In the `mgcv::s()` function, we use the `bs` argument to determine what kind of smooth we'd like. To use a B-spline, you set `bs = "bs"`. In the context of our B-spline (`bs = "bs"`), `m` argument is the degree of the polynomial function where `m = 1` is linear, `m = 2` is quadratic, `m = 3` is cubic, and so on. Thus we'll be setting `m = 3`. The `k` argument defines the number of bias functions.
-
-
-If knots are supplied, then the number of supplied knots should be k + m[1] + 1, and the range of the middle k-m[1]+1 knots should include all the covariate values.
-
-$$
-\begin{align*}
-\text{num_knots} & = k - m + 1 \\
-15 & = k - 3 + 1 \\
-15 & = k - 2 \\
-17 & = k
-\end{align*}
-$$
-
-
-```{r}
-posterior_summary(b4.7)
-```
-
-
-      
-```{r}
-
-prior <- c(
-  prior(normal(100, 10), class = Intercept),
-  prior(normal(0, 10), class = b),
-  prior(normal(0, 10), class = sds),
-  prior(exponential(1), class = sigma)
-)
-
-b4.7 <-
+```{r b4.8}
+b4.8 <-
   brm(data = d2,
       family = gaussian,
-      doy ~ 1 + s(year, bs = "bs", m = 3),
-      prior = prior,
+      doy ~ 1 + s(year),
+      prior = c(prior(normal(100, 10), class = Intercept),
+                prior(normal(0, 10), class = b),
+                prior(student_t(3, 0, 10), class = sds),
+                prior(exponential(1), class = sigma)),
       iter = 2000, warmup = 1000, chains = 4, cores = 4,
       seed = 4,
-      control = list(adapt_delta = .9))
+      control = list(adapt_delta = .99),
+      file = "fits/b04.08")
 ```
+
+Check out the model summary.
 
 ```{r}
-# k - m[1] + 1
-19 - 3 + 1
+print(b4.8)
 ```
 
-```{r, eval = F}
-knots <- list(year = c(809, 810, 811, unname(knot_list), 2016, 2017, 2018))
+Our intercept and $\sigma$ summaries are similar to those we get from `rethinking::precis(m4.7)`. But the rest is a bit different. Here's what happens when we use `brms::fitted()` to plot the implications of the model.
 
-## check we can create the basis
-smX <- mgcv::smoothCon(s(year, bs = "bs", k = 17), data = d2, knots = knots)
-str(smX)
+```{r, fig.width = 6, fig.height = 1.67, message = F}
+fitted(b4.8) %>% 
+  data.frame() %>% 
+  bind_cols(select(d2, year, doy)) %>% 
+  
+  ggplot(aes(x = year, y = doy, ymin = Q2.5, ymax = Q97.5)) +
+  geom_hline(yintercept = fixef(b4.8)[1, 1], color = "white", linetype = 2) +
+  geom_point(color = "#ffb7c5", alpha = 1/2) +
+  geom_ribbon(fill = "white", alpha = 2/3) +
+  labs(subtitle = "b4.7 useing s(year)",
+       y = "day in year") +
+  theme_bw() +
+  theme(panel.grid = element_blank(),
+        panel.background = element_rect(fill = "#4f455c"))
 ```
 
-```{r, eval = F}
-m <- mgcv::gam(doy ~ s(year, bs = "bs", k = 17), data = d2, knots = knots,
-               method = "REML")
+The smooth isn't quite the same as when we used **rethinking**. Hopefully this isn't terribly surprising. We used different packages and a different underlying statistical model. One of the reasons is we didn't even use a B-spline. The default for `s()` is to use what's called a thin plate regression spline. If we'd like to fit a B-spline, we have to set `bs = bs`. Here's an example.
 
-str(m)
-
-summary(m)
-
-m$coefficients
-```
-
-
-```{r, eval = F}
-schoenberg::draw(m)
-```
-
-
-```{r, eval = F}
-b4.7 <-
+```{r b4.8_bs}
+b4.8_bs <-
   brm(data = d2,
       family = gaussian,
-      doy ~ 1 + s(year, bs = "bs", m = 3, k = 19),
-      knots = list(year = longer_knot_list),
+      doy ~ 1 + s(year, bs = "bs"),
       prior = c(prior(normal(100, 10), class = Intercept),
                 prior(normal(0, 10), class = b),
                 prior(normal(0, 10), class = sds),
                 prior(exponential(1), class = sigma)),
       iter = 2000, warmup = 1000, chains = 4, cores = 4,
       seed = 4,
-      control = list(adapt_delta = .99))
+      control = list(adapt_delta = .999),
+      file = "fits/b04.08_bs")
 ```
 
-Check the summary.
-
-```{r, eval = F}
-print(b4.7)
+```{r}
+print(b4.8_bs)
 ```
 
-```{r, eval = F}
-precis(m4.7, depth = 2)
-```
+Now here's the depiction of our **brms**-based B-spline model.
 
-```{r, eval = F}
-posterior_summary(b4.7)
-```
-
-```{r, eval = F}
-conditional_effects(b4.7) %>% 
-  plot(points = T,
-       point_args = list(alpha = 1/2, size = .75))
-```
-
-
-```{r, eval = F}
-fitted(b4.7) %>% 
+```{r, fig.width = 6, fig.height = 1.67, message = F}
+fitted(b4.8_bs) %>% 
   data.frame() %>% 
   bind_cols(select(d2, year, doy)) %>% 
   
   ggplot(aes(x = year, y = doy, ymin = Q2.5, ymax = Q97.5)) +
-  geom_hline(yintercept = fixef(b4.7)[1, 1], color = "white", linetype = 2) +
+  geom_hline(yintercept = fixef(b4.8_bs)[1, 1], color = "white", linetype = 2) +
   geom_point(color = "#ffb7c5", alpha = 1/2) +
   geom_ribbon(fill = "white", alpha = 2/3) +
-  ylab("day in year") +
+  labs(subtitle = 'b4.7_bs useing s(year, bs = "bs")',
+       y = "day in year") +
   theme_bw() +
   theme(panel.grid = element_blank(),
         panel.background = element_rect(fill = "#4f455c"))
 ```
 
-
-
-```{r, eval = F}
-conditional_effects(b4.7)
-conditional_smooths(b4.7)
-```
-
-
-```{r, eval = F}
-posterior_samples(b4.7)
-```
-
-
-```{r, eval = F}
-posterior_summary(b4.7) %>% 
-  data.frame() %>% 
-  rownames_to_column("parameter") %>% 
-  filter(str_detect(parameter, "\\[")) %>% 
-  expand(Estimate,
-         year = d2$year)
-```
-
-
-```{r, eval = F}
-posterior_summary(b4.7) %>% 
-  data.frame() %>% 
-  rownames_to_column("parameter") %>% 
-  filter(str_detect(parameter, "\\[")) %>% 
-  mutate(w = 1:n()) %>% 
-  expand(nesting(w, Estimate),
-         year = d2$year)
-```
-
-```{r, eval = F}
-bind_cols(select(d2, year),
-          data.frame(B)) %>%
-  set_names(c("year", 1:17)) %>% 
-  pivot_longer(-year,
-               names_to = "w") %>% 
-  mutate(w = as.integer(w)) %>% 
-  full_join(posterior_summary(b4.7) %>% 
-  data.frame() %>% 
-  rownames_to_column("parameter") %>% 
-  filter(str_detect(parameter, "\\[")) %>% 
-  mutate(w = 1:n()) %>% 
-  expand(nesting(w, Estimate),
-         year = d2$year),
-  by = c("w", "year")) %>% 
-  mutate(bw = value * Estimate) %>% 
-  
-  ggplot(aes(x = year, y = bw, group = w)) +
-  geom_line()
-```
-
-
-```{r, eval = F}
-posterior_summary(b4.7) %>% 
-  data.frame() %>% 
-  rownames_to_column("parameter") %>% 
-  filter(str_detect(parameter, "\\[")) %>% 
-  mutate(w = 1:n()) %>% 
-  expand(nesting(w, Estimate),
-         year = d2$year)
-```
-
-```{r, eval = F}
-bind_cols(select(d2, year),
-          data.frame(B))
-```
-
-```{r, eval = F}
-tibble(w = 1:17,
-       brms = posterior_summary(b4.7)[5:21, "Estimate"],
-       rethinking = apply( post$w , 2 , mean )) %>% 
-  
-  ggplot(aes(x = w)) +
-  geom_line(aes(y = brms), color = "blue") +
-  geom_line(aes(y = rethinking), color = "red")
-```
-
-```{r, eval = F}
-apply( post$w , 2 , mean )
-```
-
-```{r, eval = F}
-str(B)
-```
-
-```{r, eval = F}
-post <- extract.samples( m4.7 )
-w <- apply( post$w , 2 , mean )
-plot( NULL , xlim=range(d2$year) , ylim=c(-6,6) ,
-    xlab="year" , ylab="basis * weight" )
-for ( i in 1:ncol(B) ) lines( d2$year , w[i]*B[,i] )
-```
-
-```{r, eval = F}
-mu <- link( m4.7 )
-mu_PI <- apply(mu,2,PI,0.97)
-plot( d2$year , d2$doy , col=col.alpha(rangi2,0.3) , pch=16 )
-shade( mu_PI , d2$year , col=col.alpha("black",0.5) )
-```
-
-
-
-
-
-
-For a nice high-level introduction to the models you can fit with **mgcv**, check out the talk by Noam Ross, [*Nonlinear models in R: The wonderful world of mgcv*](https://www.youtube.com/watch?v=q4_t8jXcQgc).
-
-
+This model differs from both `m4.7` and `b4.8`. There are still other important differences between the underlying statistical model for `b4.8_bs` and McElreath’s `m4.7` that I'm just not going to go into, here. However, this may well change in future updates to this ebook. In the meantime, you might check out the [Setting custom knots with a B-spline (bs = “bs”)](https://discourse.mc-stan.org/t/setting-custom-knots-with-a-b-spline-bs-bs/15380) thread on the Stan Forums or the recent blog post by the great [Gavin Simpson](https://twitter.com/ucfagls), [*Extrapolating with B splines and GAMs*](https://fromthebottomoftheheap.net/2020/06/03/extrapolating-with-gams/). Also, for a nice high-level introduction to the models you can fit with **mgcv**, check out the nice talk by [Noam Ross](https://twitter.com/noamross), [*Nonlinear models in R: The wonderful world of mgcv*](https://www.youtube.com/watch?v=q4_t8jXcQgc).
 
 ## Session info {-}
 
@@ -2627,72 +2429,14 @@ sessionInfo()
 ```
 
 ```{r, warning = F, echo = F}
-rm(pos, growth, big, small, n_points, d, d2, n, d_grid, grid_function, d_grid_samples, d3, b4.1, b4.1_half_cauchy, b4.2, post, b4.3, b4.4, N, b10, b50, b150, b352, post10, post50, post150, post352, p10, p150, p50, p352, multiplot, mu_at_50, mu, weight_seq, mu_summary, pred_height, b4.5, fitd_quad, pred_quad, b4.6, b4.7, fitd_cub, pred_cub, fitd_line, pred_line, at)
+rm(pos, p1, p2, p3, growth, samples, p_grid, d, n_points, sparks, histospark, d2, n, sim, breaks, text, p4, d_grid, grid_function, d_grid_samples, d3, b4.1, b4.1_hc, b4.2, post, n_lines, lines, mu, sigma, b4.3, labels, N, b4.3_010, b4.3_050, b4.3_150, b4.3_352, post010, post050, post150, post352, mu_at_50, weight_seq, mu_summary, pred_height, b4.5, fitd_quad, pred_quad, b4.6, b4.7, fitd_cub, pred_cub, fitd_line, pred_line, at, num_knots, knot_list, 
+B, b, m4.7, m4.8, b4.8, b4.8_bs)
 ```
 
 ```{r, echo = F, message = F, warning = F, results = "hide"}
-pacman::p_unload(pacman::p_loaded(), character.only = TRUE)
-
 ggplot2::theme_set(ggplot2::theme_grey())
-
-bayesplot::color_scheme_set("blue")
+pacman::p_unload(pacman::p_loaded(), character.only = TRUE)
 ```
 
-
-
-
-
-```{r, eval = F}
-library(mgcv)
-set.seed(5)
-dat <- gamSim(1,n=400,dist="normal",scale=2)
-
-dat
-```
-
-```{r, eval = F}
-f3 <- function(x) 0.2 * x^11 * (10 * (1 - x))^6 + 10 * (10 * x)^3 * 
-              (1 - x)^10 ## test function
-  n <- 100;x <- runif(n)
-  y <- f3(x) + rnorm(n)*2
-  ## first a model with first order penalty over whole real line (red)
-  b0 <- gam(y~s(x,m=1,k=20),method="ML")
-  ## now a model with first order penalty evaluated over (-.5,1.5) (black)
-  op <- options(warn=-1)
-  b <- gam(y~s(x,bs="bs",m=c(3,1),k=20),knots=list(x=c(-.5,0,1,1.5)),
-           method="ML")
-  
-  b
-```
-
-```{r, eval = F}
-f3 <- function(x) 0.2 * x^11 * (10 * (1 - x))^6 + 10 * (10 * x)^3 * (1 - x)^10 ## test function
-n <- 100
-dat <- tibble(x = runif(n),
-              y = f3(x) + rnorm(n)*2)
-  
- b <- gam(data = dat,
-          y ~ s(x, bs = "bs", m = c(3, 1), k = 20),
-          knots = list(x = c(-.5, 0, 1, 1.5)),
-           method = "ML")
-
-b
-```
-
-
-      
-      
-```{r, eval = F}
-gam(data = d2,
-    doy ~ 1 + s(year, bs = "bs", m = c(3, 2), k = 13),
-    knots = list(year = c(knot_list[c(1, num_knots)], knot_list)),
-    method = "ML")
-```
-
-
-```{r, eval = F}
-c(knot_list[c(1, num_knots)], knot_list)
-```
-
-
+[^1]: In the first edition of his text, McElreath started out with the uniform prior for $\sigma$ and transitioned to the half Cauchy when he introduced HMC in Chapter 8. In this edition, he largely replaced the half Cauchy with the exponential distribution. Both are fine. If you'd like to learn more about the half Cauchy, you might check out [Section 8.4.3.1](https://bookdown.org/content/3890/markov-chain-monte-carlo.html#taming-a-wild-chain.) of my [-@kurzStatisticalRethinkingBrms2020] translation of his first edition.
 
