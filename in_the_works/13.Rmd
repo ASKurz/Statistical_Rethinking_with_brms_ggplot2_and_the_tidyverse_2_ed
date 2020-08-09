@@ -640,10 +640,9 @@ library(rethinking)
 data(chimpanzees)
 d <- chimpanzees
 
-rm(chimpanzees)
 detach(package:rethinking, unload = T)
 library(brms)
-rm(UCBadmit)
+rm(chimpanzees)
 ```
 
 Wrangle.
