@@ -1,0 +1,1522 @@
+\PassOptionsToPackage{unicode=true}{hyperref} % options for packages loaded elsewhere
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[]{article}
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\usepackage{fixltx2e} % provides \textsubscript
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provides euro and other symbols
+\else % if luatex or xelatex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Ligatures=TeX,Scale=MatchLowercase}
+\fi
+% use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+% use microtype if available
+\IfFileExists{microtype.sty}{%
+\usepackage[]{microtype}
+\UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\IfFileExists{parskip.sty}{%
+\usepackage{parskip}
+}{% else
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
+}
+\usepackage{hyperref}
+\hypersetup{
+            pdftitle={Ch. 14 Adventures in Covariance: Bonus Section},
+            pdfauthor={A Solomon Kurz},
+            pdfborder={0 0 0},
+            breaklinks=true}
+\urlstyle{same}  % don't use monospace font for urls
+\usepackage[margin=1in]{geometry}
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.77,0.63,0.00}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{graphicx,grffile}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+\usepackage[normalem]{ulem}
+% avoid problems with \sout in headers with hyperref:
+\pdfstringdefDisableCommands{\renewcommand{\sout}{}}
+\setlength{\emergencystretch}{3em}  % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{0}
+% Redefines (sub)paragraphs to behave more like sections
+\ifx\paragraph\undefined\else
+\let\oldparagraph\paragraph
+\renewcommand{\paragraph}[1]{\oldparagraph{#1}\mbox{}}
+\fi
+\ifx\subparagraph\undefined\else
+\let\oldsubparagraph\subparagraph
+\renewcommand{\subparagraph}[1]{\oldsubparagraph{#1}\mbox{}}
+\fi
+
+% set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+
+
+\title{Ch. 14 Adventures in Covariance: Bonus Section}
+\author{A Solomon Kurz}
+\date{2020-08-09}
+
+\begin{document}
+\maketitle
+
+Preliminary steps.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{library}\NormalTok{(tidyverse)}
+\KeywordTok{library}\NormalTok{(dutchmasters)}
+\KeywordTok{library}\NormalTok{(brms)}
+
+\NormalTok{theme_pearl_earring <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(}\DataTypeTok{light_color =} \StringTok{"#E8DCCF"}\NormalTok{, }
+                                \DataTypeTok{dark_color =} \StringTok{"#100F14"}\NormalTok{, }
+                                \DataTypeTok{my_family =} \StringTok{"Courier"}\NormalTok{,}
+\NormalTok{                                ...) \{}
+  
+  \KeywordTok{theme}\NormalTok{(}\DataTypeTok{line =} \KeywordTok{element_line}\NormalTok{(}\DataTypeTok{color =}\NormalTok{ light_color),}
+        \DataTypeTok{text =} \KeywordTok{element_text}\NormalTok{(}\DataTypeTok{color =}\NormalTok{ light_color, }\DataTypeTok{family =}\NormalTok{ my_family),}
+        \DataTypeTok{strip.text =} \KeywordTok{element_text}\NormalTok{(}\DataTypeTok{color =}\NormalTok{ light_color, }\DataTypeTok{family =}\NormalTok{ my_family),}
+        \DataTypeTok{axis.text =} \KeywordTok{element_text}\NormalTok{(}\DataTypeTok{color =}\NormalTok{ light_color),}
+        \DataTypeTok{axis.ticks =} \KeywordTok{element_line}\NormalTok{(}\DataTypeTok{color =}\NormalTok{ light_color),}
+        \DataTypeTok{axis.line =} \KeywordTok{element_blank}\NormalTok{(),}
+        \DataTypeTok{legend.background =} \KeywordTok{element_rect}\NormalTok{(}\DataTypeTok{fill =}\NormalTok{ dark_color, }\DataTypeTok{color =} \StringTok{"transparent"}\NormalTok{),}
+        \DataTypeTok{legend.key =} \KeywordTok{element_rect}\NormalTok{(}\DataTypeTok{fill =}\NormalTok{ dark_color, }\DataTypeTok{color =} \StringTok{"transparent"}\NormalTok{),}
+        \DataTypeTok{panel.background =} \KeywordTok{element_rect}\NormalTok{(}\DataTypeTok{fill =}\NormalTok{ dark_color, }\DataTypeTok{color =}\NormalTok{ light_color),}
+        \DataTypeTok{panel.grid =} \KeywordTok{element_blank}\NormalTok{(),}
+        \DataTypeTok{plot.background =} \KeywordTok{element_rect}\NormalTok{(}\DataTypeTok{fill =}\NormalTok{ dark_color, }\DataTypeTok{color =}\NormalTok{ dark_color),}
+        \DataTypeTok{strip.background =} \KeywordTok{element_rect}\NormalTok{(}\DataTypeTok{fill =}\NormalTok{ dark_color, }\DataTypeTok{color =} \StringTok{"transparent"}\NormalTok{),}
+\NormalTok{        ...)}
+  
+\NormalTok{\}}
+
+\CommentTok{# now set `theme_pearl_earring()` as the default theme}
+\KeywordTok{theme_set}\NormalTok{(}\KeywordTok{theme_pearl_earring}\NormalTok{())}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{summary-bonus-multilevel-growth-models-and-the-melsm}{%
+\subsection{\texorpdfstring{14.6. \sout{Summary} Bonus: Multilevel
+growth models and the
+MELSM}{14.6. Summary Bonus: Multilevel growth models and the MELSM}}\label{summary-bonus-multilevel-growth-models-and-the-melsm}}
+
+To this point in the chapter and most of the text, the data have largely
+had a cross-sectional feel. In fairness, we did incorporate an element
+of time with the café example from model \texttt{b14.1} by looking at
+the differences between mornings and evenings. However, even then we
+collapsed across longer time spans, such as days, weeks, months, and so
+on. One of the two goals of this bonus section to provide a brief
+introduction multilevel models designed to express change over time. The
+particular brand of multilevel models we'll focus on are often called
+multilevel growth models. Though we will focus on simple linear models,
+this basic framework can be generalized along many lines. The second
+goal is to build on our appreciation of covariance structures by
+introducing a class of multilevel models designed to investigate
+variation in variation called the mixed-effects location scale models
+(MELSM). For our final model, we get a little fancy and fit a
+multivariate MELSM.
+
+\hypertarget{borrow-some-data.}{%
+\subsubsection{14.6.1. Borrow some data.}\label{borrow-some-data.}}
+
+All the models in this bonus section are based on the preprint by
+Williams, Liu, et al.
+(\protect\hyperlink{ref-williamsBayesianMultivariateMixedeffects2019a}{2019}),
+\href{https://psyarxiv.com/4kfjp}{\emph{Bayesian multivariate
+mixed-effects location scale modeling of longitudinal relations among
+affective traits, states, and physical activity}}. Williams and
+colleagues' data and supporting scripts are available in the
+\texttt{example\_analyses} folder from their OSF project at
+\url{https://osf.io/3bmdh/}. You can also download the data from the
+\href{https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed/tree/master/data}{\texttt{data}
+folder} of this ebook's GitHub repo.
+
+Load the data.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{dat <-}\StringTok{ }
+\StringTok{  }\NormalTok{readr}\OperatorTok{::}\KeywordTok{read_csv}\NormalTok{(}\StringTok{"/Users/solomonkurz/Dropbox/Recoding Statistical Rethinking 2nd ed/data/m_melsm_dat.csv"}\NormalTok{) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{day01 =}\NormalTok{ (day }\OperatorTok{-}\StringTok{ }\DecValTok{2}\NormalTok{) }\OperatorTok{/}\StringTok{ }\KeywordTok{max}\NormalTok{((day }\OperatorTok{-}\StringTok{ }\DecValTok{2}\NormalTok{)))}
+
+\KeywordTok{glimpse}\NormalTok{(dat)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Rows: 13,033
+## Columns: 10
+## $ X1        <dbl> 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 24, 25, 26, 27,...
+## $ P_A.std   <dbl> 1.74740876, -0.23109384, 0.34155950, 0.45664827, -0.23484069, 1.12785344, 1.11272629, 0...
+## $ day       <dbl> 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 24, 25, 26, 27,...
+## $ P_A.lag   <dbl> 0.7478597, 1.4674156, -0.3772641, 0.1286055, 0.3292090, 1.4107233, 0.7696644, 0.7304159...
+## $ N_A.lag   <dbl> 0.25399356, -0.85363386, 0.96144592, -0.19620339, -0.16047347, -0.90365575, -0.77502805...
+## $ steps.pm  <dbl> 0.955171, 0.955171, 0.955171, 0.955171, 0.955171, 0.955171, 0.955171, 0.955171, 0.95517...
+## $ steps.pmd <dbl> 0.5995578, -0.3947168, -1.5193587, -1.3442335, 0.4175970, -0.3231042, 0.3764198, 0.3176...
+## $ record_id <dbl> 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, ...
+## $ N_A.std   <dbl> -0.73357975, 0.53856559, 0.60161616, 0.27807249, 0.54674641, 0.05660701, -0.08417053, 0...
+## $ day01     <dbl> 0.00000000, 0.01020408, 0.02040816, 0.03061224, 0.04081633, 0.05102041, 0.06122449, 0.0...
+\end{verbatim}
+
+These data are from 193 participants.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{distinct}\NormalTok{(dat, record_id) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{count}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## # A tibble: 1 x 1
+##       n
+##   <int>
+## 1   193
+\end{verbatim}
+
+Participants were asked to complete self-report ratings once a day for a
+few months. People varied by how many days they participated in the
+study, with number of days ranging from 8 to 99 and a median of 74.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{dat }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{count}\NormalTok{(record_id) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{summarise}\NormalTok{(}\DataTypeTok{median =} \KeywordTok{median}\NormalTok{(n),}
+            \DataTypeTok{min =} \KeywordTok{min}\NormalTok{(n),}
+            \DataTypeTok{max =} \KeywordTok{max}\NormalTok{(n))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## # A tibble: 1 x 3
+##   median   min   max
+##    <int> <int> <int>
+## 1     74     8    99
+\end{verbatim}
+
+Here is a plot of that distribution.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{dat }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{count}\NormalTok{(record_id) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }
+\StringTok{  }\KeywordTok{ggplot}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =}\NormalTok{ n)) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{geom_bar}\NormalTok{(}\DataTypeTok{fill =} \StringTok{"#B1934A"}\NormalTok{) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{scale_x_continuous}\NormalTok{(}\StringTok{"number of days"}\NormalTok{, }\DataTypeTok{limits =} \KeywordTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{, }\OtherTok{NA}\NormalTok{)) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{theme_pearl_earring}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{center}\includegraphics[width=288px]{14.bonus_files/figure-latex/unnamed-chunk-6-1} \end{center}
+
+Our primary variables of interest were taken from the Positive and
+Negative Affect Schedule (PANAS, Watson et al.,
+\protect\hyperlink{ref-watsonPANASDevelopment1988}{1988}), which is
+widely used in certain areas of psychology to measure mood or emotion.
+In this study, participants completed the PANAS once a day by endorsing
+the extent to which they experienced various positive (e.g., excited,
+inspired) and negative (e.g., upset, afraid) emotional states. These
+responses are summed into two scores: Positive affect (PA) and negative
+affect (NA). In the current data, the standardized versions of these
+scores are in the \texttt{P\_A.std} and \texttt{N\_A.std} columns,
+respectively. To get a sense of what these look like, here are the daily
+\texttt{N\_A.std} scores from a random sample of 16 participants.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{set.seed}\NormalTok{(}\DecValTok{14}\NormalTok{)}
+
+\NormalTok{dat }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{nest}\NormalTok{(}\DataTypeTok{data =} \KeywordTok{c}\NormalTok{(X1, P_A.std, day, P_A.lag, N_A.lag, steps.pm, steps.pmd, N_A.std, day01)) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{sample_n}\NormalTok{(}\DataTypeTok{size =} \DecValTok{16}\NormalTok{) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{unnest}\NormalTok{(data) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }
+\StringTok{  }\KeywordTok{ggplot}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =}\NormalTok{ day, }\DataTypeTok{y =}\NormalTok{ N_A.lag)) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{geom_line}\NormalTok{(}\DataTypeTok{color =} \StringTok{"#80A0C7"}\NormalTok{) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{geom_point}\NormalTok{(}\DataTypeTok{color =} \StringTok{"#FCF9F0"}\NormalTok{, }\DataTypeTok{size =} \DecValTok{1}\OperatorTok{/}\DecValTok{2}\NormalTok{) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{ylab}\NormalTok{(}\StringTok{"negative affect (standardized)"}\NormalTok{) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{facet_wrap}\NormalTok{(}\OperatorTok{~}\NormalTok{record_id)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{center}\includegraphics[width=504px]{14.bonus_files/figure-latex/unnamed-chunk-7-1} \end{center}
+
+\hypertarget{conventional-multilevel-growth-model.}{%
+\subsubsection{14.6.2. Conventional multilevel growth
+model.}\label{conventional-multilevel-growth-model.}}
+
+In the social sciences, a typical way to analyze data like these is with
+a multilevel growth model in which participants vary in their intercepts
+(starting point) and time slopes (change over time). In the sample of
+the data, above, it looks like most participants have fairly constant
+levels of NA over time (i.e., near-zero slopes) but some (e.g., \# 128
+and 147) show some evidence of systemic decreases in NA (i.e., negative
+slopes). There is also some variation in starting points, though most of
+the participants in this subset of the data seemed to have endorsed
+relatively low levels of NA both at baseline and throughout the study.
+
+We want a model that can capture those kinds of variation. Eventually,
+we will fit a model that accounts for both PA and NA. But to keep things
+simple while we're warming up, we will restrict our focus to NA. If we
+let \(\text{NA}_{ij}\) be the standardized NA score for the \(i\)th
+participant on the \(j\)th day, our first Bayesian multilevel growth
+model will follow the form
+
+\[
+\begin{align*}
+\text{NA}_{ij} & \sim \operatorname{Normal}\begin{pmatrix} \mu_{ij}, \sigma \end{pmatrix} \\
+\mu_{ij}       & = \beta_0 + \beta_1 \text{time}_{ij} + u_{0i} + u_{1i} \text{time}_{ij} \\
+\sigma & = \sigma_\epsilon \\
+\begin{bmatrix} u_{0i} \\ u_{1i} \end{bmatrix} & \sim \operatorname{MVNormal}\begin{pmatrix} \begin{bmatrix} 0 \\ 0 \end{bmatrix}, \mathbf S \mathbf R \mathbf S \end{pmatrix} \\
+\mathbf S & = \begin{bmatrix} \sigma_0 & 0 \\ 0 & \sigma_1 \end{bmatrix} \\
+\mathbf R & = \begin{bmatrix} 1 & \rho_{12} \\ \rho_{21} & 1 \end{bmatrix} \\
+\beta_0   & \sim \operatorname{Normal}(0, 0.2) \\
+\beta_1   & \sim \operatorname{Normal}(0, 1) \\
+\sigma_0 \text{ and } \sigma_1 & \sim \operatorname{Exponential}(1) \\
+\sigma_\epsilon & \sim \operatorname{Exponential}(1) \\
+\mathbf R & \sim \operatorname{LKJ}(2),
+\end{align*}
+\]
+
+where \(\beta_0\) is the intercept (i.e., starting point) and \(u_{0i}\)
+captures variations in that intercept across participants. Similarly,
+\(\beta_1\) is the slope depicting linear change in \(\text{NA}\) across
+time and \(u_{1i}\) captures variations in that linear change across
+participants. The \(u_{0i}\) and \(u_{1i}\) parameters are modeled as
+multivariate normal with zero means (i.e., they are deviations from the
+population parameters) and standard deviations \(\sigma_0\) and
+\(\sigma_1\). We express the correlation between those two group-level
+\(\sigma\) parameters with \(\mathbf R\), the symmetric correlation
+matrix. Here we just have one correlation, \(\rho_{21}\), which is the
+same as \(\rho_{12}\). Finally, variation not accounted for by the other
+parameters is captured by the single parameter \(\sigma_\epsilon\),
+which is often just called \(\epsilon\).
+
+We have two variables measuring time in these data. The \texttt{day}
+variable measures time by integers, ranging from 2 to 100. To make it a
+little easier to set the priors and fit the model with Stan, we have a
+rescaled version of the variable, \texttt{day01}, which ranges from 0 to
+1. In this way, \(\beta_0\) is the value for the first day in the data
+set and \(\beta_1\) is the expected change by the end of the collection
+(i.e., the 100th day). For consistency, we are largely following
+McElreath's weakly-regularizing approach to priors.
+
+You may have noticed my statistical notation differs a bit from
+McElreath's, here. This notation is a blend of sensibilities from
+McElreath, Williams, and from the notation I used in
+\href{https://bookdown.org/content/4253/}{my translation} of Singer and
+Willett's
+(\protect\hyperlink{ref-singerAppliedLongitudinalData2003}{2003}) text,
+\href{https://oxford.universitypressscholarship.com/view/10.1093/acprof:oso/9780195152968.001.0001/acprof-9780195152968}{\emph{Applied
+longitudinal data analysis: Modeling change and event occurrence}}. I
+hope it's clear.
+
+Here is how to fit the model with \textbf{brms}.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# 5.583446 mins}
+\NormalTok{b14}\FloatTok{.12}\NormalTok{ <-}
+\StringTok{  }\KeywordTok{brm}\NormalTok{(}\DataTypeTok{data =}\NormalTok{ dat,}
+      \DataTypeTok{family =}\NormalTok{ gaussian,}
+\NormalTok{      N_A.std }\OperatorTok{~}\StringTok{ }\DecValTok{1} \OperatorTok{+}\StringTok{ }\NormalTok{day01 }\OperatorTok{+}\StringTok{ }\NormalTok{(}\DecValTok{1} \OperatorTok{+}\StringTok{ }\NormalTok{day01 }\OperatorTok{|}\StringTok{ }\NormalTok{record_id),}
+      \DataTypeTok{prior =} \KeywordTok{c}\NormalTok{(}\KeywordTok{prior}\NormalTok{(}\KeywordTok{normal}\NormalTok{(}\DecValTok{0}\NormalTok{, }\FloatTok{0.2}\NormalTok{), }\DataTypeTok{class =}\NormalTok{ Intercept),}
+                \KeywordTok{prior}\NormalTok{(}\KeywordTok{normal}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{1}\NormalTok{), }\DataTypeTok{class =}\NormalTok{ b),}
+                \KeywordTok{prior}\NormalTok{(}\KeywordTok{exponential}\NormalTok{(}\DecValTok{1}\NormalTok{), }\DataTypeTok{class =}\NormalTok{ sd),}
+                \KeywordTok{prior}\NormalTok{(}\KeywordTok{exponential}\NormalTok{(}\DecValTok{1}\NormalTok{), }\DataTypeTok{class =}\NormalTok{ sigma),}
+                \KeywordTok{prior}\NormalTok{(}\KeywordTok{lkj}\NormalTok{(}\DecValTok{2}\NormalTok{), }\DataTypeTok{class =}\NormalTok{ cor)),}
+      \DataTypeTok{iter =} \DecValTok{3000}\NormalTok{, }\DataTypeTok{warmup =} \DecValTok{1000}\NormalTok{, }\DataTypeTok{chains =} \DecValTok{4}\NormalTok{, }\DataTypeTok{cores =} \DecValTok{4}\NormalTok{,}
+      \DataTypeTok{seed =} \DecValTok{14}\NormalTok{,}
+      \DataTypeTok{file =} \StringTok{"/Users/solomonkurz/Dropbox/Recoding Statistical Rethinking 2nd ed/fits/b14.12"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Check the summary.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{print}\NormalTok{(b14}\FloatTok{.12}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##  Family: gaussian 
+##   Links: mu = identity; sigma = identity 
+## Formula: N_A.std ~ 1 + day01 + (1 + day01 | record_id) 
+##    Data: dat (Number of observations: 13033) 
+## Samples: 4 chains, each with iter = 3000; warmup = 1000; thin = 1;
+##          total post-warmup samples = 8000
+## 
+## Group-Level Effects: 
+## ~record_id (Number of levels: 193) 
+##                      Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+## sd(Intercept)            0.78      0.04     0.70     0.86 1.00     1396     2647
+## sd(day01)                0.65      0.05     0.57     0.75 1.00     2952     4640
+## cor(Intercept,day01)    -0.34      0.08    -0.49    -0.19 1.00     2874     4159
+## 
+## Population-Level Effects: 
+##           Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+## Intercept     0.03      0.06    -0.08     0.14 1.00      809     1767
+## day01        -0.16      0.06    -0.27    -0.04 1.00     1778     3357
+## 
+## Family Specific Parameters: 
+##       Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+## sigma     0.61      0.00     0.60     0.62 1.00    14649     5390
+## 
+## Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+## and Tail_ESS are effective sample size measures, and Rhat is the potential
+## scale reduction factor on split chains (at convergence, Rhat = 1).
+\end{verbatim}
+
+Hopefully it makes sense that the population-level intercept
+(\(\beta_0\)) is near zero. It would be odd if it wasn't given these are
+standardized data. The coefficient for \texttt{day01} (\(\beta_1\)) is
+mildly negative, suggesting an overall trend for participants to endorse
+lower NA scores over time.
+
+The two group-level \(\sigma\) parameters are fairly large given the
+scale of the data. They suggest participants varied quite a bit in terms
+of both intercepts and slopes. They also have a moderate negative
+correlation, suggesting that participants with higher intercepts tended
+to have more negative slopes.
+
+To get a sense of the model, we'll plot the posterior means for each
+participants' fitted trajectory across time (thin lines), along with the
+population-average trajectory (thick line).
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{nd <-}
+\StringTok{  }\NormalTok{dat }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{distinct}\NormalTok{(record_id, day01)}
+
+\KeywordTok{fitted}\NormalTok{(b14}\FloatTok{.12}\NormalTok{,}
+       \DataTypeTok{newdata =}\NormalTok{ nd) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{data.frame}\NormalTok{() }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{bind_cols}\NormalTok{(nd) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }
+\StringTok{  }\KeywordTok{ggplot}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =}\NormalTok{ day01, }\DataTypeTok{y =}\NormalTok{ Estimate, }\DataTypeTok{group =}\NormalTok{ record_id)) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{geom_line}\NormalTok{(}\DataTypeTok{alpha =} \DecValTok{1}\OperatorTok{/}\DecValTok{3}\NormalTok{, }\DataTypeTok{size =} \DecValTok{1}\OperatorTok{/}\DecValTok{3}\NormalTok{, }\DataTypeTok{color =} \StringTok{"#8B9DAF"}\NormalTok{) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{geom_segment}\NormalTok{(}\DataTypeTok{x =} \DecValTok{0}\NormalTok{, }\DataTypeTok{xend =} \DecValTok{1}\NormalTok{,}
+               \DataTypeTok{y =} \KeywordTok{fixef}\NormalTok{(b14}\FloatTok{.12}\NormalTok{)[}\DecValTok{1}\NormalTok{, }\DecValTok{1}\NormalTok{],}
+               \DataTypeTok{yend =} \KeywordTok{fixef}\NormalTok{(b14}\FloatTok{.12}\NormalTok{)[}\DecValTok{1}\NormalTok{, }\DecValTok{1}\NormalTok{] }\OperatorTok{+}\StringTok{ }\KeywordTok{fixef}\NormalTok{(b14}\FloatTok{.12}\NormalTok{)[}\DecValTok{2}\NormalTok{, }\DecValTok{1}\NormalTok{],}
+               \DataTypeTok{size =} \DecValTok{3}\NormalTok{, }\DataTypeTok{color =} \StringTok{"#80A0C7"}\NormalTok{) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{scale_x_continuous}\NormalTok{(}\DataTypeTok{breaks =} \KeywordTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{, }\FloatTok{.5}\NormalTok{, }\DecValTok{1}\NormalTok{)) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{ylab}\NormalTok{(}\StringTok{"negative affect (standardized)"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{center}\includegraphics[width=288px]{14.bonus_files/figure-latex/unnamed-chunk-9-1} \end{center}
+
+If you look back up to the model summary from before the plot, the one
+parameter we didn't focus on was the lone \texttt{sigma} parameter at
+the bottom. That's our \(\sigma_\epsilon\), which captures the
+individual variation not accounted for by the intercepts, slopes, and
+their correlation. An important characteristic of the conventional
+multilevel growth model is that \(\sigma_\epsilon\) does not vary across
+persons, occasions, or other variables. To give a sense of why this
+might not be the best assumption, let's take a focused look at the model
+implied trajectories for two participants. Here we will take cues from
+some Figure 4.8 from way back in {[}Section 4.4.3.5{]}{[}Prediction
+intervals.{]}. We will plot the original data atop both the fitted lines
+and their 95\% intervals, which expresses the mean structure, along with
+the 95\% posterior predictive interval, which expresses the uncertainty
+of the \(\sigma_\epsilon\) parameter.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{nd <-}
+\StringTok{  }\NormalTok{dat }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{filter}\NormalTok{(record_id }\OperatorTok{%in%}\StringTok{ }\KeywordTok{c}\NormalTok{(}\DecValTok{30}\NormalTok{, }\DecValTok{115}\NormalTok{)) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{select}\NormalTok{(record_id, N_A.std, day01)}
+
+\KeywordTok{bind_cols}\NormalTok{(}
+  \KeywordTok{fitted}\NormalTok{(b14}\FloatTok{.12}\NormalTok{,}
+         \DataTypeTok{newdata =}\NormalTok{ nd) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{    }\KeywordTok{data.frame}\NormalTok{(),}
+  \KeywordTok{predict}\NormalTok{(b14}\FloatTok{.12}\NormalTok{,}
+          \DataTypeTok{newdata =}\NormalTok{ nd) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{    }\KeywordTok{data.frame}\NormalTok{() }\OperatorTok{%>%}\StringTok{ }
+\StringTok{    }\KeywordTok{select}\NormalTok{(Q2}\FloatTok{.5}\OperatorTok{:}\NormalTok{Q97}\FloatTok{.5}\NormalTok{) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{    }\KeywordTok{set_names}\NormalTok{(}\StringTok{"p_lower"}\NormalTok{, }\StringTok{"p_upper"}\NormalTok{)}
+\NormalTok{) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{bind_cols}\NormalTok{(nd) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }
+\StringTok{  }\KeywordTok{ggplot}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =}\NormalTok{ day01)) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{geom_smooth}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{y =}\NormalTok{ Estimate, }\DataTypeTok{ymin =}\NormalTok{ Q2}\FloatTok{.5}\NormalTok{, }\DataTypeTok{ymax =}\NormalTok{ Q97}\FloatTok{.5}\NormalTok{),}
+              \DataTypeTok{stat =} \StringTok{"identity"}\NormalTok{,}
+              \DataTypeTok{fill =} \StringTok{"#8B9DAF"}\NormalTok{, }\DataTypeTok{color =} \StringTok{"#8B9DAF"}\NormalTok{, }\DataTypeTok{alpha =} \DecValTok{1}\OperatorTok{/}\DecValTok{2}\NormalTok{, }\DataTypeTok{size =} \DecValTok{1}\OperatorTok{/}\DecValTok{2}\NormalTok{) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{geom_ribbon}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{ymin =}\NormalTok{ p_lower, }\DataTypeTok{ymax =}\NormalTok{ p_upper),}
+              \DataTypeTok{fill =} \StringTok{"#8B9DAF"}\NormalTok{, }\DataTypeTok{alpha =} \DecValTok{1}\OperatorTok{/}\DecValTok{2}\NormalTok{) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{geom_point}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{y =}\NormalTok{ N_A.std),}
+             \DataTypeTok{color =} \StringTok{"#8B9DAF"}\NormalTok{) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{scale_x_continuous}\NormalTok{(}\DataTypeTok{breaks =} \KeywordTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{, }\FloatTok{.5}\NormalTok{, }\DecValTok{1}\NormalTok{)) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{ylab}\NormalTok{(}\StringTok{"negative affect (standardized)"}\NormalTok{) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{facet_wrap}\NormalTok{(}\OperatorTok{~}\NormalTok{record_id)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{center}\includegraphics[width=504px]{14.bonus_files/figure-latex/unnamed-chunk-10-1} \end{center}
+
+Because of our fixed \(\sigma_\epsilon\) parameter, the 95\% posterior
+predictive interval is the same width for both participants. Yet look
+how closely participant the data points for participant 30 cluster not
+only within the center region of the posterior prediction intervals, but
+also almost completely within the 95\% interval for the fitted line. In
+contrast, notice how much more spread out the data points for
+participant 115 are, and how many of them extend well beyond the
+posterior predictive interval. This difference in variability is ignored
+by conventional growth models. However, there's no reason we can't
+adjust our model to capture this kind of person-level variability, too.
+Enter the MELSM.
+
+\hypertarget{learn-more-about-your-data-with-the-melsm.}{%
+\subsubsection{14.6.3. Learn more about your data with the
+MELSM.}\label{learn-more-about-your-data-with-the-melsm.}}
+
+Mixed-effects location scale models (MELSMs) have their origins in the
+work of
+\href{https://health.uchicago.edu/faculty/donald-hedeker-phd}{Donald
+Hedeker} and colleagues (Hedeker et al.,
+\protect\hyperlink{ref-hedekerApplicationMixedeffectsLocation2008}{2008},
+\protect\hyperlink{ref-hedekerModelingWithinsubjectVariance2012}{2012}).
+Rast et al.
+(\protect\hyperlink{ref-rastModelingIndividualDifferences2012}{2012})
+showcased an early application of the framework to the BUGS/JAGS
+software. More recently \href{https://twitter.com/rastlab}{Philippe
+Rast} and colleagues (particularly graduate student,
+\href{wdonald_1985}{Donald Williams}) have adapted this approach for use
+within the Stan/\textbf{brms} software ecosystem (Williams, Liu, et al.,
+\protect\hyperlink{ref-williamsBayesianMultivariateMixedeffects2019a}{2019};
+Williams, Rouder, et al.,
+\protect\hyperlink{ref-williamsSurfaceUnearthingWithinperson2019}{2019};
+Williams, Martin, et al.,
+\protect\hyperlink{ref-williamsPuttingIndividualReliability2019}{2019};
+Williams, Zimprich, et al.,
+\protect\hyperlink{ref-williamsBayesianNonlinearMixedeffects2019a}{2019}).
+
+Within the \textbf{brms}, MELSMs apply a distributional modeling
+approach (see Bürkner,
+\protect\hyperlink{ref-Buxfcrkner2020Distributional}{2020}\protect\hyperlink{ref-Buxfcrkner2020Distributional}{a})
+to the multilevel growth model. Not only are parameters from the mean
+structure allowed to vary across groups, but parameters applied to
+\(\sigma\) are allowed to vary across groups, too. Do you remember the
+little practice model \texttt{b10.1} from {[}Section 10.2.2{]}{[}Linking
+linear models to distributions.{]}. We simulated Gaussian data for two
+groups with the same mean parameter but different parameters for
+\(\sigma\). If you check back in that section, you'll see that the
+\textbf{brms} default was to model \(\log \sigma\) in that case. This is
+smart because when you define a model for \(\sigma\), you want to use a
+link function that ensures the predictions will be stay at zero and
+above. The MELSM approach of Hedeker, Rast, Williams and friends applies
+this logic to \(\sigma_\epsilon\) in multilevel growth models. However,
+not only can \(\sigma_\epsilon\) vary across groups in a fixed-effects
+sort of way, we can use multilevel partial pooling, too.
+
+To get a sense of what this looks like, we'll augment our previous
+model, but this time allowing \(\sigma_\epsilon\) to vary across
+participants. You might express the updated statistical model as
+
+\[
+\begin{align*}
+\text{NA}_{ij} & \sim \operatorname{Normal}\begin{pmatrix} \mu_{ij}, \sigma_{i} \end{pmatrix} \\
+\mu_{ij} & = \beta_0 + \beta_1 \text{time}_{ij} + u_{0i} + u_{1i} \text{time}_{ij} \\ 
+\log \begin{pmatrix} \sigma_i \end{pmatrix} & = \eta_0 + u_{2i} \\
+\begin{bmatrix} u_{0i} \\ u_{1i} \\ u_{2i} \end{bmatrix} & \sim \operatorname{MVNormal}\begin{pmatrix} \begin{bmatrix} 0 \\ 0 \\ 0 \end{bmatrix}, \mathbf S \mathbf R \mathbf S \end{pmatrix} \\
+\mathbf S & = \begin{bmatrix} \sigma_0 & 0 & 0 \\ 0 & \sigma_1 & 0 \\ 0 & 0 & \sigma_2 \end{bmatrix} \\
+\mathbf R & = \begin{bmatrix} 1 & \rho_{12} & \rho_{13} \\ \rho_{21} & 1 & \rho_{23} \\ \rho_{31} & \rho_{32} & 1 \end{bmatrix} \\
+\beta_0   & \sim \operatorname{Normal}(0, 0.2) \\
+\beta_1 \text{and } \eta_0 & \sim \operatorname{Normal}(0, 1) \\
+\sigma_0,..., \sigma_2     & \sim \operatorname{Exponential}(1) \\
+\mathbf R & \sim \operatorname{LKJ}(2).
+\end{align*}
+\]
+
+In the opening likelihood statement from the prior model, we simply set
+\(\text{NA}_{ij} \sim \operatorname{Normal}\begin{pmatrix} \mu_{ij}, \sigma \end{pmatrix}\).
+For our first MELSM, we now refer to \(\sigma_i\), meaning the levels of
+variation not accounted for by the mean structure can vary across
+participants (hence the \(i\) subscript). Two lines down, we see the
+formula for \(\log \begin{pmatrix} \sigma_i \end{pmatrix}\) contains
+population-level intercept, \(\eta_0\), and participant-specific
+deviations around that parameter, \(u_{2i}\). In the next three lines,
+the plot deepens. We see that all three participant-level deviations,
+\(u_{0i},...,u_{2i}\) are multivariate normal with means set to zero and
+variation expressed in the parameters \(\sigma_0,...,\sigma_2\) of the
+\(\mathbf S\) matrix. In the \(R\) matrix, we now have three correlation
+parameters, with \(\rho_{31}\) and \(\rho_{32}\) allowing us to assess
+the correlations among individual differences in variability and
+individual differences in starting points and change over time,
+respectively. Let's fit the model.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{b14}\FloatTok{.13}\NormalTok{ <-}
+\StringTok{  }\KeywordTok{brm}\NormalTok{(}\DataTypeTok{data =}\NormalTok{ dat,}
+      \DataTypeTok{family =}\NormalTok{ gaussian,}
+      \KeywordTok{bf}\NormalTok{(N_A.std }\OperatorTok{~}\StringTok{ }\DecValTok{1} \OperatorTok{+}\StringTok{ }\NormalTok{day01 }\OperatorTok{+}\StringTok{ }\NormalTok{(}\DecValTok{1} \OperatorTok{+}\StringTok{ }\NormalTok{day01 }\OperatorTok{|}\NormalTok{i}\OperatorTok{|}\StringTok{ }\NormalTok{record_id),}
+\NormalTok{         sigma }\OperatorTok{~}\StringTok{ }\DecValTok{1} \OperatorTok{+}\StringTok{ }\NormalTok{(}\DecValTok{1} \OperatorTok{|}\NormalTok{i}\OperatorTok{|}\StringTok{ }\NormalTok{record_id)),}
+      \DataTypeTok{prior =} \KeywordTok{c}\NormalTok{(}\KeywordTok{prior}\NormalTok{(}\KeywordTok{normal}\NormalTok{(}\DecValTok{0}\NormalTok{, }\FloatTok{0.2}\NormalTok{), }\DataTypeTok{class =}\NormalTok{ Intercept),}
+                \KeywordTok{prior}\NormalTok{(}\KeywordTok{normal}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{1}\NormalTok{), }\DataTypeTok{class =}\NormalTok{ b),}
+                \KeywordTok{prior}\NormalTok{(}\KeywordTok{exponential}\NormalTok{(}\DecValTok{1}\NormalTok{), }\DataTypeTok{class =}\NormalTok{ sd),}
+                
+                \KeywordTok{prior}\NormalTok{(}\KeywordTok{normal}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{1}\NormalTok{), }\DataTypeTok{class =}\NormalTok{ Intercept, }\DataTypeTok{dpar =}\NormalTok{ sigma),}
+                \KeywordTok{prior}\NormalTok{(}\KeywordTok{exponential}\NormalTok{(}\DecValTok{1}\NormalTok{), }\DataTypeTok{class =}\NormalTok{ sd, }\DataTypeTok{dpar =}\NormalTok{ sigma),}
+                
+                \KeywordTok{prior}\NormalTok{(}\KeywordTok{lkj}\NormalTok{(}\DecValTok{2}\NormalTok{), }\DataTypeTok{class =}\NormalTok{ cor)),}
+      \DataTypeTok{iter =} \DecValTok{3000}\NormalTok{, }\DataTypeTok{warmup =} \DecValTok{1000}\NormalTok{, }\DataTypeTok{chains =} \DecValTok{4}\NormalTok{, }\DataTypeTok{cores =} \DecValTok{4}\NormalTok{,}
+      \DataTypeTok{seed =} \DecValTok{14}\NormalTok{,}
+      \DataTypeTok{file =} \StringTok{"/Users/solomonkurz/Dropbox/Recoding Statistical Rethinking 2nd ed/fits/b14.13"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+We should note a few things about the \texttt{brm()} syntax. First,
+because we modeled both \(\mu_{ij}\) and \(\sigma_i\), we put both model
+formulas within the \texttt{bf()} function. Second, because the
+\textbf{brms} default is to use the log link when modeling \(\sigma_i\),
+there was no need to explicitly set it that wah in the \texttt{family}
+line. However, we could have if we wanted to. Third, notice our use of
+the \texttt{\textbar{}i\textbar{}} syntax within the parentheses in the
+\texttt{formula} lines. If we had used the conventional
+\texttt{\textbar{}} syntax, that would have not allowed our \(u_{2i}\)
+parameters to correlate with \(u_{0i}\) and \(u_{1i}\) from the mean
+structure. It would have effectively set \(\rho_{31} = \rho_{32} = 0\).
+Finally, notice how within the \texttt{prior()} functions, we explicitly
+referred to those for the new \(\sigma\) structure with the
+\texttt{dpar\ =\ sigma} operator.
+
+Okay, time to check the model summary.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{print}\NormalTok{(b14}\FloatTok{.13}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##  Family: gaussian 
+##   Links: mu = identity; sigma = log 
+## Formula: N_A.std ~ 1 + day01 + (1 + day01 | i | record_id) 
+##          sigma ~ 1 + (1 | i | record_id)
+##    Data: dat (Number of observations: 13033) 
+## Samples: 4 chains, each with iter = 3000; warmup = 1000; thin = 1;
+##          total post-warmup samples = 8000
+## 
+## Group-Level Effects: 
+## ~record_id (Number of levels: 193) 
+##                                Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+## sd(Intercept)                      0.76      0.04     0.69     0.85 1.01      652     1475
+## sd(day01)                          0.61      0.04     0.53     0.69 1.00     1548     2982
+## sd(sigma_Intercept)                0.70      0.04     0.63     0.77 1.00      679     1170
+## cor(Intercept,day01)              -0.34      0.08    -0.48    -0.17 1.01      998     2661
+## cor(Intercept,sigma_Intercept)     0.61      0.05     0.51     0.70 1.01      705     1251
+## cor(day01,sigma_Intercept)        -0.10      0.08    -0.25     0.06 1.00      747     1939
+## 
+## Population-Level Effects: 
+##                 Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+## Intercept           0.03      0.05    -0.08     0.14 1.01      288      427
+## sigma_Intercept    -0.78      0.05    -0.89    -0.68 1.01      481      978
+## day01              -0.15      0.05    -0.26    -0.05 1.01      769     1532
+## 
+## Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+## and Tail_ESS are effective sample size measures, and Rhat is the potential
+## scale reduction factor on split chains (at convergence, Rhat = 1).
+\end{verbatim}
+
+The `sigma\_Intercept' lines in the `Population-Level Effects' section
+is the summary for our \(\eta_0\) parameter. To get a sense of what this
+means out of the log space, just exponentiate.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{fixef}\NormalTok{(b14}\FloatTok{.13}\NormalTok{)[}\StringTok{"sigma_Intercept"}\NormalTok{, }\KeywordTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{, }\DecValTok{3}\OperatorTok{:}\DecValTok{4}\NormalTok{)] }\OperatorTok{%>%}\StringTok{ }\KeywordTok{exp}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##  Estimate      Q2.5     Q97.5 
+## 0.4577889 0.4126544 0.5058946
+\end{verbatim}
+
+To get a sense of the variation in that parameter across participants
+{[}i.e., \(\exp(\eta_0 + u_{2i})\){]}, it's best to plot.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{coef}\NormalTok{(b14}\FloatTok{.13}\NormalTok{)}\OperatorTok{$}\NormalTok{record_id[, , }\StringTok{"sigma_Intercept"}\NormalTok{] }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{exp}\NormalTok{() }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{data.frame}\NormalTok{() }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{arrange}\NormalTok{(Estimate) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{rank =} \DecValTok{1}\OperatorTok{:}\KeywordTok{n}\NormalTok{()) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }
+\StringTok{  }\KeywordTok{ggplot}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =}\NormalTok{ rank, }\DataTypeTok{y =}\NormalTok{ Estimate, }\DataTypeTok{ymin =}\NormalTok{ Q2}\FloatTok{.5}\NormalTok{, }\DataTypeTok{ymax =}\NormalTok{ Q97}\FloatTok{.5}\NormalTok{)) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{geom_pointrange}\NormalTok{(}\DataTypeTok{size =} \FloatTok{.4}\NormalTok{, }\DataTypeTok{fatten =} \FloatTok{.3}\NormalTok{, }\DataTypeTok{color =} \StringTok{"#EEDA9D"}\NormalTok{) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{scale_x_continuous}\NormalTok{(}\StringTok{"participants ranked by posterior mean"}\NormalTok{, }\DataTypeTok{breaks =} \OtherTok{NULL}\NormalTok{) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{ylab}\NormalTok{(}\KeywordTok{expression}\NormalTok{(}\KeywordTok{exp}\NormalTok{(eta[}\DecValTok{0}\NormalTok{]}\OperatorTok{+}\KeywordTok{italic}\NormalTok{(u)[}\DecValTok{2}\NormalTok{][}\KeywordTok{italic}\NormalTok{(i)])))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{center}\includegraphics[width=324px]{14.bonus_files/figure-latex/unnamed-chunk-13-1} \end{center}
+
+Looks like there's a lot of variation in a parameter that was formerly
+fixed across participants as a single value \(\sigma_\epsilon\). Here's
+what this looks like in terms of our posterior predictive distributions
+for participants 30 and 115, from before.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{nd <-}
+\StringTok{  }\NormalTok{dat }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{filter}\NormalTok{(record_id }\OperatorTok{%in%}\StringTok{ }\KeywordTok{c}\NormalTok{(}\DecValTok{30}\NormalTok{, }\DecValTok{115}\NormalTok{)) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{select}\NormalTok{(record_id, N_A.std, day01)}
+
+\KeywordTok{bind_cols}\NormalTok{(}
+  \KeywordTok{fitted}\NormalTok{(b14}\FloatTok{.13}\NormalTok{,}
+         \DataTypeTok{newdata =}\NormalTok{ nd) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{    }\KeywordTok{data.frame}\NormalTok{(),}
+  \KeywordTok{predict}\NormalTok{(b14}\FloatTok{.13}\NormalTok{,}
+          \DataTypeTok{newdata =}\NormalTok{ nd) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{    }\KeywordTok{data.frame}\NormalTok{() }\OperatorTok{%>%}\StringTok{ }
+\StringTok{    }\KeywordTok{select}\NormalTok{(Q2}\FloatTok{.5}\OperatorTok{:}\NormalTok{Q97}\FloatTok{.5}\NormalTok{) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{    }\KeywordTok{set_names}\NormalTok{(}\StringTok{"p_lower"}\NormalTok{, }\StringTok{"p_upper"}\NormalTok{)}
+\NormalTok{) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{bind_cols}\NormalTok{(nd) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }
+\StringTok{  }\KeywordTok{ggplot}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =}\NormalTok{ day01)) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{geom_smooth}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{y =}\NormalTok{ Estimate, }\DataTypeTok{ymin =}\NormalTok{ Q2}\FloatTok{.5}\NormalTok{, }\DataTypeTok{ymax =}\NormalTok{ Q97}\FloatTok{.5}\NormalTok{),}
+              \DataTypeTok{stat =} \StringTok{"identity"}\NormalTok{,}
+              \DataTypeTok{fill =} \StringTok{"#8B9DAF"}\NormalTok{, }\DataTypeTok{color =} \StringTok{"#8B9DAF"}\NormalTok{, }\DataTypeTok{alpha =} \DecValTok{1}\OperatorTok{/}\DecValTok{2}\NormalTok{, }\DataTypeTok{size =} \DecValTok{1}\OperatorTok{/}\DecValTok{2}\NormalTok{) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{geom_ribbon}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{ymin =}\NormalTok{ p_lower, }\DataTypeTok{ymax =}\NormalTok{ p_upper),}
+              \DataTypeTok{fill =} \StringTok{"#8B9DAF"}\NormalTok{, }\DataTypeTok{alpha =} \DecValTok{1}\OperatorTok{/}\DecValTok{2}\NormalTok{) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{geom_point}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{y =}\NormalTok{ N_A.std),}
+             \DataTypeTok{color =} \StringTok{"#8B9DAF"}\NormalTok{) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{scale_x_continuous}\NormalTok{(}\DataTypeTok{breaks =} \KeywordTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{, }\FloatTok{.5}\NormalTok{, }\DecValTok{1}\NormalTok{)) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{ylab}\NormalTok{(}\StringTok{"negative affect (standardized)"}\NormalTok{) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{facet_wrap}\NormalTok{(}\OperatorTok{~}\NormalTok{record_id)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{center}\includegraphics[width=504px]{14.bonus_files/figure-latex/unnamed-chunk-14-1} \end{center}
+
+That's a big improvement. Let's expand our skill set. Within the MELSM
+paradigm, one can use multiple variables to model participant-specific
+variation. Here we'll add in our time variable.
+
+\[
+\begin{align*}
+\text{NA}_{ij} & \sim \operatorname{Normal}\begin{pmatrix} \mu_{ij}, \sigma_{ij} \end{pmatrix} \\
+\mu_{ij} & = \beta_0 + \beta_1 \text{time}_{ij} + u_{0i} + u_{1i} \text{time}_{ij} \\ \log \begin{pmatrix} \sigma_{ij} \end{pmatrix} & = \eta_0 + \eta_1 \text{time}_{ij} + u_{2i} + u_{3i} \text{time}_{ij} \\
+\begin{bmatrix} u_{0i} \\ u_{1i} \\ u_{2i} \\ u_{3i} \end{bmatrix} & \sim \operatorname{MVNormal}\begin{pmatrix} \begin{bmatrix} 0 \\ 0 \\ 0 \\ 0 \end{bmatrix}, \mathbf S \mathbf R \mathbf S \end{pmatrix} \\
+\mathbf S & = \begin{bmatrix} \sigma_0 & 0 & 0 & 0 \\ 0 & \sigma_1 & 0 & 0 \\ 0 & 0 & \sigma_2 & 0 \\ 0 & 0 & 0 & \sigma_3 \end{bmatrix} \\
+\mathbf R & = \begin{bmatrix} 1 & \rho_{12} & \rho_{13} & \rho_{14} \\ \rho_{21} & 1 & \rho_{23} & \rho_{24} \\ \rho_{31} & \rho_{32} & 1 & \rho_{34} \\ \rho_{41} & \rho_{42} & \rho_{43} & 1 \end{bmatrix} \\
+\beta_0   & \sim \operatorname{Normal}(0, 0.2) \\
+\beta_1, \eta_0, \text{and } \eta_1 & \sim \operatorname{Normal}(0, 1) \\
+\sigma_0,..., \sigma_3 & \sim \operatorname{Exponential}(1) \\
+\mathbf R & \sim \operatorname{LKJ}(2).
+\end{align*}
+\]
+
+Note how in the very first line we are not speaking in terms of
+\(\sigma_{ij}\). Variation in the criterion \(\text{NA}_{ij}\) not
+accounted for by the mean structure can now vary across participants,
+\(i\), and time, \(j\). This results in four \(u_{xi}\) terms, a
+\(4 \times 4\) \(\mathbf S\) matrix and a \(4 \times 4\) \(\mathbf R\)
+matrix. Here's how you might fit the model with \texttt{brms::brm()}.
+\textbf{Warning}: it'll probably take a couple hours.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{b14}\FloatTok{.14}\NormalTok{ <-}
+\StringTok{  }\KeywordTok{brm}\NormalTok{(}\DataTypeTok{data =}\NormalTok{ dat,}
+      \DataTypeTok{family =}\NormalTok{ gaussian,}
+      \KeywordTok{bf}\NormalTok{(N_A.std }\OperatorTok{~}\StringTok{ }\DecValTok{1} \OperatorTok{+}\StringTok{ }\NormalTok{day01 }\OperatorTok{+}\StringTok{ }\NormalTok{(}\DecValTok{1} \OperatorTok{+}\StringTok{ }\NormalTok{day01 }\OperatorTok{|}\NormalTok{i}\OperatorTok{|}\StringTok{ }\NormalTok{record_id),}
+\NormalTok{         sigma }\OperatorTok{~}\StringTok{ }\DecValTok{1} \OperatorTok{+}\StringTok{ }\NormalTok{day01 }\OperatorTok{+}\StringTok{ }\NormalTok{(}\DecValTok{1} \OperatorTok{+}\StringTok{ }\NormalTok{day01 }\OperatorTok{|}\NormalTok{i}\OperatorTok{|}\StringTok{ }\NormalTok{record_id)),}
+      \DataTypeTok{prior =} \KeywordTok{c}\NormalTok{(}\KeywordTok{prior}\NormalTok{(}\KeywordTok{normal}\NormalTok{(}\DecValTok{0}\NormalTok{, }\FloatTok{0.2}\NormalTok{), }\DataTypeTok{class =}\NormalTok{ Intercept),}
+                \KeywordTok{prior}\NormalTok{(}\KeywordTok{normal}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{1}\NormalTok{), }\DataTypeTok{class =}\NormalTok{ b),}
+                \KeywordTok{prior}\NormalTok{(}\KeywordTok{exponential}\NormalTok{(}\DecValTok{1}\NormalTok{), }\DataTypeTok{class =}\NormalTok{ sd),}
+                
+                \KeywordTok{prior}\NormalTok{(}\KeywordTok{normal}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{1}\NormalTok{), }\DataTypeTok{class =}\NormalTok{ Intercept, }\DataTypeTok{dpar =}\NormalTok{ sigma),}
+                \KeywordTok{prior}\NormalTok{(}\KeywordTok{normal}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{1}\NormalTok{), }\DataTypeTok{class =}\NormalTok{ b, }\DataTypeTok{dpar =}\NormalTok{ sigma),}
+                \KeywordTok{prior}\NormalTok{(}\KeywordTok{exponential}\NormalTok{(}\DecValTok{1}\NormalTok{), }\DataTypeTok{class =}\NormalTok{ sd, }\DataTypeTok{dpar =}\NormalTok{ sigma),}
+                
+                \KeywordTok{prior}\NormalTok{(}\KeywordTok{lkj}\NormalTok{(}\DecValTok{2}\NormalTok{), }\DataTypeTok{class =}\NormalTok{ cor)),}
+      \DataTypeTok{iter =} \DecValTok{3000}\NormalTok{, }\DataTypeTok{warmup =} \DecValTok{1000}\NormalTok{, }\DataTypeTok{chains =} \DecValTok{4}\NormalTok{, }\DataTypeTok{cores =} \DecValTok{4}\NormalTok{,}
+      \DataTypeTok{seed =} \DecValTok{14}\NormalTok{,}
+      \DataTypeTok{file =} \StringTok{"/Users/solomonkurz/Dropbox/Recoding Statistical Rethinking 2nd ed/fits/b14.14"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+At this point, \texttt{print()} is starting to return a lot of output.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{print}\NormalTok{(b14}\FloatTok{.14}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##  Family: gaussian 
+##   Links: mu = identity; sigma = log 
+## Formula: N_A.std ~ 1 + day01 + (1 + day01 | i | record_id) 
+##          sigma ~ 1 + day01 + (1 + day01 | i | record_id)
+##    Data: dat (Number of observations: 13033) 
+## Samples: 4 chains, each with iter = 3000; warmup = 1000; thin = 1;
+##          total post-warmup samples = 8000
+## 
+## Group-Level Effects: 
+## ~record_id (Number of levels: 193) 
+##                                  Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+## sd(Intercept)                        0.76      0.04     0.68     0.84 1.01     1113     2097
+## sd(day01)                            0.60      0.04     0.52     0.69 1.00     2368     4274
+## sd(sigma_Intercept)                  0.70      0.04     0.63     0.78 1.00     1933     3371
+## sd(sigma_day01)                      0.36      0.04     0.29     0.44 1.00     4282     5832
+## cor(Intercept,day01)                -0.31      0.08    -0.46    -0.14 1.00     1700     3099
+## cor(Intercept,sigma_Intercept)       0.64      0.05     0.54     0.72 1.00     1781     3498
+## cor(day01,sigma_Intercept)          -0.20      0.08    -0.35    -0.04 1.00     1297     2795
+## cor(Intercept,sigma_day01)          -0.16      0.11    -0.37     0.05 1.00     4531     5944
+## cor(day01,sigma_day01)               0.61      0.09     0.42     0.76 1.00     4671     5794
+## cor(sigma_Intercept,sigma_day01)    -0.15      0.10    -0.34     0.04 1.00     3872     5824
+## 
+## Population-Level Effects: 
+##                 Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+## Intercept           0.03      0.06    -0.08     0.14 1.00      500      949
+## sigma_Intercept    -0.75      0.05    -0.85    -0.65 1.00      810     2121
+## day01              -0.15      0.05    -0.25    -0.06 1.00     1416     2760
+## sigma_day01        -0.11      0.04    -0.19    -0.03 1.00     3920     5043
+## 
+## Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+## and Tail_ESS are effective sample size measures, and Rhat is the potential
+## scale reduction factor on split chains (at convergence, Rhat = 1).
+\end{verbatim}
+
+Our new line for `sigma\_day01' suggests there is a general trend for
+less variation in negative affect ratings over time. However, the
+`sd(sigma\_day01)' line in the `Group-Level Effects' section indicates
+even this varies a bit across participants. At this point, a lot of the
+action is now in the estimates for the \(\mathbf R\) matrix. Here that
+is in a coefficient plot.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{posterior_summary}\NormalTok{(b14}\FloatTok{.14}\NormalTok{) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{data.frame}\NormalTok{() }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{rownames_to_column}\NormalTok{(}\StringTok{"par"}\NormalTok{) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{filter}\NormalTok{(}\KeywordTok{str_detect}\NormalTok{(par, }\StringTok{"cor_"}\NormalTok{)) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{rho =} \KeywordTok{str_c}\NormalTok{(}\StringTok{"(rho["}\NormalTok{, }\KeywordTok{c}\NormalTok{(}\DecValTok{21}\NormalTok{, }\DecValTok{31}\NormalTok{, }\DecValTok{32}\NormalTok{, }\DecValTok{41}\NormalTok{, }\DecValTok{42}\NormalTok{, }\DecValTok{43}\NormalTok{), }\StringTok{"])"}\NormalTok{)) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{par =} \KeywordTok{str_c}\NormalTok{(}\StringTok{"'"}\NormalTok{, par, }\StringTok{"'~"}\NormalTok{, rho)) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }
+\StringTok{  }\KeywordTok{ggplot}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =}\NormalTok{ Estimate, }\DataTypeTok{xmin =}\NormalTok{ Q2}\FloatTok{.5}\NormalTok{, }\DataTypeTok{xmax =}\NormalTok{ Q97}\FloatTok{.5}\NormalTok{, }\DataTypeTok{y =}\NormalTok{ par)) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{geom_vline}\NormalTok{(}\DataTypeTok{xintercept =} \KeywordTok{c}\NormalTok{(}\OperatorTok{-}\NormalTok{.}\DecValTok{5}\NormalTok{, }\DecValTok{0}\NormalTok{, }\FloatTok{.5}\NormalTok{), }\DataTypeTok{linetype =} \KeywordTok{c}\NormalTok{(}\DecValTok{2}\NormalTok{, }\DecValTok{1}\NormalTok{, }\DecValTok{2}\NormalTok{), }\DataTypeTok{size =} \KeywordTok{c}\NormalTok{(}\DecValTok{1}\OperatorTok{/}\DecValTok{4}\NormalTok{, }\DecValTok{1}\OperatorTok{/}\DecValTok{2}\NormalTok{, }\DecValTok{1}\OperatorTok{/}\DecValTok{4}\NormalTok{), }\DataTypeTok{color =} \StringTok{"#FCF9F0"}\NormalTok{, }\DataTypeTok{alpha =} \DecValTok{1}\OperatorTok{/}\DecValTok{4}\NormalTok{) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{geom_pointrange}\NormalTok{(}\DataTypeTok{color =} \StringTok{"#B1934A"}\NormalTok{) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{xlim}\NormalTok{(}\OperatorTok{-}\DecValTok{1}\NormalTok{, }\DecValTok{1}\NormalTok{) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{scale_y_discrete}\NormalTok{(}\DataTypeTok{labels =}\NormalTok{ ggplot2}\OperatorTok{:::}\NormalTok{parse_safe) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{labs}\NormalTok{(}\DataTypeTok{x =} \StringTok{"marginal posterior"}\NormalTok{,}
+       \DataTypeTok{y =} \OtherTok{NULL}\NormalTok{) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{theme}\NormalTok{(}\DataTypeTok{axis.text.y =} \KeywordTok{element_text}\NormalTok{(}\DataTypeTok{hjust =} \DecValTok{0}\NormalTok{, }\DataTypeTok{size =} \DecValTok{9}\NormalTok{),}
+        \DataTypeTok{axis.ticks.y =} \KeywordTok{element_blank}\NormalTok{())}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{center}\includegraphics[width=576px]{14.bonus_files/figure-latex/unnamed-chunk-16-1} \end{center}
+
+Note how we attached the statistical terms from the lower triangle of
+the \(\mathbf R\) matrix to the names from the \textbf{brms} output.
+Coefficient plots like this are somewhat helpful with MELSM parameter
+summaries, like this. But they leave something to be desired and they
+won't scale well. One alternative is to present the posterior means in a
+correlation matrix plot. Our first step to prepare for the plot is to
+extract and wrangle the posterior summaries.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{levels <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{"beta[0]"}\NormalTok{, }\StringTok{"beta[1]"}\NormalTok{, }\StringTok{"eta[0]"}\NormalTok{, }\StringTok{"eta[1]"}\NormalTok{)}
+
+\NormalTok{r <-}
+\StringTok{  }\KeywordTok{posterior_summary}\NormalTok{(b14}\FloatTok{.14}\NormalTok{) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{data.frame}\NormalTok{() }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{rownames_to_column}\NormalTok{(}\StringTok{"param"}\NormalTok{) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{filter}\NormalTok{(}\KeywordTok{str_detect}\NormalTok{(param, }\StringTok{"cor_"}\NormalTok{)) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{param =} \KeywordTok{str_remove}\NormalTok{(param, }\StringTok{"cor_record_id__"}\NormalTok{)) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{separate}\NormalTok{(param, }\DataTypeTok{into =} \KeywordTok{c}\NormalTok{(}\StringTok{"left"}\NormalTok{, }\StringTok{"right"}\NormalTok{), }\DataTypeTok{sep =} \StringTok{"__"}\NormalTok{) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{mutate}\NormalTok{(}
+    \DataTypeTok{left =} \KeywordTok{case_when}\NormalTok{(}
+\NormalTok{      left }\OperatorTok{==}\StringTok{ "Intercept"}       \OperatorTok{~}\StringTok{ "beta[0]"}\NormalTok{,}
+\NormalTok{      left }\OperatorTok{==}\StringTok{ "day01"}           \OperatorTok{~}\StringTok{ "beta[1]"}\NormalTok{,}
+\NormalTok{      left }\OperatorTok{==}\StringTok{ "sigma_Intercept"} \OperatorTok{~}\StringTok{ "eta[0]"}\NormalTok{),}
+    \DataTypeTok{right =} \KeywordTok{case_when}\NormalTok{(}
+\NormalTok{      right }\OperatorTok{==}\StringTok{ "day01"}           \OperatorTok{~}\StringTok{ "beta[1]"}\NormalTok{,}
+\NormalTok{      right }\OperatorTok{==}\StringTok{ "sigma_Intercept"} \OperatorTok{~}\StringTok{ "eta[0]"}\NormalTok{,}
+\NormalTok{      right }\OperatorTok{==}\StringTok{ "sigma_day01"}     \OperatorTok{~}\StringTok{ "eta[1]"}
+\NormalTok{    )}
+\NormalTok{  ) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{label =} \KeywordTok{formatC}\NormalTok{(Estimate, }\DataTypeTok{digits =} \DecValTok{2}\NormalTok{, }\DataTypeTok{format =} \StringTok{"f"}\NormalTok{) }\OperatorTok{%>%}\StringTok{ }\KeywordTok{str_replace}\NormalTok{(., }\StringTok{"0."}\NormalTok{, }\StringTok{"."}\NormalTok{)) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{left  =} \KeywordTok{factor}\NormalTok{(left, }\DataTypeTok{levels =}\NormalTok{ levels),}
+         \DataTypeTok{right =} \KeywordTok{factor}\NormalTok{(right, }\DataTypeTok{levels =}\NormalTok{ levels)) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{right =} \KeywordTok{fct_rev}\NormalTok{(right))}
+
+\NormalTok{r}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##      left   right   Estimate  Est.Error       Q2.5       Q97.5 label
+## 1 beta[0] beta[1] -0.3089508 0.08386411 -0.4629906 -0.13655524  -.31
+## 2 beta[0]  eta[0]  0.6409912 0.04611116  0.5425778  0.72436842   .64
+## 3 beta[1]  eta[0] -0.2031949 0.08102187 -0.3532224 -0.04002514  -.20
+## 4 beta[0]  eta[1] -0.1634277 0.10668266 -0.3686215  0.05152164  -.16
+## 5 beta[1]  eta[1]  0.6067130 0.08825829  0.4203622  0.76378213   .61
+## 6  eta[0]  eta[1] -0.1536633 0.09818593 -0.3388578  0.04149388  -.15
+\end{verbatim}
+
+Note how instead of naming the correlations in terms of \(\rho_{xx}\),
+we are now referring to them as the correlations of the deviations among
+the population parameters, \(\beta_0\) through \(\eta_1\). I'm hoping
+this will make sense in the plot. Here it is.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{r }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{ggplot}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =}\NormalTok{ left, }\DataTypeTok{y =}\NormalTok{ right)) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{geom_tile}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{fill =}\NormalTok{ Estimate)) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{geom_text}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{label =}\NormalTok{ label),}
+            \DataTypeTok{family =} \StringTok{"Courier"}\NormalTok{, }\DataTypeTok{size =} \DecValTok{3}\NormalTok{) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{scale_fill_gradient2}\NormalTok{(}\KeywordTok{expression}\NormalTok{(rho),}
+                       \DataTypeTok{low =} \StringTok{"#59708b"}\NormalTok{, }\DataTypeTok{mid =} \StringTok{"#FCF9F0"}\NormalTok{, }\DataTypeTok{high =} \StringTok{"#A65141"}\NormalTok{, }\DataTypeTok{midpoint =} \DecValTok{0}\NormalTok{, }
+                       \DataTypeTok{labels =} \KeywordTok{c}\NormalTok{(}\OperatorTok{-}\DecValTok{1}\NormalTok{, }\StringTok{""}\NormalTok{, }\DecValTok{0}\NormalTok{, }\StringTok{""}\NormalTok{, }\DecValTok{1}\NormalTok{), }\DataTypeTok{limits =} \KeywordTok{c}\NormalTok{(}\OperatorTok{-}\DecValTok{1}\NormalTok{, }\DecValTok{1}\NormalTok{)) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{scale_x_discrete}\NormalTok{(}\OtherTok{NULL}\NormalTok{, }\DataTypeTok{drop =}\NormalTok{ F, }\DataTypeTok{labels =}\NormalTok{ ggplot2}\OperatorTok{:::}\NormalTok{parse_safe, }\DataTypeTok{position =} \StringTok{"top"}\NormalTok{) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{scale_y_discrete}\NormalTok{(}\OtherTok{NULL}\NormalTok{, }\DataTypeTok{drop =}\NormalTok{ F, }\DataTypeTok{labels =}\NormalTok{ ggplot2}\OperatorTok{:::}\NormalTok{parse_safe) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{ggtitle}\NormalTok{(}\KeywordTok{expression}\NormalTok{(}\StringTok{"The lower triangle for "}\OperatorTok{*}\KeywordTok{bold}\NormalTok{(R)),}
+          \DataTypeTok{subtitle =} \StringTok{"Note, each cell is summarized by}\CharTok{\textbackslash{}n}\StringTok{its posterior mean."}\NormalTok{) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{theme}\NormalTok{(}\DataTypeTok{axis.text =} \KeywordTok{element_text}\NormalTok{(}\DataTypeTok{size =} \DecValTok{12}\NormalTok{),}
+        \DataTypeTok{axis.ticks =} \KeywordTok{element_blank}\NormalTok{(),}
+        \DataTypeTok{legend.text =} \KeywordTok{element_text}\NormalTok{(}\DataTypeTok{hjust =} \DecValTok{1}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{center}\includegraphics[width=252px]{14.bonus_files/figure-latex/unnamed-chunk-18-1} \end{center}
+
+Interestingly, the strongest two associations involve variation around
+our \(\eta\) parameters. The posterior mean for \(\rho_{31}\) indicates
+participants with higher baseline levels of \(\text{NA}_{ij}\) tend to
+vary more in their responses, particularly in the beginning. The
+posterior mean for \(\rho_{42}\) indicates participants who show greater
+increases in their \(\text{NA}_{ij}\) responses over time also tend to
+show greater relative increases in variation in those responses. You can
+get a little bit of a sense for this by returning once again to our
+participants 30 and 115.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{nd <-}
+\StringTok{  }\NormalTok{dat }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{filter}\NormalTok{(record_id }\OperatorTok{%in%}\StringTok{ }\KeywordTok{c}\NormalTok{(}\DecValTok{30}\NormalTok{, }\DecValTok{115}\NormalTok{)) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\CommentTok{# filter(record_id < 20) %>% }
+\StringTok{  }\KeywordTok{select}\NormalTok{(record_id, N_A.std, day01)}
+
+\KeywordTok{bind_cols}\NormalTok{(}
+  \KeywordTok{fitted}\NormalTok{(b14}\FloatTok{.14}\NormalTok{,}
+         \DataTypeTok{newdata =}\NormalTok{ nd) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{    }\KeywordTok{data.frame}\NormalTok{(),}
+  \KeywordTok{predict}\NormalTok{(b14}\FloatTok{.14}\NormalTok{,}
+          \DataTypeTok{newdata =}\NormalTok{ nd) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{    }\KeywordTok{data.frame}\NormalTok{() }\OperatorTok{%>%}\StringTok{ }
+\StringTok{    }\KeywordTok{select}\NormalTok{(Q2}\FloatTok{.5}\OperatorTok{:}\NormalTok{Q97}\FloatTok{.5}\NormalTok{) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{    }\KeywordTok{set_names}\NormalTok{(}\StringTok{"p_lower"}\NormalTok{, }\StringTok{"p_upper"}\NormalTok{)}
+\NormalTok{) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{bind_cols}\NormalTok{(nd) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }
+\StringTok{  }\KeywordTok{ggplot}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =}\NormalTok{ day01)) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{geom_smooth}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{y =}\NormalTok{ Estimate, }\DataTypeTok{ymin =}\NormalTok{ Q2}\FloatTok{.5}\NormalTok{, }\DataTypeTok{ymax =}\NormalTok{ Q97}\FloatTok{.5}\NormalTok{),}
+              \DataTypeTok{stat =} \StringTok{"identity"}\NormalTok{,}
+              \DataTypeTok{fill =} \StringTok{"#8B9DAF"}\NormalTok{, }\DataTypeTok{color =} \StringTok{"#8B9DAF"}\NormalTok{, }\DataTypeTok{alpha =} \DecValTok{1}\OperatorTok{/}\DecValTok{2}\NormalTok{, }\DataTypeTok{size =} \DecValTok{1}\OperatorTok{/}\DecValTok{2}\NormalTok{) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{geom_ribbon}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{ymin =}\NormalTok{ p_lower, }\DataTypeTok{ymax =}\NormalTok{ p_upper),}
+              \DataTypeTok{fill =} \StringTok{"#8B9DAF"}\NormalTok{, }\DataTypeTok{alpha =} \DecValTok{1}\OperatorTok{/}\DecValTok{2}\NormalTok{) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{geom_point}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{y =}\NormalTok{ N_A.std),}
+             \DataTypeTok{color =} \StringTok{"#8B9DAF"}\NormalTok{) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{scale_x_continuous}\NormalTok{(}\DataTypeTok{breaks =} \KeywordTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{, }\FloatTok{.5}\NormalTok{, }\DecValTok{1}\NormalTok{)) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{ylab}\NormalTok{(}\StringTok{"negative affect (standardized)"}\NormalTok{) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{facet_wrap}\NormalTok{(}\OperatorTok{~}\NormalTok{record_id)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{center}\includegraphics[width=504px]{14.bonus_files/figure-latex/unnamed-chunk-19-1} \end{center}
+
+With respect to \(\rho_{31}\), participant 115 showed both a higher
+intercept and level of variability toward the beginning of the study.
+The meaning of \(\rho_{42}\) is less clear, with these two. But at least
+you can get a sense of why you might want to include a \(\eta_1\)
+parameter to allow response variability to change over time, and why you
+might want to allow that parameter to vary across participants. Whereas
+response variability increased quite a bit for participant 115 over
+time, it stayed about the same for participant 30, perhaps even
+decreasing a bit.
+
+\hypertarget{time-to-go-multivariate.}{%
+\subsubsection{14.6.4. Time to go
+multivariate.}\label{time-to-go-multivariate.}}
+
+For our final stage in this progression, we will fit what Williams, Liu,
+et al.
+(\protect\hyperlink{ref-williamsBayesianMultivariateMixedeffects2019a}{2019})
+called a M-MELSM, a multivariate mixed-effects location scale model.
+Recall these data have measures of both negative and positive affect.
+The standardized values for PA are waiting for us in the
+\texttt{P\_A.std} column. Within the \textbf{brms} framework, this is a
+combination of sensibilities from Bürkner's vignettes on distributional
+models (Bürkner,
+\protect\hyperlink{ref-Buxfcrkner2020Distributional}{2020}\protect\hyperlink{ref-Buxfcrkner2020Distributional}{a})
+and multivariate models (Bürkner,
+\protect\hyperlink{ref-Buxfcrkner2020Multivariate}{2020}\protect\hyperlink{ref-Buxfcrkner2020Multivariate}{b}).
+We might express the statistical model as
+
+\$\$ \begin{align*}
+\begin{bmatrix} \text{NA}_{ij} \\ \text{PA}_{ij} \end{bmatrix} & \sim \operatorname{MVNormal}\begin{pmatrix} \begin{bmatrix} 
+\mu_{ij}^\text{NA} \\ \mu_{ij}^\text{PA} \end{bmatrix}, \mathbf \Sigma \end{pmatrix} \\
+
+\mu_{ij}^\text{NA} & = \beta_0^\text{NA} + \beta_1^\text{NA} \text{time}_{ij} + u_{0i}^\text{NA} + u_{1i}^\text{NA} \\
+\mu_{ij}^\text{PA} & = \beta_0^\text{PA} + \beta_1^\text{PA} \text{time}_{ij} + u_{0i}^\text{PA} + u_{1i}^\text{PA} \\
+\log \begin{pmatrix} \sigma_{ij}^\text{NA} \end{pmatrix} & = \eta_0^\text{NA} + \eta_1^\text{NA} \text{time}_{ij} + u_{2i}^\text{NA} + u_{3i}^\text{NA} \\
+\log \begin{pmatrix} \sigma_{ij}^\text{PA} \end{pmatrix} & = \eta_0^\text{PA} + \eta_1^\text{PA} \text{time}_{ij} + u_{2i}^\text{PA} + u_{3i}^\text{PA}  \\
+
+\begin{bmatrix} u_{0i}^\text{NA}, u_{1i}^\text{NA}, u_{2i}^\text{NA}, u_{3i}^\text{NA}, u_{0i}^\text{PA}, u_{1i}^\text{PA}, u_{2i}^\text{PA}, u_{3i}^\text{PA} \end{bmatrix}' & \sim \operatorname{MVNormal}(\mathbf 0, \mathbf S \mathbf R \mathbf S) \\
+
+\mathbf S & = \begin{bmatrix} \sigma_0^\text{NA} & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\ 0 & \sigma_1^\text{NA} & 0 & 0 & 0 & 0 & 0 & 0 \\ 0 & 0 & \sigma_2^\text{NA} & 0 & 0 & 0 & 0 & 0 \\ 0 & 0 & 0 & \sigma_3^\text{NA} & 0 & 0 & 0 & 0 \\ 0 & 0 & 0 & 0 & \sigma_0^\text{PA} & 0 & 0 & 0 \\ 0 & 0 & 0 & 0 & 0 & \sigma_1^\text{PA} & 0 & 0 \\ 0 & 0 & 0 & 0 & 0 & 0 & \sigma_2^\text{PA} & 0 \\ 0 & 0 & 0 & 0 & 0 & 0 & 0 & \sigma_3^\text{PA}  \end{bmatrix} \\
+
+\mathbf R & = \begin{bmatrix} 
+1 & \rho_{12} & \rho_{13} & \rho_{14} & \rho_{15} & \rho_{16} & \rho_{17} & \rho_{18} \\ 
+\rho_{21} & 1 & \rho_{23} & \rho_{24} & \rho_{25} & \rho_{26} & \rho_{27} & \rho_{28} \\ 
+\rho_{31} & \rho_{32} & 1 & \rho_{34} & \rho_{35} & \rho_{36} & \rho_{37} & \rho_{38} \\ 
+\rho_{41} & \rho_{42} & \rho_{43} & 1 & \rho_{45} & \rho_{46} & \rho_{47} & \rho_{48} \\ 
+\rho_{51} & \rho_{52} & \rho_{53} & \rho_{54} & 1 & \rho_{56} & \rho_{57} & \rho_{58} \\ 
+\rho_{61} & \rho_{62} & \rho_{63} & \rho_{64} & \rho_{65} & 1 & \rho_{67} & \rho_{68} \\ 
+\rho_{71} & \rho_{72} & \rho_{73} & \rho_{74} & \rho_{75} & \rho_{76} & 1 & \rho_{78} \\ 
+\rho_{81} & \rho_{82} & \rho_{83} & \rho_{84} & \rho_{85} & \rho_{86} & \rho_{87} & 1
+\end{bmatrix} \\
+
+\beta_0^\text{NA} \text{ and } \beta_0^\text{PA} & \sim \operatorname{Normal}(0, 0.2) \\
+\beta_1^\text{NA} \text{ and } \beta_1^\text{PA} & \sim \operatorname{Normal}(0, 1) \\
+\eta_0^\text{NA},..., \eta_1^\text{PA} & \sim \operatorname{Normal}(0, 1) \\
+\sigma_0^\text{NA},..., \sigma_1^\text{PA} & \sim \operatorname{Exponential}(1) \\
+\mathbf R & \sim \operatorname{LKJ}(2),
+\end{align*} \$\$
+
+where the \(\text{NA}\) and \(\text{PA}\) superscripts indicate which
+variable is connected with which parameter. This is a straight
+multivariate generalization from the previous model, \texttt{fit3}. Now
+we have eight parameters varying across participants, resulting in an
+\(8 \times 8\) \(\mathbf S\) matrix and an \(8 \times 8\) \(\mathbf R\)
+matrix. Here's the \texttt{brms::brm()} code.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{b14}\FloatTok{.15}\NormalTok{ <-}
+\StringTok{  }\KeywordTok{brm}\NormalTok{(}\DataTypeTok{data =}\NormalTok{ dat,}
+      \DataTypeTok{family =}\NormalTok{ gaussian,}
+      \KeywordTok{bf}\NormalTok{(}\KeywordTok{mvbind}\NormalTok{(N_A.std, P_A.std) }\OperatorTok{~}\StringTok{ }\DecValTok{1} \OperatorTok{+}\StringTok{ }\NormalTok{day01 }\OperatorTok{+}\StringTok{ }\NormalTok{(}\DecValTok{1} \OperatorTok{+}\StringTok{ }\NormalTok{day01 }\OperatorTok{|}\NormalTok{i}\OperatorTok{|}\StringTok{ }\NormalTok{record_id),}
+\NormalTok{         sigma }\OperatorTok{~}\StringTok{ }\DecValTok{1} \OperatorTok{+}\StringTok{ }\NormalTok{day01 }\OperatorTok{+}\StringTok{ }\NormalTok{(}\DecValTok{1} \OperatorTok{+}\StringTok{ }\NormalTok{day01 }\OperatorTok{|}\NormalTok{i}\OperatorTok{|}\StringTok{ }\NormalTok{record_id)) }\OperatorTok{+}\StringTok{ }\KeywordTok{set_rescor}\NormalTok{(}\DataTypeTok{rescor =} \OtherTok{FALSE}\NormalTok{),}
+      \DataTypeTok{prior =} \KeywordTok{c}\NormalTok{(}\KeywordTok{prior}\NormalTok{(}\KeywordTok{normal}\NormalTok{(}\DecValTok{0}\NormalTok{, }\FloatTok{0.2}\NormalTok{), }\DataTypeTok{class =}\NormalTok{ Intercept, }\DataTypeTok{resp =}\NormalTok{ NAstd),}
+                \KeywordTok{prior}\NormalTok{(}\KeywordTok{normal}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{1}\NormalTok{), }\DataTypeTok{class =}\NormalTok{ b, }\DataTypeTok{resp =}\NormalTok{ NAstd),}
+                \KeywordTok{prior}\NormalTok{(}\KeywordTok{exponential}\NormalTok{(}\DecValTok{1}\NormalTok{), }\DataTypeTok{class =}\NormalTok{ sd, }\DataTypeTok{resp =}\NormalTok{ NAstd),}
+                
+                \KeywordTok{prior}\NormalTok{(}\KeywordTok{normal}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{1}\NormalTok{), }\DataTypeTok{class =}\NormalTok{ Intercept, }\DataTypeTok{dpar =}\NormalTok{ sigma, }\DataTypeTok{resp =}\NormalTok{ NAstd),}
+                \KeywordTok{prior}\NormalTok{(}\KeywordTok{normal}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{1}\NormalTok{), }\DataTypeTok{class =}\NormalTok{ b, }\DataTypeTok{dpar =}\NormalTok{ sigma, }\DataTypeTok{resp =}\NormalTok{ NAstd),}
+                \KeywordTok{prior}\NormalTok{(}\KeywordTok{exponential}\NormalTok{(}\DecValTok{1}\NormalTok{), }\DataTypeTok{class =}\NormalTok{ sd, }\DataTypeTok{dpar =}\NormalTok{ sigma, }\DataTypeTok{resp =}\NormalTok{ NAstd),}
+                
+                \KeywordTok{prior}\NormalTok{(}\KeywordTok{normal}\NormalTok{(}\DecValTok{0}\NormalTok{, }\FloatTok{0.2}\NormalTok{), }\DataTypeTok{class =}\NormalTok{ Intercept, }\DataTypeTok{resp =}\NormalTok{ PAstd),}
+                \KeywordTok{prior}\NormalTok{(}\KeywordTok{normal}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{1}\NormalTok{), }\DataTypeTok{class =}\NormalTok{ b, }\DataTypeTok{resp =}\NormalTok{ PAstd),}
+                \KeywordTok{prior}\NormalTok{(}\KeywordTok{exponential}\NormalTok{(}\DecValTok{1}\NormalTok{), }\DataTypeTok{class =}\NormalTok{ sd, }\DataTypeTok{resp =}\NormalTok{ PAstd),}
+                
+                \KeywordTok{prior}\NormalTok{(}\KeywordTok{normal}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{1}\NormalTok{), }\DataTypeTok{class =}\NormalTok{ Intercept, }\DataTypeTok{dpar =}\NormalTok{ sigma, }\DataTypeTok{resp =}\NormalTok{ PAstd),}
+                \KeywordTok{prior}\NormalTok{(}\KeywordTok{normal}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{1}\NormalTok{), }\DataTypeTok{class =}\NormalTok{ b, }\DataTypeTok{dpar =}\NormalTok{ sigma, }\DataTypeTok{resp =}\NormalTok{ PAstd),}
+                \KeywordTok{prior}\NormalTok{(}\KeywordTok{exponential}\NormalTok{(}\DecValTok{1}\NormalTok{), }\DataTypeTok{class =}\NormalTok{ sd, }\DataTypeTok{dpar =}\NormalTok{ sigma, }\DataTypeTok{resp =}\NormalTok{ PAstd),}
+
+                \KeywordTok{prior}\NormalTok{(}\KeywordTok{lkj}\NormalTok{(}\DecValTok{2}\NormalTok{), }\DataTypeTok{class =}\NormalTok{ cor)),}
+      \DataTypeTok{iter =} \DecValTok{3000}\NormalTok{, }\DataTypeTok{warmup =} \DecValTok{1000}\NormalTok{, }\DataTypeTok{chains =} \DecValTok{4}\NormalTok{, }\DataTypeTok{cores =} \DecValTok{4}\NormalTok{,}
+      \DataTypeTok{seed =} \DecValTok{14}\NormalTok{,}
+      \DataTypeTok{file =} \StringTok{"/Users/solomonkurz/Dropbox/Recoding Statistical Rethinking 2nd ed/fits/b14.15"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Note how we used the \texttt{resp} argument to indicate which priors
+went with which criterion variables. For the sake of space, I'll skip
+showing the \texttt{print()} output. By all means, check that summary
+out if you fit this model on your own. Though there may be some
+substantive insights to glean from looking at the population-level
+parameters and the hierarchical \(\sigma\)'s, I'd argue the main action
+is in the \(\mathbf R\) matrix. This time we'll jump straight to
+showcasing their posterior means in a correlation matrix plot.
+
+First we wrangle.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{levels <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{"beta[0]^'NA'"}\NormalTok{, }\StringTok{"beta[1]^'NA'"}\NormalTok{, }\StringTok{"eta[0]^'NA'"}\NormalTok{, }\StringTok{"eta[1]^'NA'"}\NormalTok{,}
+            \StringTok{"beta[0]^'PA'"}\NormalTok{, }\StringTok{"beta[1]^'PA'"}\NormalTok{, }\StringTok{"eta[0]^'PA'"}\NormalTok{, }\StringTok{"eta[1]^'PA'"}\NormalTok{)}
+
+\CommentTok{# two different options for ordering the parameters}
+\CommentTok{# levels <- c("beta[0]^'NA'", "beta[1]^'NA'", "beta[0]^'PA'", "beta[1]^'PA'", "eta[0]^'NA'", "eta[1]^'NA'", "eta[0]^'PA'", "eta[1]^'PA'")}
+\CommentTok{# levels <- c("beta[0]^'NA'", "beta[0]^'PA'", "beta[1]^'NA'", "beta[1]^'PA'","eta[0]^'NA'", "eta[0]^'PA'", "eta[1]^'NA'", "eta[1]^'PA'")}
+
+\NormalTok{r <-}
+\StringTok{  }\KeywordTok{posterior_summary}\NormalTok{(b14}\FloatTok{.15}\NormalTok{) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{data.frame}\NormalTok{() }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{rownames_to_column}\NormalTok{(}\StringTok{"param"}\NormalTok{) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{filter}\NormalTok{(}\KeywordTok{str_detect}\NormalTok{(param, }\StringTok{"cor_"}\NormalTok{)) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{param =} \KeywordTok{str_remove}\NormalTok{(param, }\StringTok{"cor_record_id__"}\NormalTok{)) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{separate}\NormalTok{(param, }\DataTypeTok{into =} \KeywordTok{c}\NormalTok{(}\StringTok{"left"}\NormalTok{, }\StringTok{"right"}\NormalTok{), }\DataTypeTok{sep =} \StringTok{"__"}\NormalTok{) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{mutate}\NormalTok{(}
+    \DataTypeTok{left =} \KeywordTok{case_when}\NormalTok{(}
+\NormalTok{      left }\OperatorTok{==}\StringTok{ "NAstd_Intercept"}       \OperatorTok{~}\StringTok{ "beta[0]^'NA'"}\NormalTok{,}
+\NormalTok{      left }\OperatorTok{==}\StringTok{ "NAstd_day01"}           \OperatorTok{~}\StringTok{ "beta[1]^'NA'"}\NormalTok{,}
+\NormalTok{      left }\OperatorTok{==}\StringTok{ "sigma_NAstd_Intercept"} \OperatorTok{~}\StringTok{ "eta[0]^'NA'"}\NormalTok{,}
+\NormalTok{      left }\OperatorTok{==}\StringTok{ "sigma_NAstd_day01"}     \OperatorTok{~}\StringTok{ "eta[1]^'NA'"}\NormalTok{,}
+\NormalTok{      left }\OperatorTok{==}\StringTok{ "PAstd_Intercept"}       \OperatorTok{~}\StringTok{ "beta[0]^'PA'"}\NormalTok{,}
+\NormalTok{      left }\OperatorTok{==}\StringTok{ "PAstd_day01"}           \OperatorTok{~}\StringTok{ "beta[1]^'PA'"}\NormalTok{,}
+\NormalTok{      left }\OperatorTok{==}\StringTok{ "sigma_PAstd_Intercept"} \OperatorTok{~}\StringTok{ "eta[0]^'PA'"}\NormalTok{,}
+\NormalTok{      left }\OperatorTok{==}\StringTok{ "sigma_PAstd_day01"}     \OperatorTok{~}\StringTok{ "eta[1]^'PA'"}
+\NormalTok{      ),}
+    \DataTypeTok{right =} \KeywordTok{case_when}\NormalTok{(}
+\NormalTok{      right }\OperatorTok{==}\StringTok{ "NAstd_Intercept"}       \OperatorTok{~}\StringTok{ "beta[0]^'NA'"}\NormalTok{,}
+\NormalTok{      right }\OperatorTok{==}\StringTok{ "NAstd_day01"}           \OperatorTok{~}\StringTok{ "beta[1]^'NA'"}\NormalTok{,}
+\NormalTok{      right }\OperatorTok{==}\StringTok{ "sigma_NAstd_Intercept"} \OperatorTok{~}\StringTok{ "eta[0]^'NA'"}\NormalTok{,}
+\NormalTok{      right }\OperatorTok{==}\StringTok{ "sigma_NAstd_day01"}     \OperatorTok{~}\StringTok{ "eta[1]^'NA'"}\NormalTok{,}
+\NormalTok{      right }\OperatorTok{==}\StringTok{ "PAstd_Intercept"}       \OperatorTok{~}\StringTok{ "beta[0]^'PA'"}\NormalTok{,}
+\NormalTok{      right }\OperatorTok{==}\StringTok{ "PAstd_day01"}           \OperatorTok{~}\StringTok{ "beta[1]^'PA'"}\NormalTok{,}
+\NormalTok{      right }\OperatorTok{==}\StringTok{ "sigma_PAstd_Intercept"} \OperatorTok{~}\StringTok{ "eta[0]^'PA'"}\NormalTok{,}
+\NormalTok{      right }\OperatorTok{==}\StringTok{ "sigma_PAstd_day01"}     \OperatorTok{~}\StringTok{ "eta[1]^'PA'"}
+\NormalTok{    )}
+\NormalTok{  ) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{label =} \KeywordTok{formatC}\NormalTok{(Estimate, }\DataTypeTok{digits =} \DecValTok{2}\NormalTok{, }\DataTypeTok{format =} \StringTok{"f"}\NormalTok{) }\OperatorTok{%>%}\StringTok{ }\KeywordTok{str_replace}\NormalTok{(., }\StringTok{"0."}\NormalTok{, }\StringTok{"."}\NormalTok{)) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{left  =} \KeywordTok{factor}\NormalTok{(left, }\DataTypeTok{levels =}\NormalTok{ levels),}
+         \DataTypeTok{right =} \KeywordTok{factor}\NormalTok{(right, }\DataTypeTok{levels =}\NormalTok{ levels)) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{right =} \KeywordTok{fct_rev}\NormalTok{(right))}
+
+\NormalTok{r }\OperatorTok{%>%}\StringTok{ }\KeywordTok{head}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##           left        right   Estimate  Est.Error       Q2.5       Q97.5 label
+## 1 beta[0]^'NA' beta[1]^'NA' -0.2936392 0.08011244 -0.4418254 -0.12977800  -.29
+## 2 beta[0]^'NA'  eta[0]^'NA'  0.6305495 0.04710695  0.5321697  0.71560820   .63
+## 3 beta[1]^'NA'  eta[0]^'NA' -0.1861780 0.07788801 -0.3338475 -0.03154498  -.19
+## 4 beta[0]^'NA'  eta[1]^'NA' -0.1492830 0.10268515 -0.3456739  0.05497218  -.15
+## 5 beta[1]^'NA'  eta[1]^'NA'  0.5760261 0.09054524  0.3815385  0.73786003   .58
+## 6  eta[0]^'NA'  eta[1]^'NA' -0.1435354 0.09518244 -0.3287338  0.04559049  -.14
+\end{verbatim}
+
+Now we plot!
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{r }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{full_join}\NormalTok{(}\KeywordTok{rename}\NormalTok{(r, }\DataTypeTok{right =}\NormalTok{ left, }\DataTypeTok{left =}\NormalTok{ right),}
+            \DataTypeTok{by =} \KeywordTok{c}\NormalTok{(}\StringTok{"left"}\NormalTok{, }\StringTok{"right"}\NormalTok{, }\StringTok{"Estimate"}\NormalTok{, }\StringTok{"Est.Error"}\NormalTok{, }\StringTok{"Q2.5"}\NormalTok{, }\StringTok{"Q97.5"}\NormalTok{, }\StringTok{"label"}\NormalTok{)) }\OperatorTok{%>%}
+\StringTok{  }
+\StringTok{  }\KeywordTok{ggplot}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =}\NormalTok{ left, }\DataTypeTok{y =}\NormalTok{ right)) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{geom_tile}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{fill =}\NormalTok{ Estimate)) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{geom_hline}\NormalTok{(}\DataTypeTok{yintercept =} \FloatTok{4.5}\NormalTok{, }\DataTypeTok{color =} \StringTok{"#100F14"}\NormalTok{) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{geom_vline}\NormalTok{(}\DataTypeTok{xintercept =} \FloatTok{4.5}\NormalTok{, }\DataTypeTok{color =} \StringTok{"#100F14"}\NormalTok{) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{geom_text}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{label =}\NormalTok{ label),}
+            \DataTypeTok{family =} \StringTok{"Courier"}\NormalTok{, }\DataTypeTok{size =} \DecValTok{3}\NormalTok{) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{scale_fill_gradient2}\NormalTok{(}\KeywordTok{expression}\NormalTok{(rho),}
+                       \DataTypeTok{low =} \StringTok{"#59708b"}\NormalTok{, }\DataTypeTok{mid =} \StringTok{"#FCF9F0"}\NormalTok{, }\DataTypeTok{high =} \StringTok{"#A65141"}\NormalTok{, }\DataTypeTok{midpoint =} \DecValTok{0}\NormalTok{,}
+                       \DataTypeTok{labels =} \KeywordTok{c}\NormalTok{(}\OperatorTok{-}\DecValTok{1}\NormalTok{, }\StringTok{""}\NormalTok{, }\DecValTok{0}\NormalTok{, }\StringTok{""}\NormalTok{, }\DecValTok{1}\NormalTok{), }\DataTypeTok{limits =} \KeywordTok{c}\NormalTok{(}\OperatorTok{-}\DecValTok{1}\NormalTok{, }\DecValTok{1}\NormalTok{)) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{scale_x_discrete}\NormalTok{(}\OtherTok{NULL}\NormalTok{, }\DataTypeTok{expand =} \KeywordTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{0}\NormalTok{), }\DataTypeTok{labels =}\NormalTok{ ggplot2}\OperatorTok{:::}\NormalTok{parse_safe, }\DataTypeTok{position =} \StringTok{"top"}\NormalTok{) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{scale_y_discrete}\NormalTok{(}\OtherTok{NULL}\NormalTok{, }\DataTypeTok{expand =} \KeywordTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{0}\NormalTok{), }\DataTypeTok{labels =}\NormalTok{ ggplot2}\OperatorTok{:::}\NormalTok{parse_safe) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{theme}\NormalTok{(}\DataTypeTok{axis.text =} \KeywordTok{element_text}\NormalTok{(}\DataTypeTok{size =} \DecValTok{12}\NormalTok{),}
+        \DataTypeTok{axis.ticks =} \KeywordTok{element_blank}\NormalTok{(),}
+        \DataTypeTok{legend.text =} \KeywordTok{element_text}\NormalTok{(}\DataTypeTok{hjust =} \DecValTok{1}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{center}\includegraphics[width=450px]{14.bonus_files/figure-latex/unnamed-chunk-24-1} \end{center}
+
+The \texttt{full\_join()} business just before the \textbf{ggplot2} code
+is how we got the full \(8 \times 8\) matrix. If you're curious, see
+what happens if you run the code without that part.
+
+To help orient you to the plot, I've divided it into four quadrants. The
+upper left and lower right quadrants are the correlations among the
+varying parameters for the \texttt{N\_A.std} and \texttt{P\_A.std}
+ratings, respectively. The other two quadrants are the correlations for
+those parameters between \texttt{N\_A.std} and \texttt{P\_A.std}. As a
+reminder, this matrix, as with any other correlation matrix, is
+symmetrical across the diagonal.
+
+To my eye, a few things pop out. First, the correlations within
+\texttt{N\_A.std} are generally higher than those within
+\texttt{P\_A.std}. Second, the correlations among the parameters between
+\texttt{N\_A.std} and \texttt{P\_A.std} are generally higher than those
+within them. Finally, all three of the largest correlations have to do
+with variation in the \(\eta\) parameters. Two of them are basically the
+same as those we focused on for \texttt{fit3}. The new one,
+\(\rho_{73}\), indicates that participants' baseline ratings for
+\texttt{N\_A.std} tended to vary in a similar way as their baseline
+ratings for \texttt{P\_A.std}.
+
+\hypertarget{plot-with-uncertainty.}{%
+\paragraph{14.6.4.1. Plot with
+uncertainty.}\label{plot-with-uncertainty.}}
+
+As fond as I am with that last correlation plot, it has a glaring
+defect: there is no expression of uncertainty. Sometimes we express
+uncertainty with percentile-based intervals. Other times we do so with
+marginal densities. But the correlation plots only describe the marginal
+posteriors for all the \(\rho\) parameters with their means. No
+uncertainty. If you have one or a small few correlations to plot,
+coefficient or density plots might do. However, they don't scale well.
+If you don't believe me, just try. I'm not sure there are any good
+solutions to this, but it can be helpful to at least try grappling with
+the issue.
+
+Fortunately for us, \href{https://twitter.com/mjskay}{Matthew Kay}
+(creator of the
+\href{http://mjskay.github.io/tidybayes}{\textbf{tidybayes} package})
+has already tried his hand at a few approaches. For all the deets, check
+out the
+\href{https://github.com/mjskay/uncertainty-examples/blob/master/multivariate-regression.md}{multivariate-regression.md}
+file in his
+\href{https://github.com/mjskay/uncertainty-examples}{uncertainty-examples}
+GitHub repo. One of his more imaginative approaches is to use what he
+calls dithering. Imagine breaking each of the cells in our correlation
+plot, above, into a \(50 \times 50 = 2,500\)-cell grid. Now assign each
+of the cells within that grid one of the values from the HMC draws of
+that correlation's posterior distribution. Then color code each of those
+cells by that value in the same basic way we color coded our previous
+correlation plots. Simultaneously do that for all of the correlations
+within the \(\mathbf R\) matrix and plot them in a faceted plot. That's
+the essence of the dithering approach. This is all probably hard to make
+sense of in words. Hopefully it will all come together with a little
+code and the resulting plot. Hold on to your hat.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{levels <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{"beta[0]^'NA'"}\NormalTok{, }\StringTok{"beta[1]^'NA'"}\NormalTok{, }\StringTok{"eta[0]^'NA'"}\NormalTok{, }\StringTok{"eta[1]^'NA'"}\NormalTok{,}
+            \StringTok{"beta[0]^'PA'"}\NormalTok{, }\StringTok{"beta[1]^'PA'"}\NormalTok{, }\StringTok{"eta[0]^'PA'"}\NormalTok{, }\StringTok{"eta[1]^'PA'"}\NormalTok{)}
+
+\NormalTok{r <-}
+\StringTok{  }\KeywordTok{posterior_samples}\NormalTok{(b14}\FloatTok{.15}\NormalTok{) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{select}\NormalTok{(}\KeywordTok{starts_with}\NormalTok{(}\StringTok{"cor_"}\NormalTok{)) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{sample_n}\NormalTok{(}\DataTypeTok{size =} \DecValTok{50} \OperatorTok{*}\StringTok{ }\DecValTok{50}\NormalTok{) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{bind_cols}\NormalTok{(}\KeywordTok{crossing}\NormalTok{(}\DataTypeTok{x =} \DecValTok{1}\OperatorTok{:}\DecValTok{50}\NormalTok{, }\DataTypeTok{y =} \DecValTok{1}\OperatorTok{:}\DecValTok{50}\NormalTok{)) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{pivot_longer}\NormalTok{(}\OperatorTok{-}\KeywordTok{c}\NormalTok{(x}\OperatorTok{:}\NormalTok{y)) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{name =} \KeywordTok{str_remove}\NormalTok{(name, }\StringTok{"cor_record_id__"}\NormalTok{)) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{separate}\NormalTok{(name, }\DataTypeTok{into =} \KeywordTok{c}\NormalTok{(}\StringTok{"col"}\NormalTok{, }\StringTok{"row"}\NormalTok{), }\DataTypeTok{sep =} \StringTok{"__"}\NormalTok{) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{mutate}\NormalTok{(}
+    \DataTypeTok{col =} \KeywordTok{case_when}\NormalTok{(}
+\NormalTok{      col }\OperatorTok{==}\StringTok{ "NAstd_Intercept"}       \OperatorTok{~}\StringTok{ "beta[0]^'NA'"}\NormalTok{,}
+\NormalTok{      col }\OperatorTok{==}\StringTok{ "NAstd_day01"}           \OperatorTok{~}\StringTok{ "beta[1]^'NA'"}\NormalTok{,}
+\NormalTok{      col }\OperatorTok{==}\StringTok{ "sigma_NAstd_Intercept"} \OperatorTok{~}\StringTok{ "eta[0]^'NA'"}\NormalTok{,}
+\NormalTok{      col }\OperatorTok{==}\StringTok{ "sigma_NAstd_day01"}     \OperatorTok{~}\StringTok{ "eta[1]^'NA'"}\NormalTok{,}
+\NormalTok{      col }\OperatorTok{==}\StringTok{ "PAstd_Intercept"}       \OperatorTok{~}\StringTok{ "beta[0]^'PA'"}\NormalTok{,}
+\NormalTok{      col }\OperatorTok{==}\StringTok{ "PAstd_day01"}           \OperatorTok{~}\StringTok{ "beta[1]^'PA'"}\NormalTok{,}
+\NormalTok{      col }\OperatorTok{==}\StringTok{ "sigma_PAstd_Intercept"} \OperatorTok{~}\StringTok{ "eta[0]^'PA'"}\NormalTok{,}
+\NormalTok{      col }\OperatorTok{==}\StringTok{ "sigma_PAstd_day01"}     \OperatorTok{~}\StringTok{ "eta[1]^'PA'"}
+\NormalTok{    ),}
+    \DataTypeTok{row =} \KeywordTok{case_when}\NormalTok{(}
+\NormalTok{      row }\OperatorTok{==}\StringTok{ "NAstd_Intercept"}       \OperatorTok{~}\StringTok{ "beta[0]^'NA'"}\NormalTok{,}
+\NormalTok{      row }\OperatorTok{==}\StringTok{ "NAstd_day01"}           \OperatorTok{~}\StringTok{ "beta[1]^'NA'"}\NormalTok{,}
+\NormalTok{      row }\OperatorTok{==}\StringTok{ "sigma_NAstd_Intercept"} \OperatorTok{~}\StringTok{ "eta[0]^'NA'"}\NormalTok{,}
+\NormalTok{      row }\OperatorTok{==}\StringTok{ "sigma_NAstd_day01"}     \OperatorTok{~}\StringTok{ "eta[1]^'NA'"}\NormalTok{,}
+\NormalTok{      row }\OperatorTok{==}\StringTok{ "PAstd_Intercept"}       \OperatorTok{~}\StringTok{ "beta[0]^'PA'"}\NormalTok{,}
+\NormalTok{      row }\OperatorTok{==}\StringTok{ "PAstd_day01"}           \OperatorTok{~}\StringTok{ "beta[1]^'PA'"}\NormalTok{,}
+\NormalTok{      row }\OperatorTok{==}\StringTok{ "sigma_PAstd_Intercept"} \OperatorTok{~}\StringTok{ "eta[0]^'PA'"}\NormalTok{,}
+\NormalTok{      row }\OperatorTok{==}\StringTok{ "sigma_PAstd_day01"}     \OperatorTok{~}\StringTok{ "eta[1]^'PA'"}
+\NormalTok{    )}
+\NormalTok{  ) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{col =} \KeywordTok{factor}\NormalTok{(col, }\DataTypeTok{levels =}\NormalTok{ levels),}
+         \DataTypeTok{row =} \KeywordTok{factor}\NormalTok{(row, }\DataTypeTok{levels =}\NormalTok{ levels))}
+
+\NormalTok{r }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{full_join}\NormalTok{(}\KeywordTok{rename}\NormalTok{(r, }\DataTypeTok{col =}\NormalTok{ row, }\DataTypeTok{row =}\NormalTok{ col),}
+            \DataTypeTok{by =} \KeywordTok{c}\NormalTok{(}\StringTok{"x"}\NormalTok{, }\StringTok{"y"}\NormalTok{, }\StringTok{"col"}\NormalTok{, }\StringTok{"row"}\NormalTok{, }\StringTok{"value"}\NormalTok{)) }\OperatorTok{%>%}
+\StringTok{  }
+\StringTok{  }\KeywordTok{ggplot}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =}\NormalTok{ x, }\DataTypeTok{y =}\NormalTok{ y, }\DataTypeTok{fill =}\NormalTok{ value)) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{geom_raster}\NormalTok{() }\OperatorTok{+}
+\StringTok{  }\KeywordTok{scale_fill_gradient2}\NormalTok{(}\KeywordTok{expression}\NormalTok{(rho),}
+                       \DataTypeTok{low =} \StringTok{"#59708b"}\NormalTok{, }\DataTypeTok{mid =} \StringTok{"#FCF9F0"}\NormalTok{, }\DataTypeTok{high =} \StringTok{"#A65141"}\NormalTok{, }\DataTypeTok{midpoint =} \DecValTok{0}\NormalTok{,}
+                       \DataTypeTok{labels =} \KeywordTok{c}\NormalTok{(}\OperatorTok{-}\DecValTok{1}\NormalTok{, }\StringTok{""}\NormalTok{, }\DecValTok{0}\NormalTok{, }\StringTok{""}\NormalTok{, }\DecValTok{1}\NormalTok{), }\DataTypeTok{limits =} \KeywordTok{c}\NormalTok{(}\OperatorTok{-}\DecValTok{1}\NormalTok{, }\DecValTok{1}\NormalTok{)) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{scale_x_continuous}\NormalTok{(}\OtherTok{NULL}\NormalTok{, }\DataTypeTok{breaks =} \OtherTok{NULL}\NormalTok{, }\DataTypeTok{expand =} \KeywordTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{0}\NormalTok{)) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{scale_y_continuous}\NormalTok{(}\OtherTok{NULL}\NormalTok{, }\DataTypeTok{breaks =} \OtherTok{NULL}\NormalTok{, }\DataTypeTok{expand =} \KeywordTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{0}\NormalTok{)) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{theme}\NormalTok{(}\DataTypeTok{strip.text =} \KeywordTok{element_text}\NormalTok{(}\DataTypeTok{size =} \DecValTok{12}\NormalTok{)) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{facet_grid}\NormalTok{(row}\OperatorTok{~}\NormalTok{col, }\DataTypeTok{labeller =}\NormalTok{ label_parsed, }\DataTypeTok{switch =} \StringTok{"y"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{center}\includegraphics[width=450px]{14.bonus_files/figure-latex/unnamed-chunk-25-1} \end{center}
+
+From Kay's GitHub repo, we read: ``This is akin to something like an
+icon array. You should still be able to see the average color (thanks to
+the human visual system's ensembling processing), but also get a sense
+of the uncertainty by how `dithered' a square looks.'' Hopefully this
+will give you a little inspiration to find new and better ways to
+express the posterior uncertainty in your Bayesian correlation plots. If
+you come up with any great solutions, let the rest of us know!
+
+\hypertarget{growth-modelmelsm-wrap-up.}{%
+\subsubsection{14.6.5. Growth model/MELSM
+wrap-up.}\label{growth-modelmelsm-wrap-up.}}
+
+This section introduced a lot of material. To learn more about the
+conventional multilevel growth model and its extensions, check out
+
+\begin{itemize}
+\tightlist
+\item
+  Singer and Willett's
+  (\protect\hyperlink{ref-singerAppliedLongitudinalData2003}{2003})
+  text,
+  \href{https://oxford.universitypressscholarship.com/view/10.1093/acprof:oso/9780195152968.001.0001/acprof-9780195152968}{\emph{Applied
+  longitudinal data analysis: Modeling change and event occurrence}};
+\item
+  My \textbf{brms}/\textbf{tidyverse} translation of that text,
+  \href{https://bookdown.org/content/4253/}{\emph{Applied Longitudinal
+  Data Analysis in brms and the tidyverse }}; or
+\item
+  Hoffman's
+  (\protect\hyperlink{ref-hoffmanLongitudinalAnalysisModeling2015}{2015})
+  text,
+  \href{https://www.routledge.com/Longitudinal-Analysis-Modeling-Within-Person-Fluctuation-and-Change/Hoffman/p/book/9780415876025}{\emph{Longitudinal
+  analysis: Modeling within-person fluctuation and change}}.
+\end{itemize}
+
+To learn more about the MELSM approach and its extensions, check out
+
+\begin{itemize}
+\tightlist
+\item
+  Hedeker et al.
+  (\protect\hyperlink{ref-hedekerApplicationMixedeffectsLocation2008}{2008}),
+  \href{https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2424261/}{\emph{An
+  application of a mixed-effects location scale model for analysis of
+  ecological momentary assessment (EMA) data}};
+\item
+  Hedeker et al.
+  (\protect\hyperlink{ref-hedekerModelingWithinsubjectVariance2012}{2012}),
+  \href{https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3655706/}{\emph{Modeling
+  between- and within-subject variance in ecological momentary
+  assessment (EMA) data using mixed-effects location scale models}};
+\item
+  Williams' and colleagues'
+  (\protect\hyperlink{ref-williamsBayesianMultivariateMixedeffects2019a}{2019})
+  preprint, \href{https://psyarxiv.com/4kfjp/}{\emph{Bayesian
+  multivariate mixed-effects location scale modeling of longitudinal
+  relations among affective traits, states, and physical activity}};
+\item
+  Williams' and colleagues' (Williams, Rouder, et al.,
+  \protect\hyperlink{ref-williamsSurfaceUnearthingWithinperson2019}{2019})
+  preprint, \href{https://osf.io/gwatq}{\emph{Beneath the surface:
+  Unearthing within-person variability and mean relations with Bayesian
+  mixed models}};
+\item
+  Williams' and colleagues' (Williams, Zimprich, et al.,
+  \protect\hyperlink{ref-williamsBayesianNonlinearMixedeffects2019a}{2019})
+  paper, \href{https://doi.org/10.3758/s13428-019-01255-9}{\emph{A
+  Bayesian nonlinear mixed-effects location scale model for learning}};
+\item
+  Williams' tutorial blog post,
+  \href{https://donaldrwilliams.github.io/2020/04/04/a-defining-feature-of-cognitive-interference-tasks-heterogeneous-within-person-variance/}{\emph{A
+  defining feature of cognitive interference tasks: Heterogeneous
+  within-person variance}}.
+\end{itemize}
+
+From a \textbf{brms} standpoint, it might also be helpful to brush up on
+
+\begin{itemize}
+\tightlist
+\item
+  Bürkner's
+  (\protect\hyperlink{ref-Buxfcrkner2020Distributional}{2020}\protect\hyperlink{ref-Buxfcrkner2020Distributional}{a})
+  vignette,
+  \href{https://CRAN.R-project.org/package=brms/vignettes/brms_distreg.html}{\emph{Estimating
+  distributional models with brms}} and
+\item
+  Bürkner's
+  (\protect\hyperlink{ref-Buxfcrkner2020Multivariate}{2020}\protect\hyperlink{ref-Buxfcrkner2020Multivariate}{b})
+  vignette,
+  \href{https://CRAN.R-project.org/package=brms/vignettes/brms_multivariate.html}{\emph{Estimating
+  multivariate models with brms}}.
+\end{itemize}
+
+\hypertarget{session-info}{%
+\subsection*{Session info}\label{session-info}}
+\addcontentsline{toc}{subsection}{Session info}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{sessionInfo}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## R version 3.6.3 (2020-02-29)
+## Platform: x86_64-apple-darwin15.6.0 (64-bit)
+## Running under: macOS Catalina 10.15.3
+## 
+## Matrix products: default
+## BLAS:   /Library/Frameworks/R.framework/Versions/3.6/Resources/lib/libRblas.0.dylib
+## LAPACK: /Library/Frameworks/R.framework/Versions/3.6/Resources/lib/libRlapack.dylib
+## 
+## locale:
+## [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+## 
+## attached base packages:
+## [1] stats     graphics  grDevices utils     datasets  methods   base     
+## 
+## other attached packages:
+##  [1] brms_2.13.0        Rcpp_1.0.5         dutchmasters_0.1.0 forcats_0.5.0      stringr_1.4.0     
+##  [6] dplyr_1.0.1        purrr_0.3.4        readr_1.3.1        tidyr_1.1.1        tibble_3.0.3      
+## [11] ggplot2_3.3.2      tidyverse_1.3.0   
+## 
+## loaded via a namespace (and not attached):
+##   [1] TH.data_1.0-10       colorspace_1.4-1     ellipsis_0.3.1       ggridges_0.5.2       rsconnect_0.8.16    
+##   [6] estimability_1.3     markdown_1.1         base64enc_0.1-3      fs_1.4.1             rstudioapi_0.11     
+##  [11] farver_2.0.3         rstan_2.19.3         DT_0.13              fansi_0.4.1          mvtnorm_1.1-0       
+##  [16] lubridate_1.7.8      xml2_1.3.1           codetools_0.2-16     splines_3.6.3        bridgesampling_1.0-0
+##  [21] knitr_1.28           shinythemes_1.1.2    bayesplot_1.7.1      jsonlite_1.7.0       broom_0.5.5         
+##  [26] dbplyr_1.4.2         shiny_1.4.0.2        compiler_3.6.3       httr_1.4.1           emmeans_1.4.5       
+##  [31] backports_1.1.8      assertthat_0.2.1     Matrix_1.2-18        fastmap_1.0.1        cli_2.0.2           
+##  [36] later_1.0.0          htmltools_0.4.0      prettyunits_1.1.1    tools_3.6.3          igraph_1.2.5        
+##  [41] coda_0.19-3          gtable_0.3.0         glue_1.4.1           reshape2_1.4.4       cellranger_1.1.0    
+##  [46] vctrs_0.3.2          nlme_3.1-144         crosstalk_1.1.0.1    xfun_0.13            ps_1.3.3            
+##  [51] rvest_0.3.5          mime_0.9             miniUI_0.1.1.1       lifecycle_0.2.0      gtools_3.8.2        
+##  [56] MASS_7.3-51.5        zoo_1.8-7            scales_1.1.1         colourpicker_1.0     hms_0.5.3           
+##  [61] promises_1.1.0       Brobdingnag_1.2-6    sandwich_2.5-1       parallel_3.6.3       inline_0.3.15       
+##  [66] shinystan_2.5.0      yaml_2.2.1           gridExtra_2.3        loo_2.2.0            StanHeaders_2.21.0-1
+##  [71] stringi_1.4.6        dygraphs_1.1.1.6     pkgbuild_1.1.0       rlang_0.4.7          pkgconfig_2.0.3     
+##  [76] matrixStats_0.56.0   evaluate_0.14        lattice_0.20-38      labeling_0.3         rstantools_2.0.0    
+##  [81] htmlwidgets_1.5.1    tidyselect_1.1.0     processx_3.4.3       plyr_1.8.6           magrittr_1.5        
+##  [86] R6_2.4.1             generics_0.0.2       multcomp_1.4-13      DBI_1.1.0            pillar_1.4.6        
+##  [91] haven_2.2.0          withr_2.2.0          xts_0.12-0           survival_3.1-12      abind_1.4-5         
+##  [96] modelr_0.1.6         crayon_1.3.4         utf8_1.1.4           rmarkdown_2.1        grid_3.6.3          
+## [101] readxl_1.3.1         callr_3.4.3          threejs_0.3.3        reprex_0.3.0         digest_0.6.25       
+## [106] xtable_1.8-4         httpuv_1.5.2         stats4_3.6.3         munsell_0.5.0        shinyjs_1.1
+\end{verbatim}
+
+\hypertarget{refs}{}
+\leavevmode\hypertarget{ref-Buxfcrkner2020Distributional}{}%
+Bürkner, P.-C. (2020a). \emph{Estimating distributional models with
+brms}.
+\url{https://CRAN.R-project.org/package=brms/vignettes/brms_distreg.html}
+
+\leavevmode\hypertarget{ref-Buxfcrkner2020Multivariate}{}%
+Bürkner, P.-C. (2020b). \emph{Estimating multivariate models with brms}.
+\url{https://CRAN.R-project.org/package=brms/vignettes/brms_multivariate.html}
+
+\leavevmode\hypertarget{ref-hedekerApplicationMixedeffectsLocation2008}{}%
+Hedeker, D., Mermelstein, R. J., \& Demirtas, H. (2008). An application
+of a mixed-effects location scale model for analysis of ecological
+momentary assessment (EMA) data. \emph{Biometrics}, \emph{64}(2),
+627--634. \url{https://doi.org/10.1111/j.1541-0420.2007.00924.x}
+
+\leavevmode\hypertarget{ref-hedekerModelingWithinsubjectVariance2012}{}%
+Hedeker, D., Mermelstein, R. J., \& Demirtas, H. (2012). Modeling
+between- and within-subject variance in ecological momentary assessment
+(EMA) data using mixed-effects location scale models. \emph{Statistics
+in Medicine}, \emph{31}(27). \url{https://doi.org/10.1002/sim.5338}
+
+\leavevmode\hypertarget{ref-hoffmanLongitudinalAnalysisModeling2015}{}%
+Hoffman, L. (2015). \emph{Longitudinal analysis: Modeling within-person
+fluctuation and change} (1 edition). Routledge.
+\url{https://www.routledge.com/Longitudinal-Analysis-Modeling-Within-Person-Fluctuation-and-Change/Hoffman/p/book/9780415876025}
+
+\leavevmode\hypertarget{ref-rastModelingIndividualDifferences2012}{}%
+Rast, P., Hofer, S. M., \& Sparks, C. (2012). Modeling individual
+differences in within-person variation of negative and positive affect
+in a mixed effects location scale model using BUGS/JAGS.
+\emph{Multivariate Behavioral Research}, \emph{47}(2), 177--200.
+\url{https://doi.org/10.1080/00273171.2012.658328}
+
+\leavevmode\hypertarget{ref-singerAppliedLongitudinalData2003}{}%
+Singer, J. D., \& Willett, J. B. (2003). \emph{Applied longitudinal data
+analysis: Modeling change and event occurrence}. Oxford University
+Press, USA.
+\url{https://oxford.universitypressscholarship.com/view/10.1093/acprof:oso/9780195152968.001.0001/acprof-9780195152968}
+
+\leavevmode\hypertarget{ref-watsonPANASDevelopment1988}{}%
+Watson, D., Clark, L. A., \& Tellegen, A. (1988). Development and
+validation of brief measures of positive and negative affect: The PANAS
+scales. \emph{Journal of Personality and Social Psychology},
+\emph{54}(6), 1063--1070.
+\url{https://doi.org/10.1037/0022-3514.54.6.1063}
+
+\leavevmode\hypertarget{ref-williamsBayesianMultivariateMixedeffects2019a}{}%
+Williams, D. R., Liu, S., Martin, S. R., \& Rast, P. (2019).
+\emph{Bayesian multivariate mixed-effects location scale modeling of
+longitudinal relations among affective traits, states, and physical
+activity}. \url{https://doi.org/10.31234/osf.io/4kfjp}
+
+\leavevmode\hypertarget{ref-williamsPuttingIndividualReliability2019}{}%
+Williams, D. R., Martin, S. R., \& Rast, P. (2019). \emph{Putting the
+individual into reliability: Bayesian testing of homogeneous
+within-person variance in hierarchical models}.
+\url{https://doi.org/10.31234/osf.io/hpq7w}
+
+\leavevmode\hypertarget{ref-williamsSurfaceUnearthingWithinperson2019}{}%
+Williams, D. R., Rouder, J., \& Rast, P. (2019). \emph{Beneath the
+surface: Unearthing within-Person variability and mean relations with
+Bayesian mixed models}. \url{https://doi.org/10.31234/osf.io/gwatq}
+
+\leavevmode\hypertarget{ref-williamsBayesianNonlinearMixedeffects2019a}{}%
+Williams, D. R., Zimprich, D. R., \& Rast, P. (2019). A Bayesian
+nonlinear mixed-effects location scale model for learning.
+\emph{Behavior Research Methods}, \emph{51}(5), 1968--1986.
+\url{https://doi.org/10.3758/s13428-019-01255-9}
+
+\end{document}

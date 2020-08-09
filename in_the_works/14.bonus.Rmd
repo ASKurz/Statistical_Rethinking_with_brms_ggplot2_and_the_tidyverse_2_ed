@@ -3,7 +3,7 @@ title: "Ch. 14 Adventures in Covariance: Bonus Section"
 author: "A Solomon Kurz"
 date: "`r format(Sys.Date())`"
 output:
-  html_document
+  github_document
 bibliography: bib.bib
 biblio-style: apalike
 csl: apa.csl
@@ -58,7 +58,7 @@ All the models in this bonus section are based on the preprint by @williamsBayes
 
 Load the data.
 
-```{r, eval = F}
+```{r, warning = F, message = F}
 dat <- 
   readr::read_csv("/Users/solomonkurz/Dropbox/Recoding Statistical Rethinking 2nd ed/data/m_melsm_dat.csv") %>% 
   mutate(day01 = (day - 2) / max((day - 2)))
@@ -68,14 +68,14 @@ glimpse(dat)
 
 These data are from 193 participants.
 
-```{r, eval = F}
+```{r}
 distinct(dat, record_id) %>% 
   count()
 ```
 
 Participants were asked to complete self-report ratings once a day for a few months. People varied by how many days they participated in the study, with number of days ranging from 8 to 99 and a median of 74.
 
-```{r, eval = F}
+```{r}
 dat %>% 
   count(record_id) %>% 
   summarise(median = median(n),
@@ -85,7 +85,7 @@ dat %>%
 
 Here is a plot of that distribution.
 
-```{r, eval = F}
+```{r, fig.width = 4, fig.height = 2.5}
 dat %>% 
   count(record_id) %>% 
   
@@ -97,7 +97,7 @@ dat %>%
 
 Our primary variables of interest were taken from the Positive and Negative Affect Schedule [PANAS, @watsonPANASDevelopment1988], which is widely used in certain areas of psychology to measure mood or emotion. In this study, participants completed the PANAS once a day by endorsing the extent to which they experienced various positive (e.g., excited, inspired) and negative (e.g., upset, afraid) emotional states. These responses are summed into two scores: Positive affect (PA) and negative affect (NA). In the current data, the standardized versions of these scores are in the `P_A.std` and `N_A.std` columns, respectively. To get a sense of what these look like, here are the daily `N_A.std` scores from a random sample of 16 participants.
 
-```{r, eval = F}
+```{r, fig.width = 7, fig.height = 5}
 set.seed(14)
 
 dat %>% 
@@ -142,7 +142,7 @@ You may have noticed my statistical notation differs a bit from McElreath's, her
 
 Here is how to fit the model with **brms**.
 
-```{r, eval = F}
+```{r b14.12}
 # 5.583446 mins
 b14.12 <-
   brm(data = dat,
@@ -160,7 +160,7 @@ b14.12 <-
 
 Check the summary.
 
-```{r, eval = F}
+```{r}
 print(b14.12)
 ```
 
@@ -170,7 +170,7 @@ The two group-level $\sigma$ parameters are fairly large given the scale of the 
 
 To get a sense of the model, we'll plot the posterior means for each participants' fitted trajectory across time (thin lines), along with the population-average trajectory (thick line).
 
-```{r, eval = F}
+```{r, fig.width = 4, fig.height = 3}
 nd <-
   dat %>% 
   distinct(record_id, day01)
@@ -192,7 +192,7 @@ fitted(b14.12,
 
 If you look back up to the model summary from before the plot, the one parameter we didn't focus on was the lone `sigma` parameter at the bottom. That's our $\sigma_\epsilon$, which captures the individual variation not accounted for by the intercepts, slopes, and their correlation. An important characteristic of the conventional multilevel growth model is that $\sigma_\epsilon$ does not vary across persons, occasions, or other variables. To give a sense of why this might not be the best assumption, let’s take a focused look at the model implied trajectories for two participants. Here we will take cues from some Figure 4.8 from way back in [Section 4.4.3.5][Prediction intervals.]. We will plot the original data atop both the fitted lines and their 95% intervals, which expresses the mean structure, along with the 95% posterior predictive interval, which expresses the uncertainty of the $\sigma_\epsilon$ parameter.
 
-```{r, eval = F}
+```{r, fig.width = 7, fig.height = 3}
 nd <-
   dat %>% 
   filter(record_id %in% c(30, 115)) %>% 
@@ -250,7 +250,7 @@ $$
 
 In the opening likelihood statement from the prior model, we simply set $\text{NA}_{ij} \sim \operatorname{Normal}\begin{pmatrix} \mu_{ij}, \sigma \end{pmatrix}$. For our first MELSM, we now refer to $\sigma_i$, meaning the levels of variation not accounted for by the mean structure can vary across participants (hence the $i$ subscript). Two lines down, we see the formula for $\log \begin{pmatrix} \sigma_i \end{pmatrix}$ contains population-level intercept, $\eta_0$, and participant-specific deviations around that parameter, $u_{2i}$. In the next three lines, the plot deepens. We see that all three participant-level deviations, $u_{0i},...,u_{2i}$ are multivariate normal with means set to zero and variation expressed in the parameters $\sigma_0,...,\sigma_2$ of the $\mathbf S$ matrix. In the $R$ matrix, we now have three correlation parameters, with $\rho_{31}$ and $\rho_{32}$ allowing us to assess the correlations among individual differences in variability and individual differences in starting points and change over time, respectively. Let's fit the model.
 
-```{r, eval = F}
+```{r b14.13}
 b14.13 <-
   brm(data = dat,
       family = gaussian,
@@ -273,19 +273,19 @@ We should note a few things about the `brm()` syntax. First, because we modeled 
 
 Okay, time to check the model summary.
 
-```{r, eval = F}
+```{r}
 print(b14.13)
 ```
 
 The 'sigma_Intercept' lines in the 'Population-Level Effects' section is the summary for our $\eta_0$ parameter. To get a sense of what this means out of the log space, just exponentiate.
 
-```{r, eval = F}
+```{r}
 fixef(b14.13)["sigma_Intercept", c(1, 3:4)] %>% exp()
 ```
 
 To get a sense of the variation in that parameter across participants [i.e., $\exp(\eta_0 + u_{2i})$], it's best to plot.
 
-```{r, eval = F}
+```{r, fig.width = 4.5, fig.height = 2.75}
 coef(b14.13)$record_id[, , "sigma_Intercept"] %>% 
   exp() %>% 
   data.frame() %>% 
@@ -300,7 +300,7 @@ coef(b14.13)$record_id[, , "sigma_Intercept"] %>%
 
 Looks like there's a lot of variation in a parameter that was formerly fixed across participants as a single value $\sigma_\epsilon$. Here's what this looks like in terms of our posterior predictive distributions for participants 30 and 115, from before.
 
-```{r, eval = F}
+```{r, fig.width = 7, fig.height = 3}
 nd <-
   dat %>% 
   filter(record_id %in% c(30, 115)) %>% 
@@ -349,7 +349,7 @@ $$
 
 Note how in the very first line we are not speaking in terms of $\sigma_{ij}$. Variation in the criterion $\text{NA}_{ij}$ not accounted for by the mean structure can now vary across participants, $i$, and time, $j$. This results in four $u_{xi}$ terms, a $4 \times 4$ $\mathbf S$ matrix and a $4 \times 4$ $\mathbf R$ matrix. Here's how you might fit the model with `brms::brm()`. **Warning**: it'll probably take a couple hours.
 
-```{r, eval = F}
+```{r b14.14}
 b14.14 <-
   brm(data = dat,
       family = gaussian,
@@ -371,13 +371,13 @@ b14.14 <-
 
 At this point, `print()` is starting to return a lot of output. 
 
-```{r, eval = F}
+```{r}
 print(b14.14)
 ```
 
 Our new line for 'sigma_day01' suggests there is a general trend for less variation in negative affect ratings over time. However, the 'sd(sigma_day01)' line in the 'Group-Level Effects' section indicates even this varies a bit across participants. At this point, a lot of the action is now in the estimates for the $\mathbf R$ matrix. Here that is in a coefficient plot.
 
-```{r, eval = F}
+```{r, fig.width = 8, fig.height = 1.5}
 posterior_summary(b14.14) %>% 
   data.frame() %>% 
   rownames_to_column("par") %>% 
@@ -398,7 +398,7 @@ posterior_summary(b14.14) %>%
 
 Note how we attached the statistical terms from the lower triangle of the $\mathbf R$ matrix to the names from the **brms** output. Coefficient plots like this are somewhat helpful with MELSM parameter summaries, like this. But they leave something to be desired and they won’t scale well. One alternative is to present the posterior means in a correlation matrix plot. Our first step to prepare for the plot is to extract and wrangle the posterior summaries.
 
-```{r, eval = F}
+```{r}
 levels <- c("beta[0]", "beta[1]", "eta[0]", "eta[1]")
 
 r <-
@@ -429,7 +429,7 @@ r
 
 Note how instead of naming the correlations in terms of $\rho_{xx}$, we are now referring to them as the correlations of the deviations among the population parameters, $\beta_0$ through $\eta_1$. I'm hoping this will make sense in the plot. Here it is.
 
-```{r, eval = F}
+```{r, fig.width = 3.5, fig.height = 3.25}
 r %>% 
   ggplot(aes(x = left, y = right)) +
   geom_tile(aes(fill = Estimate)) +
@@ -449,7 +449,7 @@ r %>%
 
 Interestingly, the strongest two associations involve variation around our $\eta$ parameters. The posterior mean for $\rho_{31}$ indicates participants with higher baseline levels of $\text{NA}_{ij}$ tend to vary more in their responses, particularly in the beginning. The posterior mean for $\rho_{42}$ indicates participants who show greater increases in their $\text{NA}_{ij}$ responses over time also tend to show greater relative increases in variation in those responses. You can get a little bit of a sense for this by returning once again to our participants 30 and 115.
 
-```{r, eval = F}
+```{r, fig.width = 7, fig.height = 3}
 nd <-
   dat %>% 
   filter(record_id %in% c(30, 115)) %>% 
@@ -526,7 +526,7 @@ where the $\text{NA}$ and $\text{PA}$ superscripts indicate which variable is co
 # takes 3.460296 hours
 ```
 
-```{r, eval = F}
+```{r b14.15}
 b14.15 <-
   brm(data = dat,
       family = gaussian,
@@ -562,7 +562,7 @@ Note how we used the `resp` argument to indicate which priors went with which cr
 
 First we wrangle.
 
-```{r, eval = F}
+```{r}
 levels <- c("beta[0]^'NA'", "beta[1]^'NA'", "eta[0]^'NA'", "eta[1]^'NA'",
             "beta[0]^'PA'", "beta[1]^'PA'", "eta[0]^'PA'", "eta[1]^'PA'")
 
@@ -615,7 +615,7 @@ Now we plot!
 # The color I used for the low end of the fill gradient, "#59708b", is not technically part of the `dutchmasters$pearl_earring` color palette. Originally, I wanted to use "#80A0C7", which is part of that palette. The difficulty, however, is the red used for the high end of the fill gradient has a lower lightness value, making the gradient look unbalanced. You can compare the stats for the red at https://www.color-hex.com/color/a65141 to the stats for blue at https://color-hex.org/color/80a0c7. Based on the aforementioned website for the blue color, the HEX color "#59708b" is two shades darker and, importantly, has the same lightness value as the red (see https://www.color-hex.com/color/606683).
 ```
 
-```{r, eval = F}
+```{r, fig.width = 6.25, fig.height = 5.25}
 r %>% 
   full_join(rename(r, right = left, left = right),
             by = c("left", "right", "Estimate", "Est.Error", "Q2.5", "Q97.5", "label")) %>%
@@ -648,7 +648,7 @@ As fond as I am with that last correlation plot, it has a glaring defect: there 
 
 Fortunately for us, [Matthew Kay](https://twitter.com/mjskay) (creator of the [**tidybayes** package](http://mjskay.github.io/tidybayes)) has already tried his hand at a few approaches. For all the deets, check out the [multivariate-regression.md](https://github.com/mjskay/uncertainty-examples/blob/master/multivariate-regression.md) file in his [uncertainty-examples](https://github.com/mjskay/uncertainty-examples) GitHub repo. One of his more imaginative approaches is to use what he calls dithering. Imagine breaking each of the cells in our correlation plot, above, into a $50 \times 50 = 2,500$-cell grid. Now assign each of the cells within that grid one of the values from the HMC draws of that correlation's posterior distribution. Then color code each of those cells by that value in the same basic way we color coded our previous correlation plots. Simultaneously do that for all of the correlations within the $\mathbf R$ matrix and plot them in a faceted plot. That's the essence of the dithering approach. This is all probably hard to make sense of in words. Hopefully it will all come together with a little code and the resulting plot. Hold on to your hat.
 
-```{r, eval = F}
+```{r, fig.width = 6.25, fig.height = 5.25}
 levels <- c("beta[0]^'NA'", "beta[1]^'NA'", "eta[0]^'NA'", "eta[1]^'NA'",
             "beta[0]^'PA'", "beta[1]^'PA'", "eta[0]^'PA'", "eta[1]^'PA'")
 
@@ -739,5 +739,4 @@ ggplot2::theme_set(ggplot2::theme_grey())
 bayesplot::color_scheme_set("blue")
 pacman::p_unload(pacman::p_loaded(), character.only = TRUE)
 ```
-
 
