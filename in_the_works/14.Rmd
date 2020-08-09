@@ -100,7 +100,7 @@ dutchmasters$pearl_earring
 scales::show_col(dutchmasters$pearl_earring)
 ```
 
-We'll name our custom theme `theme_pearl_earring()`. I cobbled together this approach to defining a custom **ggplot2** theme with help from 
+We'll name our custom theme `theme_pearl_earring()`. I cobbled together this approach to defining a custom **ggplot2** theme with help from
 
 * [Chapter 17](https://ggplot2-book.org/programming.html) of Wichkam's [-@wickhamGgplot2ElegantGraphics2016] *ggplot2: Elegant graphics for data analysis*; 
 * [Section 4.6](https://bookdown.org/rdpeng/RProgDA/building-a-new-theme.html) of Peng, Kross, and Anderson's [-@pengMasteringSoftwareDevelopment2017] [*Mastering Software Development in R*](https://bookdown.org/rdpeng/RProgDA/building-a-new-theme.html); 
@@ -196,7 +196,7 @@ d %>%
   facet_wrap(~cafe, ncol = 1)
 ```
 
-#### 14.1.2.1 Rethinking: Simulation and misspecification. 
+#### 14.1.2.1 Rethinking: Simulation and misspecification.
 
 > In this exercise, we are simulating data from a generative process and then analyzing that data with a model that reflects exactly the correct structure of that process. But in the real world, we're never so lucky. Instead we are always forced to analyze data with a model that is misspecified: The true data-generating process is different than the model. Simulation can be used however to explore misspecification. Just simulate data from a process and then see how a number of models, none of which match exactly the data-generating process, perform. And always remember that Bayesian inference does not depend upon data-generating assumptions, such as the likelihood, being true. (p. 441)
 
@@ -524,7 +524,7 @@ $$
 \end{align*}
 $$
 
-In this model, we have four population-level intercepts, $\gamma_1, ..., \gamma_4$, one for each of the four levels of `treatment`. There are two higher-level grouping variables, `actor` and `block`, making this a cross-classified model. 
+In this model, we have four population-level intercepts, $\gamma_1, ..., \gamma_4$, one for each of the four levels of `treatment`. There are two higher-level grouping variables, `actor` and `block`, making this a cross-classified model.
 
 The term $\alpha_{\text{actor}[i], \text{treatment}[i]}$ is meant to convey that each of the `treatment` effects can vary by `actor`. The first line containing the $\operatorname{MVNormal}(\cdot)$ operator indicates the `actor`-level deviations from the population-level estimates for $\gamma_j$ follow the multivariate normal distribution where the four means are set to zero (i.e., they are deviations) and their spread around those zeros are controlled by $\Sigma_\text{actor}$. In the first line below the last line containing $\operatorname{MVNormal}(\cdot)$, we learn that $\Sigma_\text{actor}$ can be decomposed into two terms, $\mathbf S_\alpha$ and $\mathbf R_\alpha$. It may not yet be clear by the notation, but $\mathbf S_\alpha$ is a $4 \times 4$ matrix,
 
@@ -615,7 +615,7 @@ b14.3 <- add_criterion(b14.3, "waic")
 waic(b14.3)
 ```
 
-Like the $p_\text{WAIC}$, our **brms** version of the model has about 27 effective parameters. Now we'll get a better sense of the model with a posterior predictive check in the form of our version of Figure 14.7. McElreath described his **R** code 14.22 as "a big chunk of code" (p. 451). I'll leave up to the reader to decide whether our big code chunk is any better. 
+Like the $p_\text{WAIC}$, our **brms** version of the model has about 27 effective parameters. Now we'll get a better sense of the model with a posterior predictive check in the form of our version of Figure 14.7. McElreath described his **R** code 14.22 as "a big chunk of code" (p. 451). I'll leave up to the reader to decide whether our big code chunk is any better.
 
 ```{r, fig.width = 8, fig.height = 2.5}
 # for annotation
@@ -740,7 +740,7 @@ dagify(E ~ Q + U,
   theme_pearl_dag()
 ```
 
-Sadly, our condition that $Q$ can only influence $W$ through $E$--often called the **exclusion restriction**--generally cannot be tested. Given $U$ is unmeasured, by definition, we also cannot test that $Q$ is independent of $U$. These are model assumptions. 
+Sadly, our condition that $Q$ can only influence $W$ through $E$--often called the **exclusion restriction**--generally cannot be tested. Given $U$ is unmeasured, by definition, we also cannot test that $Q$ is independent of $U$. These are model assumptions.
 
 Let's simulate data based on @angristDoesCompulsorySchool1991 to get a sense of how this works.
 
@@ -1376,7 +1376,7 @@ posterior_samples(b14.9) %>%
   mutate_if(is.double, round, digits = 2)
 ```
 
-The oldest and most conservative way to include information about phylogenetic relationships is with a Brownian motion model. 
+The oldest and most conservative way to include information about phylogenetic relationships is with a Brownian motion model.
 
 > Brownian motion just means Gaussian random walks. If species traits drift randomly with respect to one another after speciation, then the covariance between a pair of species ends up being linearly related to the phylogenetic branch distance between them--the further apart, the less covariance, as a proportion of distance. (p. 481)
 
@@ -1650,7 +1650,7 @@ dat %>%
 
 ### Conventional multilevel growth model.
 
-In the social sciences, a typical way to analyze data like these is with a multilevel growth model in which participants vary in their intercepts (starting point) and time slopes (change over time). In the sample of the data, above, it looks like most participants have fairly constant levels of NA over time (i.e., near-zero slopes) but some (e.g., # 128 and 147) show some evidence of systemic decreases in NA (i.e., negative slopes). There is also some variation in starting points, though most of the participants in this subset of the data seemed to have endorsed relatively low levels of NA both at baseline and throughout the study. 
+In the social sciences, a typical way to analyze data like these is with a multilevel growth model in which participants vary in their intercepts (starting point) and time slopes (change over time). In the sample of the data, above, it looks like most participants have fairly constant levels of NA over time (i.e., near-zero slopes) but some (e.g., # 128 and 147) show some evidence of systemic decreases in NA (i.e., negative slopes). There is also some variation in starting points, though most of the participants in this subset of the data seemed to have endorsed relatively low levels of NA both at baseline and throughout the study.
 
 Anyway, we want a model that can capture those kinds of variation. Eventually, we will fit a model that accounts for both PA and NA. But to keep things simple while we're warming up, we will restrict our focus to NA. If we let $\text{NA}_{ij}$ be the standardized NA score for the $i$th participant on the $j$th day, our first Bayesian multilevel growth model will follow the form
 
@@ -1702,7 +1702,7 @@ print(b14.12)
 
 Hopefully it makes sense that the population-level intercept ($\beta_0$) is near zero. It would be odd if it wasn't given these are standardized data. The coefficient for `day01` ($\beta_1$) is mildly negative, suggesting an overall trend for participants to endorse lower NA scores over time.
 
-The two group-level $\sigma$ parameters are fairly large given the scale of the data. They suggest participants varied quite a bit in terms of both intercepts and slopes. They also have a moderate negative correlation, suggesting that participants with higher intercepts tended to have more negative slopes. 
+The two group-level $\sigma$ parameters are fairly large given the scale of the data. They suggest participants varied quite a bit in terms of both intercepts and slopes. They also have a moderate negative correlation, suggesting that participants with higher intercepts tended to have more negative slopes.
 
 To get a sense of the model, we'll plot the posterior means for each participants' fitted trajectory across time (thin lines), along with the population-average trajectory (thick line).
 
@@ -1765,7 +1765,7 @@ Because of our fixed $\sigma_\epsilon$ parameter, the 95% posterior predictive i
 
 Mixed-effects location scale models (MELSMs) have their origins in the work of [Donald Hedeker](https://health.uchicago.edu/faculty/donald-hedeker-phd) and colleagues  [@hedekerApplicationMixedeffectsLocation2008; @hedekerModelingWithinsubjectVariance2012]. @rastModelingIndividualDifferences2012 showcased an early application of the framework to the BUGS/JAGS software. More recently [Philippe Rast](https://twitter.com/rastlab) and colleagues (particularly graduate student, [Donald Williams](wdonald_1985)) have adapted this approach for use within the Stan/**brms** software ecosystem [@williamsBayesianNonlinearMixedeffects2019a; @williamsSurfaceUnearthingWithinperson2019; @williamsBayesianMultivariateMixedeffects2019a; @williamsPuttingIndividualReliability2019].
 
-Within the **brms**, MELSMs apply a distributional modeling approach [see @Bürkner2020Distributional] to the multilevel growth model. Not only are parameters from the mean structure allowed to vary across groups, but parameters applied to $\sigma$ are allowed to vary across groups, too. Do you remember the little practice model `b10.1` from [Section 10.2.2][Linking linear models to distributions.]. We simulated Gaussian data for two groups with the same mean parameter but different parameters for $\sigma$. If you check back in that section, you'll see that the **brms** default was to model $\log \sigma$ in that case. This is smart because when you define a model for $\sigma$, you want to use a link function that ensures the predictions will be stay at zero and above. The MELSM approach of Hedeker, Rast, Williams and friends applies this logic to $\sigma_\epsilon$ in multilevel growth models. However, not only can $\sigma_\epsilon$ vary across groups in a fixed-effects sort of way, we can use multilevel partial pooling, too. 
+Within the **brms**, MELSMs apply a distributional modeling approach [see @Bürkner2020Distributional] to the multilevel growth model. Not only are parameters from the mean structure allowed to vary across groups, but parameters applied to $\sigma$ are allowed to vary across groups, too. Do you remember the little practice model `b10.1` from [Section 10.2.2][Linking linear models to distributions.]. We simulated Gaussian data for two groups with the same mean parameter but different parameters for $\sigma$. If you check back in that section, you'll see that the **brms** default was to model $\log \sigma$ in that case. This is smart because when you define a model for $\sigma$, you want to use a link function that ensures the predictions will be stay at zero and above. The MELSM approach of Hedeker, Rast, Williams and friends applies this logic to $\sigma_\epsilon$ in multilevel growth models. However, not only can $\sigma_\epsilon$ vary across groups in a fixed-effects sort of way, we can use multilevel partial pooling, too.
 
 To get a sense of what this looks like, we'll augment our previous model, but this time allowing $\sigma_\epsilon$ to vary across participants. You might express the updated statistical model as
 
@@ -1805,7 +1805,7 @@ b14.13 <-
       file = "/Users/solomonkurz/Dropbox/Recoding Statistical Rethinking 2nd ed/fits/b14.13")
 ```
 
-We should note a few things about the `brm()` syntax. First, because we modeled both $\mu_{ij}$ and $\sigma_i$, we put both model formulas within the `bf()` function. Second, because the **brms** default is to use the log link when modeling $\sigma_i$, there was no need to explicitly set it that wah in the `family` line. However, we could have if we wanted to. Third, notice our use of the `|i|` syntax within the parentheses in the `formula` lines. If we had used the conventional `|` syntax, that would have not allowed our $u_{2i}$ parameters to correlate with $u_{0i}$ and $u_{1i}$ from the mean structure. It would have effectively set $\rho_{31} = \rho_{32} = 0$. Finally, notice how within the `prior()` functions, we explicitly referred to those for the new $\sigma$ structure with the `dpar = sigma` operator. 
+We should note a few things about the `brm()` syntax. First, because we modeled both $\mu_{ij}$ and $\sigma_i$, we put both model formulas within the `bf()` function. Second, because the **brms** default is to use the log link when modeling $\sigma_i$, there was no need to explicitly set it that wah in the `family` line. However, we could have if we wanted to. Third, notice our use of the `|i|` syntax within the parentheses in the `formula` lines. If we had used the conventional `|` syntax, that would have not allowed our $u_{2i}$ parameters to correlate with $u_{0i}$ and $u_{1i}$ from the mean structure. It would have effectively set $\rho_{31} = \rho_{32} = 0$. Finally, notice how within the `prior()` functions, we explicitly referred to those for the new $\sigma$ structure with the `dpar = sigma` operator.
 
 Okay, time to check the model summary.
 
@@ -1885,10 +1885,7 @@ $$
 
 Note how in the very first line we are not speaking in terms of $\sigma_{ij}$. Variation in the criterion $\text{NA}_{ij}$ not accounted for by the mean structure can now vary across participants, $i$, and time, $j$. This results in four $u_{xi}$ terms, a $4 \times 4$ $\mathbf S$ matrix and a $4 \times 4$ $\mathbf R$ matrix. Here's how you might fit the model with `brms::brm()`. **Warning**: it'll probably take a couple hours.
 
-5:35
-
 ```{r b14.14}
-# 1.64888 hours
 b14.14 <-
   brm(data = dat,
       family = gaussian,
@@ -2061,8 +2058,11 @@ $$
 
 where the $\text{NA}$ and $\text{PA}$ superscripts indicate which variable is connected with which parameter. This is a straight multivariate generalization from the previous model, `fit3`. Now we have eight parameters varying across participants, resulting in an $8 \times 8$ $\mathbf S$ matrix and an $8 \times 8$ $\mathbf R$ matrix. Here's the `brms::brm()` code. 
 
+```{r, eval = F, echo = F}
+# takes 3.460296 hours
+```
+
 ```{r b14.15}
-# 3.460296 hours
 b14.15 <-
   brm(data = dat,
       family = gaussian,
