@@ -1588,13 +1588,11 @@ To this point in the chapter and most of the text, the data have largely had a c
 
 ### 14.6.1. Borrow some data.
 
-All the models in this bonus section are based on the preprint by @williamsBayesianMultivariateMixedeffects2019a, [*Bayesian multivariate mixed-effects location scale modeling of longitudinal relations among affective traits, states, and physical activity*](https://psyarxiv.com/4kfjp). Williams and colleagues' data and supporting scripts are available in the `example_analyses` folder from their OSF project at [https://osf.io/3bmdh/](https://osf.io/3bmdh/). Load the data.
+All the models in this bonus section are based on the preprint by @williamsBayesianMultivariateMixedeffects2019a, [*Bayesian multivariate mixed-effects location scale modeling of longitudinal relations among affective traits, states, and physical activity*](https://psyarxiv.com/4kfjp). Williams and colleagues' data and supporting scripts are available in the `example_analyses` folder from their OSF project at [https://osf.io/3bmdh/](https://osf.io/3bmdh/). You can also download the data from the [`data` folder](https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed/tree/master/data) of this ebook's GitHub repo.
+
+Load the data.
 
 ```{r, warning = F, message = F}
-library(tidyverse)
-library(brms)
-library(patchwork)
-
 dat <- 
   readr::read_csv("/Users/solomonkurz/Dropbox/Recoding Statistical Rethinking 2nd ed/data/m_melsm_dat.csv") %>% 
   mutate(day01 = (day - 2) / max((day - 2)))
@@ -1631,7 +1629,7 @@ dat %>%
   theme_pearl_earring()
 ```
 
-Our primary variables of interest were taken from the Positive and Negative Affect Schedule [PANAS, @watsonPANASDevelopment1988], which is widely used in certain areas of psychology to measure mood or emotion. Participants completing the PANAS endorse the extent to which they experienced various positive (e.g., excited, inspired) and negative (e.g., upset, afraid) emotional states. These responses are summed into two scores: Positive affect (PA) and negative affect (NA). In the current data, the standardized versions of these scores are in the `P_A.std` and `N_A.std` columns, respectively. To get a sense of what these look like, here are the daily `N_A.std` scores from a random sample of 16 participants.
+Our primary variables of interest were taken from the Positive and Negative Affect Schedule [PANAS, @watsonPANASDevelopment1988], which is widely used in certain areas of psychology to measure mood or emotion. In this study, participants completed the PANAS once a day by endorsing the extent to which they experienced various positive (e.g., excited, inspired) and negative (e.g., upset, afraid) emotional states. These responses are summed into two scores: Positive affect (PA) and negative affect (NA). In the current data, the standardized versions of these scores are in the `P_A.std` and `N_A.std` columns, respectively. To get a sense of what these look like, here are the daily `N_A.std` scores from a random sample of 16 participants.
 
 ```{r, fig.width = 7, fig.height = 5}
 set.seed(14)
@@ -1652,7 +1650,7 @@ dat %>%
 
 In the social sciences, a typical way to analyze data like these is with a multilevel growth model in which participants vary in their intercepts (starting point) and time slopes (change over time). In the sample of the data, above, it looks like most participants have fairly constant levels of NA over time (i.e., near-zero slopes) but some (e.g., # 128 and 147) show some evidence of systemic decreases in NA (i.e., negative slopes). There is also some variation in starting points, though most of the participants in this subset of the data seemed to have endorsed relatively low levels of NA both at baseline and throughout the study.
 
-Anyway, we want a model that can capture those kinds of variation. Eventually, we will fit a model that accounts for both PA and NA. But to keep things simple while we're warming up, we will restrict our focus to NA. If we let $\text{NA}_{ij}$ be the standardized NA score for the $i$th participant on the $j$th day, our first Bayesian multilevel growth model will follow the form
+We want a model that can capture those kinds of variation. Eventually, we will fit a model that accounts for both PA and NA. But to keep things simple while we're warming up, we will restrict our focus to NA. If we let $\text{NA}_{ij}$ be the standardized NA score for the $i$th participant on the $j$th day, our first Bayesian multilevel growth model will follow the form
 
 $$
 \begin{align*}
