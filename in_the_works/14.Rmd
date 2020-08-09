@@ -1582,11 +1582,11 @@ left_join(
 
 > There just isn't a lot of phylogenetic covariance for brain sizes, at least according to this model and these data. As a result, the phylogenetic distance doesn't completely explain away the association between group size and brain size, as it did in the Brownian motion model. (p. 485)
 
-## ~~Summary~~ Bonus: Multilevel growth models and the MELSM
+## 14.6. ~~Summary~~ Bonus: Multilevel growth models and the MELSM
 
 To this point in the chapter and most of the text, the data have largely had a cross-sectional feel. In fairness, we did incorporate an element of time with the café example from model `b14.1` by looking at the differences between mornings and evenings. However, even then we collapsed across longer time spans, such as days, weeks, months, and so on. One of the two goals of this bonus section to provide a brief introduction multilevel models designed to express change over time. The particular brand of multilevel models we'll focus on are often called multilevel growth models. Though we will focus on simple linear models, this basic framework can be generalized along many lines. The second goal is to build on our appreciation of covariance structures by introducing a class of multilevel models designed to investigate variation in variation called the mixed-effects location scale models (MELSM). For our final model, we get a little fancy and fit a multivariate MELSM.
 
-### Borrow some data.
+### 14.6.1. Borrow some data.
 
 All the models in this bonus section are based on the preprint by @williamsBayesianMultivariateMixedeffects2019a, [*Bayesian multivariate mixed-effects location scale modeling of longitudinal relations among affective traits, states, and physical activity*](https://psyarxiv.com/4kfjp). Williams and colleagues' data and supporting scripts are available in the `example_analyses` folder from their OSF project at [https://osf.io/3bmdh/](https://osf.io/3bmdh/). Load the data.
 
@@ -1648,7 +1648,7 @@ dat %>%
   facet_wrap(~record_id)
 ```
 
-### Conventional multilevel growth model.
+### 14.6.2. Conventional multilevel growth model.
 
 In the social sciences, a typical way to analyze data like these is with a multilevel growth model in which participants vary in their intercepts (starting point) and time slopes (change over time). In the sample of the data, above, it looks like most participants have fairly constant levels of NA over time (i.e., near-zero slopes) but some (e.g., # 128 and 147) show some evidence of systemic decreases in NA (i.e., negative slopes). There is also some variation in starting points, though most of the participants in this subset of the data seemed to have endorsed relatively low levels of NA both at baseline and throughout the study.
 
@@ -1761,7 +1761,7 @@ bind_cols(
 
 Because of our fixed $\sigma_\epsilon$ parameter, the 95% posterior predictive interval is the same width for both participants. Yet look how closely participant the data points for participant 30 cluster not only within the center region of the posterior prediction intervals, but also almost completely within the 95% interval for the fitted line. In contrast, notice how much more spread out the data points for participant 115 are, and how many of them extend well beyond the posterior predictive interval. This difference in variability is ignored by conventional growth models. However, there's no reason we can't adjust our model to capture this kind of person-level variability, too. Enter the MELSM.
 
-### Learn more about your data with the MELSM.
+### 14.6.3. Learn more about your data with the MELSM.
 
 Mixed-effects location scale models (MELSMs) have their origins in the work of [Donald Hedeker](https://health.uchicago.edu/faculty/donald-hedeker-phd) and colleagues  [@hedekerApplicationMixedeffectsLocation2008; @hedekerModelingWithinsubjectVariance2012]. @rastModelingIndividualDifferences2012 showcased an early application of the framework to the BUGS/JAGS software. More recently [Philippe Rast](https://twitter.com/rastlab) and colleagues (particularly graduate student, [Donald Williams](wdonald_1985)) have adapted this approach for use within the Stan/**brms** software ecosystem [@williamsBayesianNonlinearMixedeffects2019a; @williamsSurfaceUnearthingWithinperson2019; @williamsBayesianMultivariateMixedeffects2019a; @williamsPuttingIndividualReliability2019].
 
@@ -2019,7 +2019,7 @@ bind_cols(
 
 With respect to $\rho_{31}$, participant 115 showed both a higher intercept and level of variability toward the beginning of the study. The meaning of $\rho_{42}$ is less clear, with these two. But at least you can get a sense of why you might want to include a  $\eta_1$ parameter to allow response variability to change over time, and why you might want to allow that parameter to vary across participants. Whereas response variability increased quite a bit for participant 115 over time, it stayed about the same for participant 30, perhaps even decreasing a bit.
 
-### Time to go multivariate.
+### 14.6.4. Time to go multivariate.
 
 For our final stage in this progression, we will fit what @williamsBayesianMultivariateMixedeffects2019a called a M-MELSM, a multivariate mixed-effects location scale model. Recall these data have measures of both negative and positive affect. The standardized values for PA are waiting for us in the `P_A.std` column. Within the **brms** framework, this is a combination of sensibilities from Bürkner's vignettes on distributional models [@Bürkner2020Distributional] and multivariate models [@Bürkner2020Multivariate]. We might express the statistical model as
 
@@ -2178,7 +2178,7 @@ To help orient you to the plot, I’ve divided it into four quadrants. The upper
 
 To my eye, a few things pop out. First, the correlations within `N_A.std` are generally higher than those within `P_A.std`. Second, the correlations among the parameters between `N_A.std` and `P_A.std` are generally higher than those within them. Finally, all three of the largest correlations have to do with variation in the $\eta$ parameters. Two of them are basically the same as those we focused on for `fit3`. The new one, $\rho_{73}$, indicates that participants’ baseline ratings for `N_A.std` tended to vary in a similar way as their baseline ratings for `P_A.std`.
 
-### Plot with uncertainty.
+#### 14.6.4.1. Plot with uncertainty.
 
 As fond as I am with that last correlation plot, it has a glaring defect: there is no expression of uncertainty. Sometimes we express uncertainty with percentile-based intervals. Other times we do so with marginal densities. But the correlation plots only describe the marginal posteriors for all the $\rho$ parameters with their means. No uncertainty. If you have one or a small few correlations to plot, coefficient or density plots might do. However, they don't scale well. If you don't believe me, just try. I'm not sure there are any good solutions to this, but it can be helpful to at least try grappling with the issue. 
 
@@ -2237,6 +2237,8 @@ r %>%
 ```
 
 From Kay's GitHub repo, we read: "This is akin to something like an icon array. You should still be able to see the average color (thanks to the human visual system's ensembling processing), but also get a sense of the uncertainty by how 'dithered' a square looks." Hopefully this will give you a little inspiration to find new and better ways to express the posterior uncertainty in your Bayesian correlation plots. If you come up with any great solutions, let the rest of us know!
+
+### 14.6.5. Growth model/MELSM wrap-up.
 
 This section introduced a lot of material. To learn more about the conventional multilevel growth model and its extensions, check out
 
