@@ -209,7 +209,7 @@ $$
 \text{wait}_i & \sim \operatorname{Normal}(\mu_i, \sigma) \\
 \mu_i         & = \alpha_{\text{café}[i]} + \beta_{\text{café}[i]} \text{afternoon}_i \\
 \begin{bmatrix} \alpha_\text{café} \\ \beta_\text{café} \end{bmatrix} & \sim \operatorname{MVNormal} \begin{pmatrix} \begin{bmatrix} \alpha \\ \beta \end{bmatrix}, \mathbf{S} \end{pmatrix} \\
-\mathbf S     & = \begin{pmatrix} \sigma_\alpha & 0 \\ 0 & \sigma_\beta \end{pmatrix} \mathbf R \begin{pmatrix} \sigma_\alpha & 0 \\ 0 & \sigma_\beta \end{pmatrix} \\
+\mathbf S     & = \begin{bmatrix} \sigma_\alpha & 0 \\ 0 & \sigma_\beta \end{bmatrix} \mathbf R \begin{bmatrix} \sigma_\alpha & 0 \\ 0 & \sigma_\beta \end{bmatrix} \\
 \alpha        & \sim \operatorname{Normal}(5, 2) \\
 \beta         & \sim \operatorname{Normal}(-1, 0.5) \\
 \sigma        & \sim \operatorname{Exponential}(1) \\
@@ -221,7 +221,7 @@ $$
 
 where $\mathbf S$ is the covariance matrix and $\mathbf R$ is the corresponding correlation matrix, which we might more fully express as
 
-$$\mathbf R = \begin{pmatrix} 1 & \rho \\ \rho & 1 \end{pmatrix}.$$
+$$\mathbf R = \begin{bmatrix} 1 & \rho \\ \rho & 1 \end{bmatrix}.$$
 
 And according to our prior, $\mathbf R$ is distributed as $\operatorname{LKJcorr}(2)$. We'll use `rethinking::rlkjcorr()` to get a better sense of what that even is.
 
@@ -813,11 +813,11 @@ The statistical solution to this mess is to express the data-generating DAG as a
 
 $$
 \begin{align*}
-\begin{pmatrix} W_i \\ E_i \end{pmatrix} & \sim \operatorname{MVNormal} \begin{pmatrix} \begin{pmatrix} \mu_{\text w,i} \\ \mu_{\text E,i} \end{pmatrix}, \mathbf S \end{pmatrix} \\
+\begin{bmatrix} W_i \\ E_i \end{bmatrix} & \sim \operatorname{MVNormal} \begin{pmatrix} \begin{bmatrix} \mu_{\text w,i} \\ \mu_{\text E,i} \end{bmatrix}, \mathbf S \end{pmatrix} \\
 \mu_{\text W,i} & = \alpha_\text W + \beta_\text{EW} E_i \\
 \mu_{\text E,i} & = \alpha_\text E + \beta_\text{QE} Q_i \\
-\mathbf S & = \begin{pmatrix} \sigma_\text W & 0 \\ 0  & \sigma_\text E \end{pmatrix} \mathbf R \begin{pmatrix} \sigma_\text W & 0 \\ 0  & \sigma_\text E \end{pmatrix} \\
-\mathbf R & = \begin{pmatrix} 1 & \rho \\ \rho & 1 \end{pmatrix} \\
+\mathbf S & = \begin{bmatrix} \sigma_\text W & 0 \\ 0  & \sigma_\text E \end{bmatrix} \mathbf R \begin{bmatrix} \sigma_\text W & 0 \\ 0  & \sigma_\text E \end{bmatrix} \\
+\mathbf R & = \begin{bmatrix} 1 & \rho \\ \rho & 1 \end{bmatrix} \\
 \alpha_\text W \text{ and } \alpha_\text E & \sim \operatorname{Normal}(0, 0.2) \\
 \beta_\text{EW} \text{ and } \beta_\text{QE} & \sim \operatorname{Normal}(0, 0.5) \\
 \sigma_\text W \text{ and } \sigma_\text E & \sim \operatorname{Exponential}(1) \\
@@ -1102,13 +1102,13 @@ precis(m14.7, depth = 3, pars = c("Rho_gr", "sigma_gr"))
 These are the posterior summaries for the part of the model McElreath defined in the middle of page 463,
 
 $$
-\begin{pmatrix} g_i \\ r_i \end{pmatrix} \sim \operatorname{MVNormal}\begin{pmatrix} \begin{pmatrix} 0 \\ 0 \end{pmatrix}, \begin{pmatrix} \sigma_g^2 & \sigma_g \sigma_r \rho_{gr} \\ \sigma_g \sigma_r \rho_{rg} & \sigma_r^2 \end{pmatrix} \end{pmatrix},
+\begin{bmatrix} g_i \\ r_i \end{bmatrix} \sim \operatorname{MVNormal}\begin{pmatrix} \begin{bmatrix} 0 \\ 0 \end{bmatrix}, \begin{bmatrix} \sigma_g^2 & \sigma_g \sigma_r \rho_{gr} \\ \sigma_g \sigma_r \rho_{rg} & \sigma_r^2 \end{bmatrix} \end{pmatrix},
 $$
 
 the population of household effects. But as per usual with Stan, the variance parameters are expressed in a $\sigma$ metric. Also, `rethinking::precis()` returned the summary for $\rho_{gr}$ in matrix form,
 
 $$
-\begin{pmatrix} 1 & \rho_{gr} \\ \rho_{rg} & 1 \end{pmatrix},
+\begin{bmatrix} 1 & \rho_{gr} \\ \rho_{rg} & 1 \end{bmatrix},
 $$
 
 where $\rho_{gr} = \rho_{rg}$. The correlation is negative. Let's view $\sigma_g$, $\sigma_r$, and their correlation in a plot.
@@ -1183,7 +1183,7 @@ rbind(exp(g), exp(r)) %>%
 Here is a look at the covariance matrix for the dyadic effects, the posterior summaries for the part of the model McElreath defined in the middle of page 463 as,
 
 $$
-\begin{pmatrix} d_{ij} \\ d_{ji} \end{pmatrix} \sim \operatorname{MVNormal}\begin{pmatrix} \begin{pmatrix} 0 \\ 0 \end{pmatrix}, \begin{pmatrix} \sigma_d^2 & \sigma_d^2 \rho_d \\ \sigma_d^2 \rho_d & \sigma_d^2 \end{pmatrix} \end{pmatrix},
+\begin{bmatrix} d_{ij} \\ d_{ji} \end{bmatrix} \sim \operatorname{MVNormal}\begin{pmatrix} \begin{bmatrix} 0 \\ 0 \end{bmatrix}, \begin{bmatrix} \sigma_d^2 & \sigma_d^2 \rho_d \\ \sigma_d^2 \rho_d & \sigma_d^2 \end{bmatrix} \end{pmatrix},
 $$
 
 where there is only one standard deviation parameter $\sigma_d$ because the labels for each dyad are arbitrary.
@@ -1253,9 +1253,637 @@ The two yellow ellipses mark off the 50% and 90% intervals, again presuming a bi
 
 ## 14.5. Continuous categories and the Gaussian process
 
+> There is a way to apply the varying effects approach to continuous categories... The general approach is known as **Gaussian process regression**. This name is unfortunately wholly uninformative about what it is for and how it works.
+>
+> We'll proceed to work through a basic example that demonstrates both what it is for and how it works. The general purpose is to define some dimension along which cases differ. This might be individual differences in age. Or it could be differences in location. Then we measure the distance between each pair of cases. What the model then does is estimate a function for the covariance between pairs of cases at different distances. This covariance function provides one continuous category generalization of the varying effects approach. (p. 468, **emphasis** in the original)
 
-Under construction.
+### 14.5.1. Example: Spatial autocorrelation in Oceanic tools.
 
+We start by loading the matrix of geographic distances.
+
+```{r, warning = F, message = F}
+# load the distance matrix
+library(rethinking)
+data(islandsDistMatrix)
+
+# display (measured in thousands of km)
+d_mat <- islandsDistMatrix
+colnames(d_mat) <- c("Ml", "Ti", "SC", "Ya", "Fi", "Tr", "Ch", "Mn", "To", "Ha")
+
+round(d_mat, 1)
+```
+
+If you wanted to use color to more effectively visualize the values in the matirx, you might do something like this.
+
+```{r, fig.height = 2.5, fig.width = 5.5}
+d_mat %>%
+  data.frame() %>% 
+  rownames_to_column("row") %>% 
+  gather(column, distance, -row) %>% 
+  mutate(column = factor(column, levels = colnames(d_mat)),
+         row    = factor(row,    levels = rownames(d_mat)) %>% fct_rev(),
+         label  = formatC(distance, format = 'f', digits = 2)) %>%
+  
+  ggplot(aes(x = column, y = row)) + 
+  geom_raster(aes(fill = distance)) + 
+  geom_text(aes(label = label),
+            size = 3, family = "Courier", color = "#100F14") +
+  scale_fill_gradient(low = "#FCF9F0", high = "#A65141") +
+  scale_x_discrete(NULL, position = "top", expand = c(0, 0)) +
+  scale_y_discrete(NULL, expand = c(0, 0)) +
+  theme_pearl_earring(axis.text.y = element_text(hjust = 0)) +
+  theme(axis.ticks = element_blank())
+```
+
+Figure 14.10 shows the "shape of the function relating distance to the covariance $\mathbf K_{ij}$."
+ 
+```{r, fig.width = 3.25, fig.height = 3}
+tibble(x       = seq(from = 0, to = 4, by = .01),
+       linear  = exp(-1 * x),
+       squared = exp(-1 * x^2)) %>%
+  
+  ggplot(aes(x = x)) +
+  geom_line(aes(y = linear),
+            color = "#B1934A", linetype = 2) +
+  geom_line(aes(y = squared),
+            color = "#DCA258") +
+  scale_x_continuous("distance", expand = c(0, 0)) +
+  scale_y_continuous("correlation", 
+                     breaks = c(0, .5, 1),
+                     labels = c(0, ".5", 1))
+```
+
+Now load the primary data.
+
+```{r}
+data(Kline2) # load the ordinary data, now with coordinates
+
+d <- 
+  Kline2 %>%
+  mutate(society = 1:10)
+
+rm(Kline2)
+
+d %>% glimpse()
+```
+
+`r emo::ji("wave")` **Heads up**: The **brms** package is capable of handling a variety of Gaussian process models using the `gp()` function. As we'll see, throughout this section, it will depart in important ways from how McElreath fits Gaussian process models with **rethinking**. Due in large part to these differences, this section and its analogue in the first edition of *Statistical Rethinking* [@mcelreathStatisticalRethinkingBayesian2015] baffled me, at first. Happily, fellow enthusiasts [Louis Bliard](https://twitter.com/LBliard) and [Richard Torkar](https://twitter.com/rtorkar) reached out and helped me hammer this section out behind the scenes. The method to follow is due in large part to their efforts. `r emo::ji("handshake")`
+
+The `brms::gp()` function takes a handful of arguments. The first and most important argument, `...`, accepts the names of one or more predictors from the data. When fitting a spatial Gaussian process of this kind, we'll enter in the latitude and longitude data for each of levels of `culture`. This will be an important departure from the text. For his `m14.8`, McElreath directly entered in the `Dmat` distance matrix data into `ulam()`. In so doing, he defined $D_{ij}$, the matrix of distances between each of the societies. When using **brms**, we instead estimate the distance matrix from the latitude and longitude variables.
+
+Before we practice fitting a Gaussian process with the `brms::gp()` function, we'll first need to think a little bit about our data. McElreath's `Dmat` measured the distances in thousands of km. However, the `lat` and `lon2` variables in the data above are in decimal degrees, which means they need to be transformed to keep our model in the same metric as McElreath's. Turns out that [one decimal degree is 111.32km (at the equator)](https://en.wikipedia.org/wiki/Decimal_degrees#:~:text=A%20value%20in%20decimal%20degrees,1.1132%20m%20at%20the%20equator.). Thus, we can turn both `lat` and `lon2` into 1000 km units by multiplying each by 0.11132. Here's the conversion.
+
+```{r}
+d <-
+  d %>% 
+  mutate(lat_adj  = lat  * 0.11132,
+         lon2_adj = lon2 * 0.11132)
+
+d %>% 
+  select(culture, lat, lon2, lat_adj:lon2_adj)
+```
+
+Note that because this conversion is valid **at the equator**, it is only an *approximation* for latitude and longitude coordinates for our island societies.
+
+Now we've scaled our two spatial variables, the basic way to use them in a **brms** Gaussian process is including `gp(lat_adj, lon2_adj)` into the `formula` argument within the `brm()` function. Note however that one of the default `gp()` settings is `scale = TRUE`, which scales predictors so that the maximum distance between two points is 1. We don't want this for our example, so we will set `scale = FALSE` instead.
+
+Our Gaussian process model is an extension of the non-linear model from [Section 11.2.1.1][Overthinking: Modeling tool innovation.], `b11.11`. Thus our model here will also use the non-linear syntax. Here's how we might use **brms** to fit our amended non-centered version of McElreath's `m14.8`.
+
+```{r b14.8}
+b14.8 <-
+  brm(data = d, 
+      family = poisson(link = "identity"),
+      bf(total_tools ~ exp(a) * population^b / g,
+         a  ~ 1 + gp(lat_adj, lon2_adj, scale = FALSE),
+         b + g ~ 1,
+         nl = TRUE),
+      prior = c(prior(normal(0, 1), nlpar = a),
+                prior(exponential(1), nlpar = b, lb = 0),
+                prior(exponential(1), nlpar = g, lb = 0),
+                prior(inv_gamma(2.874624, 2.941204), class = lscale, coef = gplat_adjlon2_adj, nlpar = a),
+                prior(exponential(1), class = sdgp, coef = gplat_adjlon2_adj, nlpar = a)),
+      iter = 2000, warmup = 1000, chains = 4, cores = 4,
+      seed = 14,
+      sample_prior = T,
+      file = "/Users/solomonkurz/Dropbox/Recoding Statistical Rethinking 2nd ed/fits/b14.08")
+```
+
+Check the results.
+
+```{r}
+print(b14.8)
+```
+
+The `posterior_summary()` function will return a summary that looks more like the one in the text.
+
+```{r}
+posterior_summary(b14.8)[1:15, ] %>% round(digits = 2)
+```
+
+Let's focus on our three non-linear parameters, first. Happily, both our `b_b_Intercept` and `b_g_Intercept` summaries look a lot like those for McElreath's `b` and `g`, respectively. Our `b_a_Intercept` might look distressingly small, but that's just because of how we parameterized our model. It's actually very close to McElreath's `a` after you exponentiate.
+
+```{r}
+fixef(b14.8, probs = c(.055, .945))["a_Intercept", c(1, 3:4)] %>% 
+  exp() %>% 
+  round(digits = 2)
+```
+
+Our Gaussian process parameters are different from McElreath's. From the `gp` section of the [**brms** reference manual](https://cran.r-project.org/package=brms/brms.pdf) [@brms2020RM], we learn the **brms** parameterization follows the form
+
+$$k(x_{i},x_{j}) = sdgp^2 \exp \big (-||x_i - x_j||^2 / (2 lscale^2) \big ),$$
+
+where $k(x_{i},x_{j})$ is the same as McElreath's $\mathbf K_{ij}$ and $||x_i - x_j||^2$ is the Euclidean  distance, the same as McElreath's $D_{ij}^2$. Thus we could also express the **brms** parameterization as
+
+$$\mathbf K_{ij} = sdgp^2 \exp \big (-D_{ij}^2 / (2 lscale^2) \big ),$$
+
+which is much closer to McElreath's
+
+$$\mathbf K_{ij} = \eta^2 \exp \big (-\rho^2 D_{ij}^2 \big ) + \delta_{ij} \sigma^2$$
+
+On page 470, McElreath explained that the final $\delta_{ij} \sigma^2$ term is mute with the Oceanic societies data. Thus we won't consider it further. This reduces McElreath's equation to
+
+$$\mathbf K_{ij} = \eta^2 \exp \big (-\rho^2 D_{ij}^2 \big ).$$
+
+Importantly, what McElreath called $\eta$, Bürkner called $sdgp$. While McElreath estimated $\eta^2$, **brms** simply estimated $sdgp$. So we'll have to square our `sdgp(a_gplat_adjlon2_adj)` before it's on the same scale as `etasq` in the text. Here it is.
+
+```{r}
+post <-
+  posterior_samples(b14.8) %>% 
+  mutate(etasq = sdgp_a_gplat_adjlon2_adj^2)
+
+post %>% 
+  mean_hdi(etasq, .width = .89) %>% 
+  mutate_if(is.double, round, digits = 3)
+```
+
+Though our posterior is a little bit larger, we're in the ballpark. You may have noticed that in our model `brm()` code, above, we just went with the flow and kept the `exponential(1)` prior on `sdgp`. The **brms** default would have been `student_t(3, 0, 15.6)`.
+
+Now look at the denominator of the inner part of Bürkner's equation, $2 lscale^2$. This appears to be the **brms** equivalent to McElreath's $\rho^2$. Or at least it's what we've got. Anyway, also note that McElreath estimated $\rho^2$ directly as `rhosq`. If I'm doing the algebra correctly--and that may well be a big if--, we might expect
+
+$$
+\begin{align*}
+\rho^2 & = 1/(2 \cdot lscale^2) & \text{and thus} \\
+lscale & = \sqrt{1 / (2 \cdot \rho^2)}.
+\end{align*}
+$$
+
+To get a sense of this relationship, it might be helpful to plot.
+
+```{r, fig.width = 6.5, fig.height = 2.75}
+p1 <-
+  tibble(`rho^2` = seq(from = 0, to = 11, by = 0.01)) %>% 
+  mutate(lscale = sqrt(1 / (2 * `rho^2`))) %>%
+  
+  ggplot(aes(x = `rho^2`, y = lscale)) +
+  geom_hline(yintercept = 0, color = "#FCF9F0", size = 1/4, linetype = 2) +
+  geom_vline(xintercept = 0, color = "#FCF9F0", size = 1/4, linetype = 2) +
+  geom_line(color = "#A65141") +
+  xlab(expression(rho^2)) +
+  coord_cartesian(xlim = c(0, 10),
+                  ylim = c(0, 10))
+
+p2 <-
+  tibble(lscale = seq(from = 0, to = 11, by = 0.01)) %>% 
+  mutate(`rho^2` = 1 / (2 * lscale^2)) %>%
+  
+  ggplot(aes(x = lscale, y = `rho^2`)) +
+  geom_hline(yintercept = 0, color = "#FCF9F0", size = 1/4, linetype = 2) +
+  geom_vline(xintercept = 0, color = "#FCF9F0", size = 1/4, linetype = 2) +
+  geom_line(color = "#80A0C7") +
+  ylab(expression(rho^2)) +
+  coord_cartesian(xlim = c(0, 10),
+                  ylim = c(0, 10))
+
+p1 + p2
+```
+
+The two aren't quite inverses of one another, but the overall pattern is when one is large, the other is small. Now we have a sense of how they compare and how to covert one to the other, let's see how our posterior for $lscale$ looks when we convert it to the scale of McElreath's $\rho^2$.
+
+```{r}
+post <-
+  post %>% 
+  mutate(rhosq = 1 / (2 * lscale_a_gplat_adjlon2_adj^2))
+
+post %>% 
+  mean_hdi(rhosq, .width = .89) %>% 
+  mutate_if(is.double, round, digits = 3)
+```
+
+This is about a third of the size of the McElreath's $\rho^2 = 1.31, 89 \text{% HDI } [0.08, 4.41]$. The plot deepens. If you look back, you'll see we used a very different prior for `lscale`. Here it is: `inv_gamma(2.874624, 2.941204)`. Use `get_prior()` to discover where that came from.
+
+```{r}
+get_prior(data = d, 
+          family = poisson(link = "identity"),
+          bf(total_tools ~ exp(a) * population^b / g,
+             a  ~ 1 + gp(lat_adj, lon2_adj, scale = FALSE),
+             b + g ~ 1,
+             nl = TRUE))
+```
+
+That is, we used the **brms** default prior for $lscale$. In a [GitHub exchange](https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse/issues/8), Bürkner pointed out that **brms** uses special priors for $lscale$ parameters based on Michael Betancourt's [-@betancourtRobustGaussianProcesses2017] vignette, [*Robust Gaussian processes in Stan*](https://betanalpha.github.io/assets/case_studies/gp_part3/part3.html). We can use the `dinvgamma()` function from the well-named [**invgamma** package](https://CRAN.R-project.org/package=invgamma) [@R-invgamma] to get a sense of what that prior looks like.
+  
+```{r, fig.width = 4, fig.height = 2.5}
+tibble(lscale = seq(from = 0, to = 9, by = 0.01)) %>% 
+  mutate(density = invgamma::dinvgamma(lscale, 2.874624, 2.941204)) %>% 
+  
+  ggplot(aes(x = lscale, ymin = 0, ymax = density)) +
+  geom_ribbon(size = 0, fill = "#80A0C7") +
+  annotate(geom = "text", x = 4.75, y = 0.75,
+           label = "inverse gamma(2.874624, 2.941204)",
+           color = "#8B9DAF", family = "Courier") +
+  scale_y_continuous(NULL, breaks = NULL) +
+  coord_cartesian(xlim = c(0, 8))
+```
+
+Anyways, let's make the subplots for our version of Figure 14.11 to get a sense of what this all means. Start with the left panel, the prior predictive distribution for the covariance.
+
+```{r}
+# for `sample_n()`
+set.seed(14)
+
+# wrangle
+p1 <-
+  prior_samples(b14.8) %>% 
+  mutate(iter  = 1:n(),
+         etasq = sdgp_a_gplat_adjlon2_adj^2,
+         rhosq = 1 / (2 * lscale_a_1_gplat_adjlon2_adj^2)) %>% 
+  sample_n(100) %>%
+  tidyr::expand(nesting(iter, etasq, rhosq),
+         x = seq(from = 0, to = 10, by = .05)) %>% 
+  mutate(covariance = etasq * exp(-rhosq * x^2)) %>% 
+  
+  # plot
+  ggplot(aes(x = x, y = covariance)) +
+  geom_line(aes(group = iter),
+            size = 1/4, alpha = 1/4, color = "#EEDA9D") +
+  scale_x_continuous("distance (thousand km)", expand = c(0, 0),
+                     breaks = 0:5 * 2) +
+  coord_cartesian(xlim = c(0, 10),
+                  ylim = c(0, 2)) +
+  labs(subtitle = "Gaussian process prior")
+```
+
+Now make the right panel, the posterior distribution.
+
+```{r}
+# for `sample_n()`
+set.seed(14)
+
+# wrangle
+p2 <-
+  post %>% 
+  transmute(iter  = 1:n(),
+            etasq = sdgp_a_gplat_adjlon2_adj^2,
+         rhosq = 1 / (2 * lscale_a_gplat_adjlon2_adj^2)) %>% 
+  sample_n(50) %>% 
+  tidyr::expand(nesting(iter, etasq, rhosq),
+         x = seq(from = 0, to = 10, by = .05)) %>% 
+  mutate(covariance = etasq * exp(-rhosq * x^2)) %>% 
+  
+  # plot
+  ggplot(aes(x = x, y = covariance)) +
+  geom_line(aes(group = iter),
+            size = 1/4, alpha = 1/4, color = "#EEDA9D") +
+  stat_function(fun = function(x) mean(post$sdgp_a_gplat_adjlon2_adj)^2 *
+                  exp(-(1 / (2 * mean(post$lscale_a_gplat_adjlon2_adj)^2)) * x^2),
+                color = "#DCA258", size = 1) +
+  scale_x_continuous("distance (thousand km)", expand = c(0, 0),
+                     breaks = 0:5 * 2) +
+  coord_cartesian(xlim = c(0, 10),
+                  ylim = c(0, 2)) +
+  labs(subtitle = "Gaussian process posterior")
+```
+
+Combine the two with **patchwork**.
+
+```{r, fig.width = 7, fig.height = 3}
+p1 | p2
+```
+
+Though the Gaussian process parameters from our **brms** parameterization looked different from McElreath's, they resulted in a similar decline in spatial covariance.
+
+Let's finish this up and "push the parameters back through the function for $\mathbf{K}$, the covariance matrix" (p. 473).
+
+```{r}
+# compute posterior median covariance among societies
+k <- matrix(0, nrow = 10, ncol = 10)
+for (i in 1:10)
+    for (j in 1:10)
+        k[i, j] <- median(post$etasq) * 
+  exp(-median(post$rhosq) * islandsDistMatrix[i, j]^2)
+
+diag(k) <- median(post$etasq) + 0.01
+
+k %>% round(2)
+```
+
+We'll continue to follow suit and change these to a correlation matrix.
+
+```{r}
+# convert to correlation matrix
+rho <- round(cov2cor(k), 2)
+
+# add row/col names for convenience
+colnames(rho) <- c("Ml", "Ti", "SC", "Ya", "Fi", "Tr", "Ch", "Mn", "To", "Ha")
+rownames(rho) <- colnames(rho)
+
+rho %>% round(2)
+```
+
+Here are those correlations in a plot.
+
+```{r, fig.height = 2.5, fig.width = 4.75}
+rho %>%
+  data.frame() %>% 
+  mutate(row = d$culture) %>% 
+  gather(column, distance, -row) %>% 
+  mutate(column = factor(column, levels = colnames(d_mat)),
+         row    = factor(row,    levels = rownames(d_mat)) %>% fct_rev(),
+         label  = formatC(distance, format = 'f', digits = 2) %>% str_replace(., "0.", ".")) %>%
+  # omit this line to keep the diagonal of 1's
+  filter(distance != 1) %>% 
+  
+  ggplot(aes(x = column, y = row)) + 
+  geom_raster(aes(fill = distance)) + 
+  geom_text(aes(label = label),
+            size = 2.75, family = "Courier", color = "#100F14") +
+  scale_fill_gradient(expression(rho), low = "#FCF9F0", high = "#A65141", limits = c(0, 1)) +
+  scale_x_discrete(NULL, position = "top", expand = c(0, 0)) +
+  scale_y_discrete(NULL, expand = c(0, 0)) +
+  theme_pearl_earring(axis.text.y = element_text(hjust = 0)) +
+  theme(axis.ticks = element_blank())
+```
+
+The correlations in our `rho` matrix look a little higher than those in the text (p. 474). Before we get see them in a plot, let's consider `psize`. If you really want to scale the points in Figure 14.12.a like McElreath did, you can make the `psize` variable in a **tidyverse** sort of way as follows. However, if you compare the `psize` method and the default **ggplot2** method using just `logpop`, you'll see the difference is negligible. In that light, I'm going to be lazy and just use `logpop` in my plots.
+
+```{r}
+d %>% 
+  transmute(psize = logpop / max(logpop)) %>% 
+  transmute(psize = exp(psize * 1.5) - 2)
+```
+
+As far as I can figure, you still have to get `rho` into a tidy data frame before feeding it into **ggplot2**. Here's my attempt at doing so.
+
+```{r}
+rho %>%
+  data.frame() %>% 
+  rownames_to_column() %>% 
+  bind_cols(d %>% select(culture, logpop, total_tools, lon2, lat)) %>% 
+  pivot_longer(Ml:Ha,
+               names_to = "colname", 
+               values_to = "correlation") %>%
+  mutate(group = str_c(pmin(rowname, colname), pmax(rowname, colname))) %>%
+  select(rowname, colname, group, culture, everything())
+```
+
+
+```{r}
+tidy_rho <-
+  rho %>%
+  data.frame() %>% 
+  rownames_to_column() %>% 
+  bind_cols(d %>% select(culture, logpop, total_tools, lon2, lat)) %>% 
+  pivot_longer(Ml:Ha,
+               names_to = "colname", 
+               values_to = "correlation") %>%
+  mutate(group = str_c(pmin(rowname, colname), pmax(rowname, colname))) %>%
+  select(rowname, colname, group, culture, everything())  
+
+head(tidy_rho)
+```
+
+Okay, here's the code for our version of Figure 14.12.a.
+
+```{r}
+library(ggrepel)
+
+p1 <-
+  tidy_rho %>%       
+  ggplot(aes(x = lon2, y = lat)) +
+  geom_point(data = d, 
+             aes(size = logpop), color = "#DCA258") +
+  geom_line(aes(group = group, alpha = correlation^2),
+            color = "#EEDA9D") +
+  geom_text_repel(data = d, aes(label = culture), 
+                  seed = 14, point.padding = .2, size = 2.75, color = "#FCF9F0", family = "Courier") +
+  scale_alpha_continuous(range = c(0, 1)) +
+  labs(subtitle = "Among societies in geographic space\n",
+       x = "longitude",
+       y = "latitude") +
+  coord_cartesian(xlim = range(d$lon2),
+                  ylim = range(d$lat)) +
+  theme(legend.position = "none")
+```
+
+Here's our the code for our version of Figure 14.12.b.
+
+```{r}
+# compute the average posterior predictive relationship between 
+# log population and total tools, summarized by the median and 80% interval
+f <-
+  post %>% 
+  tidyr::expand(logpop = seq(from = 6, to = 14, length.out = 30),
+         nesting(b_a_Intercept, b_b_Intercept, b_g_Intercept)) %>%
+  mutate(population = exp(logpop)) %>% 
+  mutate(lambda = exp(b_a_Intercept) * population^b_b_Intercept / b_g_Intercept) %>%
+  group_by(logpop) %>% 
+  median_qi(lambda, .width = .8)
+
+# plot
+p2 <-
+  tidy_rho %>% 
+  ggplot(aes(x = logpop)) +
+  geom_smooth(data = f,
+              aes(y = lambda, ymin = .lower, ymax = .upper),
+              stat = "identity",
+              fill = "#394165", color = "#100F14", alpha = .5, size = 1.1) +
+  geom_point(data = d, 
+             aes(y = total_tools, size = logpop), 
+             color = "#DCA258") +
+  geom_line(aes(y = total_tools, group = group, alpha = correlation^2),
+            color = "#EEDA9D") +
+  geom_text_repel(data = d, 
+                  aes(y = total_tools, label = culture), 
+                  seed = 14, point.padding = .2, size = 2.75, color = "#FCF9F0", family = "Courier") +
+  scale_alpha_continuous(range = c(0, 1)) +
+  labs(subtitle = "Shown against the relation between\ntotal tools and log pop",
+       x = "log population",
+       y = "total tools") +
+  coord_cartesian(xlim = range(d$logpop),
+                  ylim = range(d$total_tools)) +
+  theme(legend.position = "none")
+```
+
+Now we combine them to make the full version of Figure 13.10.
+
+```{r, fig.width = 8, fig.height = 4.25}
+p1 + p2 + 
+  plot_annotation(title = "Posterior median correlations")
+```
+
+Yep, as expressed by the intensity of the colors of those connecting lines, our correlations are a bit more pronounced than those in the text, making for a more densely webbed plot. It is still the case that the correlations among Malekula, Tikopia, and Santa Cruz are the most pronounced. The next two notable correlations are between Manus and Trobriand and between Lau Fiji and Tonga.
+
+##### 14.5.1.1. Rethinking: Dispersion by other names. 
+
+McElreath remarked it might be a good idea to fit an alternative of this model using the gamma-Poisson likelihood. Let's take him up on the challenge. Remember that gamma-Poisson models are also referred to as negative binomial models. When using **brms**, you specify this using `family = negbinomial`.
+
+```{r b14.8_nb}
+b14.8_nb <-
+  brm(data = d, 
+      family = negbinomial(link = "identity"),
+      bf(total_tools ~ exp(a) * population^b / g,
+         a  ~ 1 + gp(lat_adj, lon2_adj, scale = FALSE),
+         b + g ~ 1,
+         nl = TRUE),
+      prior = c(prior(normal(0, 1), nlpar = a),
+                prior(exponential(1), nlpar = b, lb = 0),
+                prior(exponential(1), nlpar = g, lb = 0),
+                prior(inv_gamma(2.874624, 2.941204), class = lscale, coef = gplat_adjlon2_adj, nlpar = a),
+                prior(exponential(1), class = sdgp, coef = gplat_adjlon2_adj, nlpar = a),
+                # default prior
+                prior(gamma(0.01, 0.01), class = shape)),
+      iter = 2000, warmup = 1000, chains = 4, cores = 4,
+      seed = 14,
+      control = list(adapt_delta = .9),
+      file = "/Users/solomonkurz/Dropbox/Recoding Statistical Rethinking 2nd ed/fits/b14.08_nb")
+```
+
+Check the summary
+
+```{r}
+print(b14.8_nb)
+```
+
+This resulted in a slightly more pronounced correlation matrix.
+
+```{r}
+post <- posterior_samples(b14.8_nb)
+
+# compute posterior median covariance among societies
+k <- matrix(0, nrow = 10, ncol = 10)
+for (i in 1:10)
+    for (j in 1:10)
+        k[i, j] <- median(post$sdgp_a_gplat_adjlon2_adj^2) * 
+  exp(-islandsDistMatrix[i, j]^2 / (2 * median(post$lscale_a_gplat_adjlon2_adj)^2))
+
+diag(k) <- median(post$sdgp_a_gplat_adjlon2_adj^2) + 0.01
+
+# convert to correlation matrix
+rho <- round(cov2cor(k), 2)
+
+# add row/col names for convenience
+colnames(rho) <- c("Ml", "Ti", "SC", "Ya", "Fi", "Tr", "Ch", "Mn", "To", "Ha")
+rownames(rho) <- colnames(rho)
+
+rho %>% round(2)
+```
+
+Like before, we'll view them in a plot.
+
+```{r, fig.height = 2.5, fig.width = 4.75}
+rho %>%
+  data.frame() %>% 
+  mutate(row = d$culture) %>% 
+  gather(column, distance, -row) %>% 
+  mutate(column = factor(column, levels = colnames(d_mat)),
+         row    = factor(row,    levels = rownames(d_mat)) %>% fct_rev(),
+         label  = formatC(distance, format = 'f', digits = 2) %>% str_replace(., "0.", ".")) %>%
+  # omit this line to keep the diagonal of 1's
+  filter(distance != 1) %>% 
+  
+  ggplot(aes(x = column, y = row)) + 
+  geom_raster(aes(fill = distance)) + 
+  geom_text(aes(label = label),
+            size = 2.75, family = "Courier", color = "#100F14") +
+  scale_fill_gradient(expression(rho), low = "#FCF9F0", high = "#A65141", limits = c(0, 1)) +
+  scale_x_discrete(NULL, position = "top", expand = c(0, 0)) +
+  scale_y_discrete(NULL, expand = c(0, 0)) +
+  theme_pearl_earring(axis.text.y = element_text(hjust = 0)) +
+  theme(axis.ticks = element_blank())
+```
+
+On the whole, the correlation medians appear a just little bit lower than from the Poisson model. Now let's make a gamma-Poisson alternative to Figure 14.12.
+
+```{r, fig.width = 8, fig.height = 4.25}
+# tidy up rho
+tidy_rho <-
+  rho %>%
+  data.frame() %>% 
+  rownames_to_column() %>% 
+  bind_cols(d %>% select(culture, logpop, total_tools, lon2, lat)) %>% 
+  pivot_longer(Ml:Ha,
+               names_to = "colname", 
+               values_to = "correlation") %>%
+  mutate(group = str_c(pmin(rowname, colname), pmax(rowname, colname))) 
+
+# left panel
+p1 <-
+  tidy_rho %>%       
+  ggplot(aes(x = lon2, y = lat)) +
+  geom_point(data = d, 
+             aes(size = logpop), color = "#DCA258") +
+  geom_line(aes(group = group, alpha = correlation^2),
+            color = "#EEDA9D") +
+  geom_text_repel(data = d, aes(label = culture), 
+                  seed = 14, point.padding = .2, size = 2.75, color = "#FCF9F0", family = "Courier") +
+  scale_alpha_continuous(range = c(0, 1)) +
+  labs(subtitle = "Among societies in geographic space\n",
+       x = "longitude",
+       y = "latitude") +
+  coord_cartesian(xlim = range(d$lon2),
+                  ylim = range(d$lat)) +
+  theme(legend.position = "none")
+
+# compute the average posterior predictive relationship between 
+# log population and total tools, summarized by the median and 80% interval
+f <-
+  post %>% 
+  tidyr::expand(logpop = seq(from = 6, to = 14, length.out = 30),
+         nesting(b_a_Intercept, b_b_Intercept, b_g_Intercept)) %>%
+  mutate(population = exp(logpop)) %>% 
+  mutate(lambda = exp(b_a_Intercept) * population^b_b_Intercept / b_g_Intercept) %>%
+  group_by(logpop) %>% 
+  median_qi(lambda, .width = .8)
+
+# right panel
+p2 <-
+  tidy_rho %>% 
+  ggplot(aes(x = logpop)) +
+  geom_smooth(data = f,
+              aes(y = lambda, ymin = .lower, ymax = .upper),
+              stat = "identity",
+              fill = "#394165", color = "#100F14", alpha = .5, size = 1.1) +
+  geom_point(data = d, 
+             aes(y = total_tools, size = logpop), 
+             color = "#DCA258") +
+  geom_line(aes(y = total_tools, group = group, alpha = correlation^2),
+            color = "#EEDA9D") +
+  geom_text_repel(data = d, 
+                  aes(y = total_tools, label = culture), 
+                  seed = 14, point.padding = .2, size = 2.75, color = "#FCF9F0", family = "Courier") +
+  scale_alpha_continuous(range = c(0, 1)) +
+  labs(subtitle = "Shown against the relation between\ntotal tools and log pop",
+       x = "log population",
+       y = "total tools") +
+  coord_cartesian(xlim = range(d$logpop),
+                  ylim = range(d$total_tools)) +
+  theme(legend.position = "none")
+
+# combine
+p1 + p2 + 
+  plot_annotation(title = "Posterior median correlations based on the gamma-Poisson model") 
+```
+
+There is very little difference. Finish off by comparing the two models with the WAIC.
+
+```{r, warning = F, message = F}
+b14.8 <- add_criterion(b14.8, "waic")
+b14.8_nb <- add_criterion(b14.8_nb, "waic")
+
+loo_compare(b14.8, b14.8_nb, criterion = "waic") %>% print(simplify = F)
+```
+
+The WAIC comparison suggests we gain little by switching to the gamma-Poisson. If anything, we may have overfit.
 
 #### 14.5.2. Example: Phylogenetic distance.
 
@@ -1329,7 +1957,7 @@ library(ggtree)
 
 Primates301_nex %>%
   ggtree(layout = "circular", color = "#394165", size = 1/4) + 
-  geom_tiplab(size = 1.5, color = "#100F14")
+  geom_tiplab(size = 5/3, color = "#100F14")
 ```
 
 Let's format the data.
