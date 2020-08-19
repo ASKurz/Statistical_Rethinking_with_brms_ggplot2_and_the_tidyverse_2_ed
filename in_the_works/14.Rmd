@@ -1701,7 +1701,7 @@ p2 <-
   theme(legend.position = "none")
 ```
 
-Now we combine them to make the full version of Figure 13.10.
+Now we combine them to make the full version of Figure 14.12.
 
 ```{r, fig.width = 8, fig.height = 4.25}
 p1 + p2 + 
