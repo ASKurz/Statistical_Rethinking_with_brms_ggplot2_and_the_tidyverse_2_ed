@@ -1625,19 +1625,6 @@ d %>%
 As far as I can figure, you still have to get `rho` into a tidy data frame before feeding it into **ggplot2**. Here's my attempt at doing so.
 
 ```{r}
-rho %>%
-  data.frame() %>% 
-  rownames_to_column() %>% 
-  bind_cols(d %>% select(culture, logpop, total_tools, lon2, lat)) %>% 
-  pivot_longer(Ml:Ha,
-               names_to = "colname", 
-               values_to = "correlation") %>%
-  mutate(group = str_c(pmin(rowname, colname), pmax(rowname, colname))) %>%
-  select(rowname, colname, group, culture, everything())
-```
-
-
-```{r}
 tidy_rho <-
   rho %>%
   data.frame() %>% 
