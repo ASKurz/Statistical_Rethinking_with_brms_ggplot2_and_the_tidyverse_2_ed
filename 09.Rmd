@@ -389,11 +389,11 @@ post %>%
   mean_hdi(value, .width = .89)  # note our rare use of 89% intervals
 ```
 
-There's one more important difference in our brms summary output compared to McElreath's `rethinking::precis()` output. In the text we learn `precis()` returns `n_eff` values for each parameter. Earlier versions of brms used to have a direct analogue named `Eff.Sample`. Both were estimates of the effective number of samples (a.k.a. the effective sample size) for each parameter. As with typical sample size, the more the merrier. Starting with version 2.10.0, **brms** now returns two columns: `Bulk_ESS` and `Tail_ESS`. These originate from the same @vehtariRanknormalizationFoldingLocalization2019 paper that introduced the upcoming change to the $\widehat R$. From the paper, we read:
+There's one more important difference in our **brms** summary output compared to McElreath's `rethinking::precis()` output. In the text we learn `precis()` returns `n_eff` values for each parameter. Earlier versions of **brms** used to have a direct analogue named `Eff.Sample`. Both were estimates of the effective number of samples (a.k.a. the effective sample size) for each parameter. As with typical sample size, the more the merrier. Starting with version 2.10.0, **brms** now returns two columns: `Bulk_ESS` and `Tail_ESS`. These originate from the same @vehtariRanknormalizationFoldingLocalization2019 paper that introduced the upcoming change to the $\widehat R$. From the paper, we read:
 
 > If you plan to report quantile estimates or posterior intervals, we strongly suggest assessing the convergence of the chains for these quantiles. In Section 4.3 we show that convergence of Markov chains is not uniform across the parameter space and propose diagnostics and effective sample sizes specifically for extreme quantiles. This is *different* from the standard ESS estimate (which we refer to as the "bulk-ESS"), which mainly assesses how well the centre of the distribution is resolved. Instead, these "tail-ESS" measures allow the user to estimate the MCSE for interval estimates. (p. 5, *emphasis* in the original)
 
-For more technical details, see the paper. In short, `Bulk_ESS` in the output from brms 2.10.0+ is what was previously referred to as `Eff.Sample` in earlier versions. It's also what corresponds to what McElreath calls `n_eff`. This indexed the number of effective samples in 'the center of the' posterior distribution (i.e., the posterior mean or median). But since we also care about uncertainty in our parameters, we care about stability in the 95% intervals and such. The new `Tail_ESS` in brms output allows us to gauge the effective sample size for those intervals.
+For more technical details, see the paper. In short, `Bulk_ESS` in the output from **brms** 2.10.0+ is what was previously referred to as `Eff.Sample` in earlier versions. It's also what corresponds to what McElreath calls `n_eff`. This indexed the number of effective samples in 'the center of the' posterior distribution (i.e., the posterior mean or median). But since we also care about uncertainty in our parameters, we care about stability in the 95% intervals and such. The new `Tail_ESS` in **brms** output allows us to gauge the effective sample size for those intervals.
 
 ### Sampling again, in parallel.
 
@@ -532,7 +532,7 @@ library(ggmcmc)
 
 The **ggmcmc** package has a variety of convenience functions for working with MCMC chains. The `ggs()` function extracts the posterior draws, including `warmup`, and arranges them in a tidy tibble.
 
-```{r}
+```{r, warning = F, message = F}
 ggs(b9.1b) %>% 
   str()
 ```
@@ -558,7 +558,7 @@ ggs(b9.1b) %>%
   facet_wrap(~Parameter, scales = "free_y")
 ```
 
-Following brms defaults, we won't include warmup iterations in the trace plots for other models in this book. A nice thing about plots that do contain them, though, is they reveal how quickly our HMC chains transition away from their start values into the posterior. To get a better sense of this, let's make those trace plots once more, but this time zooming in on the first 50 iterations.
+Following **brms** defaults, we won't include warmup iterations in the trace plots for other models in this book. A nice thing about plots that do contain them, though, is they reveal how quickly our HMC chains transition away from their start values into the posterior. To get a better sense of this, let's make those trace plots once more, but this time zooming in on the first 50 iterations.
 
 ```{r, fig.width = 8, fig.height = 4}
 ggs(b9.1b) %>%
@@ -618,7 +618,7 @@ The **brms** defaults are `iter = 2000` and `warmup = 1000`, which are twice the
 
 > If all you want are posterior means, it doesn't take many samples at all to get very good estimates. Even a couple hundred samples will do. But if you care about the exact shape in the extreme tails of the posterior, the 99th percentile or so, then you'll need many more. So there is no universally useful number of samples to aim for. In most typical regression applications, you can get a very good estimate of the posterior mean with as few as 200 effective samples. And if the posterior is approximately Gaussian, then all you need in addition is a good estimate of the variance, which can be had with one order of magnitude more, in most cases. For highly skewed posteriors, you'll have to think more about which region of the distribution interests you. Stan will sometimes warn you about "tail ESS," the effective sample size (similar to `n_eff`) in the tails of the posterior. In those cases, it is nervous about the quality of extreme intervals, like 95%. Sampling more usually helps. (pp. 287-288)
 
-And remember, with changes from brms version 2.10.0, we now have both `Bulk_ESS` and `Tail_ESS` to consult when thinking about the effective sample size. What McElreath referred to as `n_eff` is what we now think of as `Bulk_ESS` when using **brms**. When McElreath referred to the "tail ESS" in the end of that block quote, that's our **brms** `Tail_ESS` number.
+And remember, with changes from **brms** version 2.10.0, we now have both `Bulk_ESS` and `Tail_ESS` to consult when thinking about the effective sample size. What McElreath referred to as `n_eff` is what we now think of as `Bulk_ESS` when using **brms**. When McElreath referred to the "tail ESS" in the end of that block quote, that's our **brms** `Tail_ESS` number.
 
 #### Rethinking: Warmup is not burn-in. 
 
@@ -634,7 +634,7 @@ And remember, with changes from brms version 2.10.0, we now have both `Bulk_ESS`
 
 #### Rethinking: Convergence diagnostics. 
 
-We've already covered how **brms** has expanded the traditional notion of effective samples (i.e., `n_eff`) to `Bulk_ESS` and `Tail_ESS`. Talking about $\widehat R$, "view it perhaps as a signal of danger, but never of safety. For conventional models, these metrics typically work well" (p. 289). We've already covered how brms has expanded the traditional notion of effective samples (i.e., `n_eff`) to `Bulk_ESS` and `Tail_ESS`. Times are changing for the $\widehat R$, too. However, it turns out the Stan team has found some deficiencies with the $\widehat R$, for which they've made recommendations that will be implemented in the Stan ecosystem sometime soon (see [here](https://discourse.mc-stan.org/t/new-r-hat-and-ess/8165) for a related thread on the Stan Forums). In the meantime, you can read all about it in @vehtariRanknormalizationFoldingLocalization2019 and in one of Dan Simpson's [blog posts](https://statmodeling.stat.columbia.edu/2019/03/19/maybe-its-time-to-let-the-old-ways-die-or-we-broke-r-hat-so-now-we-have-to-fix-it/). If you learn best by sassy twitter banter, [click through this interchange](https://twitter.com/betanalpha/status/1108185746870030336) among some of our Stan team all-stars.
+We've already covered how **brms** has expanded the traditional notion of effective samples (i.e., `n_eff`) to `Bulk_ESS` and `Tail_ESS`. Talking about $\widehat R$, "view it perhaps as a signal of danger, but never of safety. For conventional models, these metrics typically work well" (p. 289). We've already covered how **brms** has expanded the traditional notion of effective samples (i.e., `n_eff`) to `Bulk_ESS` and `Tail_ESS`. Times are changing for the $\widehat R$, too. However, it turns out the Stan team has found some deficiencies with the $\widehat R$, for which they've made recommendations that will be implemented in the Stan ecosystem sometime soon (see [here](https://discourse.mc-stan.org/t/new-r-hat-and-ess/8165) for a related thread on the Stan Forums). In the meantime, you can read all about it in @vehtariRanknormalizationFoldingLocalization2019 and in one of Dan Simpson's [blog posts](https://statmodeling.stat.columbia.edu/2019/03/19/maybe-its-time-to-let-the-old-ways-die-or-we-broke-r-hat-so-now-we-have-to-fix-it/). If you learn best by sassy twitter banter, [click through this interchange](https://twitter.com/betanalpha/status/1108185746870030336) among some of our Stan team all-stars.
 
 For more on these topics, you might also check out Gabry and Modrák's [-@gabryVisualMCMCDiagnostics2020] vignette, [*Visual MCMC diagnostics using the bayesplot package*](https://CRAN.R-project.org/package=bayesplot/vignettes/plotting-mcmc-draws.html).
 
