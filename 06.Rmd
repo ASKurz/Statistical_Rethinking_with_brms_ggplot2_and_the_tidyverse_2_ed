@@ -226,7 +226,7 @@ head(sim)
 
 We have a tibble with four rows and two columns. Hopefully it's unsurprising the first column shows our four `seed` values. The second column, `post`, might look odd. If you look back up at the code we used to make `sim`, you'll notice we fed the results form `sim_and_fit()` into the `brms::posterior_samples()` function. Each model contained 4,000 poster draws. There are four parameters in the model and, by **brms** default, the `posterior_samples()` function also returns the `lp__`, which we generally ignore in this project. Anyway, that's why you see each of the four rows of `post` containing `<data.frame [4,000 × 5]>`. Each cell contains an entire $4,000 × 5$ data frame--the results of `posterior_samples()`. When you have a data frames nested within data frames, this is called a nested data structure. To unpack the contents of those four nested data frames, you simply call `nest(d, post)`. In the next code block, we'll do that within the context of a larger work low designed to plot the results of each in a faceted coefficient plot. For data of this kind of structure, the `tidybayes::stat_pointintervalh()` function will be particularly useful.
 
-```{r, fig.width = 6.5, fig.height = 5}
+```{r, fig.width = 6.5, fig.height = 5, warning = F, message = F}
 library(tidybayes)
 
 sim %>% 
@@ -235,7 +235,7 @@ sim %>%
   mutate(seed = str_c("seed ", seed)) %>% 
   
   ggplot(aes(x = value, y = name)) +
-  stat_pointintervalh(.width = .95, color = "forestgreen") +
+  stat_pointinterval(.width = .95, color = "forestgreen") +
   labs(x = "posterior", y = NULL) +
   theme(axis.text.y = element_text(hjust = 0),
         panel.grid.minor = element_blank(),
@@ -334,8 +334,8 @@ That posterior $SD$ looks much better. Compare this density to the one in Figure
 posterior_samples(b6.2) %>% 
   
   ggplot(aes(x = b_leg_left, y = 0)) +
-  geom_halfeyeh(point_interval = median_qi, 
-                fill = "steelblue", .width = .95) +
+  stat_halfeye(point_interval = median_qi, 
+               fill = "steelblue", .width = .95) +
   scale_y_continuous(NULL, breaks = NULL) +
   labs(title = "Just one coefficient needed",
        subtitle = "Marked by the median and 95% PIs",
@@ -885,7 +885,7 @@ head(d2)
 
 Use `update()` to refit `b6.7` and `b6.8` to the new data.
 
-```{r b6.7b}
+```{r b6.7b, warning = F, message = F}
 b6.7b <-
   update(b6.7,
          newdata = d2,
@@ -1434,7 +1434,11 @@ b6.17 <-
 If we extract the posterior draws from each model, the column corresponding to $W \rightarrow D$ will be `b_w`. Here we extract those columns, wrangle, and compare the posteriors in a coefficient plot.
 
 ```{r, fig.width = 6, fig.height = 1.33}
-formula <- c("d ~ 1 + w", "d ~ 1 + w + s", "d ~ 1 + w + a + m", "d ~ 1 + w + a", "d ~ 1 + w + m")
+formula <- c("d ~ 1 + w", 
+             "d ~ 1 + w + s", 
+             "d ~ 1 + w + a + m", 
+             "d ~ 1 + w + a", 
+             "d ~ 1 + w + m")
 
 tibble(fit = str_c("b6.1", 3:7)) %>% 
   mutate(y    = str_c(fit, " (", formula, ")"),
@@ -1444,7 +1448,7 @@ tibble(fit = str_c("b6.1", 3:7)) %>%
   unnest(post) %>% 
   
   ggplot(aes(x = b_w, y = y, color = fit %in% c("b6.14", "b6.15"))) +
-  stat_pointintervalh(.width = .95) +
+  stat_pointinterval(.width = .95) +
   scale_color_manual(values = c("grey50", "forestgreen")) +
   labs(x = expression(beta[w]),
        y = NULL) +
