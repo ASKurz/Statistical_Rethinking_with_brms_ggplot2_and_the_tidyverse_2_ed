@@ -382,7 +382,7 @@ print(b8.2)
 
 Now extract the posterior draws, make a difference score for the two intercepts, and use `tidybayes::qi()` to compute the percentile-based 89% intervals for the difference.
 
-```{r}
+```{r, warning = F, message = F}
 post <- 
   posterior_samples(b8.2) %>% 
   mutate(diff = b_cid1 - b_cid2)
@@ -571,7 +571,7 @@ b8.3t <- add_criterion(b8.3t, c("loo", "waic"))
 loo_compare(b8.3, b8.3t, criterion = "loo") %>% print(simplify = F)
 ```
 
-Here we might make our own diagnostic plot to compare the two likelihoods by the Pareto $k$ values. To get a nice fine-grain sense of the distributions, we'll employ the handy `tidybayes::stat_dotsh()` function which will display each value as an individual dot.
+Here we might make our own diagnostic plot to compare the two likelihoods by the Pareto $k$ values. To get a nice fine-grain sense of the distributions, we'll employ the handy `tidybayes::stat_dots()` function which will display each value as an individual dot.
 
 ```{r, fig.width = 4.5, fig.height = 2.75}
 tibble(Normal      = b8.3$criteria$loo$diagnostics$pareto_k,
@@ -581,8 +581,8 @@ tibble(Normal      = b8.3$criteria$loo$diagnostics$pareto_k,
   
   ggplot(aes(x = pareto_k, y = name)) +
   geom_vline(xintercept = .5, linetype = 2, color = palette_pander(n = 5)[5]) +
-  stat_dotsh(slab_fill = palette_pander(n = 4)[4], 
-             slab_color = palette_pander(n = 4)[4]) + 
+  stat_dots(slab_fill = palette_pander(n = 4)[4], 
+            slab_color = palette_pander(n = 4)[4]) + 
   annotate(geom = "text",
            x = .485, y = 1.5, label = "threshold", angle = 90, 
            family = "Times", color = palette_pander(n = 5)[5]) +
@@ -646,7 +646,10 @@ $$\mu_i  = \alpha_{\text{cid}[i]} + \beta_{\text{cid}[i]} \left (\text{rugged_st
 
 With this model, it is equally true that that slope is conditional on the intercept as it is that the intercept is conditional on the slope. Another way to express the model is
 
-$$\mu_i = \underbrace{(2 - \text{cid}_{i}) \left (\alpha_1 + \beta_1 \left (\text{rugged_std}_i - \overline{\text{rugged_std}} \right ) \right )}_{\text{cid}[i] = 1} + \underbrace{(\text{cid}_{i} - 1) \left (\alpha_2 + \beta_2 \left (\text{rugged_std}_i - \overline{\text{rugged_std}} \right ) \right )}_{\text{cid}[i] = 2},$$
+\begin{align*}
+\mu_i & = \underbrace{(2 - \text{cid}_{i}) \left (\alpha_1 + \beta_1 \left (\text{rugged_std}_i - \overline{\text{rugged_std}} \right ) \right )}_{\text{cid}[i] = 1} \\
+      & \;\;\; + \underbrace{(\text{cid}_{i} - 1) \left (\alpha_2 + \beta_2 \left (\text{rugged_std}_i - \overline{\text{rugged_std}} \right ) \right )}_{\text{cid}[i] = 2},
+\end{align*}
 
 where the first term vanishes when $\text{cid}_i = 2$ and the second term vanishes when $\text{cid}_i = 1$. In contrast to the plots above, we can re-express this equation as saying "*The association of being in Africa with log GDP depends upon terrain ruggedness*" (p. 251, *emphasis* in the original). Here we follow McElreath and plot the difference between a nation in Africa and outside Africa, conditional on ruggedness.
 
