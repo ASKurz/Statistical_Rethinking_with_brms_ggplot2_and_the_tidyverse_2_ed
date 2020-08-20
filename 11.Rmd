@@ -236,7 +236,7 @@ prior %>%
 
 Here are the averages of the two prior-predictive difference distributions.
 
-```{r}
+```{r, message = F}
 prior %>% 
   group_by(w) %>% 
   summarise(mean = mean(diff))
@@ -274,7 +274,7 @@ posterior_samples(b11.3) %>%
 
 Here are the empirical probabilities for each of the four levels of `treatment`.
 
-```{r}
+```{r, message = F}
 d %>% 
   group_by(treatment) %>% 
   summarise(mean = mean(pulled_left))
@@ -396,7 +396,7 @@ post %>%
 
 "These are the contrasts between the no-partner/partner treatments" (p. 331). Next, we prepare for the posterior predictive check. McElreath showed how to compute empirical proportions by the levels of `actor` and `treatment` with the `by()` function. Our approach will be with a combination of `group_by()` and `summarise()`. Here's what that looks like for `actor == 1`.
 
-```{r}
+```{r, message = F}
 d %>%
   group_by(actor, treatment) %>%
   summarise(proportion = mean(pulled_left)) %>% 
@@ -405,7 +405,7 @@ d %>%
 
 Now we'll follow that through to make the top panel of Figure 11.4. Instead of showing the plot, we'll save it for the next code block.
 
-```{r}
+```{r, message = F}
 p1 <-
   d %>%
   group_by(actor, treatment) %>%
@@ -575,7 +575,7 @@ The hard part, though, is that "neither absolute nor relative risk is sufficient
 
 With the **tidyverse**, we can use `group_by()` and `summarise()` to achieve what McElreath did with `aggregate()`.
 
-```{r}
+```{r, message = F}
 d_aggregated <-
   d %>%
   group_by(treatment, actor, side, cond) %>%
@@ -760,7 +760,7 @@ posterior_samples(b11.7) %>%
 
 **brms** doesn't have a convenience function that works quite like `rethinking::postcheck()`. But we have options, the most handy of which in this case is probably `predict()`.
 
-```{r, fig.height = 2.75, fig.width = 4.5}
+```{r, fig.height = 2.75, fig.width = 4.5, message = F}
 p <- 
   predict(b11.7) %>% 
   data.frame() %>% 
@@ -2295,7 +2295,7 @@ $$p_\text{admit} = \frac{\lambda_1}{\lambda_1 + \lambda_2} = \frac{\exp (\alpha_
 
 To get a better appreciation on how well the two model types converge on the same solution, we might plot the full poster for admissions probability from each.
 
-```{r, fig.width = 4.5, fig.height = 2.5}
+```{r, fig.width = 4.5, fig.height = 2.5, warning = F, message = F}
 # wrangle
 bind_cols(
   posterior_samples(b11.pois) %>% 
