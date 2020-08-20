@@ -658,7 +658,7 @@ p1 <-
 p1
 ```
 
-We get the residuals with the well-named `residuals()` function. Much like with `brms::fitted()`, `brms::residuals()` returns a four-vector matrix with the number of rows equal to the number of observations in the original data (by default, anyway). The vectors have the familiar names: `Estimate`, `Est.Error`, `Q2.5`, and `Q97.5`. See the [brms reference manual](https://CRAN.R-project.org/package=brms/brms.pdf) [@brms2020RM] for details.
+We get the residuals with the well-named `residuals()` function. Much like with `brms::fitted()`, `brms::residuals()` returns a four-vector matrix with the number of rows equal to the number of observations in the original data (by default, anyway). The vectors have the familiar names: `Estimate`, `Est.Error`, `Q2.5`, and `Q97.5`. See the [**brms** reference manual](https://CRAN.R-project.org/package=brms/brms.pdf) [@brms2020RM] for details.
 
 With our residuals in hand, we just need a little more data processing to make lower left panel of Figure 5.4.
 
@@ -1056,7 +1056,7 @@ post <-
 
 Here we use `expand()` elongate the output from above by a factor of thirty, each time corresponding to one of the levels of `a = seq(from = -2, to = 2, length.out = 30)`. In the two `mutate()` lines that follow, we plug the model formulas into the `rnorm()` function to take random draws from posterior predictive distribution. The rest is just wrangling and summarizing.
 
-```{r}
+```{r, warning = F, message = F}
 post <-
   post %>% 
   expand(nesting(iter, b_m_Intercept, b_m_a, sigma_m, b_d_Intercept, b_d_a, b_d_m, sigma_d),
@@ -1728,7 +1728,7 @@ $$
 
 where $\beta_1$ is the expected (i.e., average) difference between males and females for `height`. Here we simulate from our priors and `summarise()` the results.
 
-```{r}
+```{r, warning = F, message = F}
 set.seed(5)
 
 prior <-
@@ -1758,7 +1758,7 @@ prior %>%
   xlab("prior predictive distribution for our dummy groups") +
   theme_bw() +
   theme(panel.grid = element_blank(),
-        legend.position = c(.85, .85))
+        legend.position = c(.84, .84))
 ```
 
 Yep, this parameterization makes $\alpha + \beta_1$ more uncertain than $\alpha$. A nice alternative is to make an index variable. We'll call it `sex`, for which 1 = *female* and 2 = *male.* "No order is implied. These are just labels" (p. 155).
@@ -2038,8 +2038,8 @@ posterior_samples(b5.11) %>%
   
   ggplot(aes(x = value, y = reorder(level, value))) +  # note how we used `reorder()` to arrange the coefficients
   geom_vline(xintercept = 0, color = "firebrick4", alpha = 1/10) +
-  stat_pointintervalh(point_interval = mode_hdi, .width = .89, 
-                      size = 1, color = "firebrick4") +
+  stat_pointinterval(point_interval = mode_hdi, .width = .89, 
+                     size = 1, color = "firebrick4") +
   labs(x = "expected kcal (std)", 
        y = NULL) +
   theme_bw() +
