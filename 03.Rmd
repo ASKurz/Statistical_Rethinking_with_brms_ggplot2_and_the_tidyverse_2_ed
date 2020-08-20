@@ -624,7 +624,7 @@ Dummy data for the globe tossing model arise from the binomial likelihood. If yo
 
 $$\operatorname{Pr} (w|n, p) = \frac{n!}{w!(n - w)!} p^w (1 - p)^{n - w}.$$
 
-Letting $n = 2$, $p(w) = .7$, and $w_\text{observed} = 0 \text{ through }2$, the denisties are:
+Letting $n = 2$, $p(w) = .7$, and $w_\text{observed} = 0 \text{ through }2$, the densities are:
 
 ```{r}
 tibble(n      = 2,
@@ -932,7 +932,7 @@ rle(tosses)$lengths %>% length()
 
 With that new trick, we're ready to make the right panel of Figure 3.7.
 
-```{r, fig.width = 3.5, fig.height = 3}
+```{r, fig.width = 3.5, fig.height = 3, message = F, warning = F}
 samples %>% 
   group_by(iter) %>% 
   summarise(longest_run_length = rle(draws)$lengths %>% length()) %>% 
