@@ -1398,7 +1398,7 @@ p1 / p2
 
 Just for kicks and giggles, I'd like to make an alternative version of Figure 12.6. The triptych on the top panels did a pretty good job depicting the model in terms of the thresholds, $\alpha_k$. It's important that we, the data analysts, have a good sense of what those are. However, I suspect many of our substantively-oriented colleagues will find themselves confused by a plot like that. In my field, people generally just want to know *What's the mean for each group?* At this point, you and I know that such a question is a bit impoverished compared the to the rich output from a model like this. But if we do want to boil these analyses down to comparisons of means, McElreath has already showed us how. Look back to **R** code 12.20 through 12.23 (pp. 386--387). In those blocks, we multiplied the vector of probability values (`pk`) by their respective `response` values and summed, which produced an average outcome value. We can use that same approach so that our top triptych might express the results of the model in terms of means rather than parameters. All it takes is a slightly amended wrangling workflow with respect to the `f` data.
 
-```{r}
+```{r, message = F}
 p1 <-
   f %>% 
   mutate(facet = factor(str_c("action=", action, ", contact=", contact),
