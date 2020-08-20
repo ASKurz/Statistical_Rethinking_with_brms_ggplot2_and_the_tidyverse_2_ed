@@ -103,7 +103,7 @@ d %>%
 
 We might plot our version of the final panel like so.
 
-```{r, fig.width = 3, fig.height = 2.75}
+```{r, fig.width = 3, fig.height = 2.75, message = F}
 d %>% 
   # the next four lines are the same from above
   mutate_all(~ . / sum(.)) %>% 
@@ -177,7 +177,7 @@ crossing(value = seq(from = -5, to = 5, by = .1),
 
 Here's right panel of Figure 10.2.
 
-```{r, fig.width = 3.5, fig.height = 3, warning = F}
+```{r, fig.width = 3.5, fig.height = 3, warning = F, message = F}
 crossing(value = -8:8,
          # this time we need a more densely-packed sequence of `beta` values
        beta  = seq(from = 1, to = 4, length.out = 100)) %>% 
@@ -277,7 +277,7 @@ d  %>%
 
 If we go step by step, we might count the expected value for each `distribution` like follows.
 
-```{r}
+```{r, message = F}
 d %>% 
   # `str_count()` will count the number of times "b" occurs within a given row of `sequence`
   mutate(n_b = str_count(sequence, "b")) %>% 
@@ -288,7 +288,7 @@ d %>%
 
 We can use the same `gather()` and `group_by()` strategies on the way to computing the entropies.
 
-```{r}
+```{r, message = F}
 d %>% 
   group_by(distribution) %>% 
   summarise(entropy = -sum(probability * log(probability)))
@@ -439,7 +439,8 @@ Since we saved our `sim_p()` output in a nested tibble, which we then `unnested(
 ```{r}
 ranked_d %>% 
   group_by(key) %>% 
-  slice(max(h))
+  arrange(desc(h)) %>% 
+  slice(1)
 ```
 
 That maximum `h` value matched up nicely with the one in the text. If you look at the `p` column, you'll see our values approximated McElreath's `distribution` values, too. In both cases, they're real close to the `a` values we computed, above.
@@ -751,8 +752,8 @@ post %>%
   pivot_longer(contains("==")) %>%
   
   ggplot(aes(x = value, y = name, fill = name)) +
-  geom_halfeyeh(point_interval = median_qi, .width = .95,
-                color = ghibli_palette("KikiMedium")[2]) +
+  stat_halfeye(point_interval = median_qi, .width = .95,
+               color = ghibli_palette("KikiMedium")[2]) +
   scale_fill_manual(values = c(ghibli_palette("KikiMedium")[c(4, 6)])) +
   labs(subtitle = "Model-implied standard deviations by group",
        x = expression(sigma[x]), 
@@ -766,7 +767,7 @@ post %>%
 
 If we looked back at the data, those $SD$ estimates are just what we'd expect.
 
-```{r}
+```{r, message = F}
 d %>% 
   group_by(x) %>% 
   summarise(sd = sd(y) %>% round(digits = 1)) 
