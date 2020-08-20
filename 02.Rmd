@@ -781,46 +781,41 @@ In order to avoid unnecessary facet labels for the rows, it was easier to just m
 ```{r, fig.width = 6, fig.height = 5, warning = F, message = F}
 p1 <-
   d %>%
-  filter(name == "prior") %>% 
+  filter(row == "flat") %>% 
   ggplot(aes(x = probability, y = value)) +
   geom_line() +
-  scale_x_continuous(NULL, breaks = c(0, .5, 1)) +
+  scale_x_continuous(NULL, breaks = NULL) +
   scale_y_continuous(NULL, breaks = NULL) +
-  labs(subtitle = "prior") +
-  theme(panel.grid = element_blank(),
-        strip.background = element_blank(),
-        strip.text = element_blank()) +
-  facet_wrap(row ~ ., scales = "free_y", ncol = 1)
+  theme(panel.grid = element_blank()) +
+  facet_wrap(~name, scales = "free_y")
 
 p2 <-
   d %>%
-  filter(name == "likelihood") %>% 
+  filter(row == "stepped") %>% 
   ggplot(aes(x = probability, y = value)) +
   geom_line() +
-  scale_x_continuous(NULL, breaks = c(0, .5, 1)) +
+  scale_x_continuous(NULL, breaks = NULL) +
   scale_y_continuous(NULL, breaks = NULL) +
-  labs(subtitle = "likelihood") +
   theme(panel.grid = element_blank(),
         strip.background = element_blank(),
         strip.text = element_blank()) +
-  facet_wrap(row ~ ., scales = "free_y", ncol = 1)
+  facet_wrap(~name, scales = "free_y")
 
 p3 <-
   d %>%
-  filter(name == "posterior") %>% 
+  filter(row == "Laplace") %>% 
   ggplot(aes(x = probability, y = value)) +
   geom_line() +
   scale_x_continuous(NULL, breaks = c(0, .5, 1)) +
   scale_y_continuous(NULL, breaks = NULL) +
-  labs(subtitle = "posterior") +
   theme(panel.grid = element_blank(),
         strip.background = element_blank(),
         strip.text = element_blank()) +
-  facet_wrap(row ~ ., scales = "free_y", ncol = 1)
+  facet_wrap(~name, scales = "free_y")
 
 library(patchwork)
 
-p1 | p2 | p3
+p1 / p2 / p3
 ```
 
 I'm not sure if it's the same McElreath used in the text, but the formula I used for the triangle-shaped prior is the [Laplace distribution](https://rdrr.io/cran/rmutil/man/Laplace.html) with a location of 0.5 and a dispersion of 0.25.
