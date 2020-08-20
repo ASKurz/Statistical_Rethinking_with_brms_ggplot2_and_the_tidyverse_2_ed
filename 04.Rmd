@@ -638,7 +638,7 @@ d_grid_samples %>%
   theme(panel.grid = element_blank())
 ```
 
-We can use `pivot_longer()` and then `facet_warp()` to plot the densities for both `mu` and `sigma` at once.
+We can use `pivot_longer()` and then `facet_wrap()` to plot the densities for both `mu` and `sigma` at once.
 
 ```{r, fig.width = 6, fig.height = 2.5}
 d_grid_samples %>% 
@@ -941,7 +941,7 @@ post %>%
 
 #### Overthinking: Under the hood with multivariate sampling.
 
-Again, `brms::posterior_samples()` is not the same as `rethinking::extract.samples()`. Rather than use the `MASS::mvnorm()`, **brms** takes the draws from the HMC chains. McElreath coverd all of this in Chapter 9 and we will too. You might also look at the **brms** [reference manual](https://cran.r-project.org/package=brms/brms.pdf) or [GitHub page](https://github.com/paul-buerkner/brms) for details. To get documentation in a hurry, you could also just execute `?posterior_samples`.
+Again, `brms::posterior_samples()` is not the same as `rethinking::extract.samples()`. Rather than use the `MASS::mvnorm()`, **brms** takes the draws from the HMC chains. McElreath coverd all of this in Chapter 9 and we will too. You might also look at the [**brms** reference manual](https://cran.r-project.org/package=brms/brms.pdf) or [GitHub page](https://github.com/paul-buerkner/brms) for details. To get documentation in a hurry, you could also just execute `?posterior_samples`.
 
 ## Linear prediction
 
@@ -1455,13 +1455,13 @@ We'll use `mean_hdi()` to get both 89% and 95% HPDIs along with the mean.
 mean_hdi(mu_at_50[, 1], .width = c(.89, .95))
 ```
 
-If you wanted to express those sweet 95% HPDIs on your density plot, you might use `tidybayes::geom_halfeyeh()`. Since `geom_halfeyeh()` also returns a point estimate, we'll throw in the mode.
+If you wanted to express those sweet 95% HPDIs on your density plot, you might use `tidybayes::stat_halfeye()`. Since `stat_halfeye()` also returns a point estimate, we'll throw in the mode.
 
 ```{r, fig.width = 3, fig.height = 3}
 mu_at_50 %>%
   ggplot(aes(x = mu_at_50, y = 0)) +
-  geom_halfeyeh(point_interval = mode_hdi, .width = .95,
-                fill = "royalblue") +
+  stat_halfeye(point_interval = mode_hdi, .width = .95,
+               fill = "royalblue") +
   scale_y_continuous(NULL, breaks = NULL) +
   xlab(expression(mu["height | weight = 50"])) +
   theme_classic()
@@ -1621,7 +1621,7 @@ With our **brms** model fitting approach, that would mean we'd have to refit `b4
 
 Here we follow McElreath's example and do our model-based predictions by hand. Instead of relying on base **R** `apply()` and `sapply()`, here the main action is in `expand()`, the second `mutate()` line and the `group_by()` + `summarise()` combination.
 
-```{r, fig.width = 3, fig.height = 2.8}
+```{r, fig.width = 3, fig.height = 2.8, warning = F, message = F}
 # `predict()` by hand
 post %>% 
   expand(nesting(b_Intercept, b_weight_c, sigma),
@@ -1730,7 +1730,7 @@ ggmcmc::ggs(b4.5) %>%
   facet_wrap(~Parameter, scales = "free_y", ncol = 1)
 ```
 
-Note our use of the `coef` argument within our prior statements. Since $\beta_1$ and $\beta_2$ are both parameters of `class = b` within the brms set-up, we need to use the `coef` argument in cases when we want their priors to differ.
+Note our use of the `coef` argument within our prior statements. Since $\beta_1$ and $\beta_2$ are both parameters of `class = b` within the **brms** set-up, we need to use the `coef` argument in cases when we want their priors to differ.
 
 ```{r, fig.width = 6, fig.height = 4.5}
 plot(b4.5)
@@ -1982,7 +1982,7 @@ rm(cherry_blossoms)
 
 Minus the mini histograms, here is ourground-up **tidyverse** way to summarize our new `d` data the way McElreath did with his `precis()`.
 
-```{r}
+```{r, warning = F, message = F}
 d %>% 
   gather() %>% 
   group_by(key) %>% 
@@ -2438,5 +2438,5 @@ ggplot2::theme_set(ggplot2::theme_grey())
 pacman::p_unload(pacman::p_loaded(), character.only = TRUE)
 ```
 
-[^1]: In the first edition of his text, McElreath started out with the uniform prior for $\sigma$ and transitioned to the half Cauchy when he introduced HMC in Chapter 8. In this edition, he largely replaced the half Cauchy with the exponential distribution. Both are fine. If you'd like to learn more about the half Cauchy, you might check out [Section 8.4.3.1](https://bookdown.org/content/3890/markov-chain-monte-carlo.html#taming-a-wild-chain.) of my [-@kurzStatisticalRethinkingBrms2020] translation of his first edition.
+[^1]: In the first edition of his text, McElreath [-@mcelreathStatisticalRethinkingBayesian2015] started out with the uniform prior for $\sigma$ and transitioned to the half Cauchy when he introduced HMC in Chapter 8. In this edition, he largely replaced the half Cauchy with the exponential distribution. Both are fine. If you'd like to learn more about the half Cauchy, you might check out [Section 8.4.3.1](https://bookdown.org/content/3890/markov-chain-monte-carlo.html#taming-a-wild-chain.) of my [-@kurzStatisticalRethinkingBrms2020] translation of his first edition.
 
