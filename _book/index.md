@@ -1,8 +1,8 @@
 --- 
 title: "*Statistical rethinking* with brms, ggplot2, and the tidyverse: Second edition"
-subtitle: "version 0.0.2"
+subtitle: "version 0.0.3"
 author: ["A Solomon Kurz"]
-date: "2020-06-30"
+date: "2020-08-20"
 site: bookdown::bookdown_site
 output: 
   bookdown::gitbook:
@@ -30,20 +30,27 @@ This ebook is based on the second edition of [Richard McElreath](https://twitter
 
 ## Caution: Work in progress {-}
 
-The inaugural 0.0.1 release contained first drafts of Chapters 1 through 9. The 0.0.2 update adds drafts of Chapters 10 thorugh 12, which give a fine introduction to the generalized linear model.
+The inaugural 0.0.1 release contained first drafts of Chapters 1 through 9. The 0.0.2 update added drafts of Chapters 10 through 12. This 0.0.3 update adds drafts of Chapters 13 and 14, which introduce the multilevel model and related applications.
 
 There is no timetable for this project, but I'll update it periodically with new chapters and so on. To keep up with the latest changes, check in at the GitHub repository, [https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed](https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed), or follow my announcements on twitter at [https://twitter.com/SolomonKurz](https://twitter.com/SolomonKurz).
 
 ## Thank-you's are in order {-}
 
-Before we move on, I'd like to thank the following for their helpful contributions:
+I'd like to thank the following for their helpful contributions:
 
 * E. David Aja ([\@edavidaja](https://github.com/edavidaja)),
+* Monica Alexander ([\@MJAlexander](https://github.com/MJAlexander)),
+* Shaan Amin ([\@Shaan-Amin](https://github.com/Shaan-Amin)),
 * Malcolm Barrett ([\@malcolmbarrett](https://github.com/malcolmbarrett)),
 * Adam Bear ([\@adambear91](https://github.com/adambear91)),
+* Louis Bliard ([\@lbiard](https://github.com/lbiard)),
 * Paul-Christian Bürkner ([\@paul-buerkner](https://github.com/paul-buerkner)),
-* Sebastian Lobentanzer ([\@slobentanzer](https://github.com/slobentanzer)), and
-* Gavin Simpson ([\@gavinsimpson](https://github.com/gavinsimpson)).
+* Sebastian Lobentanzer ([\@slobentanzer](https://github.com/slobentanzer)),
+* Gavin Simpson ([\@gavinsimpson](https://github.com/gavinsimpson)),
+* Richard Torkar ([\@torkar](https://github.com/torkar)), and
+* Donald R. Williams ([\@donaldRwilliams](https://github.com/donaldRwilliams)). 
+
+Science is better when we work together.
 
 
 
