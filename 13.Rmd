@@ -130,9 +130,9 @@ Even though it seems like we can derive important insights from how the `tank`-l
 \begin{align*}
 \text{surv}_i             & \sim \operatorname{Binomial}(n_i, p_i) \\
 \operatorname{logit}(p_i) & = \alpha_{\text{tank}[i]} \\
-\alpha_j                  & \sim \operatorname{Normal}(\bar \alpha, \sigma) \\
-\bar \alpha               & \sim \operatorname{Normal}(0, 1.5) \\
-\sigma                    & \sim \operatorname{Exponential}(1),
+\alpha_j                  & \sim \operatorname{Normal}(\color{blue}{\bar \alpha}, \color{blue} \sigma) \\
+\color{blue}{\bar \alpha} & \color{blue} \sim \color{blue}{\operatorname{Normal}(0, 1.5)} \\
+\color{blue} \sigma       & \color{blue} \sim \color{blue}{\operatorname{Exponential}(1)},
 \end{align*}
 
 where
@@ -611,13 +611,13 @@ The initial multilevel update from model `b10.4` from [Chapter 10][Logistic regr
 
 \begin{align*}
 \text{left_pull}_i         & \sim \operatorname{Binomial}(n_i = 1, p_i) \\
-\operatorname{logit} (p_i) & = \alpha_{\text{actor}[i]}  + \gamma_{\text{block}[i]} + \beta_{\text{treatment}[i]} \\
-\beta_j       & \sim \operatorname{Normal}(0, 0.5) \;\;\; , \text{for } j = 1..4 \\
-\alpha_j      & \sim \operatorname{Normal}(\bar \alpha, \sigma_\alpha) \;\;\; , \text{for } j = 1..7 \\
-\gamma_j      & \sim \operatorname{Normal}(0, \sigma_\gamma) \;\;\; , \text{for } j = 1..6 \\
+\operatorname{logit} (p_i) & = \alpha_{\text{actor}[i]}  + \color{blue}{\gamma_{\text{block}[i]}} + \beta_{\text{treatment}[i]} \\
+\beta_j  & \sim \operatorname{Normal}(0, 0.5) \;\;\; , \text{for } j = 1..4 \\
+\alpha_j & \sim \operatorname{Normal}(\bar \alpha, \sigma_\alpha) \;\;\; , \text{for } j = 1..7 \\
+\color{blue}{\gamma_j} & \color{blue} \sim \color{blue}{\operatorname{Normal}(0, \sigma_\gamma) \;\;\; , \text{for } j = 1..6} \\
 \bar \alpha   & \sim \operatorname{Normal}(0, 1.5) \\
 \sigma_\alpha & \sim \operatorname{Exponential}(1) \\
-\sigma_\gamma & \sim \operatorname{Exponential}(1).
+\color{blue}{\sigma_\gamma} & \color{blue} \sim \color{blue}{\operatorname{Exponential}(1)}.
 \end{align*}
 
 `r emo::ji("warning")` WARNING `r emo::ji("warning")`
@@ -626,11 +626,11 @@ I am so sorry, but we are about to head straight into a load of confusion. If yo
 
 \begin{align*}
 \text{left_pull}_i         & \sim \operatorname{Binomial}(n_i = 1, p_i) \\
-\operatorname{logit} (p_i) & = \bar \alpha  + \beta_{\text{treatment}[i]} + z_{\text{actor}[i]} \sigma_\alpha + x_{\text{block}[i]} \sigma_\gamma \\
+\operatorname{logit} (p_i) & = \bar \alpha + \beta_{\text{treatment}[i]} + \color{blue}{z_{\text{actor}[i]} \sigma_\alpha + x_{\text{block}[i]} \sigma_\gamma} \\
 \bar \alpha   & \sim \operatorname{Normal}(0, 1.5) \\
 \beta_j       & \sim \operatorname{Normal}(0, 0.5) \;\;\; , \text{for } j = 1..4 \\
-z_j           & \sim \operatorname{Normal}(0, 1) \\
-x_j           & \sim \operatorname{Normal}(0, 1) \\
+\color{blue}{z_j} & \color{blue} \sim \color{blue}{\operatorname{Normal}(0, 1)} \\
+\color{blue}{x_j} & \color{blue} \sim \color{blue}{\operatorname{Normal}(0, 1)} \\
 \sigma_\alpha & \sim \operatorname{Exponential}(1) \\
 \sigma_\gamma & \sim \operatorname{Exponential}(1).
 \end{align*}
