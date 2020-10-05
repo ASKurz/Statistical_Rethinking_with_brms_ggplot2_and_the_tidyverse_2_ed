@@ -1418,7 +1418,7 @@ bind_cols(
   facet_wrap(~parameter, ncol = 1, labeller = label_parsed)
 ```
 
-McElreath suggested we look at a pairs plot to get a sense of the zero-order corrleations. We did that once with the raw data. Here it is, again, but with the transformed varaibles.
+McElreath suggested we look at a pairs plot to get a sense of the zero-order correlations. We did that once with the raw data. Here it is, again, but with the transformed variables.
 
 ```{r, fig.width = 4.5, fig.height = 4.5}
 dcc %>% 
@@ -1426,7 +1426,7 @@ dcc %>%
   pairs(col = "firebrick4")
 ```
 
-Have you noticed how un-**tidyverse**-like those `pairs()` plots are? I have. Within the **tidyverse**, you can make custom pairs plots with [GGally](https://CRAN.R-project.org/package=GGally) [@R-GGally], which will also compute the point estimates for the bivariate correlations. Here's a default-style plot.
+Have you noticed how un-**tidyverse**-like those `pairs()` plots are? I have. Within the **tidyverse**, you can make custom pairs plots with the [**GGally** package](https://CRAN.R-project.org/package=GGally) [@R-GGally], which will also compute the point estimates for the bivariate correlations. Here's a default-style plot.
 
 ```{r, fig.width = 3.5, fig.height = 3.5, message = F}
 #install.packages("GGally", dependencies = T)
