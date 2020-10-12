@@ -1,6 +1,6 @@
 --- 
 title: "*Statistical rethinking* with brms, ggplot2, and the tidyverse: Second edition"
-subtitle: "version 0.0.3"
+subtitle: "version 0.0.3.1"
 author: ["A Solomon Kurz"]
 date: "`r Sys.Date()`"
 site: bookdown::bookdown_site
@@ -30,7 +30,7 @@ This ebook is based on the second edition of [Richard McElreath](https://twitter
 
 ## Caution: Work in progress {-}
 
-The inaugural 0.0.1 release contained first drafts of Chapters 1 through 9. The 0.0.2 update added drafts of Chapters 10 through 12. This 0.0.3 update adds drafts of Chapters 13 and 14, which introduce the multilevel model and related applications.
+The inaugural 0.0.1 release contained first drafts of Chapters 1 through 9. The 0.0.2 update added drafts of Chapters 10 through 12. The 0.0.3 update added drafts of Chapters 13 and 14. This 0.0.3.1 update corrects a few typos and adds $\color{blue}{\text{color}}$ to some of the $\LaTeX$ formulas.
 
 There is no timetable for this project, but I'll update it periodically with new chapters and so on. To keep up with the latest changes, check in at the GitHub repository, [https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed](https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed), or follow my announcements on twitter at [https://twitter.com/SolomonKurz](https://twitter.com/SolomonKurz).
 

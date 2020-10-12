@@ -24,7 +24,7 @@
 <meta name="author" content="A Solomon Kurz" />
 
 
-<meta name="date" content="2020-08-20" />
+<meta name="date" content="2020-10-11" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -53,9 +53,9 @@
 
 
 <style type="text/css">
-a.sourceLine { display: inline-block; line-height: 1.25; }
-a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
-a.sourceLine:empty { height: 1.2em; }
+code.sourceCode > span { display: inline-block; line-height: 1.25; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode { white-space: pre; position: relative; }
 pre.sourceCode { margin: 0; }
@@ -64,14 +64,16 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 code.sourceCode { white-space: pre-wrap; }
-a.sourceLine { text-indent: -1em; padding-left: 1em; }
+code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
 }
-pre.numberSource a.sourceLine
-  { position: relative; left: -4em; }
-pre.numberSource a.sourceLine::before
-  { content: attr(data-line-number);
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
     position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; pointer-events: all; display: inline-block;
+    border: none; display: inline-block;
     -webkit-touch-callout: none; -webkit-user-select: none;
     -khtml-user-select: none; -moz-user-select: none;
     -ms-user-select: none; user-select: none;
@@ -80,9 +82,9 @@ pre.numberSource a.sourceLine::before
   }
 pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
 div.sourceCode
-  {  }
+  {   }
 @media screen {
-a.sourceLine::before { text-decoration: underline; }
+code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 code span.al { color: #ff0000; font-weight: bold; } /* Alert */
 code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
@@ -264,7 +266,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="7.6.1" data-path="ulysses-compass.html"><a href="ulysses-compass.html#model-mis-selection."><i class="fa fa-check"></i><b>7.6.1</b> Model mis-selection.</a></li>
 <li class="chapter" data-level="7.6.2" data-path="ulysses-compass.html"><a href="ulysses-compass.html#outliers-and-other-illusions."><i class="fa fa-check"></i><b>7.6.2</b> Outliers and other illusions.</a></li>
 </ul></li>
-<li class="chapter" data-level="7.7" data-path="ulysses-compass.html"><a href="ulysses-compass.html#summarybonus-r2-talk"><i class="fa fa-check"></i><b>7.7</b> <del>Summary</del>Bonus: <span class="math inline">\(R^2\)</span> talk</a></li>
+<li class="chapter" data-level="7.7" data-path="ulysses-compass.html"><a href="ulysses-compass.html#summary-bonus-r2-talk"><i class="fa fa-check"></i><b>7.7</b> <del>Summary</del> Bonus: <span class="math inline">\(R^2\)</span> talk</a></li>
 <li class="chapter" data-level="" data-path="ulysses-compass.html"><a href="ulysses-compass.html#session-info-6"><i class="fa fa-check"></i>Session info</a></li>
 </ul></li>
 <li class="chapter" data-level="8" data-path="conditional-manatees.html"><a href="conditional-manatees.html"><i class="fa fa-check"></i><b>8</b> Conditional Manatees</a><ul>
@@ -443,14 +445,14 @@ Rabbi Loew and Golem by Mikoláš Aleš, 1899
 <p>ultimately Judah was forced to destroy the golem, as its combination of extraordinary power with clumsiness eventually led to innocent deaths. Wiping away one letter from the inscription <em>emet</em> to spell instead <em>met</em>, “death,” Rabbi Judah decommissioned the robot.</p>
 <h2 id="statistical-golems"><span class="header-section-number">1</span> Statistical golems</h2>
 <p>Scientists also make golems. Our golems rarely have physical form, but they too are often made of clay, living in silicon as computer code. These golems are scientific models. But these golems have real effects on the world, through the predictions they make and the intuitions they challenge or inspire. A concern with “truth” enlivens these models, but just like a golem or a modern robot, scientific models are neither true nor false, neither prophets nor charlatans. Rather they are constructs engineered for some purpose. These constructs are incredibly powerful, dutifully conducting their programmed calculations.
-<span class="citation">(McElreath, <a href="#ref-mcelreathStatisticalRethinkingBayesian2020">2020</a><a href="#ref-mcelreathStatisticalRethinkingBayesian2020">a</a>, p. 1, <em>emphasis</em> in the original)</span></p>
+<span class="citation">(McElreath, <a href="#ref-mcelreathStatisticalRethinkingBayesian2020" role="doc-biblioref">2020</a><a href="#ref-mcelreathStatisticalRethinkingBayesian2020" role="doc-biblioref">b</a>, p. 1, <em>emphasis</em> in the original)</span></p>
 </blockquote>
-<p>There are a lot of great points, themes, methods, and factoids in this text. For me, one of the most powerful themes interlaced throughout the pages is how we should be skeptical of our models. Yes, learn Bayes. Pore over this book. Fit models until late into the night. But please don’t fall into blind love with their elegance and power. If we all knew what we were doing, there’d be no need for science. For more wise deflation along these lines, do check out <a href="https://djnavarro.net/post/a-personal-essay-on-bayes-factors/"><em>A personal essay on Bayes factors</em></a>, <a href="https://link.springer.com/article/10.1007/s42113-018-0019-z"><em>Between the devil and the deep blue sea: Tensions between scientific judgement and statistical model selection</em></a> <span class="citation">(Navarro, <a href="#ref-navarroDevilDeepBlue2019">2019</a>)</span> and <a href="https://www.youtube.com/watch?v=tNkmsAOn7aU"><em>Science, statistics and the problem of “pretty good inference”</em></a>, a blog, paper and talk by the inimitable <a href="https://twitter.com/djnavarro?lang=en">Danielle Navarro</a>.</p>
+<p>There are a lot of great points, themes, methods, and factoids in this text. For me, one of the most powerful themes interlaced throughout the pages is how we should be skeptical of our models. Yes, learn Bayes. Pore over this book. Fit models until late into the night. But please don’t fall into blind love with their elegance and power. If we all knew what we were doing, there’d be no need for science. For more wise deflation along these lines, do check out <a href="https://djnavarro.net/post/a-personal-essay-on-bayes-factors/"><em>A personal essay on Bayes factors</em></a>, <a href="https://link.springer.com/article/10.1007/s42113-018-0019-z"><em>Between the devil and the deep blue sea: Tensions between scientific judgement and statistical model selection</em></a> <span class="citation">(Navarro, <a href="#ref-navarroDevilDeepBlue2019" role="doc-biblioref">2019</a>)</span> and <a href="https://www.youtube.com/watch?v=tNkmsAOn7aU"><em>Science, statistics and the problem of “pretty good inference”</em></a>, a blog, paper and talk by the inimitable <a href="https://twitter.com/djnavarro?lang=en">Danielle Navarro</a>.</p>
 <p>Anyway, McElreath left us no code or figures to translate in this chapter. But before you skip off to the next one, why not invest a little time soaking in this chapter’s material by watching <a href="https://www.youtube.com/watch?v=oy7Ks3YfbDg&amp;t=14s&amp;frags=pl%2Cwn">McElreath present it</a>? He’s an engaging speaker and the material in his online lectures does not entirely overlap with that in the text.</p>
 <div id="session-info" class="section level2 unnumbered">
 <h2>Session info</h2>
 <p>At the end of every chapter, I use the <code>sessionInfo()</code> function to help make my results more reproducible.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw">sessionInfo</span>()</a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="the-golem-of-prague.html#cb1-1"></a><span class="kw">sessionInfo</span>()</span></code></pre></div>
 <pre><code>## R version 3.6.3 (2020-02-29)
 ## Platform: x86_64-apple-darwin15.6.0 (64-bit)
 ## Running under: macOS Catalina 10.15.3
@@ -476,7 +478,7 @@ Rabbi Loew and Golem by Mikoláš Aleš, 1899
 <h3>References</h3>
 <div id="refs" class="references">
 <div id="ref-mcelreathStatisticalRethinkingBayesian2020">
-<p>McElreath, R. (2020a). <em>Statistical rethinking: A Bayesian course with examples in R and Stan</em> (Second edition). CRC Press. <a href="https://xcelab.net/rm/statistical-rethinking/">https://xcelab.net/rm/statistical-rethinking/</a></p>
+<p>McElreath, R. (2020b). <em>Statistical rethinking: A Bayesian course with examples in R and Stan</em> (Second edition). CRC Press. <a href="https://xcelab.net/rm/statistical-rethinking/">https://xcelab.net/rm/statistical-rethinking/</a></p>
 </div>
 <div id="ref-navarroDevilDeepBlue2019">
 <p>Navarro, D. J. (2019). Between the devil and the deep blue sea: Tensions between scientific judgement and statistical model selection. <em>Computational Brain &amp; Behavior</em>, <em>2</em>(1), 28–34. <a href="https://doi.org/10.1007/s42113-018-0019-z">https://doi.org/10.1007/s42113-018-0019-z</a></p>
