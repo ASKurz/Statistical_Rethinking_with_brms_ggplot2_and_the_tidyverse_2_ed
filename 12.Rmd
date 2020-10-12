@@ -995,11 +995,19 @@ Why not combine the three subplots with patchwork?
 The code for Figure 12.5 is itself something of a monster.
 
 ```{r, fig.width = 3.5, fig.height = 3}
+# primary data
 d_plot <-
   d %>%
   count(response) %>%
   mutate(pr_k     = n / nrow(d),
-         cum_pr_k = cumsum(n / nrow(d))) 
+         cum_pr_k = cumsum(n / nrow(d))) %>% 
+  mutate(discrete_probability = ifelse(response == 1, cum_pr_k, cum_pr_k - pr_k))
+
+# annotation
+text <-
+  tibble(text     = 1:7,
+         response = seq(from = 1.25, to = 7.25, by = 1),
+         cum_pr_k = d_plot$cum_pr_k - .065)
 
 d_plot %>% 
   ggplot(aes(x = response, y = cum_pr_k,
@@ -1009,21 +1017,14 @@ d_plot %>%
              size = 2.5, stroke = 1) +
   geom_linerange(aes(ymin = 0, ymax = cum_pr_k),
                  alpha = 1/2, color = canva_pal("Green fields")(4)[1]) +
-  # there must be more elegant ways to do this part
-  geom_linerange(data = . %>% 
-                   mutate(discrete_probability =
-                            ifelse(response == 1, cum_pr_k,
-                                   cum_pr_k - pr_k)),
-                 aes(x = response + .025,
+  geom_linerange(aes(x = response + .025,
                      ymin = ifelse(response == 1, 0, discrete_probability), 
                      ymax = cum_pr_k),
                  color = "black") +
-  geom_text(data = tibble(
-    text     = 1:7,
-    response = seq(from = 1.25, to = 7.25, by = 1),
-    cum_pr_k = d_plot$cum_pr_k - .065
-  ), aes(label = text),
-  size = 4) +
+  # number annotation
+  geom_text(data = text, 
+            aes(label = text),
+            size = 4) +
   scale_fill_gradient(low = canva_pal("Green fields")(4)[4],
                       high = canva_pal("Green fields")(4)[1]) +
   scale_color_gradient(low = canva_pal("Green fields")(4)[4],
@@ -1089,7 +1090,7 @@ b12.4 %>%
 
 But recall that the posterior $SD$ (i.e., the 'Est.Error' values) are not valid using that approach. If you really care about them, you'll need to work with the `posterior_samples()`.
 
-```{r}
+```{r, message = F}
 posterior_samples(b12.4) %>% 
   mutate_all(inv_logit_scaled) %>% 
   pivot_longer(starts_with("b_")) %>% 
