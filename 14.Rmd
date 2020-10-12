@@ -290,7 +290,7 @@ crossing(k   = 2:5,
   facet_wrap(~strip, labeller = label_parsed, ncol = 4)
 ```
 
-To learn more about this plotting method, check out Kay's [-@kayMarginalDistributionSingle2020] [*Marginal distribution of a single correlation from an LKJ distribution*](https://mjskay.github.io/ggdist/reference/lkjcorr_marginal.html). To get a better intuition what that plot means, check out the illuminating blog post by [Stephen Martin](https://twitter.com/smartin2018), (*Is the LKJ(1) prior uniform? "Yes"*)[http://srmart.in/is-the-lkj1-prior-uniform-yes/].
+To learn more about this plotting method, check out Kay's [-@kayMarginalDistributionSingle2020] [*Marginal distribution of a single correlation from an LKJ distribution*](https://mjskay.github.io/ggdist/reference/lkjcorr_marginal.html). To get a better intuition what that plot means, check out the illuminating blog post by [Stephen Martin](https://twitter.com/smartin2018), [*Is the LKJ(1) prior uniform? "Yes"*](http://srmart.in/is-the-lkj1-prior-uniform-yes/).
 
 Okay, let's get ready to model and switch out **rethinking** for **brms**.
 
