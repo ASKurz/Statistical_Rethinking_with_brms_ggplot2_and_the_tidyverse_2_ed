@@ -27,6 +27,7 @@ Indeed.
 Gelman and Loken [-@gelmanGardenForkingPaths2013] wrote a [great paper of a similar name](https://stat.columbia.edu/~gelman/research/unpublished/p_hacking.pdf) and topic. The titles from this section and Gelman and Loken's paper have their origins in the short story by [Jorge Luis Borges](https://en.wikipedia.org/wiki/Jorge_Luis_Borges) [-@borgesjlJardinSenderosQue1941], *The garden of forking paths*. You can find copies of the original short story [here](https://archive.org/stream/TheGardenOfForkingPathsJorgeLuisBorges1941/The-Garden-of-Forking-Paths-Jorge-Luis-Borges-1941_djvu.txt) or [here](https://genius.com/Jorge-luis-borges-the-garden-of-forking-paths-annotated). Here's a snip:
 
 > In all fictional works, each time a man is confronted with several alternatives, he chooses one and eliminates the others; in the fiction of Ts'ui Pên, he chooses--simultaneously--all of them. He creates, in this way, diverse futures, diverse times which themselves also proliferate and fork.
+
 The choices we make in our data analyses proliferate and fork in this way, too.
 
 ### Counting possibilities.
@@ -494,7 +495,7 @@ To learn more about `dplyr::select()` and `dplyr::rename()`, check out Baert's e
 
 #### Rethinking: Original ignorance. 
 
-> Which assumption should we use, when there is no previous infor- mation about the conjectures? The most common solution is to assign an equal number of ways that each conjecture could be correct, before seeing any data. This is sometimes known as the **principle of indifference**: When there is no reason to say that one conjecture is more plausible than another, weigh all of the conjectures equally. This book does not use nor endorse "ignorance" priors. As we'll see in later chapters, the structure of the model and the scientific context always provide information that allows us to do better than ignorance. (p. 26, **emphasis** in the original)
+> Which assumption should we use, when there is no previous information about the conjectures? The most common solution is to assign an equal number of ways that each conjecture could be correct, before seeing any data. This is sometimes known as the **principle of indifference**: When there is no reason to say that one conjecture is more plausible than another, weigh all of the conjectures equally. This book does not use nor endorse "ignorance" priors. As we'll see in later chapters, the structure of the model and the scientific context always provide information that allows us to do better than ignorance. (p. 26, **emphasis** in the original)
 
 ### From counts to probability.
 
@@ -609,25 +610,27 @@ d %>%
   facet_wrap(~strip, scales = "free_y")
 ```
 
-If it wasn't clear in the code, the dashed curves are normalized prior densities. The solid ones are normalized likelihoods. If you don't normalize (i.e., divide the density by the sum of the density), their respective heights don't match up with those in the text. Furthermore, it’s the normalization that makes them directly comparable. 
+If it wasn't clear in the code, the dashed curves are normalized prior densities. The solid ones are normalized likelihoods. If you don't normalize (i.e., divide the density by the sum of the density), their respective heights don't match up with those in the text. Furthermore, it’s the normalization that makes them directly comparable.
 
 To learn more about `dplyr::group_by()` and its opposite `dplyr::ungroup()`, check out [*R4DS*, Chapter 5](http://r4ds.had.co.nz/transform.html). To learn about `tidyr::expand()`, go [here](https://tidyr.tidyverse.org/reference/expand.html).
 
 #### Rethinking: Sample size and reliable inference. 
 
-> It is common to hear that there is a minimum num- ber of observations for a useful statistical estimate. For example, there is a widespread superstition that 30 observations are needed before one can use a Gaussian distribution. Why? In non-Bayesian statistical inference, procedures are often justified by the method's behavior at very large sample sizes, so-called *asymptotic* behavior. As a result, performance at small samples sizes is questionable.
+> It is common to hear that there is a minimum number of observations for a useful statistical estimate. For example, there is a widespread superstition that 30 observations are needed before one can use a Gaussian distribution. Why? In non-Bayesian statistical inference, procedures are often justified by the method's behavior at very large sample sizes, so-called asymptotic behavior. As a result, performance at small samples sizes is questionable.
 >
-> In contrast, Bayesian estimates are valid for any sample size. This does not mean that more data isn’t helpful--it certainly is. Rather, the estimates have a clear and valid interpretation, no matter the sample size. But the price for this power is dependency upon the initial plausibilities, the prior. If the prior is a bad one, then the resulting inference will be misleading. There's no free lunch,44 when it comes to learning about the world. (p. 31, *emphasis* in the original)
+> In contrast, Bayesian estimates are valid for any sample size. This does not mean that more data isn't helpful--it certainly is. Rather, the estimates have a clear and valid interpretation, no matter the sample size. But the price for this power is dependency upon the initial plausibilities, the prior. If the prior is a bad one, then the resulting inference will be misleading. There's no free lunch, when it comes to learning about the world. (p. 31, *emphasis* in the original)
 
 ### Evaluate.
 
 > The Bayesian model learns in a way that is demonstrably optimal, provided that it accurately describes the real, large world. This is to say that your Bayesian machine guarantees perfect inference within the small world. No other way of using the available information, beginning with the same state of information, could do better.
 >
-> Don’t get too excited about this logical virtue, however. The calculations may malfunction, so results always have to be checked. And if there are important differences between the model and reality, then there is no logical guarantee of large world performance. And even if the two worlds did match, any particular sample of data could still be misleading. (p. 31)
+> Don't get too excited about this logical virtue, however. The calculations may malfunction, so results always have to be checked. And if there are important differences between the model and reality, then there is no logical guarantee of large world performance. And even if the two worlds did match, any particular sample of data could still be misleading. (p. 31)
 
 #### Rethinking: Deflationary statistics.
 
 > It may be that Bayesian inference is the best general purpose method of inference known. However, Bayesian inference is much less powerful than we'd like it to be. There is no approach to inference that provides universal guarantees. No branch of applied mathematics has unfettered access to reality, because math is not discovered, like the proton. Instead it is invented, like the shovel. (p. 32)
+
+This stance brushes up against what is sometimes called *mathematical platonism*, which is a position I suspect is causally held among many scientists and laypersons, alike. For more on the topic, check out *Platonism in the philosophy of mathematics* [@linneboPlatonismPhilosophyMathematics2018].
 
 ## Components of the model
 
@@ -649,8 +652,7 @@ We can sum up the components of the model as three things:
 
 #### Observed variables.
 
-> So that we don’t have to literally count, we can use a mathematical function that tells
-us the right plausibility. In conventional statistics, a distribution function assigned to an observed variable is usually called a **likelihood**. (p. 33, **emphasis** in the original)
+> So that we don't have to literally count, we can use a mathematical function that tells us the right plausibility. In conventional statistics, a distribution function assigned to an observed variable is usually called a **likelihood**. (p. 33, **emphasis** in the original)
 
 If you let the count of water be $w$ and the count of land be $l$, then the binomial likelihood for the globe-tossing data may be expressed as
 
@@ -673,9 +675,13 @@ tibble(prob = seq(from = 0, to = 1, by = .01)) %>%
   theme(panel.grid = element_blank())
 ```
 
+##### Overthinking: Names and probability distributions. 
+
+> The "`d`" in `dbinom` stands for *density*. Functions named in this way almost always have corresponding partners that begin with "`r`" for random samples and that begin with "`p`" for cumulative probabilities. See for example the help `?dbinom`. (p. 34, *emphasis* in the original)
+
 #### Unobserved variables.
 
-> The distributions we assign to the observed variables typically have their own variables. In the binomial above, there is $p$, the probability of sampling water. Since $p$ is not observed, we usually call it a parameter. Even though we cannot observe $p$, we still have to define it. (p. 34)
+> The distributions we assign to the observed variables typically have their own variables. In the binomial above, there is $pv, the probability of sampling water. Since $p$ is not observed, we usually call it a **parameter**. Even though we cannot observe $p$, we still have to define it. (p. 34, **emphasis** in the original)
 
 #### Overthinking: Prior as a probability distribution
 
@@ -706,7 +712,7 @@ tibble(a = 0,
   facet_wrap(~b, ncol = 5)
 ```
 
-As we'll learn much later in the project, the $\operatorname{Uniform} (0, 1)$ distribution is special in that we can also express it as the beta distribution for which $\alpha = 1 \text{ and } \beta = 1$. E.g.,
+As we'll learn much later in the project, the $\operatorname{Uniform}(0, 1)$ distribution is special in that we can also express it as the beta distribution for which $\alpha = 1 \text{ and } \beta = 1$. E.g.,
 
 ```{r, fig.width = 2.5, fig.height = 2}
 tibble(parameter_space = seq(from = 0, to = 1, length.out = 50)) %>% 
@@ -729,11 +735,11 @@ For more in this topic, check out McElreath's lecture, [*Understanding Bayesian 
 
 We can now describe our observed variables, $w$ and $l$, with parameters within the binomial likelihood, our shorthand notation for which is
 
-$$w \sim \operatorname{Binomial} (n, p),$$
+$$w \sim \operatorname{Binomial}(n, p),$$
 
 where $n = w + l$. Our binomial likelihood contains a parameter for an unobserved variable, $p$. Parameters in Bayesian models are assigned priors and we can report our prior for $p$ as
 
-$$p \sim \operatorname{Uniform} (0, 1),$$
+$$p \sim \operatorname{Uniform}(0, 1),$$
 
 which expresses the model assumption that the entire range of possible values for $p$, $[0, 1$, are equally plausible. 
 
@@ -743,11 +749,11 @@ which expresses the model assumption that the entire range of possible values fo
 
 ### Bayes' theorem.
 
-We already know about our values for $w$, $l$, and, by logical necessity, $n$. Bayes' theorem will allow us to determine the plausability of various values of $p$, given $w$ and $l$, which we can express formally as $\operatorname{Pr} (p | w, l)$. Building on some of the earlier equations on page 37, Bayes' theorem tells us that
+We already know about our values for $w$, $l$, and, by logical necessity, $n$. Bayes' theorem will allow us to determine the plausability of various values of $p$, given $w$ and $l$, which we can express formally as $\operatorname{Pr}(p | w, l)$. Building on some of the earlier equations on page 37, Bayes' theorem tells us that
 
-$$\operatorname{Pr} (p | w, l) = \frac{\operatorname{Pr} (w, l | p) \operatorname{Pr} (p )}{\operatorname{Pr} (w, l)}.$$
+$$\operatorname{Pr}(p | w, l) = \frac{\operatorname{Pr}(w, l | p) \operatorname{Pr}(p )}{\operatorname{Pr}(w, l)}.$$
 
-> And this is Bayes' theorem. It says that the probability of any particular value of $p$, considering the data, is equal to the product of the relative plausibility of the data, conditional on $p$, and the prior plausibility of $p$, divided by this thing Pr(W, L), which I’ll call the *average probability of the data*. (p. 37, *emphasis* in the original) 
+> And this is Bayes' theorem. It says that the probability of any particular value of $p$, considering the data, is equal to the product of the relative plausibility of the data, conditional on $p$, and the prior plausibility of $p$, divided by this thing $\operatorname{Pr}(W, L)$, which I’ll call the *average probability of the data*. (p. 37, *emphasis* in the original) 
 
 We can express this in words as
 
@@ -832,15 +838,15 @@ Also, to learn all about `dplyr::filter()`, check out Baert's [*Data wrangling p
 >
 > There are many other engines, and new ones are being invented all the time. But the three you'll get to know here are common and widely useful. (p. 39)
 
-In this translation of McElreath's text, we will get a little practice with grid approximation and the quadratic approximation. But since our aim is to practice with **brms**, we'll jump rather quickly into MCMC. This will be awkward at times because it will force us to contend with technical issues in earlier problems in the text than McElreath originally did. I'll do what I can to bridge the pedagogical gaps.
+`r emo::ji("warning")` In this translation of McElreath's text, we will get a little practice with grid approximation and the quadratic approximation. But since our aim is to practice with **brms**, we'll jump rather quickly into MCMC. This will be awkward at times because it will force us to contend with technical issues in earlier problems in the text than McElreath originally did. I'll do what I can to bridge the pedagogical gaps.
 
 ### Grid approximation.
 
-Continuing on with our globe-tossing example, 
+Continuing on with our globe-tossing example,
 
 > at any particular value of a parameter, $p'$ , it's a simple matter to compute the posterior probability: just multiply the prior probability of $p'$ by the likelihood at $p'$. Repeating this procedure for each value in the grid generates an approximate picture of the exact posterior distribution. This procedure is called **grid approximation**. (pp. 39--40, **emphasis** in the original)
 
-We just employed grid approximation over the last figure. To get nice smooth lines, we computed the posterior over 1000 evenly-spaced points on the probability space. Here we'll prepare for Figure 2.7 with 20.
+We just employed grid approximation over the last figure. To get nice smooth lines, we computed the posterior over 1,000 evenly-spaced points on the probability space. Here we'll prepare for Figure 2.7 with 20.
 
 ```{r}
 (
@@ -892,14 +898,14 @@ Here we combine them and plot!
 p2 + p1 + plot_annotation(title = "More grid points make for smoother approximations")
 ```
 
-In his **R** code 2.5 box, McElreath encourages us to redo those plots with the two new kinds of priors.
+In his **R** code 2.5 box, McElreath encouraged us to redo those plots with the two new kinds of priors.
 
 ```{r, eval = F}
 prior <- ifelse( p_grid < 0.5 , 0 , 1 ) 
 prior <- exp( -5*abs( p_grid - 0.5 ) )
 ```
 
-Here’s a condensed way to make the four plots all at once.
+Here's a condensed way to make the four plots all at once.
 
 ```{r, fig.width = 6, fig.height = 5}
 # make the data
@@ -1008,13 +1014,13 @@ tibble(w = c(6, 12, 24),
 
 #### Rethinking: Maximum likelihood estimation. 
 
-> The quadratic approximation, either with a uniform prior or with a lot of data, is often equivalent to a **maximum likelihood estimate** (MLE) and its **standard error**. The MLE is a very common non-Bayesian parameter estimate. This correspon- dence between a Bayesian approximation and a common non-Bayesian estimator is both a blessing and a curse. It is a blessing, because it allows us to re-interpret a wide range of published non-Bayesian model fits in Bayesian terms. It is a curse, because maximum likelihood estimates have some curious drawbacks, and the quadratic approximation can share them. (p. 44, **emphasis**, in the original)
+> The quadratic approximation, either with a uniform prior or with a lot of data, is often equivalent to a **maximum likelihood estimate** (MLE) and its **standard error**. The MLE is a very common non-Bayesian parameter estimate. This correspondence between a Bayesian approximation and a common non-Bayesian estimator is both a blessing and a curse. It is a blessing, because it allows us to re-interpret a wide range of published non-Bayesian model fits in Bayesian terms. It is a curse, because maximum likelihood estimates have some curious drawbacks, and the quadratic approximation can share them. (p. 44, **emphasis**, in the original)
 
 Textbooks highlighting the maximum likelihood method for the generalized linear model abound. If this is new to you and you'd like to learn more, perhaps check out Linger and Roback's [-@leglerBroadeningYourStatistical2019] [*Broadening your statistical horizons: Generalized linear models and multilevel models*](https://bookdown.org/roback/bookdown-bysh/), Agresti's [-@agrestiFoundationsLinearGeneralized2015] [*Foundations of linear and generalized linear models*](https://www.wiley.com/en-us/Foundations+of+Linear+and+Generalized+Linear+Models-p-9781118730034) or Dunn and Smyth's [-@dunn2018generalized] [*Generalized linear models with examples in R*](https://link.springer.com/book/10.1007/978-1-4419-0118-7).
 
 ### Markov chain Monte Carlo.
 
-> The most popular [alternative to grid approximation and the quadratic approximation] is **Markov chain Monte Carlo** (MCMC), which is a family of conditioning engines capable of handling highly complex models. It is fair to say that MCMC is largely responsible for the insurgence of Bayesian data analysis that began in the 1990s. While MCMC is older than the 1990s, affordable computer power is not, so we must also thank the en- gineers. ~~Much later in the book (Chapter 9)~~, you'll meet simple and precise examples of MCMC model fitting, aimed at helping you understand the technique. (p. 45, **emphasis** in the original)
+> The most popular [alternative to grid approximation and the quadratic approximation] is **Markov chain Monte Carlo** (MCMC), which is a family of conditioning engines capable of handling highly complex models. It is fair to say that MCMC is largely responsible for the insurgence of Bayesian data analysis that began in the 1990s. While MCMC is older than the 1990s, affordable computer power is not, so we must also thank the engineers. ~~Much later in the book (Chapter 9)~~, you'll meet simple and precise examples of MCMC model fitting, aimed at helping you understand the technique. (p. 45, **emphasis** in the original)
 
 The **brms** package uses a version of MCMC to fit Bayesian models. Since one of the main goals of this project is to highlight **brms**, we may as fit a model. This seems like an appropriately named subsection to do so. First we'll have to load the package.
 
@@ -1024,7 +1030,7 @@ library(brms)
 
 If you haven't already installed **brms**, you can find instructions on how to do so [here](https://github.com/paul-buerkner/brms#how-do-i-install-brms).
 
-Here we re-fit the last model from above, the one for which $w = 24$ and $n = 36$. 
+Here we re-fit the last model from above, the one for which $w = 24$ and $n = 36$.
 
 ```{r b2.1}
 b2.1 <-
@@ -1044,7 +1050,7 @@ The model output from **brms** looks like so.
 print(b2.1)
 ```
 
-There's a lot going on in that output, which we'll start to clarify in Chapter 4. For now, focus on the 'Intercept' line. As we'll also learn in Chapter 4, the intercept of a regression model with no predictors is the same as its mean. In the special case of a model using the binomial likelihood, the mean is the probability of a 1 in a given trial, $\theta$.
+There's a lot going on in that output, which we'll start to clarify in [Chapter 4][Geocentric Models]. For now, focus on the 'Intercept' line. As we'll also learn in Chapter 4, the intercept of a regression model with no predictors is the same as its mean. In the special case of a model using the binomial likelihood, the mean is the probability of a 1 in a given trial, $\theta$.
  
 Also, with **brms**, there are many ways to summarize the results of a model. The `brms::posterior_summary()` function is an analogue to `rethinking::precis()`. We will, however, need to use `round()` to reduce the output to a reasonable number of decimal places.
 
@@ -1066,7 +1072,7 @@ posterior_samples(b2.1) %>%
   facet_wrap(~n)
 ```
 
-If you're still confused. Cool. This is just a preview. We'll start walking through fitting models with **brms** in [Chapter 4][Geocentric models] and we'll learn a lot about regression with the binomial likelihood in Chapter 11.
+If you're still confused. Cool. This is just a preview. We'll start walking through fitting models with **brms** in [Chapter 4][Geocentric models] and we'll learn a lot about regression with the binomial likelihood in [Chapter 11][God Spiked the Integers].
 
 ## Session info {-}
 
