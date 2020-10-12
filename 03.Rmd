@@ -80,7 +80,7 @@ samples <-
 glimpse(samples)
 ```
 
-Now we can plot theleft panel of Figure 3.1 with `geom_point()`. But before we do, we'll need to add a variable numbering the samples.
+Now we can plot the left panel of Figure 3.1 with `geom_point()`. But before we do, we'll need to add a variable numbering the samples.
 
 ```{r, fig.width = 3.5, fig.height = 3}
 samples %>% 
@@ -154,7 +154,7 @@ samples %>%
   summarise(sum = mean(p_grid < .5))
 ```
 
-Much like McElreath discussed in the **Overthinking: Counting with** `sum` box, this works "because R internally converts a logical expression, like `samples < 0/5`, to a vector of `TRUE` and `FALSE` results, one for each element of `samples`, saying whether or not each element matches the criterion" (p. 54). When we inserted that vector of `TRUE` and `FALSE` values within the `mean()` function, they were then internally converted to a vector of 1s and 0s, the mean of which was the probability. Tricky!
+Much like McElreath discussed in the **Overthinking: Counting with `sum`** box, this works "because R internally converts a logical expression, like `samples < 0.5`, to a vector of `TRUE` and `FALSE` results, one for each element of `samples`, saying whether or not each element matches the criterion" (p. 54). When we inserted that vector of `TRUE` and `FALSE` values within the `mean()` function, they were then internally converted to a vector of 1's and 0's, the mean of which was the probability. Tricky!
 
 To determine the posterior probability between 0.5 and 0.75, you can use `&` within `filter()`.
 
@@ -431,9 +431,9 @@ new_d %>%
 
 Be warned:
 
-> The HPDI also has some disadvantages. HPDI is more computationally intensive than PI and suffers from greater *simulation variance*, which is a fancy way of saying that it is sensitive to how many samples you draw from the posterior. It is also harder to understand and many scientific audiences will not appreciate its features, while they will immediately understand a percentile interval, as ordinary non-Bayesian intervals are typically interpreted (incorrectly) as percentile intervals. (pp. 57--58, *emphasis* in the original)
+> The HPDI also has some disadvantages. HPDI is more computationally intensive than PI and suffers from greater *simulation variance*, which is a fancy way of saying that it is sensitive to how many samples you draw from the posterior. It is also harder to understand and many scientific audiences will not appreciate its features, while they will immediately understand a percentile interval, as ordinary non-Bayesian intervals are typically interpreted (incorrectly) as percentile intervals (pp. 57--58, *emphasis* in the original)
 
-For convenience, we'll primarily stick to the PI-based intervals in this project.
+For convenience, we'll primarily stick to the PI-based intervals in this ebook.
 
 #### Rethinking: What do compatibility intervals mean?
 
@@ -565,7 +565,7 @@ samples %>%
 The quadratic loss $(d - p)^2$ suggests we should use the mean instead. Let's investigate.
 
 ```{r, fig.width = 3.5, fig.height = 3}
-# ammend our loss function
+# amend our loss function
 make_loss <- function(our_d) {
   d %>% 
     mutate(loss = posterior * (our_d - p_grid)^2) %>% 
@@ -604,7 +604,7 @@ samples %>%
   summarise(posterior_meaan = mean(p_grid))
 ```
 
-> Usually, research scientists don't think about loss functions. And so any point estimate like the mean or MAP that they may report isn’t intended to support any particular decision, but rather to describe the shape of the posterior. You might argue that the decision to make is whether or not to accept an hypothesis. But the challenge then is to say what the relevant costs and benefits would be, in terms of the knowledge gained or lost. Usually it's better to communicate as much as you can about the posterior distribution, as well as the data and the model itself, so that others can build upon your work. Premature decisions to accept or reject hypotheses can cost lives. (p. 61)
+> Usually, research scientists don't think about loss functions. And so any point estimate like the mean or MAP that they may report isn't intended to support any particular decision, but rather to describe the shape of the posterior. You might argue that the decision to make is whether or not to accept an hypothesis. But the challenge then is to say what the relevant costs and benefits would be, in terms of the knowledge gained or lost. Usually it's better to communicate as much as you can about the posterior distribution, as well as the data and the model itself, so that others can build upon your work. Premature decisions to accept or reject hypotheses can cost lives. (p. 61)
 
 In the endnote (62) linked to the end of that quote in the text, McElreath wrote: "See @hauerHarmDoneTests2004 for three tales from transportation safety in which testing resulted in premature incorrect decisions and a demonstrable and continuing loss of human life" (p. 561).
 
@@ -735,7 +735,7 @@ If you'd like to dive deeper into these dark waters, check out one my favorite t
 
 > The implied predictions of the model are uncertain in two ways, and it's important to be aware of both.
 >
-> First, there is observation uncertainty. For any unique value of the parameter $p$, there is a unique implied pattern of observations that the model expects. These patterns of observations are the same gardens of forking data that you explored in the previous chapter. These patterns are also what you sampled in the previous section. There is uncertainty in the predicted observations, because even if you know p with certainty, you won’t know the next globe toss with certainty (unless $p = 0$ or $p = 1$).
+> First, there is observation uncertainty. For any unique value of the parameter $p$, there is a unique implied pattern of observations that the model expects. These patterns of observations are the same gardens of forking data that you explored in the previous chapter. These patterns are also what you sampled in the previous section. There is uncertainty in the predicted observations, because even if you know $p$ with certainty, you won’t know the next globe toss with certainty (unless $p = 0$ or $p = 1$).
 >
 > Second, there is uncertainty about $p$. The posterior distribution over $p$ embodies this uncertainty. And since there is uncertainty about $p$, there is uncertainty about everything that depends upon $p$. The uncertainty in $p$ will interact with the sampling variation, when we try to assess what the model tells us about outcomes.
 >
@@ -851,7 +851,7 @@ samples %>%
   theme(panel.grid = element_blank())
 ```
 
-In Figure 3.7, McElreath considered the longst sequence of the sampe values. We've been using `rbinom()` with the size parameter set to 9 for our simulations. E.g.,
+In Figure 3.7, McElreath considered the longest sequence of the sample values. We've been using `rbinom()` with the size parameter set to 9 for our simulations. E.g.,
 
 ```{r}
 rbinom(10, size = 9, prob = .6)
@@ -900,7 +900,7 @@ rle(tosses)$lengths %>% max()
 
 Now let's apply our method to the data and plot.
 
-```{r, fig.width = 3.5, fig.height = 3}
+```{r, fig.width = 3.5, fig.height = 3, message = F}
 samples %>% 
   group_by(iter) %>% 
   summarise(longest_run_length = rle(draws)$lengths %>% max()) %>% 
