@@ -434,7 +434,7 @@ p1 | p2
 
 Because we simulated, our values won't match up identically with those in the text. We got pretty close, eh?
 
-Since we saved our `sim_p()` output in a nested tibble, which we then `unnested()`, there's no need to separate the entropy values from the distributional values the way McElreath did in his **R** code 10.11. If we wanted to determine our highest entropy value--and the corresponding `seed` and `p` values, while we're at it--, we might use `max(h)` within `slice()`.
+Since we saved our `sim_p()` output in a nested tibble, which we then `unnested()`, there's no need to separate the entropy values from the distributional values the way McElreath did in his **R** code 10.11. If we wanted to determine our highest entropy value--and the corresponding `seed` and `p` values, while we're at it--, we might execute something like this.
 
 ```{r}
 ranked_d %>% 
