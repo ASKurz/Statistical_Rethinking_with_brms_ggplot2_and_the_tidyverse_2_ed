@@ -2269,10 +2269,10 @@ In the social sciences, a typical way to analyze data like these is with a multi
 We want a model that can capture all these kinds of variation. Eventually, we will fit a model that accounts for both PA and NA. But to keep things simple while we're warming up, we will restrict our focus to NA. If we let $\text{NA}_{ij}$ be the standardized NA score for the $i$th participant on the $j$th day, our first Bayesian multilevel growth model will follow the form
 
 \begin{align*}
-\text{NA}_{ij} & \sim \operatorname{Normal}\begin{pmatrix} \mu_{ij}, \sigma \end{pmatrix} \\
-\mu_{ij}       & = \beta_0 + \beta_1 \text{time}_{ij} + u_{0i} + u_{1i} \text{time}_{ij} \\
+\text{NA}_{ij} & \sim \operatorname{Normal}(\mu_{ij}, \sigma) \\
+\mu_{ij}       & = \beta_0 + \beta_1 \text{time}_{ij} + \color{#A65141}{u_{0i} + u_{1i} \text{time}_{ij}} \\
 \sigma & = \sigma_\epsilon \\
-\begin{bmatrix} u_{0i} \\ u_{1i} \end{bmatrix} & \sim \operatorname{MVNormal}\begin{pmatrix} \begin{bmatrix} 0 \\ 0 \end{bmatrix}, \mathbf S \mathbf R \mathbf S \end{pmatrix} \\
+\color{#A65141}{\begin{bmatrix} u_{0i} \\ u_{1i} \end{bmatrix}} & \color{#A65141}\sim \color{#A65141}{\operatorname{MVNormal}\begin{pmatrix} \begin{bmatrix} 0 \\ 0 \end{bmatrix}, \mathbf S \mathbf R \mathbf S \end{pmatrix}} \\
 \mathbf S & = \begin{bmatrix} \sigma_0 & 0 \\ 0 & \sigma_1 \end{bmatrix} \\
 \mathbf R & = \begin{bmatrix} 1 & \rho_{12} \\ \rho_{21} & 1 \end{bmatrix} \\
 \beta_0   & \sim \operatorname{Normal}(0, 0.2) \\
@@ -2382,10 +2382,10 @@ Within the **brms** framework, MELSMs apply a distributional modeling approach [
 To get a sense of what this looks like, we'll augment our previous model, but this time allowing $\sigma_\epsilon$ to vary across participants. You might express the updated statistical model as
 
 \begin{align*}
-\text{NA}_{ij} & \sim \operatorname{Normal}\begin{pmatrix} \mu_{ij}, \sigma_{i} \end{pmatrix} \\
+\text{NA}_{ij} & \sim \operatorname{Normal}(\mu_{ij}, \color{#A65141}{\sigma_{i}})\\
 \mu_{ij} & = \beta_0 + \beta_1 \text{time}_{ij} + u_{0i} + u_{1i} \text{time}_{ij} \\ 
-\log \begin{pmatrix} \sigma_i \end{pmatrix} & = \eta_0 + u_{2i} \\
-\begin{bmatrix} u_{0i} \\ u_{1i} \\ u_{2i} \end{bmatrix} & \sim \operatorname{MVNormal}\begin{pmatrix} \begin{bmatrix} 0 \\ 0 \\ 0 \end{bmatrix}, \mathbf S \mathbf R \mathbf S \end{pmatrix} \\
+\color{#A65141}{\log (\sigma_i )} & \color{#A65141}= \color{#A65141}{\eta_0 + u_{2i}} \\
+\begin{bmatrix} u_{0i} \\ u_{1i} \\ \color{#A65141}{u_{2i}} \end{bmatrix} & \sim \operatorname{MVNormal}\begin{pmatrix} \begin{bmatrix} 0 \\ 0 \\ 0 \end{bmatrix}, \mathbf S \mathbf R \mathbf S \end{pmatrix} \\
 \mathbf S & = \begin{bmatrix} \sigma_0 & 0 & 0 \\ 0 & \sigma_1 & 0 \\ 0 & 0 & \sigma_2 \end{bmatrix} \\
 \mathbf R & = \begin{bmatrix} 1 & \rho_{12} & \rho_{13} \\ \rho_{21} & 1 & \rho_{23} \\ \rho_{31} & \rho_{32} & 1 \end{bmatrix} \\
 \beta_0   & \sim \operatorname{Normal}(0, 0.2) \\
@@ -2480,9 +2480,10 @@ bind_cols(
 That's a big improvement. Let's expand our skill set. Within the MELSM paradigm, one can use multiple variables to model participant-specific variation. Here we'll add in our time variable.
 
 \begin{align*}
-\text{NA}_{ij} & \sim \operatorname{Normal}\begin{pmatrix} \mu_{ij}, \sigma_{ij} \end{pmatrix} \\
-\mu_{ij} & = \beta_0 + \beta_1 \text{time}_{ij} + u_{0i} + u_{1i} \text{time}_{ij} \\ \log \begin{pmatrix} \sigma_{ij} \end{pmatrix} & = \eta_0 + \eta_1 \text{time}_{ij} + u_{2i} + u_{3i} \text{time}_{ij} \\
-\begin{bmatrix} u_{0i} \\ u_{1i} \\ u_{2i} \\ u_{3i} \end{bmatrix} & \sim \operatorname{MVNormal}\begin{pmatrix} \begin{bmatrix} 0 \\ 0 \\ 0 \\ 0 \end{bmatrix}, \mathbf S \mathbf R \mathbf S \end{pmatrix} \\
+\text{NA}_{ij} & \sim \operatorname{Normal}(\mu_{ij}, \color{#A65141}{\sigma_{ij}}) \\
+\mu_{ij} & = \beta_0 + \beta_1 \text{time}_{ij} + u_{0i} + u_{1i} \text{time}_{ij} \\ 
+\log(\sigma_{i\color{#A65141}j}) & = \eta_0 + \color{#A65141}{\eta_1 \text{time}_{ij}} + u_{2i} + \color{#A65141}{u_{3i} \text{time}_{ij}} \\
+\begin{bmatrix} u_{0i} \\ u_{1i} \\ u_{2i} \\ \color{#A65141}{u_{3i}} \end{bmatrix} & \sim \operatorname{MVNormal}\begin{pmatrix} \begin{bmatrix} 0 \\ 0 \\ 0 \\ 0 \end{bmatrix}, \mathbf S \mathbf R \mathbf S \end{pmatrix} \\
 \mathbf S & = \begin{bmatrix} \sigma_0 & 0 & 0 & 0 \\ 0 & \sigma_1 & 0 & 0 \\ 0 & 0 & \sigma_2 & 0 \\ 0 & 0 & 0 & \sigma_3 \end{bmatrix} \\
 \mathbf R & = \begin{bmatrix} 1 & \rho_{12} & \rho_{13} & \rho_{14} \\ \rho_{21} & 1 & \rho_{23} & \rho_{24} \\ \rho_{31} & \rho_{32} & 1 & \rho_{34} \\ \rho_{41} & \rho_{42} & \rho_{43} & 1 \end{bmatrix} \\
 \beta_0   & \sim \operatorname{Normal}(0, 0.2) \\
@@ -2632,13 +2633,13 @@ With respect to $\rho_{31}$, participant 115 showed both a higher intercept and 
 For our final stage in this progression, we will fit what @williamsBayesianMultivariateMixedeffects2019a called a M-MELSM, a multivariate mixed-effects location scale model. Recall these data have measures of both negative and positive affect. The standardized values for PA are waiting for us in the `P_A.std` column. Within the **brms** framework, this is a combination of sensibilities from Bürkner's vignettes on distributional models [@Bürkner2020Distributional] and multivariate models [@Bürkner2020Multivariate]. We might express the statistical model as
 
 \begin{align*}
-\begin{bmatrix} \text{NA}_{ij} \\ \text{PA}_{ij} \end{bmatrix} & \sim \operatorname{MVNormal}\begin{pmatrix} \begin{bmatrix} 
-\mu_{ij}^\text{NA} \\ \mu_{ij}^\text{PA} \end{bmatrix}, \mathbf \Sigma \end{pmatrix} \\
+\color{#A65141}{\begin{bmatrix} \text{NA}_{ij} \\ \text{PA}_{ij} \end{bmatrix}} & \color{#A65141}\sim \color{#A65141}{\operatorname{MVNormal}\begin{pmatrix} \begin{bmatrix} 
+\mu_{ij}^\text{NA} \\ \mu_{ij}^\text{PA} \end{bmatrix}, \mathbf \Sigma \end{pmatrix}} \\
 
-\mu_{ij}^\text{NA} & = \beta_0^\text{NA} + \beta_1^\text{NA} \text{time}_{ij} + u_{0i}^\text{NA} + u_{1i}^\text{NA} \\
-\mu_{ij}^\text{PA} & = \beta_0^\text{PA} + \beta_1^\text{PA} \text{time}_{ij} + u_{0i}^\text{PA} + u_{1i}^\text{PA} \\
-\log \begin{pmatrix} \sigma_{ij}^\text{NA} \end{pmatrix} & = \eta_0^\text{NA} + \eta_1^\text{NA} \text{time}_{ij} + u_{2i}^\text{NA} + u_{3i}^\text{NA} \\
-\log \begin{pmatrix} \sigma_{ij}^\text{PA} \end{pmatrix} & = \eta_0^\text{PA} + \eta_1^\text{PA} \text{time}_{ij} + u_{2i}^\text{PA} + u_{3i}^\text{PA}  \\
+\mu_{ij}^{\color{#A65141}{\text{NA}}} & = \beta_0^\text{NA} + \beta_1^\text{NA} \text{time}_{ij} + u_{0i}^\text{NA} + u_{1i}^\text{NA} \\
+\mu_{ij}^{\color{#A65141}{\text{PA}}} & = \beta_0^\text{PA} + \beta_1^\text{PA} \text{time}_{ij} + u_{0i}^\text{PA} + u_{1i}^\text{PA} \\
+\log \left ( \sigma_{ij}^{\color{#A65141}{\text{NA}}} \right ) & = \eta_0^\text{NA} + \eta_1^\text{NA} \text{time}_{ij} + u_{2i}^\text{NA} + u_{3i}^\text{NA} \\
+\log \left ( \sigma_{ij}^{\color{#A65141}{\text{PA}}} \right ) & = \eta_0^\text{PA} + \eta_1^\text{PA} \text{time}_{ij} + u_{2i}^\text{PA} + u_{3i}^\text{PA}  \\
 
 \begin{bmatrix} u_{0i}^\text{NA}, u_{1i}^\text{NA}, u_{2i}^\text{NA}, u_{3i}^\text{NA}, u_{0i}^\text{PA}, u_{1i}^\text{PA}, u_{2i}^\text{PA}, u_{3i}^\text{PA} \end{bmatrix}' & \sim \operatorname{MVNormal}(\mathbf 0, \mathbf S \mathbf R \mathbf S) \\
 
