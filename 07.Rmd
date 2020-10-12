@@ -1304,7 +1304,7 @@ b6.7 <- readRDS("fits/b06.07.rds")
 b6.8 <- readRDS("fits/b06.08.rds")
 ```
 
-With our **brms** paradigm, we also use the `waic()` function. [Both the **rethinking** and **brms** packages get their functionality for the `waic()` and related functions from the [**loo** package](https://CRAN.R-project.org/package=loo) [@R-loo; @vehtariPracticalBayesianModel2017; @yaoUsingStackingAverage2018]]. Since the `brms::brm()` function fits the models with HMC, we don't need to set a seed before calling `waic()` the way McElreath did with his `rethinking::quap()` model. We're already drawn from the posterior.
+With our **brms** paradigm, we also use the `waic()` function. [Both the **rethinking** and **brms** packages get their functionality for the `waic()` and related functions from the [**loo** package](https://CRAN.R-project.org/package=loo) [@R-loo; @vehtariPracticalBayesianModel2017; @yaoUsingStackingAverage2018]. Since the `brms::brm()` function fits the models with HMC, we don't need to set a seed before calling `waic()` the way McElreath did with his `rethinking::quap()` model. We're already drawn from the posterior.
 
 ```{r}
 waic(b6.7)
@@ -1757,7 +1757,7 @@ As $\nu \rightarrow \infty$, the standard deviation approaches the scale, $\sigm
 >
 > Fiddling with and constructing many predictor variables is a great way to find coincidences, but not necessarily a great way to evaluate hypotheses. However, fitting many possible models isn't always a dangerous idea, provided some judgment is exercised in weeding down the list of variables at the start. There are two scenarios in which this strategy appears defensible. First, sometimes all one wants to do is explore a set of data, because there are no clear hypotheses to evaluate. This is rightly labeled pejoratively as **data dredging**, when one does not admit to it. But when used together with model averaging, and freely admitted, it can be a way to stimulate future investigation. Second, sometimes we need to convince an audience that we have tried all of the combinations of predictors, because none of the variables seem to help much in prediction. (p. 234, **emphasis** in the original)
 
-## ~~Summary~~Bonus: $R^2$ talk
+## ~~Summary~~ Bonus: $R^2$ talk
 
 At the beginning of the chapter (pp. 193--201), McElreath introduced $R^2$ as a popular way to assess the variance explained in a model. He pooh-poohed it because of its tendency to overfit. It's also limited in that it doesn't generalize well outside of the single-level Gaussian framework, which will be a big deal for us starting in Chapter 10. However, if you should find yourself in a situation where $R^2$ suits your purposes, the **brms** `bayes_R2()` function might be of use. Simply feeding a model `brm()` fit object into `bayes_R2()` will return the posterior mean, $SD$, and 95% intervals. For example:
 
