@@ -206,7 +206,7 @@ But like Ptolemy’s circles within circles, the Gaussian can still be useful ev
 
 We'll dive deeper into why the Gaussian is such a natural expression of ignorance in these contexts when we cover maximum entropy in Chapter 7.
 
-#### Rethinking: Heavy tails. 
+#### Rethinking: Heavy tails.
 
 > The Gaussian distribution is common in nature and has some nice properties. But there are some risks in using it as a default data model. The extreme ends of a distribution are known as its tails. And the Gaussian distribution has some very thin tails--there is very little probability in them. Instead most of the mass in the Gaussian lies within one standard deviation of the mean. Many natural (and unnatural) processes have much heavier tails. (p. 76)
 
@@ -406,13 +406,13 @@ For more on indexing, check out [Chapter 9](https://bookdown.org/rdpeng/rprogdat
 
 This probably reflects my training history, but the structure of a data frame seems natural and inherently appealing. If you're in the other camp, do check out either of these two data wrangling talks ([here](https://www.youtube.com/watch?v=4MfUCX_KpdE&t=23s&frags=pl%2Cwn) and [here](https://www.youtube.com/watch?v=GapSskrtUzU&t=1249s&frags=pl%2Cwn)) by the ineffable [Jenny Bryan](https://twitter.com/JennyBryan).
 
-### The model. 
+### The model.
 
 Please head McElreath's warnings to
 
 > be careful about choosing the Gaussian distribution only when the plotted outcome variable looks Gaussian to you. Gawking at the raw data, to try to decide how to model them, is usually not a good idea. The data could be a mixture of different Gaussian distributions, for example, and in that case you won't be able to detect the underlying normality just by eyeballing the outcome distribution. Furthermore, as mentioned earlier in this chapter, the empirical distribution needn't be actually Gaussian in order to justify using a Gaussian probability distribution. (p. 81)
 
-Anyway, the likelihood for our model is 
+Anyway, the likelihood for our model is
 
 $$\text{heights}_i \sim \operatorname{Normal}(\mu, \sigma),$$
 
@@ -567,7 +567,7 @@ sim %>%
 
 Agreed.
 
-### Grid approximation of the posterior distribution. 
+### Grid approximation of the posterior distribution.
 
 As McElreath explained, you'll never use this for practical data analysis. But I found this helped me better understanding what exactly we're doing with Bayesian estimation. So let's play along.
 
@@ -766,13 +766,11 @@ This is the point in the project where we hop off the grid-approximation train. 
 
 Here we rewrite the statistical model, this time using font color to help differentiate the likelihood from the prior(s).
 
-$$
 \begin{align*}
 \color{red}{\text{heights}_i} & \color{red}\sim \color{red}{\operatorname{Normal}(\mu, \sigma)} && \color{red}{\text{likelihood}} \\
 \color{blue}\mu & \color{blue}\sim \color{blue}{\operatorname{Normal}(178, 20)} && \color{blue}{\text{prior}} \\
 \color{blue}\sigma & \color{blue}\sim \color{blue}{\operatorname{Uniform}(0, 50)}
 \end{align*}
-$$
 
 We won't actually use `rethinking::quap()`. It's time to jump straight to the primary **brms** modeling function, `brm()`. In the text, McElreath indexed his models with names like `m4.1`. I will largely follow that convention, but will replace the *m* with a *b* to stand for the **brms** package. Here's how to fit the first model for this chapter.
 
@@ -836,7 +834,7 @@ b4.2 <-
       height ~ 1,
       prior = c(prior(normal(178, 0.1), class = Intercept),
                 prior(uniform(0, 50), class = sigma)),
-      iter = 3000, warmup = 2000, chains = 4, cores = 4,
+      iter = 2000, warmup = 1000, chains = 4, cores = 4,
       seed = 4,
       file = "fits/b04.02")
 ```
@@ -1017,7 +1015,7 @@ Do note that $(\text{weight}_i - \overline{\text{weight}})$ part. As we'll see, 
 >
 > You'll be making up all manner of parameters as your skills improve. (p. 93)
 
-##### Rethinking: Nothing special or natural about linear models. 
+##### Rethinking: Nothing special or natural about linear models.
 
 > Note that there's nothing special about the linear model, really. You can choose a different relationship between $\alpha$ and $\beta$ and $\mu$. For example, the following is a perfectly legitimate definition for $\mu_i$:
 >
@@ -1155,7 +1153,7 @@ tibble(n = 1:n_lines,
 
 ##### Rethinking: What's the correct prior?
 
-Good luck with that question. Hang around on academic Twitter long enough and you'll see folks debating this. 
+Good luck with that question. Hang around on academic Twitter long enough and you'll see folks debating this.
 
 > This is a mistake. There is no more a uniquely correct prior than there is a uniquely correct likelihood. Statistical models are machines for inference. Many machines will work, but some work better than others. Priors can be wrong, but only in the same sense that a kind of hammer can be wrong for building a table. (p. 96)
 
@@ -1178,11 +1176,11 @@ Unlike with McElreath's **rethinking** package, the `brms::brm()` syntax doesn't
 * $\text{height}_i \sim \operatorname{Normal}(\mu_i, \sigma)$: `family = gaussian`,
 * $\mu_i = \alpha + \beta \text{weight}_i$: `height ~ 1 + weight_c`,
 * $\alpha \sim \operatorname{Normal}(178, 20)$: `prior(normal(178, 20), class = Intercept`,
-* $\beta \sim \operatorname{Log-Normal}(0, 1)$: ` prior(lognormal(0, 1), class = b)`, and
+* $\beta \sim \operatorname{Log-Normal}(0, 1)$: `prior(lognormal(0, 1), class = b)`, and
 * $\sigma \sim \operatorname{Uniform}(0, 50)$: `prior(uniform(0, 50), class = sigma)`.
 
 Thus, to add a predictor you just the `+` operator in the model `formula`.
-      
+
 ```{r b4.3}
 b4.3 <- 
   brm(data = d2, 
@@ -1233,7 +1231,7 @@ b4.3b <-
       prior = c(prior(normal(178, 20), class = b, nlpar = a),
                 prior(normal(0, 1), class = b, nlpar = lb),
                 prior(uniform(0, 50), class = sigma)),
-      iter = 51000, warmup = 50000, chains = 4, cores = 4,
+      iter = 31000, warmup = 30000, chains = 4, cores = 4,
       seed = 4,
       file = "fits/b04.03b")
 ```
@@ -1344,7 +1342,7 @@ b4.3_010 <-
       prior = c(prior(normal(178, 20), class = Intercept),
                 prior(lognormal(0, 1), class = b),
                 prior(uniform(0, 50), class = sigma)),
-      iter = 28000, warmup = 27000, chains = 4, cores = 4,
+      iter = 11000, warmup = 10000, chains = 4, cores = 4,
       seed = 4,
       file = "fits/b04.03_010")
 
@@ -1358,7 +1356,7 @@ b4.3_050 <-
       prior = c(prior(normal(178, 20), class = Intercept),
                 prior(lognormal(0, 1), class = b),
                 prior(uniform(0, 50), class = sigma)),
-      iter = 28000, warmup = 27000, chains = 4, cores = 4,
+      iter = 11000, warmup = 10000, chains = 4, cores = 4,
       seed = 4,
       file = "fits/b04.03_050")
 
@@ -1372,7 +1370,7 @@ b4.3_150 <-
       prior = c(prior(normal(178, 20), class = Intercept),
                 prior(lognormal(0, 1), class = b),
                 prior(uniform(0, 50), class = sigma)),
-      iter = 28000, warmup = 27000, chains = 4, cores = 4,
+      iter = 21000, warmup = 20000, chains = 4, cores = 4,
       seed = 4,
       file = "fits/b04.03_150")
 
@@ -2215,7 +2213,7 @@ tibble(x = seq(from = 0, to = 10, by = 0.1)) %>%
 
 Fit the model with `quap()`.
 
-```{r}
+```{r m4.7}
 m4.7 <- quap( 
   alist(
     D ~ dnorm(mu, sigma), 
@@ -2451,7 +2449,7 @@ b4.8_bs <-
                 prior(exponential(1), class = sigma)),
       iter = 2000, warmup = 1000, chains = 4, cores = 4,
       seed = 4,
-      control = list(adapt_delta = .999),
+      control = list(adapt_delta = .99),
       file = "fits/b04.08_bs")
 ```
 
