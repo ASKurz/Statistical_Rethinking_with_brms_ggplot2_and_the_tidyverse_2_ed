@@ -964,10 +964,10 @@ With **brms**, we'll fit the primary model of $w = 6$ and $n = 9$ much like we d
 b3.1 <-
   brm(data = list(w = 6), 
       family = binomial(link = "identity"),
-      w | trials(9) ~ 1,
+      w | trials(9) ~ 0 + Intercept,
       # this is a flat prior
-      prior(beta(1, 1), class = Intercept),
-      control = list(adapt_delta = .999),
+      prior(beta(1, 1), class = b, lb = 0, ub = 1),
+      iter = 5000, warmup = 1000,
       seed = 3,
       file = "fits/b03.01")
 ```
@@ -1026,7 +1026,7 @@ f %>%
                  color = "grey92", size = 1/10) +
   scale_x_continuous("number of water samples",
                      breaks = seq(from = 0, to = 9, by = 3)) +
-  scale_y_continuous(NULL, breaks = NULL, limits = c(0, 1200)) +
+  scale_y_continuous(NULL, breaks = NULL, limits = c(0, 5000)) +
   ggtitle("Posterior predictive distribution") +
   coord_cartesian(xlim = c(0, 9)) +
   theme(panel.grid = element_blank())
