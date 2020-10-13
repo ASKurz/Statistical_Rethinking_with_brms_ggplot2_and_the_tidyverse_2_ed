@@ -1036,10 +1036,8 @@ Here we re-fit the last model from above, the one for which $w = 24$ and $n = 36
 b2.1 <-
   brm(data = list(w = 24), 
       family = binomial(link = "identity"),
-      w | trials(36) ~ 1,
-      prior(beta(1, 1), class = Intercept),
-      iter = 4000, warmup = 1000,
-      control = list(adapt_delta = .95),
+      w | trials(36) ~ 0 + Intercept,
+      prior(beta(1, 1), class = b, lb = 0, ub = 1),
       seed = 2,
       file = "fits/b02.01")
 ```
@@ -1080,11 +1078,11 @@ If you're still confused. Cool. This is just a preview. We'll start walking thro
 sessionInfo()
 ```
 
-```{r, echo = F, warning = F, message = F}
+```{r, echo = F, warning = F, message = F, eval = F}
 rm(d, lines_1, lines_2, n_blue, n_white, t, move_over, ways, sequence_length, p1, p2, p3, globe_qa, globe_qa_18, globe_qa_36, n_grid, b2.1)
 ```
 
-```{r, echo = F, warning = F, message = F, results = "hide"}
+```{r, echo = F, warning = F, message = F, results = "hide", eval = F}
 pacman::p_unload(pacman::p_loaded(), character.only = TRUE)
 ```
 
