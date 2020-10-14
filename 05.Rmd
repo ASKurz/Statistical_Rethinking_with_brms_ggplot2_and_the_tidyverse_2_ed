@@ -14,21 +14,21 @@ options(width = 100)
 
 # The Many Variables & The Spurious Waffles
 
-> Because correlation in general is not surprising. In large data sets, every pair of variables has a statistically discernible non-zero correlation. But since most correlations do not indicate causal relationships, we need tools for distinguishing mere association from evidence of causation. This is why so much effort is devoted to **multiple regression**, using more than one predictor variable to simultaneously model an outcome. [@mcelreathStatisticalRethinkingBayesian2020, p. 124, **emphasis** in the original]
+> Correlation in general is not surprising. In large data sets, every pair of variables has a statistically discernible non-zero correlation. But since most correlations do not indicate causal relationships, we need tools for distinguishing mere association from evidence of causation. This is why so much effort is devoted to **multiple regression**, using more than one predictor variable to simultaneously model an outcome. [@mcelreathStatisticalRethinkingBayesian2020, p. 123, **emphasis** in the original]
 
 In his endnote #80 (p. 562), McElreath wrote: "See @meehlWhySummariesResearch1990, in particular the 'crud factor' described on page 204." For a fun look at some dubious correlations, check out the examples at [https://www.tylervigen.com/spurious-correlations](https://www.tylervigen.com/spurious-correlations).
 
-But back to the text, McElreath's listed reasons for multivaraiable regression include:
+But back to the text, McElreath's listed reasons for multivariable regression include:
 
 * statistical control for confounds
 * multiple/complex causation
 * interactions
 
-We'll approach the first two in this chapter. Interactions are reserved for Chapter 7.
+We'll approach the first two in this chapter. Interactions are reserved for [Chapter 7][Ulysses' Compass].
 
 #### Rethinking: Causal inference.
 
-"Despite its central importance, there is no unified approach to causal inference yet in the sciences or in statistics" (p. 124).  To dip into the topic, you might check out the recent blog post by Finn Lattimore and David Rohde, [*Causal inference with Bayes rule*](https://gradientinstitute.org/blog/6/).
+"Despite its central importance, there is no unified approach to causal inference yet in the sciences" (p. 124).  To dip into the topic, you might check out the recent blog post by Finn Lattimore and David Rohde, [*Causal inference with Bayes rule*](https://gradientinstitute.org/blog/6/).
 
 ## Spurious associations
 
@@ -42,7 +42,7 @@ data(WaffleDivorce)
 d <- WaffleDivorce
 ```
 
-Standardize the focal variables.
+Standardize the focal variables with the `rethinking::standardize()` function.
 
 ```{r}
 d <-
@@ -118,7 +118,7 @@ left_join(
   facet_wrap(~name) 
 ```
 
-One of the advantages of this visualization method is it just became clear that Nevada is missing from the WaffleDivorce data. Execute `d %>% distinct(Location)` to see for yourself and click [here](https://github.com/rmcelreath/rethinking/issues/62) to find out why it's missing. Those missing data should motivate the skills we’ll cover in Chapter 15. But let's get back on track.
+One of the advantages of this visualization method is it just became clear that Nevada is missing from the WaffleDivorce data. Execute `d %>% distinct(Location)` to see for yourself and click [here](https://github.com/rmcelreath/rethinking/issues/62) to find out why it's missing. Those missing data should motivate the skills we'll cover in Chapter 15. But let's get back on track.
 
 Here's the standard deviation for `MedianAgeMarriage` in its current metric.
 
@@ -142,7 +142,6 @@ d <-
 
 Our first statistical model follows the form
 
-$$
 \begin{align*}
 \text{divorce_std}_i & \sim \operatorname{Normal}(\mu_i, \sigma) \\
 \mu_i   & = \alpha + \beta_1 \text{median_age_at_marriage_std}_i \\
@@ -150,7 +149,6 @@ $$
 \beta_1 & \sim \operatorname{Normal}(0, 0.5) \\
 \sigma  & \sim \operatorname{Exponential}(1),
 \end{align*}
-$$
 
 where the `_std` suffix indicates the variables are standardized (i.e., zero centered, with a standard deviation of one). Let's fit the first univariable model.
 
@@ -232,7 +230,7 @@ That'll serve as our version of the right panel of Figure 5.2. To paraphrase McE
 print(b5.1)
 ```
 
-On the standardized scale, -0.57 95% CI [-0.80, -0.34] is pretty negative, indeed.
+On the standardized scale, -0.57 95% CI [-0.79, -0.34] is pretty negative, indeed.
 
 We're ready to fit our second univariable model.
 
@@ -279,7 +277,7 @@ fitted(b5.2, newdata = nd) %>%
   theme(panel.grid = element_blank())                   
 ```
 
-> But merely comparing parameter means between different bivariate regressions is no way to decide which predictor is better. Both of these predictors could provide independent value, or they could be redundant, or one could eliminate the value of the other. 
+> But merely comparing parameter means between different bivariate regressions is no way to decide which predictor is better. Both of these predictors could provide independent value, or they could be redundant, or one could eliminate the value of the other.
 >
 > To make sense of this, we're going to have to think causally. And then, only after we've done some thinking, a bigger regression model that includes both age at marriage and marriage rate will help us. (pp. 127--128)
 
@@ -341,9 +339,9 @@ Buy anyway, our DAG
 > 2. $M$ directly influences $D$
 > 3. $A$ directly influences $M$
 >
-> These statements can then have further implications. In this case, age of marriage influences divorce in two ways. First it has a direct effect, $A \rightarrow D$. Perhaps a direct effect would arise because younger people change faster than older people and are therefore more likely to grow incompatible with a partner. Second, it has an indirect effect by influencing the marriage rate, which then influences divorce, $A \rightarrow M  \rightarrow D$. If people get married earlier, then the marriage rate may rise, because there are more young people. (p. 128)
+> These statements can then have further implications. In this case, age of marriage influences divorce in two ways. First it has a direct effect, $A \rightarrow D$. Perhaps a direct effect would arise because younger people change faster than older people and are therefore more likely to grow incompatible with a partner. Second, it has an indirect effect by influencing the marriage rate, which then influences divorce, $A \rightarrow M \rightarrow D$. If people get married earlier, then the marriage rate may rise, because there are more young people. (p. 128)
 
-Considering alternative models, "It could be that the association between $M$ and $D$ arises entirely from $A$’s influence on both $M$ and $D$. Like this:" (p. 129)
+Considering alternative models, "It could be that the association between $M$ and $D$ arises entirely from $A$'s influence on both $M$ and $D$. Like this:" (p. 129)
 
 ```{r, fig.width = 3, fig.height = 1.5}
 p2 <-
@@ -363,13 +361,13 @@ p2 <-
 p2
 ```
 
-> This DAG is also consistent with the posterior distributions of models [`b5.1`] and [`b5.2`]. Why? Because both $M$ and $D$ "listen" to $A$. They have information from $A$. So when you inspect the association between $D$ and $M$, you pick up that common information that they both got from listening to $A$. You'll see a more formal way to deduce this, in the next chapter.
+> This DAG is also consistent with the posterior distributions of models [`b5.1`] and [`b5.2`]. Why? Because both $M$ and $D$ "listen" to $A$. They have information from $A$. So when you inspect the association between $D$ and $M$, you pick up that common information that they both got from listening to $A$. You’ll see a more formal way to deduce this, in the next chapter.
 >
-> So which is it? Is there a direct effect of marriage rate, or rather is age at marriage just driving both, creating a spurious correlation between marriage rate and divorce rate? To find out, we need to consider carefully what each DAG implies. That’s what's next. (p. 129)
+> So which is it? Is there a direct effect of marriage rate, or rather is age at marriage just driving both, creating a spurious correlation between marriage rate and divorce rate? To find out, we need to consider carefully what each DAG implies. That's what's next. (p. 129)
 
 #### Rethinking: What's a cause? 
 
-> Questions of causation can become bogged down in philosophical debates. These debates are worth having. But they don't usually intersect with statistical concerns. Knowing a cause in statistics means being able to correctly predict the consequences of an intervention. There are contexts in which even this is complicated. (p. 129)
+> Questions of causation can become bogged down in philosophical debates. These debates are worth having. But they don’t usually intersect with statistical concerns. Knowing a cause in statistics means being able to correctly predict the consequences of an intervention. There are contexts in which even this is complicated. (p. 129)
 
 ### Testable implications.
 
@@ -380,7 +378,6 @@ library(patchwork)
 
 p1 | p2
 ```
-
 
 McElreath encouraged us to examine the correlations among these three variables with `cor()`.
 
@@ -427,7 +424,6 @@ Okay, that was a bit of a tease. "There are no conditional independencies, so th
 
 We can write the statistical formula for our first multivariable model as
 
-$$
 \begin{align*}
 \text{Divorce_std}_i & \sim \operatorname{Normal}(\mu_i, \sigma) \\
 \mu_i   & = \alpha + \beta_1 \text{Marriage_std}_i + \beta_2 \text{MedianAgeMarriage_std}_i \\
@@ -436,7 +432,6 @@ $$
 \beta_2 & \sim \operatorname{Normal}(0, 0.5) \\
 \sigma  & \sim \operatorname{Exponential}(1).
 \end{align*}
-$$
 
 ### Approximating the posterior.
 
@@ -599,13 +594,13 @@ Preach, brother.
 
 Down a little further, McElreath gave us this deflationary delight: "There is a huge literature detailing a variety of plotting techniques that all attempt to help one understand multiple linear regression. None of these techniques is suitable for all jobs, and most do not generalize beyond linear regression" (pp. 134--135). Now you're inspired, let's learn three:
 
-* Predictor residual plots
-* Posterior prediction plots
-* Counterfactual plots
+* predictor residual plots
+* posterior prediction plots
+* counterfactual plots
 
 #### Predictor residual plots.
 
-To get ready to make our residual plots, we'll predict `m` with `a`.
+To get ready to make our residual plots, we'll predict  one predictor, `m`, with another one, `a`.
 
 ```{r b5.4}
 b5.4 <- 
@@ -690,7 +685,7 @@ p3 <-
 p3
 ```
 
-To get the `MedianAgeMarriage_s` residuals, we have to fit the corresponding model first.
+To get the `MedianAgeMarriage_s` residuals, we have to fit the corresponding model where `m` predicts `a`.
 
 ```{r b5.4b}
 b5.4b <- 
@@ -764,7 +759,7 @@ p4
 Here we close out the section by combining our four subplots into one glorious whole with a little **patchwork** syntax.
 
 ```{r, fig.width = 6, fig.height = 6, message = F}
-p1 + p2 + p3 + p4
+p1 + p2 + p3 + p4 + plot_annotation(title = "Understanding multiple regression through residuals")
 ```
 
 ##### Rethinking: Residuals are parameters, not data. 
@@ -773,7 +768,7 @@ p1 + p2 + p3 + p4
 
 Let's hammer this point home. Recall how `brms::residuals()` returns four columns: `Estimate`, `Est.Error`, `Q2.5`, and `Q97.5`.
 
-```{r}
+```{r, warning = F}
 r %>% 
   glimpse()
 ```
@@ -806,7 +801,9 @@ Look at that. If you were to fit a follow-up model based on only the point estim
 
 #### Posterior prediction plots.
 
-"It's important to check the model's implied predictions against the observed data" (p. 138). For more on the topic, check out Gabry and colleagues' [-@gabry2019visualization] [*Visualization in Bayesian workflow*](https://arxiv.org/abs/1709.01449) or Simpson's related blog post, [*Touch me, I want to feel your data*](http://andrewgelman.com/2017/09/07/touch-want-feel-data/).
+"It's important to check the model's implied predictions against the observed data" (p. 137). For more on the topic, check out Gabry and colleagues' [-@gabry2019visualization] [*Visualization in Bayesian workflow*](https://arxiv.org/abs/1709.01449) or Simpson's related blog post, [*Touch me, I want to feel your data*](http://andrewgelman.com/2017/09/07/touch-want-feel-data/).
+
+The code below will make our version of Figure 5.5.
 
 ```{r, fig.width = 3, fig.height = 3}
 fitted(b5.3) %>%
@@ -827,6 +824,8 @@ fitted(b5.3) %>%
   theme_bw() +
   theme(panel.grid = element_blank())
 ```
+
+> It's easy to see from this arrangement of the simulations that the model under-predicts for States with very high divorce rates while it over-predicts for States with very low divorce rates. That's normal. This is what regression does--it is skeptical of extreme values, so it expects regression towards the mean. But beyond this general regression to the mean, some States are very frustrating to the model, lying very far from the diagonal. (p. 139)
 
 ##### Rethinking: Stats, huh, yeah what is it good for?
 
@@ -894,16 +893,38 @@ dagify(s ~ r,
 
 #### Counterfactual plots.
 
-> A second sort of inferential plot displays the causal implications of the model. I call these plots **counterfactual**, because they can be produced for any values of the predictor variables you like, even unobserved combinations like very high median age of marriage and very high marriage rate. There are no States with this combination, but in a counterfactual plot, you can ask the model for a prediction for such a State. (p. 136, **emphasis** in the original)
+> A second sort of inferential plot displays the causal implications of the model. I call these plots **counterfactual**, because they can be produced for any values of the predictor variables you like, even unobserved combinations like very high median age of marriage and very high marriage rate. There are no States with this combination, but in a counterfactual plot, you can ask the model for a prediction for such a State. (p. 140, **emphasis** in the original)
 
-To simultaneously model the effects of $A$ on $M$ and $D$ AND the effects of $A$ on $M$ with **brms**, we'll need to invoke the multivariate syntax. There are several ways to do this with **brms**, which Bürkner outlines in his [-@Bürkner2020Multivariate] vignette, [*Estimating multivariate models with brms*](https://CRAN.R-project.org/package=brms/vignettes/brms_multivariate.html). At this point, it's important to recognize we have two regression models. As a first step, we might specify each model separately in a `bf()` function and save them as objects.
+Take another look at one of the DAGs from back in Section 5.1.2.
+
+```{r, fig.width = 3, fig.height = 1.5}
+dag_coords <-
+  tibble(name = c("A", "M", "D"),
+         x    = c(1, 3, 2),
+         y    = c(2, 2, 1))
+
+dagify(M ~ A,
+       D ~ A + M,
+       coords = dag_coords) %>%
+  
+  ggplot(aes(x = x, y = y, xend = xend, yend = yend)) +
+  geom_dag_point(color = "firebrick", alpha = 1/4, size = 10) +
+  geom_dag_text(color = "firebrick") +
+  geom_dag_edges(edge_color = "firebrick") +
+  scale_x_continuous(NULL, breaks = NULL, expand = c(.1, .1)) +
+  scale_y_continuous(NULL, breaks = NULL, expand = c(.1, .1)) +
+  theme_bw() +
+  theme(panel.grid = element_blank())
+```
+
+The full statistical model implied in this DAG requires we have two criterion variables, $D$ and $M$. To simultaneously model the effects of $A$ on $M$ and $D$ AND the effects of $A$ on $M$ with **brms**, we'll need to invoke the multivariate syntax. There are several ways to do this with **brms**, which Bürkner outlines in his [-@Bürkner2020Multivariate] vignette, [*Estimating multivariate models with brms*](https://CRAN.R-project.org/package=brms/vignettes/brms_multivariate.html). At this point, it's important to recognize we have two regression models. As a first step, we might specify each model separately in a `bf()` function and save them as objects.
 
 ```{r}
 d_model <- bf(d ~ 1 + a + m)
 m_model <- bf(m ~ 1 + a)
 ```
 
-Next we will combine our `bf()` objects with the `+` operator within the `brm()` function. For a model like this, we also specify `set_rescor(FALSE)` to prevent **brms** from adding a residual correlation between `d` and `m`. Also, notice how each prior statement includes a `resp` argument. This clarifies which sub-model the prior refers to. 
+Next we will combine our `bf()` objects with the `+` operator within the `brm()` function. For a model like this, we also specify `set_rescor(FALSE)` to prevent **brms** from adding a residual correlation between `d` and `m`. Also, notice how each prior statement includes a `resp` argument. This clarifies which sub-model the prior refers to.
 
 ```{r b5.3_A}
 b5.3_A <-
@@ -922,7 +943,7 @@ b5.3_A <-
       file = "fits/b05.03_A")
 ```
 
-Check the summary.
+Look at the summary.
 
 ```{r}
 print(b5.3_A)
@@ -978,7 +999,7 @@ p2 <-
   theme_bw() +
   theme(panel.grid = element_blank()) 
 
-p1 + p2
+p1 + p2 + plot_annotation(title = "Counterfactual plots for the multivariate divorce model")
 ```
 
 With our **brms**\**tidyverse** paradigm, we might compute "the expected causal effect of increasing median age at marriage from 20 to 30" (p. 142) like this.
@@ -1092,9 +1113,6 @@ post %>%
   facet_wrap(~dv)
 ```
 
-
-
-
 ## Masked relationship
 
 > A second reason to use more than one predictor variable is to measure the direct influences of multiple factors on an outcome, when none of those influences is apparent from bivariate relationships. This kind of problem tends to arise when there are two predictor variables that are correlated with one another. However, one of these is positively correlated with the outcome and the other is negatively correlated with it. (p. 144)
@@ -1117,7 +1135,7 @@ detach(package:rethinking, unload = T)
 library(brms)
 ```
 
-You might inspect the primary variables in the data like this. 
+You might inspect the primary variables in the data with the `pairs()` function.
 
 ```{r, fig.width = 4.5, fig.height = 4.5}
 d %>% 
@@ -1175,7 +1193,7 @@ b5.5_draft <-
          seed = 5)
 ```
 
-"Before considering the posterior predictions, let's consider those priors. As in many simple linear regression problems, these priors are harmless. But are they reasonable?" (p. 144). Let's find out with our version of Figure 5.8.a.
+"Before considering the posterior predictions, let's consider those priors. As in many simple linear regression problems, these priors are harmless. But are they reasonable?" (p. 146). Let's find out with our version of Figure 5.8.a.
 
 ```{r, fig.width = 3, fig.height = 3.25}
 set.seed(5)
@@ -1231,18 +1249,17 @@ prior_samples(b5.5) %>%
          neocortex.perc_s = c(-2, 2)) %>% 
   mutate(kcal.per.g_s = Intercept + b * neocortex.perc_s) %>% 
   
-  ggplot(aes(x = neocortex.perc_s, y = kcal.per.g_s)) +
-  geom_line(aes(group = rowname),
-            color = "firebrick", alpha = .4) +
+  ggplot(aes(x = neocortex.perc_s, y = kcal.per.g_s, group = rowname)) +
+  geom_line(color = "firebrick", alpha = .4) +
   coord_cartesian(ylim = c(-2, 2)) +
-  labs(x = "neocortex percent (std)",
-       y = "kilocal per g (std)",
-       subtitle = "Intercept ~ dnorm(0, 0.2)\nb ~ dnorm(0, 0.5)") +
+  labs(subtitle = "Intercept ~ dnorm(0, 0.2)\nb ~ dnorm(0, 0.5)",
+       x = "neocortex percent (std)",
+       y = "kilocal per g (std)") +
   theme_bw() +
   theme(panel.grid = element_blank()) 
 ```
 
-Inspect the parameter summary.
+Look at the posterior summary.
 
 ```{r}
 print(b5.5)
@@ -1358,7 +1375,6 @@ fitted(b5.6,
 
 Finally, we're ready to fit with both predictors included in a multivariable model. The statistical formula is
 
-$$
 \begin{align*}
 \text{kcal.per.g_s}_i & \sim \operatorname{Normal}(\mu_i, \sigma) \\
 \mu_i & = \alpha + \beta_1 \text{neocortex.perc_s}_i + \beta_2 \text{log_mass_s} \\
@@ -1367,7 +1383,6 @@ $$
 \beta_2 & \sim \operatorname{Normal}(0, 0.5) \\
 \sigma  & \sim \operatorname{Exponential}(1).
 \end{align*}
-$$
 
 Fit the model.
 
@@ -1418,7 +1433,7 @@ bind_cols(
   facet_wrap(~parameter, ncol = 1, labeller = label_parsed)
 ```
 
-McElreath suggested we look at a pairs plot to get a sense of the zero-order correlations. We did that once with the raw data. Here it is, again, but with the transformed variables.
+On page 151, McElreath suggested we look at a pairs plot to get a sense of the zero-order correlations. We did that once with the raw data. Here it is, again, but with the transformed variables.
 
 ```{r, fig.width = 4.5, fig.height = 4.5}
 dcc %>% 
@@ -1452,10 +1467,11 @@ my_lower <- function(data, mapping, ...) {
     geom_point(color = "firebrick", alpha = .8, size = 1/3)
   }
 
-# Then plug those custom functions into `ggpairs()`
 dcc %>% 
   select(ends_with("_s")) %>% 
-  ggpairs(diag  = list(continuous = my_diag),
+  ggpairs(upper = list(continuous = wrap("cor", family = "sans", color = "black")),
+          # plug those custom functions into `ggpairs()`
+          diag  = list(continuous = my_diag),
           lower = list(continuous = my_lower)) + 
   theme_bw() +
   theme(axis.text = element_blank(),
@@ -1464,11 +1480,11 @@ dcc %>%
         strip.background = element_rect(fill = "white", color = "white"))
 ```
 
-> What the regression model does is ask if species that have high neocortex percent *for their body mass* have higher milk energy. Likewise, the model asks if species with high body mass *for their neocortex percent* have higher milk energy. Bigger species, like apes, have milk with less energy. But species with more neocortex tend to have richer milk. The fact that these two variables, body size and neocortex, are correlated across species makes it hard to see these relationships, unless we statistically account for both.
+> What the regression model does is ask if species that have high neocortex percent *for their body mass* have higher milk energy. Likewise, the model asks if species with high body mass *for their neocortex percent* have higher milk energy. Bigger species, like apes, have milk with less energy. But species with more neocortex tend to have richer milk. The fact that these two variables, body size and neocortex, are correlated across species makes it hard to see these relationships, unless we account for both.
 >
 > Some DAGs will help. (p. 148, *emphasis* in the original)
 
-Here are three. I'm not aware we can facet `dagify()` objects. But we can take cues from Chapter 4 to link our three DAGs like McElreath did his. first, we'll recognize the **ggplot2** code will be nearly identical for each DAG. So we can just wrap the **ggplot2** code into a compact function, like so.
+Here are three. I'm not aware we can facet `dagify()` objects. But we can take cues from [Chapter 4][Geocentric Models] to link our three DAGs like McElreath did his. first, we'll recognize the **ggplot2** code will be nearly identical for each DAG. So we can just wrap the **ggplot2** code into a compact function, like so.
 
 ```{r}
 gg_dag <- function(d) {
@@ -1557,7 +1573,7 @@ p1 <-
        y = "kilocal per g (std)")
 ```
 
-Now make Figure 5.8, bottom right, and combine the two.
+Now make Figure 5.9, bottom right, and combine the two.
 
 ```{r, fig.width = 6, fig.height = 3.25, warning = F, message = F}
 nd <- tibble(log_mass_s = seq(from = -2.5, to = 2.5, length.out = 30),
@@ -1591,6 +1607,22 @@ p1 + p2 +
 
 #### Overthinking: Simulating a masking relationship.
 
+As a refresher, here's our focal DAG.
+
+```{r, fig.width = 2.5, fig.height = 1.5}
+dag_coords <-
+  tibble(name = c("M", "N", "K"),
+         x    = c(1, 3, 2),
+         y    = c(2, 2, 1))
+
+dagify(N ~ M,
+       K ~ M + N,
+       coords = dag_coords) %>%
+  gg_dag()
+```
+
+Now simulate data consistent with that DAG.
+
 ```{r}
 # how many cases would you like?
 n <- 100
@@ -1606,7 +1638,8 @@ Use `ggpairs()` to get a sense of what we just simulated.
 
 ```{r, fig.width = 3.5, fig.height = 3.5, message = F}
 d_sim %>% 
-  ggpairs(diag  = list(continuous = my_diag),
+  ggpairs(upper = list(continuous = wrap("cor", family = "sans", color = "firebrick4")),
+          diag  = list(continuous = my_diag),
           lower = list(continuous = my_lower)) + 
   theme_bw() +
   theme(axis.text = element_blank(),
@@ -1711,12 +1744,10 @@ d %>%
   glimpse()
 ```
 
-> The `male` variable is our new predictor, an example of a **indicator variable**. Indicator variables—sometimes also called "dummy" variables—are devices for encoding unordered categories into quantitative models. There is no sense here in which"“male" is one more than "female." The purpose of the `male` variable is to indicate when a person in the sample is "male." So it takes the value 1 whenever the person is male, but it takes the value 0 when the person belongs to any other category. It doesn't matter which category is indicated by the 1. The model won't care. But correctly interpreting the model demands that you remember, so it's a good idea to name the variable after the category assigned the 1 value. (p. 154, **emphasis** in the original)
-
+> The `male` variable is our new predictor, an example of a **indicator variable**. Indicator variables—sometimes also called "dummy" variables--are devices for encoding unordered categories into quantitative models. There is no sense here in which "male" is one more than "female." The purpose of the `male` variable is to indicate when a person in the sample is "male." So it takes the value 1 whenever the person is male, but it takes the value 0 when the person belongs to any other category. It doesn't matter which category is indicated by the 1. The model won't care. But correctly interpreting the model demands that you remember, so it's a good idea to name the variable after the category assigned the 1 value. (p. 154, **emphasis** in the original)
 
 The statistical model including a `male` dummy might follow the form
 
-$$
 \begin{align*}
 \text{height}_i & \sim \operatorname{Normal}(\mu_i, \sigma) \\
 \mu_i   & = \alpha + \beta_1 \text{male}_i \\
@@ -1724,9 +1755,8 @@ $$
 \beta_1 & \sim \operatorname{Normal}(0, 10) \\
 \sigma  & \sim \operatorname{Exponential}(1),
 \end{align*}
-$$
 
-where $\beta_1$ is the expected (i.e., average) difference between males and females for `height`. Here we simulate from our priors and `summarise()` the results.
+where $\beta_1$ is the expected (i.e., average) difference between males and females for `height`. Note we're deviating from the text a little and entertaining an $\operatorname{Exponential}(1)$ prior on $\sigma$ rather than the uniform prior McElreath reverted to. As we saw in the last chapter, **brms** can accommodate uniform priors on $\sigma$, but it often causes problems for HMC and, IMO, is more trouble that it's worth. Anyway, here we simulate from our priors and `summarise()` the results.
 
 ```{r, warning = F, message = F}
 set.seed(5)
@@ -1773,17 +1803,14 @@ head(d)
 
 We can update our statistical model to include `sex` with the formula
 
-
-$$
 \begin{align*}
 \text{height}_i & \sim \operatorname{Normal}(\mu_i, \sigma) \\
 \mu_i    & = \alpha_{\text{sex}[i]} \\
 \alpha_j & \sim \operatorname{Normal}(178, 20) & \text{for } j = 1..2 \\
 \sigma   & \sim \operatorname{Exponential}(1),
 \end{align*}
-$$
 
-where now we have rows indexed by $i$ and two levels of `sex` indexed by $j$. For our version of this model, we will continue using the simple $\lambda = 1$ exponential prior on $\sigma$, rather than the uniform. The exponential is just much easier on Stan than the uniform. But if you prefer to go uniform, have at it.
+where now we have rows indexed by $i$ and two levels of `sex` indexed by $j$. Again, for our version of this model, we will continue using the simple $\lambda = 1$ exponential prior on $\sigma$, rather than the uniform. The exponential is just much easier on Stan than the uniform. But if you prefer to go uniform, have at it.
 
 One more thing before we fit our model: Notice McElreath's `a[sex]` notation in his **R** code 5.48. I'm not aware that **brms** will accommodate this notation. The fix is easy. Just save `sex` as a factor.
 
@@ -1825,11 +1852,11 @@ posterior_samples(b5.8) %>%
   mean_qi(value, .width = .89)
 ```
 
-Note how we used `tidybayes::mean_qi()` to summarize our difference variable, `diff_fm`.
+Note how we used `tidybayes::mean_qi()` to summarize our difference variable, `diff_fm`. Anyway, "this kind of calculation is called a **contrast**. No matter how many categories you have, you can use samples from the posterior to compute the contrast between any two" (p. 156, **emphasis** in the original).
 
 ### Many categories.
 
-> Binary categories are easy, whether you use an indicator variable or instead an index variable. But when there are more than two categories, the indicator variable approach explodes. You'll need a new indicator variable for each new category. If you have $k$ unique categories, you need $k − 1$ indicator variables. Automated tools like R's `lm` do in fact go this route, constructing $k − 1$ indicator variables for you and returning $k − 1$ parameter estimates.
+> Binary categories are easy, whether you use an indicator variable or instead an index variable. But when there are more than two categories, the indicator variable approach explodes. You'll need a new indicator variable for each new category. If you have $k$ unique categories, you need $k - 1$ indicator variables. Automated tools like R's `lm` do in fact go this route, constructing $k - 1$ indicator variables for you and returning $k - 1$ parameters (in addition to the intercept).
 >
 > But we'll instead stick with the index variable approach. It does not change at all when you add more categories. You do get more parameters, of course, just as many as in the indicator variable approach. But the model specification looks just like it does in the binary case. (p. 156)
 
@@ -1866,14 +1893,12 @@ d <-
 
 Our statistical model follows the form
 
-$$
 \begin{align*}
 \text{kcal.per.g_s}_i & \sim \operatorname{Normal}(\mu_i, \sigma) \\
 \mu_i    & = \alpha_{\text{clade}[i]} \\
 \alpha_j & \sim \operatorname{Normal}(0, 0.5), & \text{for } j = 1..4 \\
 \sigma   & \sim \operatorname{Exponential}(1).
 \end{align*}
-$$
 
 Now fit that model.
 
@@ -1893,7 +1918,7 @@ b5.9 <-
 print(b5.9)
 ```
 
-Up to this point, all of our coefficient plots have been of a rather complicated type. We tried to mimic McElreath’s `coeftab()` plots without the aid of the **rethinking** convenience function. But now the coefficient plot from McElreath's **R** code 5.42 is of a much simpler type. As such, we can finally take it easy and use some of the convenience functions available to us within our framework. 
+Up to this point, all of our coefficient plots have been of a rather complicated type. We tried to mimic McElreath’s `coeftab()` plots without the aid of the **rethinking** convenience function. But now the coefficient plot from McElreath's **R** code 5.42 is of a much simpler type. We can finally take it easy and use some of the convenience functions available to us within our framework.
 
 The `mcmc_plot()` function is an easy way to get a default coefficient plot. You just put the **brms** fit object into the function.
 
@@ -1924,7 +1949,7 @@ post %>%
 
 Because **bayesplot** returns a **ggplot2** object, the plot was adjustable with familiar **ggplot2** syntax. For more ideas, check out Gabry's [-@gabryPlottingMCMCDraws2019] vignette, [*Plotting MCMC draws using the bayesplot package*](https://CRAN.R-project.org/package=bayesplot/vignettes/plotting-mcmc-draws.html).
 
-The `tidybayes::stat_pointintervalh()` function offers a third way, this time with a more ground-up **ggplot2** workflow.
+The `tidybayes::stat_pointinterval()` function offers a third way, this time with a more ground-up **ggplot2** workflow.
 
 ```{r, message = F, warning = F, fig.width = 6, fig.height = 1.33}
 library(tidybayes)
@@ -1936,18 +1961,18 @@ post %>%
   
   ggplot(aes(x = value, y = reorder(name, value))) +  # note how we used `reorder()` to arrange the coefficients
   geom_vline(xintercept = 0, color = "firebrick4", alpha = 1/10) +
-  stat_pointintervalh(point_interval = mode_hdi, .width = .89, 
-                      size = 1, color = "firebrick4") +
+  stat_pointinterval(point_interval = mode_hdi, .width = .89, 
+                     size = 1, color = "firebrick4") +
   labs(title = "My tidybayes-based coefficient plot",
        x = "expected kcal (std)", 
        y = NULL) +
   theme_bw() +
-  theme(panel.grid = element_blank(),
-        axis.text.y = element_text(hjust = 0),
-        axis.ticks.y = element_blank())
+  theme(axis.text.y = element_text(hjust = 0),
+        axis.ticks.y = element_blank(),
+        panel.grid = element_blank())
 ```
 
-Okay, let's simulate some "made up categories" (p. 158). We'll use names rather than numeric indices.
+Okay, let's simulate some "made up categories" (p. 157). We'll use names rather than numeric indices.
 
 ```{r}
 houses <- c("Gryffindor", "Hufflepuff", "Ravenclaw", "Slytherin")
@@ -1982,25 +2007,23 @@ Even though that last model fit well and is a fine and valid way to examine the 
 
 What gives?
 
-**brms** syntax is flexible in that it provided multiple ways to fit and post-process models. The `formula` syntax we use most of the type with **brms** is called the design formula syntax. In the first edition of his text (2015, pp. 159--161), McElreath contrasted design formula syntax, which is widely used in base **R** `lm()`, the **lme4** package, and **brms**, with the more explicit syntax he uses in his **rethinking** package. 
+**brms** syntax is flexible in that it provided multiple ways to fit and post-process models. The `formula` syntax we use most of the type with **brms** is called the *design formula* syntax. In the first edition of his text (2015, pp. 159--161), McElreath contrasted design formula syntax, which is widely used in base **R** `lm()`, the **lme4** package, and **brms**, with the more explicit syntax he uses in his **rethinking** package.
 
-I bring this all up because the **rethinking** package has no problem handling multiple index variables. Just use McElreath's slick bracket code like he did with his `m5.10` (i.e., `mu <- a[clade_id] + h[house]`). In such a model, there is no default intercept. That is, McElreath’s `m5.10` followed the statistical formula of
+I bring this all up because the **rethinking** package has no problem handling multiple index variables. Just use McElreath's slick bracket code like he did with his `m5.10` (i.e., `mu <- a[clade_id] + h[house]`). In such a model, there is no default intercept. That is, McElreath's `m5.10` followed the statistical formula of
 
-$$
 \begin{align*}
 \text{kcal.per.g_s}_i & \sim \operatorname{Normal}(\mu_i, \sigma) \\
-\mu_i    & = \alpha_{\text{clade}[i]} + \alpha_{\text{house}[i]} \\
-\alpha_{\text{clade}, j} & \sim \operatorname{Normal}(0, 0.5), && \text{for } j = 1..4 \\
-\alpha_{\text{house}, k} & \sim \operatorname{Normal}(0, 0.5), && \text{for } k = 1..4 \\
+\mu_i    & = \alpha_{\color{#8B1A1A}{\text{clade}[i]}} + \alpha_{\color{#8B1A1A}{\text{house}[i]}} \\
+\alpha_{\color{#8B1A1A}{\text{clade}, j}} & \sim \operatorname{Normal}(0, 0.5), && \color{#8B1A1A}{\text{for } j = 1..4} \\
+\alpha_{\color{#8B1A1A}{\text{house}, k}} & \sim \operatorname{Normal}(0, 0.5), && \color{#8B1A1A}{\text{for } k = 1..4} \\
 \sigma   & \sim \operatorname{Exponential}(1),
 \end{align*}
-$$
 
-where there is an $\alpha_\text{clade}$ "intercept" for each of the four levels of `clade` and an $\alpha_\text{house}$ "intercept" for each of the four levels of `house`. But there is no **overall** intercept, $\alpha$, that stands for the expected value when all the predictors are set to 0. 
+where there is an $\alpha_\text{clade}$ "intercept" for each of the four levels of `clade` and an $\alpha_\text{house}$ "intercept" for each of the four levels of `house`. But there is no **overall** intercept, $\alpha$, that stands for the expected value when all the predictors are set to 0.
 
-When we use the typical `formula` syntax with **brms**, we can suppress the overall intercept when for a single index variable with the `<criterion> ~ 0 + <index variable>` syntax. That's exactly what we did with our `b5.9` model. The catch is that this approach only works with one index variable with **brms**. The result is even though we suppressed the default interecept with our `b5.10` formula, `kcal.per.g_s ~ 0 + clade + house`, we ended up loosing the first category of the second variable, `house`.
+When we use the typical `formula` syntax with **brms**, we can suppress the overall intercept when for a single index variable with the `<criterion> ~ 0 + <index variable>` syntax. That's exactly what we did with our `b5.9` model. The catch is this approach only works with one index variable within **brms**. Even though we suppressed the default intercept with our `b5.10` formula, `kcal.per.g_s ~ 0 + clade + house`, we ended up loosing the first category of the second variable, `house`.
 
-Fortunately, we have a fix. I learned about his from one of Bürkner's [answers](https://discourse.mc-stan.org/t/indexing-approach-to-predictors/7898/9) to [Paul Dong](https://discourse.mc-stan.org/u/paul_dong)'s thread in the Stan Forums, [*Indexing approach to predictors*](https://discourse.mc-stan.org/t/indexing-approach-to-predictors/7898). The solution is the use the non-linear syntax. As Bürkner detailed in his [-@Bürkner2020Non_linear] vignette, [*Estimating non-linear models with brms*](https://CRAN.R-project.org/package=brms/vignettes/brms_nonlinear.html), the non-linear syntax is a powerful alternative to the design formula syntax we typically use with **brms**. The non-linear syntax is a lot like the syntax McElreath uses in **rethinking** in that it typically includes both predictor and variable names in the `formula`. I'm not included to go into a full-blown explation of the non-linear syntax, here. You have Bürkner's vignette for that and the bulk of the models we'll fit in this project will employ the default design formula syntax. But here's how you can use the non-linear syntax to faithfully replicate McElreath’s `m510` with `brms::brm()`. In short, we defined our two model parameters, `a` and `h`, in the first `bf()` line, connected each to a index variable in the next two lines, and closed out the `bf()` statement with `nl = TRUE` to alter `brm()` we were using the non-linear syntax.
+Fortunately, we have a fix, which I learned about from one of Bürkner's [answers](https://discourse.mc-stan.org/t/indexing-approach-to-predictors/7898/9) to [Paul Dong](https://discourse.mc-stan.org/u/paul_dong)'s thread in the Stan Forums, [*Indexing approach to predictors*](https://discourse.mc-stan.org/t/indexing-approach-to-predictors/7898). The solution is the use the non-linear syntax. If you recall, our first encounter with the **brms** non-linear syntax was with model `b4.3b` in [Section 4.4.2.1][Overthinking: Logs and exps, oh my.] where we used it to model the exponent of a parameter. Here we'll use it to model our two index variables while excluding an overall or reference-category intercept. I'm still going to wait until [Section 6.2.1][A prior is born.] before walking out the non-linear syntax in detail. But if you're burning with curiosity, check out Bürkner's [-@Bürkner2020Non_linear] vignette, [*Estimating non-linear models with brms*](https://CRAN.R-project.org/package=brms/vignettes/brms_nonlinear.html). For now, we focus on how to faithfully replicate McElreath's `m510` with `brms::brm()`. In the code below, we defined our two model parameters, `a` and `h`, in the first `bf()` line, connected each to a index variable in the next two lines, and closed out the `bf()` statement with `nl = TRUE` to alert `brm()` we were using the non-linear syntax.
 
 ```{r}
 b5.11 <- 
@@ -2050,11 +2073,234 @@ posterior_samples(b5.11) %>%
   facet_wrap(~predictor, scales = "free_y")
 ```
 
+Just for fun, we used 89% intervals.
+
 #### Rethinking: Differences and statistical significance.
 
 > A common error in interpretation of parameter estimates is to suppose that because one parameter is sufficiently far from zero--is "significant"--and another parameter is not--is "not significant"--that the difference between the parameters is also significant. This is not necessarily so. This isn't just an issue for non-Bayesian analysis: If you want to know the distribution of a difference, then you must compute that difference, a **contrast**. (p. 158, **emphasis** in the original)
 
 This reminds me of a paper by Gelman and Stern [-@gelman2006difference], [*The difference between "significant" and "not significant" is not itself statistically significant*](https://www.tandfonline.com/doi/pdf/10.1198/000313006X152649?needAccess=true).
+
+## ~~Summary~~ Bonus: We can model categorical variables in more ways than one
+
+One of the noteworthy changes in the second edition of *Statistical rethinking* is McElreath's consistent use of the index variable approach. It's a fine approach and I'm glad he emphasized it. But as McElreath alluded to in the early part of [Section 5.3.1][Binary categories.], we have other modeling options at our disposal. I'd like to briefly walk through three more.
+
+### You can use a dummy.
+
+The first alternative is the one McElreath mentioned directly at the top of page 154. If you have $K$ categories in a nominal variable, you can depict the categories in the model with $K - 1$ dummy variables. To start simple, consider the case of the $K = 2$ variable `sex` we used in `b5.8`. 
+
+```{r}
+b5.8$data %>% 
+  head()
+```
+
+We can convert our index variable `sex` into two dummy variables, which we might call `male` and `female`.
+
+```{r}
+d <-
+  b5.8$data %>% 
+  mutate(male   = if_else(sex == "1", 1, 0),
+         female = if_else(sex == "2", 1, 0))
+
+head(d)
+```
+
+As with the index variable `sex`, no order is implied by the 0's and 1's in our `male` and `female` dummies. But remember, we only need $K - 1$ dummies, not both. If we wanted to fit the model using the `female` dummy variable, we might express the statistical model as
+
+\begin{align*}
+\text{height}_i & \sim \operatorname{Normal}(\mu_i, \sigma) \\
+\mu_i   & = \alpha + \beta_1 \text{female}_i \\
+\alpha  & \sim \operatorname{Normal}(178, 20) \\
+\beta_1 & \sim \operatorname{Normal}(0, 10) \\
+\sigma  & \sim \operatorname{Exponential}(1),
+\end{align*}
+
+where $\alpha$ would be the intercept (i.e., the mean) for males and $\beta_1$ would be the expected change in the mean for females, relative to males. This parameterization makes males the reference category. Here's how to fit the model with **brms**.
+
+```{r b5.8b}
+b5.8b <- 
+  brm(data = d, 
+      family = gaussian,
+      height ~ 1 + female,
+      prior = c(prior(normal(178, 20), class = Intercept),
+                prior(normal(0, 10), class = b),
+                prior(exponential(1), class = sigma)),
+      iter = 2000, warmup = 1000, chains = 4, cores = 4,
+      seed = 5,
+      file = "fits/b05.08b")
+```
+
+```{r}
+print(b5.8b)
+```
+
+I'm not going to show it, here, but this approach generalizes to instances where you have 3 or more categories. In the case of the monkey model `b5.9`, we had a $K = 4$ variable `clade`, which could have been entered in the model with three dummy variables instead. Whichever of the four levels of `clade` that is not entered into the model as a dummy, that's the level that would become the reference category.
+
+### Consider contrast coding.
+
+Contrast coding offers something of a blend between the index and dummy approach. Consider out new contrast variable, `sex_c`.
+
+```{r}
+d <-
+  d %>% 
+  mutate(sex_c = if_else(sex == "1", -0.5, 0.5))
+
+head(d)
+```
+
+`sex_c == -0.5` for males and `sex_c == 0.5` for females. We might express our revised statistical model as
+
+\begin{align*}
+\text{height}_i & \sim \operatorname{Normal}(\mu_i, \sigma) \\
+\mu_i   & = \alpha + \beta_1 \text{sex_c}_i \\
+\alpha  & \sim \operatorname{Normal}(178, 20) \\
+\beta_1 & \sim \operatorname{Normal}(0, 10) \\
+\sigma  & \sim \operatorname{Exponential}(1),
+\end{align*}
+
+where $\alpha$ is now the average of the mean heights of males and females and $\beta_1$ is the difference when subtracting the mean `height` of males from the mean `height` of females. Fit the model.
+
+```{r b5.8c}
+b5.8c <- 
+  brm(data = d, 
+      family = gaussian,
+      height ~ 1 + sex_c,
+      prior = c(prior(normal(178, 20), class = Intercept),
+                prior(normal(0, 10), class = b),
+                prior(exponential(1), class = sigma)),
+      iter = 2000, warmup = 1000, chains = 4, cores = 4,
+      seed = 5,
+      file = "fits/b05.08c")
+```
+
+Inspect the summary.
+
+```{r}
+print(b5.8c)
+```
+
+If you take a look, you'll discover that posterior summary for $\beta_1$ is basically the same, here, as it was for `b5.8b`. The intercept $\alpha$ is a little more complicated. To build a sense of what it means, first consider the simple mean for `height`, ignoring `sex`, computed directly from the data.
+
+```{r}
+d %>% 
+  summarise(mean_height = mean(height))
+```
+
+Now here is the average of the mean of `height` when first computed separately by levels of `sex`.
+
+```{r, warning = F, message = F}
+d %>% 
+  group_by(sex) %>% 
+  summarise(group_mean = mean(height)) %>% 
+  summarise(average_of_the_group_means_in_height = mean(group_mean))
+```
+
+Our posterior for $\alpha$, above, is designed to capture the `average_of_the_group_means_in_height`, not `mean_height`. In cases where the sample sizes in the two groups were equal, these two would be same. Since we have different numbers of males and females in our data, the two values differ a bit.
+
+```{r}
+d %>% 
+  count(sex) %>% 
+  mutate(percent = 100 * n / sum(n))
+```
+
+Anyway, here's how we might wrangle the posterior samples to make our marginal posteriors for males, females, and their difference.
+
+```{r, fig.width = 7, fig.height = 2.5}
+posterior_samples(b5.8c) %>% 
+  mutate(male            = b_Intercept - b_sex_c * 0.5,
+         female          = b_Intercept + b_sex_c * 0.5,
+         `female - male` = b_sex_c) %>% 
+  pivot_longer(male:`female - male`) %>% 
+  
+  ggplot(aes(x = value, y = 0)) +
+  stat_halfeye(.width = .95,
+               fill = "firebrick4", normalize = "panels") +
+  scale_y_continuous(NULL, breaks = NULL) +
+  theme_bw() +
+  xlab("height") +
+  theme(panel.grid = element_blank()) +
+  facet_wrap(~name, scales = "free")
+```
+
+This approach can also be generalized to contexts where you have three or more groups. I'm not going to show you how to do so, here. It's a deep rabbit hole and I'm just not interested in shoveling that hard, today. For those who want more, I'll provide some references at the end.
+
+### There's always the multilevel ANOVA approach.
+
+It's a little absurd I'm covering this, here, because (a) I'm not a fan of the ANOVA framework and (b) McElreath didn't properly introduce the multilevel framework until [Chapter 13][Models With Memory]. But we'll throw this in, anyway. For those of you who are new to the multilevel model, make a mental note of this section and then back away slowly and come back after you've worked through the later chapters in this text. For those of y'all who have some experience with the multilevel model, perhaps this will offer an application you hadn't considered.
+
+For this approach, let's consider our $K = 4$ variable `clade` from back in `b5.9`. We used `clade` as an index variable to model four means for standardized kilocalories per gram of milk `kcal.per.g_s`.
+
+```{r}
+d <-
+  b5.9$data
+
+head(d)
+```
+
+Our multilevel ANOVA approach will give us an overall intercept (mean) for `kcal.per.g_s` as well as four `clade`-specific deviations from that overall intercept. One way to express this might be
+
+\begin{align*}
+\text{kcal.per.g_s} & \sim \operatorname{Normal}(\mu_i, \sigma) \\
+\mu_i & = \alpha + \color{#8B1A1A}{u_{j[i]}} \\
+\alpha & \sim \operatorname{Normal}(0, 0.5) \\
+\sigma   & \sim \operatorname{Exponential}(1) \\
+\color{#8B1A1A}{u_j} & \color{#8B1A1A}\sim \color{#8B1A1A}{\operatorname{Normal}(0, \sigma_\text{clade})}, & \color{#8B1A1A}{\text{for } j = 1..4}  \\
+\color{#8B1A1A}{\sigma_\text{clade}} & \color{#8B1A1A}\sim \color{#8B1A1A}{\operatorname{Exponential}(1)},
+\end{align*}
+
+where $\alpha$ is the overall intercept (mean) and the four `clade`-specific deviations from that mean are captures by the four levels of $u_j$, which are themselves modeled as normally distributed with a mean of zero (because they are deviations, after all) and a standard deviation $\sigma_\text{clade}$. Here's how to fit such a model with **brms**.
+
+```{r b5.9b}
+b5.9b <- 
+  brm(data = d, 
+      family = gaussian,
+      kcal.per.g_s ~ 1 + (1 | clade),
+      prior = c(prior(normal(0, 0.5), class = Intercept),
+                prior(exponential(1), class = sigma),
+                prior(exponential(1), class = sd)),
+      iter = 2000, warmup = 1000, chains = 4, cores = 4,
+      seed = 5,
+      file = "fits/b05.09b")
+```
+
+Check the results.
+
+```{r}
+print(b5.9b)
+```
+
+The 'Group-Level Effects:' section in that output won't make much sense until we cover the material in Chapter 13. Here's how one might wrangle the posterior samples to make a coefficient plot similar to the one we made for the original `b5.9`.
+
+```{r, message = F, warning = F, fig.width = 6, fig.height = 1.33}
+posterior_samples(b5.9b) %>% 
+  mutate(Ape                = b_Intercept + `r_clade[Ape,Intercept]`,
+         `New World Monkey` = b_Intercept + `r_clade[New.World.Monkey,Intercept]`,
+         `Old World Monkey` = b_Intercept + `r_clade[Old.World.Monkey,Intercept]`,
+         Strepsirrhine      = b_Intercept + `r_clade[Strepsirrhine,Intercept]`) %>% 
+  pivot_longer(Ape:Strepsirrhine) %>% 
+  
+  ggplot(aes(x = value, y = reorder(name, value))) +
+  geom_vline(xintercept = 0, color = "firebrick4", alpha = 1/10) +
+  stat_pointinterval(point_interval = mode_hdi, .width = .89, 
+                     size = 1, color = "firebrick4") +
+  labs(title = "My tidybayes-based coefficient plot for b5.9b",
+       x = "expected kcal (std)", 
+       y = NULL) +
+  theme_bw() +
+  theme(axis.text.y = element_text(hjust = 0),
+        axis.ticks.y = element_blank(),
+        panel.grid = element_blank())
+```
+
+As we will learn, an advantage of this approach is we get improved estimates due to multilevel partial pooling. Technically, you can apply this approach to cases with as few as $K = 2$ categories. In practice, you'll probably want to use this only when $K \geq 3$.
+
+### Would you like to learn more?
+
+To learn more about the dummy coding approach, McElreath covered it in Chapter 5 of his first [-@mcelreathStatisticalRethinkingBayesian2015], Hayes covered it in Chapter 2 of his [-@hayes2017introduction] text, and it's been covered in many other texts, such as the modern classic by @cohenAppliedMultipleRegression2013. I have ebook translations for the first of those two (@kurzStatisticalRethinkingBrms2020; @kurzRecodingIntroductionMediation2019). If you like learning by video, the great [Erin Buchanan](https://twitter.com/aggieerin) has a video or two (e.g., [here](https://www.youtube.com/watch?v=Zv19sslm-S4)) on her [Statistics of DOOM chanel](https://www.youtube.com/channel/UCMdihazndR0f9XBoSXWqnYg).
+
+The specific type of contrast coding we used is part of a more general approach. You can learn more about that in Cohen et al [-@cohenAppliedMultipleRegression2013, Chapter 8] or from [this vignette](https://stats.idre.ucla.edu/r/library/r-library-contrast-coding-systems-for-categorical-variables/) by the good folks at the UCLA Institute for Digital Research and Education [@LibraryContrastCoding].
+
+In addition to waiting for [Chapter 13][Models With Memory] in this ebook, you can learn more about the multilevel ANOVA approach in Chapters 19 and 24 of Kruschke's [-@kruschkeDoingBayesianData2015], in the corresponding chapters in my [-@kurzDoingBayesianData2020] ebook translation of the same, and in some of Gelman's peer-reviewed work [@gelmanAnalysisVarianceWhy2005; @gelmanPriorDistributionsVariance2006].
 
 ## Session info {-}
 
@@ -2063,14 +2309,12 @@ sessionInfo()
 ```
 
 ```{r, echo = F}
-rm(d, b5.1, prior, nd, b5.2, dag_coords, p1, p2, b5.3, n, sim_d, b5.1_sim, b5.2_sim, b5.3_sim, b5.4, f, r, p3, b5.4b, p4, d_spur, b5.0_spur, d_model, m_model, b5.3_A, post, b5.5_draft, b5.5, dcc, b5.6, b5.7, my_diag, my_lower, gg_dag, d_sim, b5.7_sim, b5.5_sim, b5.6_sim, dag5.7, b5.8, b5.9, houses, b5.10, b5.11)
+rm(d, b5.1, prior, nd, b5.2, dag_coords, p1, p2, b5.3, n, sim_d, b5.1_sim, b5.2_sim, b5.3_sim, b5.4, f, r, p3, b5.4b, p4, d_spur, b5.0_spur, d_model, m_model, b5.3_A, post, b5.5_draft, b5.5, dcc, b5.6, b5.7, my_diag, my_lower, gg_dag, d_sim, b5.7_sim, b5.5_sim, b5.6_sim, dag5.7, b5.8, b5.9, houses, b5.10, b5.11, b5.8b, b5.8c, b5.9b)
 ```
 
 ```{r, echo = F, message = F, warning = F, results = "hide"}
-pacman::p_unload(pacman::p_loaded(), character.only = TRUE)
-
 ggplot2::theme_set(ggplot2::theme_grey())
-
 bayesplot::color_scheme_set("blue")
+pacman::p_unload(pacman::p_loaded(), character.only = TRUE)
 ```
 
