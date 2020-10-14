@@ -1216,9 +1216,9 @@ ggmcmc::ggs(b4.3) %>%
   facet_wrap(~Parameter, scales = "free_y", ncol = 1)
 ```
 
-#### Overthinking: Logs and exps, oh my. 
+#### Overthinking: Logs and exps, oh my.
 
-**brms** does not allow users to insert coefficients into functions like $\exp()$ within the conventional `formula` syntax. We can fit a **brms** model like McElreath's `m4.3b` if we adopt what's called the non-linear syntax [@Bürkner2020Non_linear]. The non-linear syntax is a lot like the syntax McElreath uses in **rethinking** in that it typically includes both predictor and variable names in the `formula`. Since this is so early in the book and we're just working through a problem in an **Overthinking** tangent, I won't go into a full-blow explanation, here. There will be many more opportunities to practice with the non-linear syntax in the chapters to come. For now, here's how we might fit the model.
+**brms** does not allow users to insert coefficients into functions like $\exp()$ within the conventional `formula` syntax. We can fit a **brms** model like McElreath's `m4.3b` if we adopt what's called the non-linear syntax [@Bürkner2020Non_linear]. The non-linear syntax is a lot like the syntax McElreath uses in **rethinking** in that it typically includes both predictor and variable names in the `formula`. Since this is so early in the book and we're just working through a problem in an **Overthinking** tangent, I won't go into a full-blow explanation, here. There will be many more opportunities to practice with the non-linear syntax in the chapters to come (e.g., [Section 5.3.2][Many categories.], [Section 6.2.1][A prior is born.]). For now, here's how we might fit the model.
 
 ```{r b4.3b}
 b4.3b <- 
