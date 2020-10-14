@@ -676,7 +676,7 @@ $$
 \mu_i = h_{0i} \times (\alpha + \beta_1 \text{treatment}_i + \beta_2 \text{fungus}_i).
 $$
 
-With **brms**, we fit models like that using the [non-linear syntax](https://CRAN.R-project.org/package=brms/vignettes/brms_nonlinear.html) [@Bürkner2020Non_linear], which we introduced at the end of Chapter 5. Here it is for `b6.7`.
+With **brms**, we fit models like that using the [non-linear syntax](https://CRAN.R-project.org/package=brms/vignettes/brms_nonlinear.html) [@Bürkner2020Non_linear], which we briefly introduced in [Section 4.4.2.1][Overthinking: Logs and exps, oh my.] and [Section 5.3.2][Many categories.]. Yes friends, it's now time we discuss the non-linear **brms** syntax in detail. Bur first, here's what it looks like for `b6.7`.
 
 ```{r b6.7}
 b6.7 <- 
