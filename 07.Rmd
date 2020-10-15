@@ -19,7 +19,7 @@ In this chapter we contend with two contrasting kinds of statistical error:
 * overfitting, "which leads to poor prediction by learning too *much* from the data"
 * underfitting, "which leads to poor prediction by learning too *little* from the data" [@mcelreathStatisticalRethinkingBayesian2020, p. 192, *emphasis* added]
 
-> Our job is to carefully navigate among these monsters. There are two common families of approaches. The first approach is to use a **regularizing prior** to tell the model not to get too excited by the data. This is the same device that non-Bayesian methods refer to as "penalized likelihood." The second approach is to use some scoring device, like **information criteria** or **cross-validation**, to model the prediction task and estimate predictive accuracy. Both families of approaches are routinely used in the natural and social sciences. Furthermore, they can be--maybe should be--used in combination. So it's worth under- standing both, as you’re going to need both at some point. (p. 192, **emphasis** in the original)
+> Our job is to carefully navigate among these monsters. There are two common families of approaches. The first approach is to use a **regularizing prior** to tell the model not to get too excited by the data. This is the same device that non-Bayesian methods refer to as "penalized likelihood." The second approach is to use some scoring device, like **information criteria** or **cross-validation**, to model the prediction task and estimate predictive accuracy. Both families of approaches are routinely used in the natural and social sciences. Furthermore, they can be--maybe should be--used in combination. So it's worth understanding both, as you're going to need both at some point. (p. 192, **emphasis** in the original)
 
 There's a lot going on in this chapter. More more practice with these ideas, check out @yarkoniChoosingPredictionExplanation2017, [*Choosing prediction over explanation in psychology: Lessons from machine learning*](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6603289/).
 
@@ -27,9 +27,10 @@ There's a lot going on in this chapter. More more practice with these ideas, che
 
 > The most common form of model selection among practicing scientists is to search for a model in which every coefficient is statistically significant. Statisticians sometimes call this **stargazing**, as it is embodied by scanning for asterisks ($^{\star \star}$) trailing after estimates....
 >
-> Whatever you think about null hypothesis significance testing in general, using it to select among structurally different models is a mistake--$p$-values are not designed to help you navigate between underfitting and overfitting" (p. 193). 
+> Whatever you think about null hypothesis significance testing in general, using it to select among structurally different models is a mistake--$p$-values are not designed to help you navigate between underfitting and overfitting. (p. 193, **emphasis** in the original). 
 
-McElreath spent little time discussing $p$-values and null hypothesis testing in the text. If you'd like to learn more from a Bayesian perspective, you might check out the first several chapters (particularly 10--13) in Kruschke's [-@kruschkeDoingBayesianData2015] [text](https://sites.google.com/site/doingbayesiandataanalysis/) and my [-@kurzDoingBayesianData2020] [ebook translating it to **brms** and the tidyverse](https://bookdown.org/content/3686/). The great [Frank Harrell](https://twitter.com/f2harrell) has complied [*A Litany of Problems With p-values*](https://www.fharrell.com/post/pval-litany/), which you might also find of use.
+McElreath spent little time discussing $p$-values and null hypothesis testing in the text. If you'd like to learn more from a Bayesian perspective, you might check out the first several chapters (particularly 10--13) in Kruschke's [-@kruschkeDoingBayesianData2015] [text](https://sites.google.com/site/doingbayesiandataanalysis/) and my [-@kurzDoingBayesianData2020] [ebook translating it to **brms** and the tidyverse](https://bookdown.org/content/3686/). The great [Frank Harrell](https://twitter.com/f2harrell) has complied [*A Litany of Problems With p-values*](https://www.fharrell.com/post/pval-litany/).
+Also, don't miss the statement on $p$-values released by the [American Statistical Association](https://www.amstat.org/) [@wassersteinASAStatementPvalues2016].
 
 ## The problem with parameters
 
@@ -37,7 +38,7 @@ The $R^2$ is a popular way to measure how well you can retrodict the data. It tr
 
 $$R^2 = \frac{\text{var(outcome)} - \text{var(residuals)}}{\text{var(outcome)}} = 1 - \frac{\text{var(residuals)}}{\text{var(outcome)}}.$$
 
-By $\text{var()}$, of course, we meant variance (i.e., what you get from the `var()` function in **R**). McElreath's not a fan of the $R^2$. But it's important in my field, so instead of a summary at the end of the chapter, we will cover the Bayesian version of $R^2$ and how to use it in **brms**.
+By $\operatorname{var}()$, of course, we meant variance (i.e., what you get from the `var()` function in **R**). McElreath is not a fan of the $R^2$. But it's important in my field, so instead of a summary at the end of the chapter, we will cover the Bayesian version of $R^2$ and how to use it in **brms**.
 
 ### More parameters (almost) always improve fit.
 
@@ -61,7 +62,7 @@ Let's get ready for Figure 7.2. The plots in this chapter will be characterized 
 library(rcartocolor)
 ```
 
-The specific palette we'll be using is "BurgYl." In addition to palettes, the rcartocolor package offers a few convenience functions which make it easier to use their palettes. The `carto_pal()` function will return the HEX numbers associated with a given palette's colors and the `display_carto_pal()` function will display the actual colors.
+The specific palette we'll be using is "BurgYl." In addition to palettes, the **rcartocolor** package offers a few convenience functions which make it easier to use their palettes. The `carto_pal()` function will return the HEX numbers associated with a given palette's colors and the `display_carto_pal()` function will display the actual colors.
 
 ```{r, fig.width = 6, fig.height = 2.25}
 carto_pal(7, "BurgYl")
@@ -91,7 +92,7 @@ d %>%
 
 Before fitting our models,
 
-> we want to standardize body mass--give it mean zero and standard deviation one--and rescale the outcome, brain volume, so that the largest observed value is 1. Why not standardize brain volume as well? Because we want to preserve zero as a reference point: No brain at all. You can't have negative brain. I don’t think. (p. 191)
+> we want to standardize body mass--give it mean zero and standard deviation one--and rescale the outcome, brain volume, so that the largest observed value is 1. Why not standardize brain volume as well? Because we want to preserve zero as a reference point: No brain at all. You can't have negative brain. I don't think. (p. 195)
 
 ```{r}
 d <-
@@ -153,7 +154,7 @@ R2_is_bad(m7.1)
 
 Do note that,
 
-> in principle, the Bayesian approach mandates that we do this for each sample from the posterior. But R^2$ is traditionally computed only at the mean prediction. So we'll do that as well here. Later in the chapter you'll learn a properly Bayesian score that uses the entire posterior distribution. (p. 197)
+> in principle, the Bayesian approach mandates that we do this for each sample from the posterior. But $R^2$ is traditionally computed only at the mean prediction. So we'll do that as well here. Later in the chapter you'll learn a properly Bayesian score that uses the entire posterior distribution. (p. 197)
 
 Now fit the quadratic through sixth-order polynomial models.
 
@@ -300,15 +301,11 @@ library(patchwork)
   plot_annotation(title = "Figure7.3. Polynomial linear models of increasing\ndegree for the hominin data.")
 ```
 
-If you really what the axes scaled in the original metrics of the variables rather than their standardized form, you can use the re-scaling techniques from back in the end of Chapter 4 (p. 114).
+If you really what the axes scaled in the original metrics of the variables rather than their standardized form, you can use the re-scaling techniques from back in [Section 4.5.1.0.1][Overthinking: Converting back to natural scale.].
 
 "This is a general phenomenon: If you adopt a model family with enough parameters, you can fit the data exactly. But such a model will make rather absurd predictions for yet-to-be-observed cases" (pp. 199--201).
 
-#### Rethinking: OLS and Bayesian anti-essentialism. 
-
-"It would be possible to use **ordinary least squares** (OLS) to get posterior distributions for these brain size models" (p. 196, **emphasis** in the original). So see an example of an alternative OLS-based workflow for this polynomial models and their figure, check out my [-@kurzStatisticalRethinkingBrms2020] [ebook translation](https://bookdown.org/content/3890/overfitting-regularization-and-information-criteria.html#more-parameters-always-improve-fit.) of Section 6.1.1 from McElreath's [-@mcelreathStatisticalRethinkingBayesian2015] first edition.
-
-#### Rethinking: Model fitting as compression. 
+#### Rethinking: Model fitting as compression.
 
 > Another perspective on the absurd model just above is to consider that model fitting can be considered a form of **data compression**. Parameters summarize relationships among the data. These summaries compress the data into a simpler form, although with loss of information ("lossy" compression) about the sample. The parameters can then be used to generate new data, effectively decompressing the data. (p. 201, **emphasis** in the original)
 
@@ -324,7 +321,7 @@ To explore the distinctions between overfitting and underfitting, we'll need to 
   filter(row_number() != 2)
 ```
 
-In his **Overthinking: Dropping rows** box, McElreath encouraged us to take a look at the `brain_loo_plot()` function to get a sense of how he made his Figure 7.4. Here it is.
+In his **Overthinking: Dropping rows** box (p. 202), McElreath encouraged us to take a look at the `brain_loo_plot()` function to get a sense of how he made his Figure 7.4. Here it is.
 
 ```{r}
 brain_loo_plot
@@ -436,15 +433,16 @@ p1 + p2
 
 "Notice that the straight lines hardly vary, while the curves fly about wildly. This is a general contrast between underfit and overfit models: sensitivity to the exact composition of the sample used to fit the model" (p. 201).
 
+#### Rethinking: Bias and variance. 
+
+> The underfitting/overfitting dichotomy is often described as the **bias-variance trade-off**. While not exactly the same distinction, the bias-variance trade-off addresses the same problem. "Bias" is related to underfitting, while "variance" is related to overfitting. These terms are confusing, because they are used in many different ways in different contexts, even within statistics. The term "bias" also sounds like a bad thing, even though increasing bias often leads
+to better predictions. (p. 201, **emphasis** in the original)
+
+Take a look at @yarkoniChoosingPredictionExplanation2017 for more on the bias-variance trade-off. As McElreath indicated in his endnote #104 (p. 563), Hastie, Tibshirani and Friedman [-@hastie2009elements] broadly cover these ideas in their freely-downloadable text, [*The elements of statistical learning*](https://link.springer.com/book/10.1007%2F978-0-387-84858-7).
+
 ## Entropy and accuracy
 
 > So how do we navigate between the hydra of overfitting and the vortex of underfitting? Whether you end up using regularization or information criteria or both, the first thing you must do is pick a criterion of model performance. What do you want the model to do well at? We'll call this criterion the *target*, and in this section you'll see how information theory provides a common and useful target. (p. 202, *emphasis* in the original)
-
-#### Rethinking: Bias and variance. 
-
-> The underfitting/overfitting dichotomy is often described as the **bias-variance trade-off**. While not exactly the same distinction, the bias-variance trade-off addresses the same problem. "Bias" is related to underfitting, while "variance" is related to overfitting. These terms are confusing, because they are used in many different ways in different contexts, even within statistics. The term "bias" also sounds like a bad thing, even though increasing bias often leads to better predictions. (p. 201, **emphasis** in the original)
-
-Take a look at @yarkoniChoosingPredictionExplanation2017 for more on the bias-variance trade-off. As McElreath indicated in his endnote #104 (p. 563), Hastie, Tibshirani and Friedman [-@hastie2009elements] broadly cover these ideas in their freely-downloadable text, [*The elements of statistical learning*](https://link.springer.com/book/10.1007%2F978-0-387-84858-7).
 
 ### Firing the weatherperson.
 
@@ -544,7 +542,7 @@ Within the context of information theory [@shannonMathematicalTheoryCommunicatio
 
 $$H(p) = - \text E \log (p_i) = - \sum_{i = 1}^n p_i \log (p_i)$$
 
-McElreath put it in words as "The uncertainty contained in a probability distribution is the average log-probability of an event." (p. 206). We'll compute the information entropy for weather at the first unnamed location, which we'll call `McElreath's house`, and `Abu Dhabi` at once.
+McElreath put it in words as: "The uncertainty contained in a probability distribution is the average log-probability of an event." (p. 206). We'll compute the information entropy for weather at the first unnamed location, which we'll call `McElreath's house`, and `Abu Dhabi` at once.
 
 ```{r}
 tibble(place  = c("McElreath's house", "Abu Dhabi"),
@@ -577,7 +575,7 @@ $$D_\text{KL} (p, q) = \sum_i p_i \big ( \log (p_i) - \log (q_i) \big ) = \sum_i
 
 which is what McElreath described in plainer language as "the average difference in log probability between the target ($p$) and model ($q$)" (p. 207).
 
-In McElreath's example
+In McElreath's initial example
 
 * $p_1 = .3$,
 * $p_2 = .7$,
@@ -594,7 +592,7 @@ tibble(p_1 = .3,
   mutate(d_kl = (p_1 * log(p_1 / q_1)) + (p_2 * log(p_2 / q_2)))
 ```
 
-Our systems in this section are binary (e.g., $q = \{ q_i, q_2 \}$). Thus if you know $q_1 = .3$ you know of a necessity $q_2 = 1 - q_1$. Therefore we can code the tibble for the next example of when $p = q$ like this.
+Our systems in this section are binary (e.g., $q = \{ q_i, q_2 \}$). Thus if you know $q_1 = .3$ you know of a necessity $q_2 = 1 - q_1$. Therefore we can code the tibble for the next example, for when $p = q$, like this.
 
 ```{r}
 tibble(p_1 = .3) %>% 
@@ -647,7 +645,7 @@ tibble(direction = c("Earth to Mars", "Mars to Earth"),
 
 The $D_\text{KL}$ was double when applying Martian estimates to Terran estimates. 
 
-> An important practical consequence of this asymmetry, in a model fitting context, is that if we use a distribution with high entropy to approximate an unknown true distribution of events, we will reduce the distance to the truth and therefore the error. This fact will help us build generalized linear models, later on in Chapter 10. (p. 209)
+> An important practical consequence of this asymmetry, in a model fitting context, is that if we use a distribution with high entropy to approximate an unknown true distribution of events, we will reduce the distance to the truth and therefore the error. This fact will help us build generalized linear models, later on in [Chapter 10][Big Entropy and the Generalized Linear Model]. (p. 209)
 
 ### Estimating divergence.
 
@@ -694,7 +692,7 @@ Here's how to take the last step if you would like to express that as $D(q)$.
 -2 * sum(l)
 ```
 
-#### Overthinking: Computing deviance.
+#### Overthinking: Computing the lppd.
 
 We can follow along with both our **rethinking** model `m7.1` and a counterpart fit with **brms**.
 
@@ -710,7 +708,7 @@ b7.1 <-
                 prior(exponential(4.189324), class = sigma)),
       iter = 2000, warmup = 1000, chains = 4, cores = 4,
       seed = 7,
-      file = "fits/07.01")
+      file = "fits/b07.01")
 ```
 
 Before we move on, we should clarify where that `exponential(4.189324)` prior on $\sigma$ came from. Recall that the parameter in the exponential distribution is the rate, $\lambda$. To get the mean of the exponential distribution, you take the reciprocal of the rate.
@@ -766,7 +764,7 @@ The `lppd_r()` function is designed to work with models fit with `rethinking::qu
 lppd_r(m7.1)
 ```
 
-Happily, it returned the same results as McElreath's **R** code 7.13. Our **brms** analogue to the output from `sim(quap_fit, ll = TRUE, n = 1e4)` is to inset a `brm()` model fit into the `log_lik()` function. Although the way those two functions compute their output differes, the format is largely the same. With that in mind, here's a mild reworking of our `lppd_r()` funciton designed to work with **brms** fits.
+Happily, it returned the same results as McElreath's **R** code 7.13 (p. 210). Our **brms** analogue to the output from `sim(quap_fit, ll = TRUE, n = 1e4)` is to inset a `brm()` model fit into the `log_lik()` function. Although the way those two functions compute their output differs, the format is largely the same. With that in mind, here's a mild reworking of our `lppd_r()` function designed to work with **brms** fits.
 
 ```{r}
 lppd_b <- function(brm_fit) {
@@ -819,9 +817,9 @@ tibble(name = str_c("m7.", 1:6)) %>%
   mutate(lppd = purrr::map_dbl(fit, ~sum(lppd(.))))
 ```
 
-> When we usually have data and use it to fit a statistical model, the data comprise a **training sample**. Parameters are estimated from it, and then we can imagine using those estimates to predict outcomes in a new sample, called the **test sample**. R is going to do all of this for you. But here’s the full procedure, in outline:
+> When we usually have data and use it to fit a statistical model, the data comprise a **training sample**. Parameters are estimated from it, and then we can imagine using those estimates to predict outcomes in a new sample, called the **test sample**. R is going to do all of this for you. But here's the full procedure, in outline:
 >
-> 1. Suppose there’s a training sample of size $N$.
+> 1. Suppose there's a training sample of size $N$.
 > 2. Compute the posterior distribution of a model for the training sample, and compute the score on the training sample. Call this score $D_\text{train}$.
 > 3. Suppose another sample of size $N$ from the same process. This is the test sample.
 > 4. Compute the score on the test sample, using the posterior trained on the training
@@ -930,7 +928,7 @@ Even with a substantially smaller $N$, our simulation results matched up well wi
 
 ## Golem taming: regularization
 
-> The root of overfitting is a model's tendency to get overexcited by the training sample. When the priors are flat or nearly flat, the machine interprets this to mean that every parame- ter value is equally plausible. As a result, the model returns a posterior that encodes as much of the training sample--as represented by the likelihood function--as possible.
+> The root of overfitting is a model's tendency to get overexcited by the training sample. When the priors are flat or nearly flat, the machine interprets this to mean that every parameter value is equally plausible. As a result, the model returns a posterior that encodes as much of the training sample--as represented by the likelihood function--as possible.
 >
 > One way to prevent a model from getting too excited by the training sample is to use a skeptical prior. By "skeptical," I mean a prior that slows the rate of learning from the sample. The most common skeptical prior is a **regularizing prior**. Such a prior, when tuned properly, reduces overfitting while still allowing the model to learn the regular features of a sample. (p. 214, **emphasis** in the original)
 
@@ -958,7 +956,7 @@ tibble(x = seq(from = - 3.5, to = 3.5, by = 0.01)) %>%
 
 In our version of the plot, darker purple = more regularizing.
 
-But to prepare for Figure 7.8, let's simulate. This time we'll wrap the basic simulation code we used before into a function we'll call `make_sim()`. Our `make_sim()` function has two parameters, `n` and `b_sigma`, both of which come from McElreath's simulation code. So you'll note that instead of hard coding the values for `n` and `b_sigma` within the simulation, we're leaving them adjustable (i.e., `sim_train_test(N = n, k = k, b_sigma = b_sigma)`). Also notice that instead of saving the simulation results as objects, like before, we're just converting them to a data frame with the `data.frame()` function at the bottom. Our goal is to use `make_sim()` within a `purrr::map2()` statement. The result will be a nested data frame into which we've saved the results of 6 simulations based off of two sample sizes (i.e., `n = c(20, 100)`) and three values of $\sigma$ for our Gaussian $\beta$ prior (i.e., `b_sigma = c(1, .5, .2)`).
+To prepare for Figure 7.8, we need to simulate. This time we'll wrap the basic simulation code we used before into a function we'll call `make_sim()`. Our `make_sim()` function has two parameters, `n` and `b_sigma`, both of which come from McElreath's simulation code. So you'll note that instead of hard coding the values for `n` and `b_sigma` within the simulation, we're leaving them adjustable (i.e., `sim_train_test(N = n, k = k, b_sigma = b_sigma)`). Also notice that instead of saving the simulation results as objects, like before, we're just converting them to a data frame with the `data.frame()` function at the bottom. Our goal is to use `make_sim()` within a `purrr::map2()` statement. The result will be a nested data frame into which we've saved the results of 6 simulations based off of two sample sizes (i.e., `n = c(20, 100)`) and three values of $\sigma$ for our Gaussian $\beta$ prior (i.e., `b_sigma = c(1, .5, .2)`).
 
 ```{r, eval = F}
 library(rethinking)
@@ -1031,7 +1029,7 @@ s %>%
 
 Our results don't perfectly align with those in the text. I suspect his is because we used `1e3` iterations, rather than the `1e4` of the text. If you'd like to wait all night long for the simulation to yield more stable results, be my guest.
 
-> Regularizing priors are great, because they reduce overfitting. But if they are too skeptical, they prevent the model from learning from the data. When you encounter multilevel models in Chapter 13, you'll see that their central device is to learn the strength of the prior from the data itself. So you can think of multilevel models as adaptive regularization, where the model itself tries to learn how skeptical it should be. (p. 216)
+> Regularizing priors are great, because they reduce overfitting. But if they are too skeptical, they prevent the model from learning from the data. When you encounter multilevel models in [Chapter 13][Models With Memory], you'll see that their central device is to learn the strength of the prior from the data itself. So you can think of multilevel models as adaptive regularization, where the model itself tries to learn how skeptical it should be. (p. 216)
 
 I found this connection difficult to grasp for a long time. Practice now and hopefully it'll sink in for you faster than it did me.
 
@@ -1041,7 +1039,7 @@ Within the **brms** framework, you can do something like this with the horseshoe
 
 > The horseshoe prior is a special shrinkage prior initially proposed by @carvalho2009handling. It is symmetric around zero with fat tails and an infinitely large spike at zero. This makes it ideal for sparse models that have many regression coefficients, although only a minority of them is non-zero. The horseshoe prior can be applied on all population-level effects at once (excluding the intercept) by using `set_prior("horseshoe(1)")`. (p. 93)
 
-To dive even deeper into the horseshoe prior, check out Michael Betancourt's [-@betancourtBayesSparse2018] tutorial, [*Bayes sparse regression*](https://betanalpha.github.io/assets/case_studies/bayes_sparse_regression.html#35_the_horseshoe).
+To dive even deeper into the horseshoe prior, check out Michael Betancourt's [-@betancourtBayesSparse2018] tutorial, [*Bayes sparse regression*](https://betanalpha.github.io/assets/case_studies/bayes_sparse_regression.html#35_the_horseshoe). I also have an example of the horseshoe prior (`fit18.5`) in [Section 18.3](https://bookdown.org/content/3686/metric-predicted-variable-with-multiple-metric-predictors.html#shrinkage-of-regression-coefficients) of my [-@kurzDoingBayesianData2020] ebook translation of Kruschke's [-@kruschkeDoingBayesianData2015] text.
 
 ## Predicting predictive accuracy
 
