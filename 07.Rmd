@@ -1057,13 +1057,13 @@ A practical difficulty with LOO-CV is it's costly in terms of the time and memor
 
 > The second approach is the use of **information criteria** to compute an expected score out of sample. Information criteria construct a theoretical estimate of the relative out-of-sample KL divergence. (p. 219, **emphasis** in the original)
 
-The frequentist Akaike information criterion [AIC, @akaike1998information] is the oldest and most restrictive. Among Bayesians, the deviance information criterion [DIC, @spiegelhalterBayesianMeasuresModel2002] has been widely used for some time, now. For a great talk on the DIC, check out the authoritative David Spiegelhalter's [*Retrospective read paper: Bayesian measure of model complexity and fit*](https://www.youtube.com/watch?v=H-59eqmHuuQ&frags=pl%2Cwn). However, the DIC is limited in that it presumes the posterior is multivariate Gaussian, which is not always the case. 
+The frequentist Akaike information criterion [AIC, @akaike1998information] is the oldest and most restrictive. Among Bayesians, the deviance information criterion [DIC, @spiegelhalterBayesianMeasuresModel2002] has been widely used for some time, now. For a great talk on the DIC, check out the authoritative David Spiegelhalter's [*Retrospective read paper: Bayesian measure of model complexity and fit*](https://www.youtube.com/watch?v=H-59eqmHuuQ&frags=pl%2Cwn). However, the DIC is limited in that it presumes the posterior is multivariate Gaussian, which is not always the case.
 
 In this book, our focus will be on the widely applicable information criterion [WAIC, @watanabeAsymptoticEquivalenceBayes2010], which does not impose assumptions on the shape of the posterior distribution. The WAIC both provides an estimate of out-of-sample deviance and converges with LOO-CV as $N \rightarrow \infty$. The WAIC follows the formula
 
 $$\text{WAIC}(y, \Theta) = -2 \big (\text{lppd} - \underbrace{\sum_i \operatorname{var}_\theta \log p(y_i | \theta)}_\text{penalty term} \big),$$
 
-where $y$ is the data, $\Theta$ is the posterior distribution, and $\text{lppd}$ is the log-posterior-predictive-density from before. The penalty term is also referred to at the effective number of parameters, $p_\text{WAIC}$. There are a few ways to compute the WAIC with **brms**, including with the `waic()` funtion.
+where $y$ is the data, $\Theta$ is the posterior distribution, and $\text{lppd}$ is the log-posterior-predictive-density from before. The penalty term is also referred to at the effective number of parameters, $p_\text{WAIC}$. There are a few ways to compute the WAIC with **brms**, including with the `waic()` function.
 
 #### Overthinking: WAIC calculation. 
 
@@ -1081,7 +1081,7 @@ b7.m <-
                 prior(exponential(1), class = sigma)),
       iter = 2000, warmup = 1000, chains = 4, cores = 4,
       seed = 7,
-      file = "fits/07.0m")
+      file = "fits/b07.0m")
 ```
 
 Behold the posterior summary.
@@ -1090,7 +1090,7 @@ Behold the posterior summary.
 print(b7.m)
 ```
 
-Now use the `brms::log_lik()` function to return the loglikelihood for each observation $i$ at each posterior draw $s$, where $S = 4,000$.
+Now use the `brms::log_lik()` function to return the log-likelihood for each observation $i$ at each posterior draw $s$, where $S = 4,000$.
 
 ```{r, results = "hide"}
 n_cases <- nrow(cars)
@@ -1107,7 +1107,7 @@ We have a $4,000 \times 50$ (i.e., $S \times N$) data frame with posterior draws
 
 $$\text{lppd}(y, \Theta) = \sum_i \log \frac{1}{S} \sum_s p (y_i | \Theta_s),$$
 
-where $p (y_i | \Theta_s)$ is the likelihood of case $i$ on posterior draw $s$. Since `log_lik()` returns the point-wise log-likelihood, our first step is to exponentiate those values. For each case $i$ (i.e., $\sum_i$), we then take the average likelihood value [i.e., $\frac{1}{S} \sum_s p (y_i | \Theta_s)$] and transform the result by taking its log [i.e., $\log \left (\frac{1}{S} \sum_s p (y_i | \Theta_s) \right )$]. Here we'll save the pointwise solution as `log_mu_l`.
+where $p (y_i | \Theta_s)$ is the likelihood of case $i$ on posterior draw $s$. Since `log_lik()` returns the pointwise log-likelihood, our first step is to exponentiate those values. For each case $i$ (i.e., $\sum_i$), we then take the average likelihood value [i.e., $\frac{1}{S} \sum_s p (y_i | \Theta_s)$] and transform the result by taking its log [i.e., $\log \left (\frac{1}{S} \sum_s p (y_i | \Theta_s) \right )$]. Here we'll save the pointwise solution as `log_mu_l`.
 
 ```{r, message = F}
 log_mu_l <-
@@ -1175,7 +1175,7 @@ tibble(lppd   = pull(log_mu_l, log_mean_likelihood),
 
 If you'd like the pointwise values from `brms::waic()`, just index.
 
-```{r}
+```{r, warning = F, message = F}
 waic(b7.m)$pointwise %>% 
   head()
 ```
@@ -1302,7 +1302,7 @@ b6.7 <- readRDS("fits/b06.07.rds")
 b6.8 <- readRDS("fits/b06.08.rds")
 ```
 
-With our **brms** paradigm, we also use the `waic()` function. [Both the **rethinking** and **brms** packages get their functionality for the `waic()` and related functions from the [**loo** package](https://CRAN.R-project.org/package=loo) [@R-loo; @vehtariPracticalBayesianModel2017; @yaoUsingStackingAverage2018]. Since the `brms::brm()` function fits the models with HMC, we don't need to set a seed before calling `waic()` the way McElreath did with his `rethinking::quap()` model. We're already drawn from the posterior.
+With our **brms** paradigm, we also use the `waic()` function. Both the **rethinking** and **brms** packages get their functionality for the `waic()` and related functions from the [**loo** package](https://CRAN.R-project.org/package=loo) [@R-loo; @vehtariPracticalBayesianModel2017; @yaoUsingStackingAverage2018]. Since the `brms::brm()` function fits the models with HMC, we don't need to set a seed before calling `waic()` the way McElreath did with his `rethinking::quap()` model. We're already drawn from the posterior.
 
 ```{r}
 waic(b6.7)
@@ -1313,7 +1313,7 @@ The WAIC estimate and its standard error are on the bottom row. The $p_\text{WAI
 Following the version 2.8.0 update, part of the suggested workflow for using information criteria with **brms** (i.e., execute `?loo.brmsfit`) is to add the estimates to the `brm()` fit object itself. You do that with the `add_criterion()` function. Here's how we'd do so with `b6.7`.
 
 ```{r}
-b6.7 <- add_criterion(b6.7, "waic", file = "fits/b06.07.rds")
+b6.7 <- add_criterion(b6.7, "waic", file = "fits/b06.07.rds") 
 ```
 
 With that in place, here's how you'd extract the WAIC information from the fit object.
@@ -1360,9 +1360,9 @@ When we used `print(w)`, a few code blocks earlier, it only returned two columns
 print(w, simplify = F)
 ```
 
-The results are quite analogous to those from `rethinking::compare()`. Again, the difference estimates are in the metric of the $\text{elpd}$. But the interpretation is the same and we can convert them to the traditional information criteria metric with simple multiplication. As we'll see later, this basic workflow applies to the LOO, too.
+The results are quite analogous to those from `rethinking::compare()`. Again, the difference estimates are in the metric of the $\text{elpd}$. But the interpretation is the same and we can convert them to the traditional information criteria metric with simple multiplication. As we'll see later, this basic workflow also applies to the PSIS-LOO.
 
-Okay, we've deviated a bit from the text. Let's reign things back in and note that right after McElreath's **R** code 7.26, he wrote: "PSIS will give you almost identical values. You can add `func=PSIS` to the `compare` call to check" (p. 227). Our `brms::loo_compare()` function has a similar argument, but it's called `criterion`. We set it to `criterion = "waic"` to compare the models by the WAIC. What McElreath is calling `func=PSIS`, we'd call `criterion = "loo"`. Either way, we’re asking the software the compare the models using leave-one-out cross-validation with Pareto-smoothed importance sampling.
+Okay, we've deviated a bit from the text. Let's reign things back in and note that right after McElreath's **R** code 7.26, he wrote: "PSIS will give you almost identical values. You can add `func=PSIS` to the `compare` call to check" (p. 227). Our `brms::loo_compare()` function has a similar argument, but it's called `criterion`. We set it to `criterion = "waic"` to compare the models by the WAIC. What McElreath is calling `func=PSIS`, we'd call `criterion = "loo"`. Either way, we're asking the software the compare the models using leave-one-out cross-validation with Pareto-smoothed importance sampling.
 
 ```{r}
 b6.6 <- add_criterion(b6.6, "loo", file = "fits/b06.06.rds")
@@ -1397,7 +1397,7 @@ Presuming the difference is Gaussian distributed, here's our 99% interval.
 (w[2, 1] * -2) + c(-1, 1) * (w[2, 2] * 2) * 2.6
 ```
 
-With our **brms** paradigm, we won't get a comparrison plot by inserting `loo_compare(b6.6, b6.7, b6.8, criterion = "waic")` within `plot()`. But with a little `[]` subsetting and light wrangling, we can convert the contents of our `w` object to a format suitable for plotting the WAIC estimates with **ggplot2**.
+With our **brms** paradigm, we won't get a comparison plot by inserting `loo_compare(b6.6, b6.7, b6.8, criterion = "waic")` within `plot()`. But with a little `[]` subsetting and light wrangling, we can convert the contents of our `w` object to a format suitable for plotting the WAIC estimates with **ggplot2**.
 
 ```{r, fig.width = 4.5, fig.height = 1.25}
 w[, 7:8] %>% 
@@ -1459,7 +1459,7 @@ In his endnote #130, McElreath discussed how these WAIC weights can be used for 
 
 > The first edition had a section on model averaging, but the topic has been dropped in this edition to save space. The approach is really focused on prediction, not inference, and so it doesn't fit the flow of the second edition. But it is an important approach. (p. 565)
 
-A variety of approaches to model averaging are avaliable with **brms** and I covered them in my [-@kurzStatisticalRethinkingBrms2020] ebook translation of the first edition of McElreath's text.
+A variety of approaches to model averaging are available with **brms** and I covered them in my [-@kurzStatisticalRethinkingBrms2020] ebook translation of the first edition of McElreath's text.
 
 #### Rethinking: WAIC metaphors. 
 
@@ -1482,7 +1482,7 @@ d <-
 rm(WaffleDivorce)
 ```
 
-Refit the divorce models from Chapter 5.
+Refit the divorce models from [Section 5.1][Spurious associations].
 
 ```{r b5.1_b5.3}
 b5.1 <- 
@@ -1523,9 +1523,9 @@ b5.3 <-
 Compute and save the LOO estimates for each.
 
 ```{r}
-b5.1 <- add_criterion(b5.1, "loo", file = "fits/b05.01.rds")
-b5.2 <- add_criterion(b5.2, "loo", file = "fits/b05.02.rds")
-b5.3 <- add_criterion(b5.3, "loo", file = "fits/b05.03.rds")
+b5.1 <- add_criterion(b5.1, "loo", file = "fits/b05.01")
+b5.2 <- add_criterion(b5.2, "loo", file = "fits/b05.02")
+b5.3 <- add_criterion(b5.3, "loo", file = "fits/b05.03")
 ```
 
 Now compare the models by the PSIS-LOO-CV.
@@ -1570,10 +1570,10 @@ Alternatively, we could have extracted that value from our `b5.3` fit object lik
 b5.3$criteria$loo$diagnostics$pareto_k[13]
 ```
 
-0.61 is a little high, but not high enough to cause `loo()` to return a warning message. Once a Pareto $k$ value crosses the 0.7 threshold, though, the **loo** package will bark. Before we make our version of Figure 7.10, we’ll want to compute the WAIC for `b5.3`. That will give us access to the $p_\text{WAIC}$.
+`r round(b5.3$criteria$loo$diagnostics$pareto_k[13], 2)` is a little high, but not high enough to cause `loo()` to return a warning message. Once a Pareto $k$ value crosses the 0.7 threshold, though, the **loo** package will bark. Before we make our version of Figure 7.10, we’ll want to compute the WAIC for `b5.3`. That will give us access to the $p_\text{WAIC}$.
 
-```{r}
-b5.3 <- add_criterion(b5.3, "waic", file = "fits/b05.03.rds")
+```{r, warning = F, message = F}
+b5.3 <- add_criterion(b5.3, "waic", file = "fits/b05.03")
 ```
 
 We're ready to make our version of Figure 7.10.
@@ -1597,13 +1597,13 @@ tibble(pareto_k = b5.3$criteria$loo$diagnostics$pareto_k,
 
 For both the Pareto $k$ and the $p_\text{WAIC}$, our values are not as extreme as those McElreath reported in the text. I'm not sure if this is a consequence of us using HMC or due to recent algorithmic changes for the Stan/**loo** teams. But at least the overall pattern is the same. Idaho is the most extreme/influential case.
 
-In the text, McElreath reported the effective number of parameters for `b5.3` was nearly 6. We can look at this with the `waic()` function.
+In the text (p. 232), McElreath reported the effective number of parameters for `b5.3` was nearly 6. We can look at this with the `waic()` function.
 
 ```{r}
 waic(b5.3)
 ```
 
-Our $p_\text{WAIC}$ was about 4.6, which is still a little high due to Idaho but not quite as high as in the text. There is some concern that Idaho is putting us at risk of overfitting due to the large influence it has on the posterior.
+Our $p_\text{WAIC}$ was about `r round(b5.3$criteria$waic$estimates[2, 1], 1)`, which is still a little high due to Idaho but not quite as high as in the text. There is some concern that Idaho is putting us at risk of overfitting due to the large influence it has on the posterior.
 
 > What can be done about this? There is a tradition of dropping outliers. People sometimes drop outliers even before a model is fit, based only on standard deviations from the mean outcome value. You should never do that--a point can only be unexpected and highly influential in light of a model. After you fit a model, the picture changes. If there are only a few outliers, and you are sure to report results both with and without them, dropping outliers might be okay. But if there are several outliers and we really need to model them, what then?
 >
@@ -1655,11 +1655,11 @@ print(b5.3t)
 
 Here we use the `add_criterion()` function compute both the LOO-CV and the WAIC and add them to the model fit object.
 
-```{r}
-b5.3t <- add_criterion(b5.3t, c("loo", "waic"), file = "fits/b05.03t.rds")
+```{r, warning = F, message = F}
+b5.3t <- add_criterion(b5.3t, c("loo", "waic"), file = "fits/b05.03t")
 ```
 
-Now remake the plot from Figure 7.10, this time based on the $t$ model.
+Now we might remake the plot from Figure 7.10, this time based on the $t$ model.
 
 ```{r, fig.width = 3.25, fig.height = 3}
 tibble(pareto_k = b5.3t$criteria$loo$diagnostics$pareto_k,
@@ -1706,17 +1706,17 @@ bind_rows(posterior_samples(b5.3),
         legend.position = "none",
         strip.background = element_rect(fill = alpha(carto_pal(7, "BurgYl")[1], 1/4), color = "transparent"),
         strip.text = element_text(size = 12)) +
-  facet_wrap(~name, scales = "free_x", ncol = 1, labeller = label_parsed)
+  facet_wrap(~name, ncol = 1, labeller = label_parsed)
 ```
 
-Overall, the coefficients are very similar between the two models. The most notable difference is in $\sigma$. This is, in part, because $\sigma$ has a slightly different meaning for Student $t$ models than it does for the Gaussian. For both, we can refer to $\sigma$ as the *scale* parameter, with is a measure of spread or variability around the mean. However, the scale is the same thing as the standard deviation only for the Gaussian. Kruschke walked this out nicely: 
+Overall, the coefficients are very similar between the two models. The most notable difference is in $\sigma$. This is, in part, because $\sigma$ has a slightly different meaning for Student-$t$ models than it does for the Gaussian. For both, we can refer to $\sigma$ as the *scale* parameter, with is a measure of spread or variability around the mean. However, the scale is the same thing as the standard deviation only for the Gaussian. Kruschke walked this out nicely: 
 
 > It is important to understand that the scale parameter $\sigma$ in the $t$ distribution is not the standard deviation of the distribution. (Recall that the standard deviation is the square root of the variance, which is the expected value of the squared deviation from the mean, as defined back in Equation 4.8, p. 86.) The standard deviation is actually larger than $\sigma$ because of the heavy tails. In fact, when $\nu$drops below 2 (but is still $\geq 1$), the standard deviation of the mathematical $t$ distribution goes to infinity. [-@kruschkeDoingBayesianData2015, p. 159]
 
 
 The variance for $\operatorname{Student-t}(\nu, 0, 1)$ is 
 
-$$\frac{\nu}{\nu-2} \text{ for }  \nu >2, \infty \text{ for } 1 < \nu \leq 2,$$
+$$\frac{\nu}{\nu-2} \text{ for }  \nu >2, \;\;\; \infty \text{ for } 1 < \nu \leq 2,$$
 
 and the standard deviation is the square of that. To give a sense of how that formula works, here are the standard deviation values when $\nu$ ranges from 2.1 to 20.
 
@@ -1750,14 +1750,13 @@ tibble(nu = seq(from = 2.1, to = 20, by = 0.01)) %>%
 As $\nu \rightarrow \infty$, the standard deviation approaches the scale, $\sigma$. We'll have more practice with robust Student's $t$ regression later on. In the mean time, you might check out chapters [16](https://bookdown.org/content/3686/metric-predicted-variable-on-one-or-two-groups.html#outliers-and-robust-estimation-the-t-distribution), [17](https://bookdown.org/content/3686/metric-predicted-variable-with-one-metric-predictor.html#robust-linear-regression), [18](https://bookdown.org/content/3686/metric-predicted-variable-with-multiple-metric-predictors.html#the-model-and-implementation.), [19](https://bookdown.org/content/3686/metric-predicted-variable-with-one-nominal-predictor.html#the-two-group-case.), and [20](https://bookdown.org/content/3686/metric-predicted-variable-with-multiple-nominal-predictors.html#heterogeneous-variances-and-robustness-against-outliers-1) from my [-@kurzDoingBayesianData2020] ebook translation of Kruschke's text. I've also blogged on using the robust Student's $t$ for [regression](https://solomonkurz.netlify.app/post/robust-linear-regression-with-the-robust-student-s-t-distribution/) and [correlations](https://solomonkurz.netlify.app/post/bayesian-robust-correlations-with-brms-and-why-you-should-love-student-s-t/).
 
 #### Rethinking: The Curse of Tippecanoe.
-
 > One concern with model comparison is, if we try enough combinations and transformations of predictors, we might eventually find a model that fits any sample very well. But this fit will be badly overfit, unlikely to generalize....
 >
 > Fiddling with and constructing many predictor variables is a great way to find coincidences, but not necessarily a great way to evaluate hypotheses. However, fitting many possible models isn't always a dangerous idea, provided some judgment is exercised in weeding down the list of variables at the start. There are two scenarios in which this strategy appears defensible. First, sometimes all one wants to do is explore a set of data, because there are no clear hypotheses to evaluate. This is rightly labeled pejoratively as **data dredging**, when one does not admit to it. But when used together with model averaging, and freely admitted, it can be a way to stimulate future investigation. Second, sometimes we need to convince an audience that we have tried all of the combinations of predictors, because none of the variables seem to help much in prediction. (p. 234, **emphasis** in the original)
 
 ## ~~Summary~~ Bonus: $R^2$ talk
 
-At the beginning of the chapter (pp. 193--201), McElreath introduced $R^2$ as a popular way to assess the variance explained in a model. He pooh-poohed it because of its tendency to overfit. It's also limited in that it doesn't generalize well outside of the single-level Gaussian framework, which will be a big deal for us starting in Chapter 10. However, if you should find yourself in a situation where $R^2$ suits your purposes, the **brms** `bayes_R2()` function might be of use. Simply feeding a model `brm()` fit object into `bayes_R2()` will return the posterior mean, $SD$, and 95% intervals. For example:
+At the beginning of the chapter (pp. 193--201), McElreath introduced $R^2$ as a popular way to assess the variance explained in a model. He pooh-poohed it because of its tendency to overfit. It's also limited in that it doesn't generalize well outside of the single-level Gaussian framework, which will be a big deal for us starting in [Chapter 10][Big Entropy and the Generalized Linear Model]. However, if you should find yourself in a situation where $R^2$ suits your purposes, the **brms** `bayes_R2()` function might be of use. Simply feeding a model `brm()` fit object into `bayes_R2()` will return the posterior mean, $SD$, and 95% intervals. For example:
 
 ```{r}
 bayes_R2(b5.3) %>% round(digits = 3)
@@ -1775,7 +1774,7 @@ rbind(bayes_R2(b5.1),
   select(model, r_square_posterior_mean)
 ```
 
-If you want the full distribution of the $R^2$, you’ll need to add a `summary = F` argument. Note how this returns a numeric vector.
+If you want the full distribution of the $R^2$, you'll need to add a `summary = F` argument. Note how this returns a numeric vector.
 
 ```{r}
 r2_b5.1 <- bayes_R2(b5.1, summary = F)
@@ -1786,23 +1785,26 @@ r2_b5.1 %>%
 
 If you want to use these in **ggplot2**, you'll need to put them in tibbles or data frames. Here we do so for two of our model fits.
 
-```{r, fig.width = 3.5, fig.height = 3}
+```{r, fig.width = 4, fig.height = 2.75}
 r2 <-
   cbind(bayes_R2(b5.1, summary = F),
         bayes_R2(b5.2, summary = F)) %>% 
   data.frame() %>% 
   set_names(str_c("b5.", 1:2)) 
   
-  r2 %>% 
+r2 %>% 
   ggplot() +
   geom_density(aes(x = b5.1),
                alpha = 3/4, size = 0, fill = carto_pal(7, "BurgYl")[4]) +
   geom_density(aes(x = b5.2),
                alpha = 3/4, size = 0, fill = carto_pal(7, "BurgYl")[6]) +
+  annotate(geom = "text", 
+           x = c(.1, .34), y = 3.5, 
+           label = c("b5.2", "b5.1"), 
+           color = alpha("white", 3/4), family = "Courier") +
   scale_x_continuous(NULL, limits = c(0, 1)) +
   scale_y_continuous(NULL, breaks = NULL) +
-  labs(title = expression(italic(R)^2~distributions),
-       subtitle = "Going from left to right, these are\nfor models b5.2 and b5.1.")
+  ggtitle(expression(italic(R)^2~distributions))
 ```
 
 If you do your work in a field where folks use $R^2$ change, you might do that with a simple difference score. Here's the $\Delta R^2$ plot.
