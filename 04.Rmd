@@ -1703,7 +1703,7 @@ We specifically left out the `fitted()` intervals to make it more apparent what 
 
 "The models so far all assume that a straight line describes the relationship. But there's nothing special about straight lines, aside from their simplicity." (p. 110).
 
-### Polynomial regression
+### Polynomial regression.
 
 Remember `d`?
 
