@@ -24,11 +24,11 @@ options(width = 100)
 
 ## Maximum entropy
 
-> In [Chapter 7][Ulysses' Compass], you met the basics of information theory. In brief, we seek a measure of uncertainty that satisfies three criteria: (1) the measure should be continuous; (2) it should increase as the number of possible events increases; and (3) it should be additive. The resulting unique measure of the uncertainty of a probability $p$ with probabilities $p_i$ for each possible event $i$ turns out to be just the average log-probability:
+> In [Chapter 7][Ulysses' Compass], you met the basics of information theory. In brief, we seek a measure of uncertainty that satisfies three criteria: (1) the measure should be continuous; (2) it should increase as the number of possible events increases; and (3) it should be additive. The resulting unique measure of the uncertainty of a probability distribution $p$ with probabilities $p_i$ for each possible event $i$ turns out to be just the average log-probability:
 >
 > $$H(p) = - \sum_i p_i \log p_i$$
 >
-> This function is known as *information entropy*. 
+> This function is known as *information entropy*.
 >
 > The principle of maximum entropy applies this measure of uncertainty to the problem of choosing among probability distributions. Perhaps the simplest way to state the maximum entropy principle is:
 >
@@ -95,8 +95,8 @@ d %>%
     aes(label = label), 
     hjust = 1) +
   scale_y_continuous(breaks = c(0, 5, 10), limits = c(0, 12)) +
-  theme(panel.grid = element_blank(),
-        panel.background = element_rect(fill = ghibli_palette("MarnieMedium1")[6]),
+  theme(panel.background = element_rect(fill = ghibli_palette("MarnieMedium1")[6]),
+        panel.grid = element_blank(),
         strip.background = element_rect(fill = ghibli_palette("MarnieMedium1")[7])) +
   facet_wrap(~letter, ncol = 2)
 ```
@@ -123,8 +123,8 @@ d %>%
   geom_text(aes(y = text_y, label = name)) +
   labs(x = "log(ways) per pebble",
        y = "entropy") +
-  theme(panel.grid = element_blank(),
-        panel.background = element_rect(fill = ghibli_palette("MarnieMedium1")[6]))
+  theme(panel.background = element_rect(fill = ghibli_palette("MarnieMedium1")[6]),
+        panel.grid = element_blank())
 ```
 
 "The distribution that can happen the greatest number of ways is the most plausible distribution. Call this distribution the **maximum entropy distribution**" (p. 303, **emphasis** in the original). Among the pebbles, the maximum entropy distribution was `e` (i.e., the uniform).
@@ -171,8 +171,8 @@ crossing(value = seq(from = -5, to = 5, by = .1),
   labs(subtitle = "Guess which color denotes the Gaussian.") +
   coord_cartesian(xlim = c(-4, 4)) +
   theme(legend.position = "none",
-        panel.grid = element_blank(),
-        panel.background = element_rect(fill = ghibli_palette("MarnieMedium2")[7]))
+        panel.background = element_rect(fill = ghibli_palette("MarnieMedium2")[7]),
+        panel.grid = element_blank())
 ```
 
 Here's right panel of Figure 10.2.
@@ -194,8 +194,8 @@ crossing(value = -8:8,
   geom_line(size = 2, color = ghibli_palette("MarnieMedium2")[6]) +
   xlab(expression(beta(i.e.*", "*shape))) +
   coord_cartesian(ylim = c(1.34, 1.42)) +
-  theme(panel.grid = element_blank(),
-        panel.background = element_rect(fill = ghibli_palette("MarnieMedium2")[7]))
+  theme(panel.background = element_rect(fill = ghibli_palette("MarnieMedium2")[7]),
+        panel.grid = element_blank())
 ```
 
 If you look closely, you'll see our version doesn't quite match up with McElreath's. Over $x$-axis values of 2 to 4, they match up pretty well. But as you go from 2 to 1, you'll see our line drops off more steeply than his did. [And no, `coord_cartesian()` isn't the problem.] If you can figure out why our numbers diverged, [please share the answer](https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed/issues).
@@ -269,8 +269,8 @@ d  %>%
   labs(x = NULL, y = NULL) +
   coord_cartesian(ylim = 0:1) +
   theme(axis.ticks.x = element_blank(),
-        panel.grid = element_blank(),
         panel.background = element_rect(fill = ghibli_palette("PonyoMedium")[2]),
+        panel.grid = element_blank(),
         strip.background = element_rect(fill = ghibli_palette("PonyoMedium")[6])) +
   facet_wrap(~distribution)
 ```
@@ -404,8 +404,8 @@ p1 <-
   geom_text(data = subset_d %>% group_by(seed) %>% slice(1),
             aes(y = height + .5, label = distribution)) +
   scale_x_continuous("Entropy", breaks = seq(from = .7, to = 1.2, by = .1)) +
-  theme(panel.grid = element_blank(),
-        panel.background = element_rect(fill = ghibli_palette("LaputaMedium")[7]))
+  theme(panel.background = element_rect(fill = ghibli_palette("LaputaMedium")[7]),
+        panel.grid = element_blank())
 ```
 
 Did you notice how our `adjust = 1/4` with `geom_density()` served a similar function to the `adj=0.1` in McElreath's `dens()` code? Anyways, here we make the right panel and combine the two with **patchwork**.
@@ -422,8 +422,8 @@ p2 <-
   scale_y_continuous(NULL, breaks = NULL, limits = c(0, .75)) +
   xlab(NULL) +
   theme(axis.ticks.x = element_blank(),
-        panel.grid = element_blank(),
         panel.background = element_rect(fill = ghibli_palette("LaputaMedium")[7]),
+        panel.grid = element_blank(),
         strip.background = element_rect(fill = ghibli_palette("LaputaMedium")[6])) +
   facet_wrap(~distribution)
 
@@ -484,18 +484,13 @@ tibble(x = seq(from = -1, to = 3, by = .01)) %>%
         panel.background = element_rect(fill = ghibli_palette("MononokeMedium")[1]))
 ```
 
-> For a count outcome $y$ for which each observation arises from $n$ trials and with constant expected value $np$, the binomial distribution has maximum entropy. So it's the least informative distribution that satisfies our prior knowledge of the outcomes $y$. (p. 281)
+> Luckily, it's easy to do better. By using all of our prior knowledge about the outcome
+variable, usually in the form of constraints on the possible values it can take, we can appeal
+to maximum entropy for the choice of distribution. Then all we have to do is generalize the
+linear regression strategy--replace a parameter describing the shape of the likelihood with a
+linear model--to probability distributions other than the Gaussian. (p. 313)
 
-The binomial model follows the basic form
-
-\begin{align*}
-y_i    & \sim \operatorname{Binomial} (n, p_i) \\
-f(p_i) & = \alpha + \beta (x_i - \bar x),
-\end{align*}
-
-where the $(x_i - \bar x)$ part is meant to reinforce the practice of mean-centering our predictor variables and the $f(\cdot)$ portion of the second line represents the link function. We need the link function because, though the shape of the Binomial distribution is determined by two parameters--$n$ and $p$--, neither is equivalent to the Gaussian mean $\mu$. The mean outcome, rather, is $np$--a function of both. The link function also ensures the model doesn't make probability predictions outside of the boundary $[0, 1]$.
-
-Let's get more general.
+As we will see, doing better will often involve using link functions.
 
 #### Rethinking: The scourge of Histomancy. 
 
@@ -523,8 +518,8 @@ tibble(x = seq(from = 0, to = 5, length.out = length_out)) %>%
   scale_x_continuous(NULL, breaks = NULL) +
   scale_y_continuous(NULL, breaks = NULL) +
   coord_cartesian(xlim = c(0, 4)) +
-  theme(panel.grid = element_blank(),
-        panel.background = element_rect(fill = ghibli_palette("SpiritedMedium")[5]),
+  theme(panel.background = element_rect(fill = ghibli_palette("SpiritedMedium")[5]),
+        panel.grid = element_blank(),
         strip.background = element_rect(fill = ghibli_palette("SpiritedMedium")[7])) +
   facet_wrap(~label, scales = "free_y", labeller = label_parsed)
 ```
@@ -540,8 +535,8 @@ tibble(x = seq(from = -5, to = 5, length.out = length_out)) %>%
   scale_x_continuous(NULL, breaks = NULL) +
   scale_y_continuous(NULL, breaks = NULL) +
   coord_cartesian(xlim = c(-4, 4)) +
-  theme(panel.grid = element_blank(),
-        panel.background = element_rect(fill = ghibli_palette("SpiritedMedium")[5]),
+  theme(panel.background = element_rect(fill = ghibli_palette("SpiritedMedium")[5]),
+        panel.grid = element_blank(),
         strip.background = element_rect(fill = ghibli_palette("SpiritedMedium")[7])) +
   facet_wrap(~strip, labeller = label_parsed)
 ```
@@ -557,8 +552,8 @@ tibble(x = 0:20) %>%
   scale_x_continuous(NULL, breaks = NULL) +
   scale_y_continuous(NULL, breaks = NULL) +
   coord_cartesian(xlim = c(0, 10)) +
-  theme(panel.grid = element_blank(),
-        panel.background = element_rect(fill = ghibli_palette("SpiritedMedium")[5]),
+  theme(panel.background = element_rect(fill = ghibli_palette("SpiritedMedium")[5]),
+        panel.grid = element_blank(),
         strip.background = element_rect(fill = ghibli_palette("SpiritedMedium")[7])) +
   facet_wrap(~strip, labeller = label_parsed)
 ```
@@ -574,8 +569,8 @@ tibble(x = 0:10) %>%
   scale_x_continuous(NULL, breaks = NULL) +
   scale_y_continuous(NULL, breaks = NULL) +
   coord_cartesian(xlim = c(0, 10)) +
-  theme(panel.grid = element_blank(),
-        panel.background = element_rect(fill = ghibli_palette("SpiritedMedium")[5]),
+  theme(panel.background = element_rect(fill = ghibli_palette("SpiritedMedium")[5]),
+        panel.grid = element_blank(),
         strip.background = element_rect(fill = ghibli_palette("SpiritedMedium")[7])) +
   facet_wrap(~strip, labeller = label_parsed)
 ```
@@ -588,30 +583,29 @@ For a little more in this, check out McElreath's great lecture, [Bayesian statis
 
 ### Linking linear models to distributions.
 
-> To build a regression model from any of the exponential family distributions is just a matter of attaching one or more linear models to one or more of the parameters that describe the distribution’s shape. But as hinted at earlier, usually we require a **link function** to prevent mathematical accidents like negative distances or probability masses that exceed 1. (p. 316, **emphasis** in the original)
+> To build a regression model from any of the exponential family distributions is just a matter of attaching one or more linear models to one or more of the parameters that describe the distribution's shape. But as hinted at earlier, usually we require a **link function** to prevent mathematical accidents like negative distances or probability masses that exceed 1. (p. 316, **emphasis** in the original)
 
 These models generally follow the form
 
-$$
 \begin{align*}
-y_i         & \sim \operatorname{Some distribution} (\theta_i, \phi) \\
-f(\theta_i) & = \alpha + \beta (x_i - \bar x),
+y_i         & \sim \color{#4D6D93}{\operatorname{Some distribution}} (\theta_i, \phi) \\
+\color{#4D6D93}{f(\theta_i)} & = \alpha + \beta (x_i - \bar x),
 \end{align*}
-$$
-where $\theta_i$ is a parameter of central interest (e.g., the probability of 1 in a Binomial distribution) and $\phi$ is a placeholder for any other parameters necessary for the likelihood but not of primary substantive interest (e.g., $\sigma$ in conventional Gaussian models). And as stated earlier, $f(\cdot)$ is the link function.
 
-Speaking of, 
+where $\theta_i$ is a parameter of central interest (e.g., the probability of 1 in a Binomial distribution) and $\phi$ is a placeholder for any other parameters necessary for the likelihood but not typically of primary substantive interest (e.g., $\sigma$ in conventional Gaussian models). The $f(\cdot)$ portion is the link function.
 
-> the **logit link** maps a parameter that is defined as a probability mass and therefore constrained to lie between zero and one, onto a linear model that can take on any real value. This link is extremely common when working with binomial GLMs. In the context of a model definition, it looks like this:
+Speaking about links, 
+
+> the **logit link** maps a parameter that is defined as a probability mass, and therefore constrained to lie between zero and one, onto a linear model that can take on any real value. This link is extremely common when working with binomial GLMs. In the context of a model definition, it looks like this:
 >
 > \begin{align*}
-> y_i & \sim \operatorname{Binomial}(n, p_i) \\
-> \operatorname{logit}(p_i) & = \alpha + \beta x_i 
+> y_i & \sim \color{#4D6D93}{\operatorname{Binomial}}(n, p_i) \\
+> \color{#4D6D93}{\operatorname{logit}}(p_i) & = \alpha + \beta x_i 
 > \end{align*}
 >
 > And the logit function itself is defined as the *log-odds:*
 >
-> $$\operatorname{logit} (p_i) = \log \frac{p_i}{1 - p_i}$$
+> $$\operatorname{logit}(p_i) = \log \frac{p_i}{1 - p_i}$$
 >
 > The "odds" of an event are just the probability it happens divided by the probability it does not happen. So really all that is being stated here is:
 >
@@ -673,8 +667,8 @@ p2 <-
 > The second very common link function is the **log link**. This link function maps a parameter that is defined over only positive real values onto a linear model. For example, suppose we want to model the standard deviation $\sigma$ of a Gaussian distribution so it is a function of a predictor variable $x$. The parameter $\sigma$ must be positive, because a standard deviation cannot be negative nor can it be zero. The model might look like:
 >
 > \begin{align*}
-> y_i             & \sim \operatorname{Normal} (\mu, \sigma_i) \\
-> \log (\sigma_i) & = \alpha + \beta x_i
+> y_i & \sim \operatorname{Normal}(\mu, \color{#0E84B4}{\sigma_i}) \\
+> \color{#0E84B4}{\log (\sigma_i)} & = \alpha + \beta x_i
 > \end{align*}
 >
 > In this model, the mean $\mu$ is constant, but the standard deviation scales with the value $x_i$. (p. 318, **emphasis** in the original)
@@ -691,7 +685,7 @@ set.seed(10)
 )
 ```
 
-We can view what data like these look like with aid from `tidybayes::stat_halfeye()`.
+These data are based on IQ data. In psychology, general intelligence is often operationalized by and measured with standardized intelligence tests. The results form these tests are often summarized with an a single intelligence quotient (IQ) score, often called the full-scale IQ score. For many years now, the convention within among IQ test developers is to scale full-scale IQ scores so they have a population mean of 100 and a standard deviation of 15. One of the old and continuing controversies in the literature is whether men and women differ not in their means--they don't--but in their standard deviations [e.g., @johnsonSexDifferencesVariability2008]. To give a sense of how one might explore such a controversy, we simulated data where the `y` variables have a mean of 100 and standard deviations of either 10 or 20, depending on one's status on `x`. We can view what data like these look like with aid from `tidybayes::stat_halfeye()`.
 
 ```{r, fig.width = 3.5, fig.height = 3, message = F, warning = F}
 library(tidybayes)
@@ -710,7 +704,7 @@ d %>%
         panel.background = element_rect(fill = ghibli_palette("KikiMedium")[7]))
 ```
 
-Even though the means of `y` are the same for both levels of the `x` dummy, the variance for `x == 1` is substantially larger than that for `x == 0`. Let's open brms.
+Even though the means of `y` are the same for both levels of the `x` dummy, the variance for `x == 1` is substantially larger than that for `x == 0`. Let's open **brms**.
 
 ```{r, warning = F, message = F}
 library(brms)
@@ -723,9 +717,9 @@ b10.1 <-
   brm(data = d,
       family = gaussian,
       bf(y ~ 1, sigma ~ 1 + x),
-      prior = c(prior(normal(100, 10), class = Intercept),
-                prior(normal(0, 10), class = Intercept, dpar = sigma),
-                prior(normal(0, 10), class = b, dpar = sigma)),
+      prior = c(prior(normal(100, 5), class = Intercept),
+                prior(normal(2.70805, 0.5), class = Intercept, dpar = sigma),
+                prior(normal(0, 0.5), class = b, dpar = sigma)),
       seed = 10,
       file = "fits/b10.01")
 ```
@@ -765,7 +759,7 @@ post %>%
         panel.background = element_rect(fill = ghibli_palette("KikiMedium")[7]))
 ```
 
-If we looked back at the data, those $SD$ estimates are just what we'd expect.
+If we looked back at the data, those $SD$ estimates are right about what we'd expect.
 
 ```{r, message = F}
 d %>% 
@@ -773,7 +767,7 @@ d %>%
   summarise(sd = sd(y) %>% round(digits = 1)) 
 ```
 
-For more on models like this, check out Christakis's blog post, [*2014: What scientific idea is ready for retirement?*](https://www.edge.org/response-detail/25437), or his paper with Subramanian and Kim, [*The "average" treatment effect: A construct ripe for retirement. A commentary on Deaton and Cartwright*](http://humannaturelab.net/publications/the-average-treatment-effect-a-construct-ripe-for-retirement-a-commentary-on-deaton-and-cartwright), [@subramanianAverageTreatmentEffect2018a]. Kruschke covered modeling $\sigma$ a bit in his [-@kruschkeDoingBayesianData2015] [*Doing Bayesian data analysis, second edition: A tutorial with R, JAGS, and Stan*](https://sites.google.com/site/doingbayesiandataanalysis/), my [-@kurzDoingBayesianData2020] translation for which lives [here](https://bookdown.org/content/3686/). Finally, this is foreshadowing a bit because it requires the multilevel model (see Chapters 13 and 14), but you might also check out the preprint by Williams, Liu, Martin, and Rast, [*Bayesian Multivariate Mixed-Effects Location Scale Modeling of Longitudinal Relations among Affective Traits, States, and Physical Activity*](https://psyarxiv.com/4kfjp/) or Williams's blog post, [*A defining feature of cognitive interference tasks: Heterogeneous within-person variance*](https://donaldrwilliams.github.io/2020/04/04/a-defining-feature-of-cognitive-interference-tasks-heterogeneous-within-person-variance/).
+For more on models like this, check out Christakis's blog post, [*2014: What scientific idea is ready for retirement?*](https://www.edge.org/response-detail/25437), or his paper with Subramanian and Kim, [*The "average" treatment effect: A construct ripe for retirement. A commentary on Deaton and Cartwright*](http://humannaturelab.net/publications/the-average-treatment-effect-a-construct-ripe-for-retirement-a-commentary-on-deaton-and-cartwright), [@subramanianAverageTreatmentEffect2018a]. Kruschke covered modeling $\sigma$ a bit in his [-@kruschkeDoingBayesianData2015] [*Doing Bayesian data analysis, second edition: A tutorial with R, JAGS, and Stan*](https://sites.google.com/site/doingbayesiandataanalysis/), my [-@kurzDoingBayesianData2020] translation for which lives [here](https://bookdown.org/content/3686/). Finally, this is foreshadowing a bit because it requires the multilevel model (see Chapters [13][Models With Memory] and [14][Adventures in Covariance]), but you might also check out the [-@williamsBayesianMultivariateMixedeffects2019a] preprint by Williams, Liu, Martin, and Rast, [*Bayesian multivariate mixed-effects location scale modeling of longitudinal relations among affective traits, states, and physical activity*](https://psyarxiv.com/4kfjp/) or Williams's blog post, [*A defining feature of cognitive interference tasks: Heterogeneous within-person variance*](https://donaldrwilliams.github.io/2020/04/04/a-defining-feature-of-cognitive-interference-tasks-heterogeneous-within-person-variance/).
 
 But getting back to the text,
 
@@ -824,10 +818,9 @@ p2 <-
 # combine the ggplots
 p1 | p2
 ```
-
 > Using a log link for a linear model (left) implies an exponential scaling of the outcome with the predictor variable (right). Another way to think of this relationship is to remember that logarithms are *magnitudes*. An increase of one unit on the log scale means an increase of an order of magnitude on the untransformed scale. And this fact is reflected in the widening intervals between the horizontal lines in the right-hand plot of Figure 10.8. (p. 319, *emphasis* in the original)
 
-#### Rethinking: When in doubt, play with assumptions. 
+#### Rethinking: When in doubt, play with assumptions.
 
 > Link functions are assumptions. And like all assumptions, they are useful in different contexts. The conventional logit and log links are widely useful, but they can sometimes distort inference. If you ever have doubts, and want to reassure yourself that your conclusions are not sensitive to choice of link function, then you can use **sensitivity analysis**. A sensitivity analysis explores how changes in assumptions influence inference. (p. 319, **emphasis** in the original)
 
@@ -835,7 +828,7 @@ As an example, a common alternative to the logit link is the probit. Both are av
 
 ### Omitted variable bias again.
 
-> Back in Chapters 5 and 6, you saw some examples of omitted variable bias, where leaving a causally important variable out of a model leads to biased inference. The same thing can of course happen in GLMs. But it can be worse in GLMs, because even a variable that isn’t technically a confounder can bias inference, once we have a link function. The reason is that the ceiling and floor effects described above can distort estimates by suppressing the causal influence of a variable. (p. 320)
+> Back in Chapters [5][The Many Variables & The Spurious Waffles] and [6][The Haunted DAG & The Causal Terror], you saw some examples of omitted variable bias, where leaving a causally important variable out of a model leads to biased inference. The same thing can of course happen in GLMs. But it can be worse in GLMs, because even a variable that isn't technically a confounder can bias inference, once we have a link function. The reason is that the ceiling and floor effects described above can distort estimates by suppressing the causal influence of a variable. (p. 320)
 
 ### Absolute and relative differences. 
 
