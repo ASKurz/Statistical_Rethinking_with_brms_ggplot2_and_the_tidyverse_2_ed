@@ -15,30 +15,30 @@ options(width = 110)
 # Monsters and Mixtures
 
 > Many monsters are hybrids. Many statistical models are too. This chapter is about constructing likelihood and link functions by piecing together the simpler components of previous chapters. Like legendary monsters, these hybrid likelihoods contain pieces of other model types. Endowed with some properties of each piece, they help us model outcome variables with inconvenient, but common, properties....
-
+>
 > We'll consider three common and useful examples. The first are models for handling **over-dispersion**. These models extend the binomial and Poisson models of the previous chapter to cope a bit with unmeasured sources of variation. The second type is a family of **zero-inflated** and **zero-augmented** models, each of which mixes a binary event with an ordinary GLM likelihood like a Poisson or binomial. The third type is the **ordered categorical** model, useful for categorical outcomes with a fixed ordering. This model is built by merging a categorical likelihood function with a special kind of link function, usually a **cumulative link**. We'll also learn how to construct ordered categorical predictors.
 >
 > These model types help us transform our modeling to cope with the inconvenient realities of measurement, rather than transforming measurements to cope with the constraints of our models. [@mcelreathStatisticalRethinkingBayesian2020, p. 369, **emphasis** in the original]
 
 ## Over-dispersed counts
 
-> When counts arise from a mixture of different processes, then there may be more variation—thicker tails—than a pure count model expects. This can again lead to overly excited models. When counts are more variable than a pure process, they exhibit **over-dispersion**. The variance of a variable is sometimes called its **dispersion**. For a counting process like a binomial, the variance is a function of the same parameters as the expected value. For example, the expected value of a binomial is $Np$ and its variance is $Np(1 - p)$. When the observed variance exceeds this amount--after conditioning on all the predictor variables—this implies that some omitted variable is producing additional dispersion in the observed counts.
+> When counts arise from a mixture of different processes, then there may be more variation--thicker tails--than a pure count model expects. This can again lead to overly excited models. When counts are more variable than a pure process, they exhibit **over-dispersion**. The variance of a variable is sometimes called its **dispersion**. For a counting process like a binomial, the variance is a function of the same parameters as the expected value. For example, the expected value of a binomial is $Np$ and its variance is $Np(1 - p)$. When the observed variance exceeds this amount--after conditioning on all the predictor variables--this implies that some omitted variable is producing additional dispersion in the observed counts.
 >
-> That isn't necessarily bad. Such a model could still produce perfectly good inferences. But ignoring over-dispersion can also lead to all of the same problems as ignoring any predictor variable. Heterogeneity in counts can be a confound, hiding effects of interest or producing spurious inferences. (p, 346, *emphasis* in the original)
+> That isn't necessarily bad. Such a model could still produce perfectly good inferences. But ignoring over-dispersion can also lead to all of the same problems as ignoring any predictor variable. Heterogeneity in counts can be a confound, hiding effects of interest or producing spurious inferences. (p, 370, **emphasis** in the original)
 
-In this chapter we'll cope with the problem using continuous mixture models--first the beta-binomial and then the gamma-Poisson (a.k.a. negative binomial).
+In this chapter we'll cope with the problem using continuous mixture models, "models in which a linear model is attached not to the observations themselves but rather to a distribution of observations" (p. 370).
 
 ### Beta-binomial.
 
 > A **beta-binomial** model is a mixture of binomial distributions. It assumes that each binomial count observation has its own probability of success. We estimate the *distribution* of probabilities of success instead of a single probability of success. Any predictor variables describe the shape of this distribution. (p, 370, **emphasis** in the original)
 
-Unfortunately, we need to digress. As it turns out, there are multiple ways to parameterize the beta distribution and we've run square into two. In the text, McElreath wrote the beta distribution has two parameters, an average probability $\bar p$ and a shape parameter $\theta$. In his **R** code 12.1, which we'll reproduce in a bit, he demonstrated that parameterization with the `rethinking::dbeta2()` function. The nice thing about this parameterization is how intuitive the `pbar` parameter is. If you want a beta with an average of .2, you set `pbar = .2`. If you want the distribution to be more or less certain, make the `theta` argument more or less large, respectively.
+Unfortunately, we need to digress. As it turns out, there are multiple ways to parameterize the beta distribution and we've run square into two. In the text, McElreath described the beta distribution with two parameters, an average probability $\bar p$ and a shape parameter $\theta$. In his **R** code 12.1, which we'll reproduce in a bit, he demonstrated that parameterization with the `rethinking::dbeta2()` function. The nice thing about this parameterization is how intuitive the `pbar` parameter is. If you want a beta with an average of .2, you set `pbar = .2`. If you want the distribution to be more or less certain, make the `theta` argument more or less large, respectively.
 
 However, the beta density is often defined in terms of $\alpha$ and $\beta$. If you denote the data as $y$, this follows the form
 
-$$\operatorname{Beta} (y | \alpha, \beta) = \frac{y^{\alpha - 1} (1 - y)^{\beta - 1}}{\text B (\alpha, \beta)},$$
+$$\operatorname{Beta}(y | \alpha, \beta) = \frac{y^{\alpha - 1} (1 - y)^{\beta - 1}}{\text B (\alpha, \beta)},$$
 
-which you can verify in the [*Continuous distributions on [0, 1]* section](https://mc-stan.org/docs/2_23/functions-reference/continuous-distributions-on-0-1.html) of the [Stan functions reference](https://mc-stan.org/docs/2_23/functions-reference/index.html) [@standevelopmentteamStanFunctionsReference2020]. In the formula, $\text B$ stands for the Beta function, which computes a normalizing constant, which you can learn about in the [*Mathematical functions* chapter](https://mc-stan.org/docs/2_23/functions-reference/math-functions.html) of the [Stan functions reference](https://mc-stan.org/docs/2_23/functions-reference/index.html). If you look at the base **R** `dbeta()` function, you'll learn it takes two parameters, `shape1` and `shape2`. Those uncreatively-named parameters are the same $\alpha$ and $\beta$ from the density, above. They do not correspond to the `pbar` and `theta` parameters of McEreath's `rethinking::dbeta2()` function.
+which you can verify in the [*Continuous distributions on [0, 1]* section](https://mc-stan.org/docs/2_24/functions-reference/continuous-distributions-on-0-1.html) of the [Stan functions reference](https://mc-stan.org/docs/2_24/functions-reference/index.html) [@standevelopmentteamStanFunctionsReference2020]. In the formula, $\text B$ stands for the Beta function, which computes a normalizing constant, which you can learn about in the [*Mathematical functions* chapter](https://mc-stan.org/docs/2_24/functions-reference/math-functions.html) of the Stan functions reference. If you look at the base **R** `dbeta()` function, you'll learn it takes two parameters, `shape1` and `shape2`. Those uncreatively-named parameters are the same $\alpha$ and $\beta$ from the density, above. They do not correspond to the `pbar` and `theta` parameters of McEreath's `rethinking::dbeta2()` function.
 
 McElreath had good reason for using `dbeta2()`. Beta's typical $\alpha$ and $\beta$ parameters aren't the most intuitive to use; the parameters in McElreath's `dbeta2()` are much nicer. If you dive a little deeper, it turns out you can find the mean of a beta distribution in terms of $\alpha$ and $\beta$ like this:
 
@@ -121,7 +121,7 @@ ggplot(data = tibble(x = seq(from = 0, to = 1, by = .01)),
           subtitle = expression("This time defined in terms of "*alpha*" and "*beta))
 ```
 
-McElreath encouraged us to "explore different values for `pbar` and `theta`" (p. 348). Here's a grid of plots with `pbar = c(.25, .5, .75)` and `theta = c(5, 10, 15)`.
+McElreath encouraged us to "explore different values for `pbar` and `theta`" (p. 371). Here's a grid of plots with `pbar = c(.25, .5, .75)` and `theta = c(5, 10, 15)`.
 
 ```{r, fig.width = 5, fig.height = 5}
 # data
@@ -146,14 +146,14 @@ crossing(pbar  = c(.25, .5, .75),
 If you'd like to see how to make a similar plot in terms of $\alpha$ and $\beta$, see [Chapter 6](https://bookdown.org/content/3686/inferring-a-binomial-probability-via-exact-mathematical-analysis.html) of my [-@kurzDoingBayesianData2020] [ebook](https://bookdown.org/content/3686/) wherein I translated Kruschke's text into **tidyverse** and **brms** code.
 
 But remember, we're not fitting a beta model. We're using the beta-binomial. "We're going to bind our linear model to $\bar p$, so that changes in predictor variables change the central tendency of the distribution" (p. 371). The statistical model we'll be fitting follows the form
-
+$$
 \begin{align*}
 \text{admit}_i & \sim \operatorname{BetaBinomial}(n_i, \bar p_i, \phi)\\
-\operatorname{logit} (\bar p_i) & = \alpha_{\text{gid}[i]} \\
-\alpha_j                        & \sim \operatorname{Normal}(0, 1.5) \\
-\phi                            & \sim \operatorname{Exponential}(1).
+\operatorname{logit}(\bar p_i) & = \alpha_{\text{gid}[i]} \\
+\alpha_j                       & \sim \operatorname{Normal}(0, 1.5) \\
+\phi                           & \sim \operatorname{Exponential}(1).
 \end{align*}
-
+$$
 Here the size, $n$, is defined in the `applications` column in the data we'll load in just a moment. In case you're confused, yes, our statistical model is not quite the same as the one McElreath presented on page 371 in the text. If you look closely, we dropped all mention of $\theta$ and jumped directly to $\phi$. Instead of implementing McElreath's $\theta = \phi + 2$ trick, we're going to set the lower bound for $\phi$ directly. Which brings us to the next issue:
 
 We have an additional complication. The beta-binomial likelihood is not natively supported in **brms** at this time (see [GitHub issue #144](https://github.com/paul-buerkner/brms/issues/144)). However, **brms** versions 2.2.0 and above allow users to define custom distributions. To get all the details, you might check out Bürkner's [-@Bürkner2020Define] vignette, [*Define custom response distributions with brms*](https://CRAN.R-project.org/package=brms/vignettes/brms_customfamilies.html). Happily, Bürkner even used the [beta-binomial distribution as the exemplar](https://cran.r-project.org/package=brms/vignettes/brms_customfamilies.html#the-beta-binomial-distribution) in the vignette.
@@ -203,7 +203,7 @@ First, what McElreath referred to as the shape parameter, $\theta$, Bürkner cal
 
 Second, we've become accustomed to using the `y | trials() ~ ...` syntax when defining our `formula` arguments for binomial models. Here we are replacing `trials()` with `vint()`. From Bürkner's *Define custom response distributions with brms* vignette, we read:
 
-> To provide information about the number of trials (an integer variable), we are going to use the addition argument `vint()`, which can only be used in custom families. Simiarily, if we needed to include additional vectors of real data, we would use `vreal()`. Actually, for this particular example, we could more elegantly apply the addition argument `trials()` instead of `vint()` as in the basic binomial model. However, since the present vignette is ment to give a general overview of the topic, we will go with the more general method.
+> To provide information about the number of trials (an integer variable), we are going to use the addition argument `vint()`, which can only be used in custom families. Similarly, if we needed to include additional vectors of real data, we would use `vreal()`. Actually, for this particular example, we could more elegantly apply the addition argument `trials()` instead of `vint()` as in the basic binomial model. However, since the present vignette is meant to give a general overview of the topic, we will go with the more general method.
 >
 > We now have all components together to fit our custom beta-binomial model:
 
@@ -276,7 +276,7 @@ lines %>%
             alpha = .2, color = canva_pal("Green fields")(4)[4]) +
   scale_y_continuous(NULL, breaks = NULL, limits = c(0, 3)) +
   labs(subtitle = "distribution of female admission rates",
-       X = "probability admit")
+       x = "probability admit")
 ```
 
 There are other ways to do this. For ideas, check out my blog post, [*Make rotated Gaussians, Kruschke style*](https://solomonkurz.netlify.com/post/make-rotated-gaussians-kruschke-style/).
@@ -358,18 +358,17 @@ Recall from the last chapter how the Poisson distribution presumes $\sigma^2$ sc
 
 If you execute `?dgamma`, you'll see that base **R** will allow you to define the gamma distribution with either the `shape` and `rate` or the `shape` and `scale`. If we define gamma in terms of shape and rate, it follows the formula
 
-$$\text{Gamma} (y | \alpha, \beta) = \frac{\beta^\alpha y^{\alpha - 1} e^{-\beta y}}{\Gamma (\alpha)},$$
+$$\operatorname{Gamma}(y | \alpha, \beta) = \frac{\beta^\alpha y^{\alpha - 1} e^{-\beta y}}{\Gamma (\alpha)},$$
 
 where $\alpha$ is the shape, $\beta$ is the rate, $e$ is base of the natural logarithm, and $\Gamma$ is the [gamma function](https://en.wikipedia.org/wiki/Gamma_function). It turns out the rate and scale parameters are the reciprocals of each other. Thus if you'd like to define a gamma distribution in terms of shape and scale, it would follow the formula
 
-$$\text{Gamma} (y | \alpha, \theta) = \frac{y^{\alpha - 1} e^{-x /\theta}}{\theta^\alpha \Gamma (\alpha)},$$
+$$\operatorname{Gamma}(y | \alpha, \theta) = \frac{y^{\alpha - 1} e^{-x /\theta}}{\theta^\alpha \Gamma (\alpha)},$$
 
 where $\alpha$, $e$, and $\Gamma$ are all as they were before and $\theta$ is the scale parameter. If that all wasn't complicated enough, it turns out there's one more way to define a gamma distribution. You can use the mean and shape. This would follow the formula
 
+$$\operatorname{Gamma}(y | \mu, \alpha) = \frac{ \big (\frac{\alpha}{\mu} \big)^\alpha}{\Gamma (\alpha)} y^{\alpha - 1} \exp (- \frac{\alpha y}{\mu}),$$
 
-$$\text{Gamma} (y | \mu, \alpha) = \frac{(\frac{\alpha}{\mu})^\alpha}{\Gamma (\alpha)} y^{\alpha - 1} \exp (- \frac{\alpha y}{\mu}),$$
-
-where $\alpha$ and $\Gamma$ are still the shape and gamma function, respectively, and $\mu$ is the mean. I know, this is a lot and it probably all seems really abstract, right now. Think of this section as a reference. As you'll see after we fit our model, you may well need it. Returning to the content in the text, we might express the gamma-Poisson (negative binomial) as 
+where $\alpha$ and $\Gamma$ are still the shape and gamma function, respectively, and $\mu$ is the mean. I know, this is a lot and it probably all seems really abstract, right now. Think of this section as a reference. As you'll see after we fit our model, you may well need it. Returning to the content in the text, we might express the gamma-Poisson (negative binomial) as
 
 $$y_i \sim \operatorname{Gamma-Poisson}(\mu, \alpha),$$
 
@@ -400,11 +399,11 @@ If you take a look of McElreath's `m12.2`, you'll see it's a gamma-Poisson versi
 \begin{align*}
 \text{total_tools}_i & \sim \operatorname{Gamma-Poisson} (\mu, \alpha) \\
 \text{log}(\mu) & = \beta_0 \\
-\beta_0          & \sim \operatorname{Normal}(3, 0.5) \\
+\beta_0         & \sim \operatorname{Normal}(3, 0.5) \\
 \alpha          & \sim \operatorname{Gamma}(0.01, 0.01), 
 \end{align*}
 
-where we have deviated from McElreath's convention of using $\alpha$ for the model in favor $\beta_0$. This is because **brms** parameterizes the gamma likelihood in terms of $\mu$ and shape and, as we discussed above, shape is typically denoted as $\alpha$. I mean, technically we could refer to the shape parameter as $\psi$ or $\xi$ or whatever, but then we'd just be abandoning one convention for another. I just don't think there's any way to win, here. *Sigh*. The prior for $\beta_0$ is the same one we used for the intercept way back for model `b11.9`. We have assigned a gamma prior for our troublesome new $\alpha$ (shape) parameter. Here's where that prior came from.
+where we have deviated from McElreath's convention of using $\alpha$ for the model in favor $\beta_0$. This is because **brms** parameterizes the gamma likelihood in terms of $\mu$ and shape and, as we discussed above, shape is typically denoted as $\alpha$. I mean, technically we could refer to the shape parameter as $\psi$ or $\xi$ or whatever, but then we'd just be abandoning one convention for another. There's no to win, here. *Sigh*. The prior for $\beta_0$ is the same one we used for the intercept way back for model `b11.9`. We have assigned a gamma prior for our troublesome new $\alpha$ (shape) parameter. Here's where that prior came from.
 
 ```{r}
 get_prior(data = d, 
@@ -720,8 +719,7 @@ Because we used predictors in the model, this time the posterior predictive dist
 
 > Very often, the things we can measure are not emissions from any pure process. Instead, they are *mixtures* of multiple processes. Whenever there are different causes for the same observation, then a **mixture model** may be useful. A mixture model uses more than one simple probability distribution to model a mixture of causes. In effect, these models use more than one likelihood for the same outcome variable.
 >
-
-> Count variables are especially prone to needing a mixture treatment. The reason is that a count of zero can often arise more than one way. A "zero" means that nothing happened, and nothing can happen either because the rate of events is low or rather because the process that generates events failed to get started. (p. 376, *emphasis* in the original)
+> Count variables are especially prone to needing a mixture treatment. The reason is that a count of zero can often arise more than one way. A "zero" means that nothing happened, and nothing can happen either because the rate of events is low or rather because the process that generates events failed to get started. (p. 376, **emphasis** in the original)
 
 #### Rethinking: Breaking the law.
 
@@ -765,38 +763,38 @@ ggplot(data = d, aes(x = y)) +
 With these data, the likelihood of observing zero on `y`, (i.e., the likelihood zero manuscripts were completed on a given occasion) is
 
 \begin{align*}
-\operatorname{Pr} (0 | p, \lambda) & = \operatorname{Pr} (\text{drink} | p) + \operatorname{Pr} (\text{work} | p) \times \operatorname{Pr} (0 | \lambda) \\
+\operatorname{Pr}(0 | p, \lambda) & = \operatorname{Pr}(\text{drink} | p) + \operatorname{Pr}(\text{work} | p) \times \operatorname{Pr}(0 | \lambda) \\
                                    & = p + (1 - p) \exp (- \lambda).
 \end{align*}
 
 And 
 
-> since the Poisson likelihood of $y$ is $\text{Pr} (y | \lambda) = \lambda^y \exp (- \lambda) / y!$, the likelihood of $y = 0$ is just $\exp (- \lambda)$. The above is just the mathematics for:
+> since the Poisson likelihood of $y$ is $\operatorname{Pr}(y | \lambda) = \lambda^y \exp (- \lambda) / y!$, the likelihood of $y = 0$ is just $\exp (- \lambda)$. The above is just the mathematics for:
 >
 >> *The probability of observing a zero is the probability that the monks didn't drink OR ($+$) the probability that the monks worked AND ($\times$) failed to finish anything*. 
 >
 > And the likelihood of a non-zero value $y$ is:
 >
-> $$\operatorname{Pr} (y | y > 0, p, \lambda) = \operatorname{Pr} (\text{drink} | p) (0) + \operatorname{Pr} (\text{work} | p) \operatorname{Pr} (y | \lambda) = (1 - p) \frac {\lambda^y \exp (- \lambda)}{y!}$$
+> $$\operatorname{Pr}(y | y > 0, p, \lambda) = \operatorname{Pr}(\text{drink} | p) (0) + \operatorname{Pr}(\text{work} | p) \operatorname{Pr}(y | \lambda) = (1 - p) \frac {\lambda^y \exp (- \lambda)}{y!}$$
 >
 > Since drinking monks never produce $y > 0$, the expression above is just the chance the monks both work $1 - p$, and finish $y$ manuscripts. (pp. 377--378, *emphasis* in the original)
 
 So letting $p$ be the probability $y$ is zero and $\lambda$ be the shape of the distribution, the zero-inflated Poisson ($\operatorname{ZIPoisson}$) regression model might take the basic form
-
+$$
 \begin{align*}
-y_i & \sim \operatorname{ZIPoisson} (p_i, \lambda_i)\\
-\operatorname{logit} (p_i)     & = \alpha_p + \beta_p x_i \\
-\log (\lambda_i) & = \alpha_\lambda + \beta_\lambda x_i,
+y_i & \sim \operatorname{ZIPoisson}(\color{#5a5f37}{p_i}, \color{#524a3a}{\lambda_i})\\
+\color{#5a5f37}{\operatorname{logit}(p_i)} & \color{#5a5f37}= \color{#5a5f37}{\alpha_p + \beta_p x_i} \\
+\color{#524a3a}{\log (\lambda_i)} & \color{#524a3a}= \color{#524a3a}{\alpha_\lambda + \beta_\lambda x_i},
 \end{align*}
-
+$$
 where both parameters in the likelihood, $p_i$ and $\lambda_i$ might get their own statistical model, making this a special case of what Bürkner [-@Bürkner2020Distributional] calls distributional models. One last thing to note is that in **brms**, $p_i$ is denoted `zi`. To fit a zero-inflated Poisson model with **brms**, make sure to specify the correct likelihood with `family = zero_inflated_poisson`. To use a non-default prior for `zi`, make sure to indicate `class = zi` within the `prior()` function.
-
+      
 ```{r b12.3}
 b12.3 <- 
   brm(data = d, 
       family = zero_inflated_poisson,
       y ~ 1,
-      prior = c(prior(normal(-1.5, 1), class = Intercept),
+      prior = c(prior(normal(1, 0.5), class = Intercept),
                 prior(beta(2, 6), class = zi)),  # the brms default is beta(1, 1)
       iter = 2000, warmup = 1000, chains = 4, cores = 4,
       seed = 12,
@@ -835,6 +833,14 @@ priors %>%
   theme(legend.position = "none")
 ```
 
+```{r, echo = F, eval = F}
+# here's McElreath's prior for `ap`
+tibble(n = rnorm(1e5, -1.5, 1)) %>% 
+  mutate(p = inv_logit_scaled(n)) %>% 
+  ggplot(aes(x = p)) +
+  geom_density(fill = canva_pal("Green fields")(4)[1])
+```
+
 Whereas the **brms** default is flat, our prior guided the posterior a bit toward 0. In case you were curious, we might write our statistical model for `b12.3` as
 
 \begin{align*}
@@ -842,7 +848,7 @@ y_i            & \sim \operatorname{ZIPoisson} (p, \lambda) \\
 p              & = \alpha_p \\
 \log \lambda   & = \alpha_\lambda \\
 \alpha_p       & \sim \operatorname{Beta}(2, 6) \\
-\alpha_\lambda & \sim \operatorname{Normal}(-1.5, 1).
+\alpha_\lambda & \sim \operatorname{Normal}(1, 0.5).
 \end{align*}
 
 Anyway, here's that exponentiated $\alpha_\lambda$.
@@ -862,7 +868,7 @@ b12.3$model
 
 ## Ordered categorical outcomes
 
-> It is very common in the social sciences, and occasional in the natural sciences, to have an outcome variable that is discrete, like a count, but in which the values merely indicate different ordered levels along some dimension. For example, if I were to ask you how much you like to eat fish, on a scale from 1 to 7, you might say 5. If I were to ask 100 people the same question, I'd end up with 100 values between 1 and 7. In modeling each outcome value, I'd have to keep in mind that these values are *ordered*, because 7 is greater than 6, which is greater than 5, and so on. The result is a set of **ordered categories**. Unlike a count, the differences in value are not necessarily equal....
+> It is very common in the social sciences, and occasional in the natural sciences, to have an outcome variable that is discrete, like a count, but in which the values merely indicate different ordered levels along some dimension. For example, if I were to ask you how much you like to eat fish,on a scale from 1 to 7, you might say 5. If I were to ask 100 people the same question, I'd end up with 100 values between 1 and 7. In modeling each outcome value, I'd have to keep in mind that these values are *ordered*, because 7 is greater than 6, which is greater than 5, and so on. The result is a set of **ordered categories**. Unlike a count, the differences in value are not necessarily equal....
 >
 > In principle, an ordered categorical variable is just a multinomial prediction problem (page 359). But the constraint that the categories be ordered demands special treatment....
 >
@@ -943,7 +949,7 @@ p2 <-
 p2
 ```
 
-> To re-describe the histogram as log-cumulative odds, we'll need a series of intercept parameters. Each intercept will be on the log-cumulative-odds scale and stand in for the cumulative probability of each outcome. So this is just the application of the link function. The log-cumulative-odds that a response value $y_i$ is equal-to-or-less-than some possible outcome value $k$ is:
+> Then to re-describe the histogram as log-cumulative odds, we'll need a series of intercept parameters. Each intercept will be on the log-cumulative-odds scale and stand in for the cumulative probability of each outcome. So this is just the application of the link function. The log-cumulative-odds that a response value $y_i$ is equal-to-or-less-than some possible outcome value $k$ is:
 >
 > $$\log \frac{\operatorname{Pr}(y_i \leq k)}{1 - \operatorname{Pr}(y_i \leq k)} = \alpha_k$$
 >
@@ -1040,7 +1046,7 @@ A compact way to express the formula for this first type of statistical model is
 
 \begin{align*} 
 \text{response}_i & \sim \operatorname{Categorical} (\mathbf p) \\
-\text{logit}(p_k) & = \alpha_k - \phi \\
+\operatorname{logit}(p_k) & = \alpha_k - \phi \\
 \phi              & = 0 \\
 \alpha_k          & \sim \operatorname{Normal}(0, 1.5),
 \end{align*}
@@ -1085,7 +1091,8 @@ We can use the `brms::inv_logit_scaled()` function to get these into the probabi
 ```{r}
 b12.4 %>% 
   fixef() %>% 
-  inv_logit_scaled()
+  inv_logit_scaled() %>% 
+  round(digits = 3)
 ```
 
 But recall that the posterior $SD$ (i.e., the 'Est.Error' values) are not valid using that approach. If you really care about them, you'll need to work with the `posterior_samples()`.
@@ -1136,14 +1143,14 @@ Now the dots are the posterior means and the vertical lines layered on top of th
 
 ### Adding predictor variables.
 
-Now we define the linear model as $\phi_i = \beta x_i$. Accordingly, the formula for our cumulative logit model becomes
+Now we define the generic linear model as $\phi_i = \beta x_i$. Accordingly, the formula for our cumulative logit model becomes
 
 \begin{align*}
-\log \frac{\operatorname{Pr} (y_i \leq k)}{1 - \operatorname{Pr} (y_i \leq k)} & = \alpha_k - \phi_i \\
+\log \frac{\operatorname{Pr}(y_i \leq k)}{1 - \operatorname{Pr}(y_i \leq k)} & = \alpha_k - \phi_i \\
 \phi_i & = \beta x_i.
 \end{align*}
 
-> This form automatically ensures the correct ordering of the outcome values, while still morphing the likelihood of each individual value as the predictor $x_i$ changes value. Why is the linear model $\phi$ subtracted from each intercept? Because if we decrease the log-cumulative-odds of every outcome value $k$ below the maximum, this necessarily shifts probability mass upwards towards higher outcome values. So then positive values of $\beta$ mean increasing $x$ also increases the mean $y$. You could add $\phi$ instead like $\alpha_k + \phi_i$. But then $\beta > 0$ would indicate increasing $x$ decreases the mean. (p. 386)
+> This form automatically ensures the correct ordering of the outcome values, while still morphing the likelihood of each individual value as the predictor  $x_i$ changes value. Why is the linear model $\phi$ subtracted from each intercept? Because if we decrease the log-cumulative-odds of every outcome value $k$ below the maximum, this necessarily shifts probability mass upwards towards higher outcome values. So then positive values of $\beta$ mean increasing $x$ also increases the mean $y$. You could add $\phi$ instead like $\alpha_k + \phi_i$. But then $\beta > 0$ would indicate increasing $x$ decreases the mean. (p. 386)
 
 I'm not aware that **brms** has an equivalent to the `rethinking::dordlogit()` function. So here we'll make it by hand. The code comes from McElreath's [GitHub repo for **rethinking**](https://github.com/rmcelreath/rethinking/blob/a309712d904d1db7af1e08a76c521ab994006fd5/R/distributions.r).
 
@@ -1221,7 +1228,7 @@ So the rule is we *subtract the linear model from each intercept*. "This way, a 
 \text{logit}(p_k)     & = \alpha_k - \phi_i \\
 \phi_i                & = \beta_1 \text{action}_i + \beta_2 \text{contact}_i +  (\beta_3 + \beta_4 \text{action}_i + \beta_5 \text{contact}_i) \text{intention}_i \\
 \alpha_k              & \sim \operatorname{Normal}(0, 1.5) \\
-\beta_1, ..., \beta_5 & \sim \operatorname{Normal}(0, 0.5),
+\beta_1, \dots, \beta_5 & \sim \operatorname{Normal}(0, 0.5),
 \end{align*}
 
 where, because we have included predictors, $\phi$ is no longer set to 0. Using our skills from back in [Chapter 8][Conditional Manatees], we might also rewrite the linear model for $\phi$ as 
@@ -1369,7 +1376,7 @@ p <-
 p %>% str()
 ```
 
-This time we have a simple two-dimensional array. There are only 1,000 rows because we set `nsamples = 1000`. Much like with `fitted()`, above, the six columns correspond to the sex unique combinations of our three predictor variables. With the `scale = "response"` argument, we requested our results were in the metric of the original data, which were `response` values ranging from `1` to `7`. Compared to the last plot, the post-`predict()` data wrangling for this triptych is low-key. We just need the data in a long tibble format that includes a variable with which we might facet.
+This time we have a simple two-dimensional array. There are only 1,000 rows because we set `nsamples = 1000`. Much like with `fitted()`, above, the six columns correspond to the six unique combinations of our three predictor variables. With the `scale = "response"` argument, we requested our results were in the metric of the original data, which were `response` values ranging from `1` to `7`. Compared to the last plot, the post-`predict()` data wrangling for this triptych is low-key. We just need the data in a long tibble format that includes a variable with which we might facet.
 
 ```{r}
 p2 <-
@@ -1394,7 +1401,7 @@ p2 <-
 Finally, we're ready to combine our two triptychs into one glorious remake of Figure 12.6.
 
 ```{r, fig.width = 6, fig.height = 5}
-p1 / p2
+(p1 / p2) & theme(panel.background = element_rect(fill = "grey94"))
 ```
 
 Just for kicks and giggles, I'd like to make an alternative version of Figure 12.6. The triptych on the top panels did a pretty good job depicting the model in terms of the thresholds, $\alpha_k$. It's important that we, the data analysts, have a good sense of what those are. However, I suspect many of our substantively-oriented colleagues will find themselves confused by a plot like that. In my field, people generally just want to know *What's the mean for each group?* At this point, you and I know that such a question is a bit impoverished compared the to the rich output from a model like this. But if we do want to boil these analyses down to comparisons of means, McElreath has already showed us how. Look back to **R** code 12.20 through 12.23 (pp. 386--387). In those blocks, we multiplied the vector of probability values (`pk`) by their respective `response` values and summed, which produced an average outcome value. We can use that same approach so that our top triptych might express the results of the model in terms of means rather than parameters. All it takes is a slightly amended wrangling workflow with respect to the `f` data.
@@ -1455,8 +1462,7 @@ I suspect our `stat_ccdfinterval()` approach would work better in plots with few
 
 ## Ordered categorical predictors
 
-> We can handle ordered outcome variables using a categorical model with a cumulative link. That was the previous section. What about ordered predictor variables? We could just include them as continuous predictors like in any linear model. But this isn't ideal. Just
-like with ordered outcomes, we don't really want to assume that the distance between each ordinal value is the same. Luckily, we don't have to. (p. 391)
+> We can handle ordered outcome variables using a categorical model with a cumulative link. That was the previous section. What about ordered predictor variables? We could just include them as continuous predictors like in any linear model. But this isn't ideal. Just like with ordered outcomes, we don't really want to assume that the distance between each ordinal value is the same. Luckily, we don’t have to. (p. 391)
 
 Here are the eight levels of `edu`.
 
@@ -1546,11 +1552,13 @@ When using **brms**, the issue of treating a predictor in the way McElreath cove
 
 > For a single monotonic predictor, $x$, the linear predictor term of observation $n$ looks as follows:
 > 
-> $$\eta_n = b_D \sum_{i = 1}^{x_n} \zeta_i$$
+> $$\eta_n = bD \sum_{i = 1}^{x_n} \zeta_i$$
 >
 > The parameter $b$ can take on any real value, while $\zeta$ is a simplex, which means that it satisfies $\zeta_i \in [0, 1]$ and $\sum_{i = 1}^D \zeta_i = 1$ with $D$ being the number of elements of $\zeta$. Equivalently, $D$ is the number of categories (or highest integer in the data) minus 1, since we start counting categories from zero to simplify the notation.
 
-In this context, $n$ indexes the observations in the hypothetical data and $\eta$ denotes the linear model for some outcome $y$. Unlike with **rethinking**, the **brms** syntax for fitting models with monotonic predictors is fairly simple. Just place your monotonic predictors within the `mo()` function and enter them into the `formula`. Here we fit our first monotonic model with **brms**.
+In this context, $n$ indexes the observations in the hypothetical data and $\eta$ denotes the linear model for some outcome $y$. Unlike with **rethinking**, the **brms** syntax for fitting models with monotonic predictors is fairly simple. Just place your monotonic predictors within the `mo()` function and enter them into the `formula`. 
+
+In the text, McElreath remarked it took about 20 minutes to fit this model in his computer. Using my 2019 MacBook Pro, it took just under 40 minutes. Mind you, our **brms** version of the model used twice the number of warmup and post-warmup iterations, so this isn't a knock against the sampling speed of **brms** versus **rethinking**. But either way, get ready to wait a while when fitting a model like this. 
 
 ```{r b12.6}
 b12.6 <- 
@@ -1567,7 +1575,7 @@ b12.6 <-
       file = "fits/b12.06")
 ```
 
-In the text, McElreath remarked it took about 20 minutes to fit this model in his computer. Using my 2019 MacBook Pro, it took just under 40 minutes. Mind you, our **brms** version of the model used twice the number of warmup and post-warmup iterations, so this isn't a knock against the sampling speed of **brms** versus **rethinking**. But either way, get ready to wait a while when fitting a model like this. Here's the summary.
+Here's the summary.
 
 ```{r}
 print(b12.6)
@@ -1598,17 +1606,17 @@ This parameterization difference between **brms** and **rethinking** is also the
 
 This might be a good place to practice expressing our model in formal statistical notation. Here we'll complement McElreath's formula from page 392 by mixing in a little notation from @burknerModellingMonotonicEffects2020:
 
-\begin{align*} 
+\begin{align*}
 \text{response}_i & \sim \operatorname{Categorical} (\mathbf p) \\
-\text{logit}(p_k)    & = \alpha_k - \phi_i \\
-\phi_i               & = \beta_1 \text{action}_i + \beta_2 \text{contact}_i + \beta_3 \text{intention}_i + \beta_4 \operatorname{mo}(\text{edu_new}_i, \boldsymbol{\delta}) \\
-\alpha_k             & \sim \operatorname{Normal}(0, 1.5) \\
-\beta_1,..., \beta_3 & \sim \operatorname{Normal}(0, 1) \\
-\beta_4              & \sim \operatorname{Normal}(0, 0.143) \\
-\boldsymbol{\delta}  & \sim \operatorname{Dirichlet}(2, 2, 2, 2, 2, 2, 2),
+\operatorname{logit}(p_k) & = \alpha_k - \phi_i \\
+\phi_i & = \beta_1 \text{action}_i + \beta_2 \text{contact}_i + \beta_3 \text{intention}_i + \color{#524a3a}{\beta_4 \operatorname{mo}(\text{edu_new}_i, \boldsymbol{\delta})} \\
+\alpha_k & \sim \operatorname{Normal}(0, 1.5) \\
+\beta_1, \dots, \beta_3 & \sim \operatorname{Normal}(0, 1) \\
+\color{#524a3a}{\beta_4} & \color{#524a3a}\sim \color{#524a3a}{\operatorname{Normal}(0, 0.143)} \\
+\color{#524a3a}{\boldsymbol{\delta}} & \color{#524a3a}\sim \color{#524a3a}{\operatorname{Dirichlet}(2, 2, 2, 2, 2, 2, 2)},
 \end{align*}
 
-where $\operatorname{mo}(x, \boldsymbol{\delta})$ is an operator indicating some predictor $x$ is has undergone the monotonic transform and $\boldsymbol{\delta}$ is our vector of simplex parameters $\delta_1,..., \delta_7$. That is, $\beta_4 \operatorname{mo}(\text{edu_new}_i, \boldsymbol{\delta})$ is our alternative **brms**-oriented way of expressing McElreath's $\beta_\text{E} \sum_{j = 0}^{\text{E}_i - 1} \delta_j$. I don't know that one is better. `r emo::ji("person_shrugging_light_skin_tone")` At first contact, I found them both confusing.
+where $\operatorname{mo}(x, \boldsymbol{\delta})$ is an operator indicating some predictor $x$ is has undergone the monotonic transform and $\boldsymbol{\delta}$ is our vector of simplex parameters $\delta_1, \dots, \delta_7$. That is, $\beta_4 \operatorname{mo}(\text{edu_new}_i, \boldsymbol{\delta})$ is our alternative **brms**-oriented way of expressing McElreath's $\beta_\text{E} \sum_{j = 0}^{\text{E}_i - 1} \delta_j$. I don't know that one is better. `r emo::ji("person_shrugging_light_skin_tone")` At first contact, I found them both confusing.
 
 Since this will be our only pairs plot for this chapter, let's use `GGally::ggpairs()` to make it fancy. First we customize the panels.
 
@@ -1681,7 +1689,7 @@ d %>%
   arrange(edu_new)
 ```
 
-Now fit the more conventional model.
+Now fit the more conventional model in which we treat `edu_norm` as a simple continuous predictor.
 
 ```{r b12.7}
 b12.7 <- 
@@ -1823,7 +1831,7 @@ d %>%
 ## Summary
 
 "This chapter introduced several new types of regression, all of which are generalizations of generalized linear models (GLMs)" (p. 397). This chapter has been a ride. If you'd like more practice with the negative-binomial model and some of the others models for categorical data we covered in this chapter and in [Chapter 11][God Spiked the Integers], Alan Agresti covered them extensively in his [-@agrestiFoundationsLinearGeneralized2015] text, [*Foundations of linear and generalized linear models*](https://www.wiley.com/en-us/Foundations+of+Linear+and+Generalized+Linear+Models-p-9781118730034). For more on different kinds of zero-inflated count models, check out @atkinsTutorialCountRegression2013, [*A tutorial on count regression and zero-altered count models for
-longitudinal substance use data*](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3513584/pdf/nihms396181.pdf). If you'd like to learn more about using cumulative probabilities to model ordinal data in **brms**, check out Bürkner and Vuorre's [-@burknerOrdinalRegressionModels2019] [*Ordinal regression models in psychology: A tutorial*](https://doi.org/10.1177/2515245918823199) and its [repository](https://osf.io/cu8jv/) on the Open Science Framework. Also check out [Chapter 23](https://bookdown.org/content/3686/ordinal-predicted-variable.html) of my [-@kurzDoingBayesianData2020] ebook [*Doing Bayesian Data Analysis in brms and the tidyverse*](https://bookdown.org/content/3686/) were we model ordinal data with a series of cumulative *probit* models.
+longitudinal substance use data*](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3513584/pdf/nihms396181.pdf). If you'd like to learn more about using cumulative probabilities to model ordinal data in **brms**, check out Bürkner and Vuorre's [-@burknerOrdinalRegressionModels2019] [*Ordinal regression models in psychology: A tutorial*](https://doi.org/10.1177/2515245918823199) and its repository on the Open Science Framework ([https://osf.io/cu8jv/](https://osf.io/cu8jv/)). Also check out [Chapter 23](https://bookdown.org/content/3686/ordinal-predicted-variable.html) of my [-@kurzDoingBayesianData2020] ebook [*Doing Bayesian Data Analysis in brms and the tidyverse*](https://bookdown.org/content/3686/) were we model ordinal data with a series of cumulative *probit* models.
 
 ## Session info {-}
 
@@ -1836,8 +1844,7 @@ rm(pbar, theta, betaABfromMeanKappa, d, beta_binomial2, stan_funs, stanvars, b12
 ```
 
 ```{r, echo = F, message = F, warning = F, results = "hide"}
-pacman::p_unload(pacman::p_loaded(), character.only = TRUE)
 ggplot2::theme_set(ggplot2::theme_grey())
-bayesplot::color_scheme_set("blue")
+pacman::p_unload(pacman::p_loaded(), character.only = TRUE)
 ```
 
