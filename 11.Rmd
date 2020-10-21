@@ -14,9 +14,10 @@ options(width = 110)
 
 # God Spiked the Integers
 
-> The most common and useful generalized linear models are models for counts. Counts are non-negative integers--0, 1, 2, and so on. They are the basis of all mathematics, the first bits that children learn. But they are also intoxicatingly complicated to model--hence the apocryphal slogan that titles this chapter. The essential problem is this: When what we wish to predict is a count, the scale of the parameters is never the same as the scale of the outcome. A count golem, like a tide prediction engine, has a whirring machinery underneath that doesn’t resemble the output. Keeping the tide engine in mind, you can master these models and use them responsibly.
+> The most common and useful generalized linear models are models for counts. Counts
+are non-negative integers--0, 1, 2, and so on. They are the basis of all mathematics, the first bits that children learn. But they are also intoxicatingly complicated to model--hence the apocryphal slogan that titles this chapter. The essential problem is this: When what we wish to predict is a count, the scale of the parameters is never the same as the scale of the outcome. A count golem, like a tide prediction engine, has a whirring machinery underneath that doesn't resemble the output. Keeping the tide engine in mind, you can master these models and use them responsibly.
 >
-> We will engineer complete examples of the two most common types of count model. **Binomial regression** is the name we'll use for a family of related procedures that all model a binary classification--alive/dead, accept/reject, left/right--for which the total of both categories is known. This is like the marble and globe tossing examples from Chapter 2. But now you get to incorporate predictor variables. **Poisson regression** is a GLM that models a count with an unknown maximum—number of elephants in Kenya, number of applications to a PhD program, number of significance tests in an issue of *Psychological Science*. As described in Chapter 10, the Poisson model is a special case of binomial. At the end, the chapter describes some other count regressions. [@mcelreathStatisticalRethinkingBayesian2020, p. 323, **emphasis** in the original]
+> We will engineer complete examples of the two most common types of count model. **Binomial regression** is the name we'll use for a family of related procedures that all model a binary classification--alive/dead, accept/reject, left/right--for which the total of both categories is known. This is like the marble and globe tossing examples from [Chapter 2][Small Worlds and Large Worlds]. But now you get to incorporate predictor variables. **Poisson regression** is a GLM that models a count with an unknown maximum—number of elephants in Kenya, number of applications to a PhD program, number of significance tests in an issue of [*Psychological Science*](https://www.psychologicalscience.org/publications/psychological_science). As described in [Chapter 10][Big Entropy and the Generalized Linear Model], the Poisson model is a special case of binomial. At the end, the chapter describes some other count regressions. [@mcelreathStatisticalRethinkingBayesian2020, p. 323, **emphasis** in the original]
 
 In this chapter, we focus on the two most common types of count models: the binomial and the Poisson.
 
@@ -24,9 +25,9 @@ In this chapter, we focus on the two most common types of count models: the bino
 
 The basic binomial model follows the form
 
-$$y \sim \operatorname{Binomial} (n, p),$$
+$$y \sim \operatorname{Binomial}(n, p),$$
 
-where $y$ is some count variable, $n$ is the number of trials, and $p$ it the probability a given trial was a 1, which is sometimes termed a *success*. When $n = 1$, then $y$ is a vector of 0s and 1s. Presuming the logit link, which we just covered in [Chapter 10][Linking linear models to distributions.], models of this type are commonly termed logistic regression. When $n > 1$, and still presuming the logit link, we might call our model an aggregated logistic regression model, or more generally an aggregated binomial regression model.
+where $y$ is some count variable, $n$ is the number of trials, and $p$ it the probability a given trial was a 1, which is sometimes termed a *success*. When $n = 1$, then $y$ is a vector of 0's and 1's. Presuming the logit link, which we just covered in [Chapter 10][Linking linear models to distributions.], models of this type are commonly termed logistic regression. When $n > 1$, and still presuming the logit link, we might call our model an aggregated logistic regression model, or more generally an aggregated binomial regression model.
 
 ### Logistic regression: Prosocial chimpanzees.
 
@@ -82,9 +83,9 @@ rm(chimpanzees)
 We start with the simple intercept-only logistic regression model, which follows the statistical formula
 
 \begin{align*}
-\text{pulled_left}_i & \sim \operatorname{Binomial} (1, p_i) \\
-\operatorname{logit} (p_i)    & = \alpha \\
-\alpha                & \sim \operatorname{Normal} (0, w),
+\text{pulled_left}_i & \sim \operatorname{Binomial}(1, p_i) \\
+\operatorname{logit}(p_i) & = \alpha \\
+\alpha & \sim \operatorname{Normal}(0, w),
 \end{align*}
 
 where $w$ is the hyperparameter for $\sigma$ the value for which we have yet to choose. To start things off, we'll set $w = 10$, fit a model with where we set `sample_prior = T`, and get a sense of the prior on a plot.
@@ -137,7 +138,7 @@ prior_samples(b11.1) %>%
   xlab("prior prob pull left")
 ```
 
-At this point in the analysis, we were only able to make part of the left panel of McElreath's Figure 11.3. We'll add to it in a bit. Now update the model so that $w = 1.5$
+At this point in the analysis, we were only able to make part of the left panel of McElreath's Figure 11.3. We'll add to it in a bit. Now update the model so that $w = 1.5$.
 
 ```{r b11.1b}
 b11.1b <-
@@ -169,7 +170,7 @@ bind_rows(prior_samples(b11.1),
        x = "prior prob pull left")
 ```
 
-If we'd like to fit a model that includes an onverall intercept and uses McElreath'd index variable approach for the predictor variable `treatment`, we'll have to switch to the **brms** non-linear syntax. Here it is for the models using $w = 10$ and then $w = 0.5$.
+If we'd like to fit a model that includes an overall intercept and uses McElreath'd index variable approach for the predictor variable `treatment`, we'll have to switch to the **brms** non-linear syntax. Here it is for the models using $w = 10$ and then $w = 0.5$.
 
 ```{r b11.2}
 # w = 10
@@ -209,9 +210,9 @@ b11.3 <-
       file = "fits/b11.03")
 ```
 
-If all you want to do is fit the models, you wouldn’t have to add a separate `prior()` statement for each level of `treatment`. You could have just included a single line, `prior(normal(0, 0.5), nlpar = b)`, that did not  include a `coef` argument. The problem with this approach is we’d only get one column for `treatment` when using the `prior_samples()` function to retrieve the prior samples. To get separate columns for the prior samples of each of the levels of `treatment`, you need to take the verbose approach, above. 
+If all you want to do is fit the models, you wouldn't have to add a separate `prior()` statement for each level of `treatment`. You could have just included a single line, `prior(normal(0, 0.5), nlpar = b)`, that did not include a `coef` argument. The problem with this approach is we'd only get one column for `treatment` when using the `prior_samples()` function to retrieve the prior samples. To get separate columns for the prior samples of each of the levels of `treatment`, you need to take the verbose approach, above.
 
-Anyway, here’s how to make a version of the right panel of Figure 11.3.
+Anyway, here's how to make a version of the right panel of Figure 11.3.
 
 ```{r, fig.height = 2.75, fig.width = 3, warning = F, message = F}
 # wrangle
@@ -251,8 +252,8 @@ print(b11.3)
 Now focus on the likelihood portion of the model formula,
 
 \begin{align*}
-\text{pulled_left}_i & \sim \operatorname{Binomial} (1, p_i) \\
-\operatorname{logit} (p_i) & = \alpha+ \beta_\text{treatment} .
+\text{pulled_left}_i & \sim \operatorname{Binomial}(1, p_i) \\
+\operatorname{logit}(p_i) & = \alpha + \beta_\text{treatment} .
 \end{align*}
 
 When you have one overall intercept $\alpha$ and then use the non-linear approach for the `treatment` index, you end up with as many $\beta$ parameters as there levels for `treatment`. This means the formula for `treatment == 1` is $\alpha + \beta_{\text{treatment}[1]}$, the formula for `treatment == 2` is $\alpha + \beta_{\text{treatment}[2]}$, and so on. This also effectively makes $\alpha$ the grand mean. Here's the empirical grand mean.
@@ -294,10 +295,10 @@ posterior_samples(b11.3) %>%
 Okay, let's get back on track with the text. Now we're ready to fit the full model, which follows the form
 
 \begin{align*}
-\text{pulled_left}_i      & \sim \operatorname{Binomial} (1, p_i) \\
-\operatorname{logit}(p_i) & = \alpha_{\text{actor}[i]} + \beta_{\text{treatment}[i]} \\
-\alpha_j                  & \sim \operatorname{Normal} (0, 1.5) \\
-\beta_k                   & \sim \operatorname{Normal} (0, 0.5).
+\text{pulled_left}_i      & \sim \operatorname{Binomial}(1, p_i) \\
+\operatorname{logit}(p_i) & = \alpha_{\color{#54635e}{\text{actor}}[i]} + \beta_{\color{#a4692f}{\text{treatment}}[i]} \\
+\alpha_{\color{#54635e}j} & \sim \operatorname{Normal}(0, 1.5) \\
+\beta_{\color{#a4692f}k}  & \sim \operatorname{Normal}(0, 0.5).
 \end{align*}
 
 Before fitting the model, we should save `actor` as a factor.
@@ -354,7 +355,7 @@ post %>%
   theme(axis.ticks.y = element_blank())
 ```
 
-
+Here's the corresponding coefficient plot of the $\beta$ parameters.
 
 ```{r, fig.width = 3.5, fig.height = 1}
 tx <- c("R/N", "L/N", "R/P", "L/P")
@@ -378,7 +379,7 @@ post %>%
 
 Now make the coefficient plot for the primary contrasts of interest.
 
-```{r, fig.width = 3, fig.height = .75}
+```{r, fig.width = 3, fig.height = .8}
 post %>% 
   mutate(db13 = b_b_treatment1 - b_b_treatment3,
          db24 = b_b_treatment2 - b_b_treatment4) %>% 
@@ -539,7 +540,7 @@ fitted(b11.5,
 
 #### Overthinking: Adding log-probability calculations to a Stan model. 
 
-Our approach with **brms** is a little different than the one you might take with McElreath's **rethinking**. Rather than adding a `log_lik=TRUE` argument within `rethinking::ulam()`, we just use the `log_lik()` after fitting a **brms** model. You may recall we already practiced this way back in Chapter 7. Here's a quick example of what that looks like for `b11.5`.
+For retrieving log-probability summaries, our approach with **brms** is a little different than the one you might take with McElreath's **rethinking**. Rather than adding a `log_lik=TRUE` argument within `rethinking::ulam()`, we just use the `log_lik()` after fitting a **brms** model. You may recall we already practiced this way back in [Section 7.2.4.1][Overthinking: Computing the lppd.]. Here's a quick example of what that looks like for `b11.5`.
 
 ```{r}
 log_lik(b11.5) %>% str()
@@ -557,7 +558,7 @@ posterior_samples(b11.4) %>%
 
 > On average, the switch multiplies the odds of pulling the left lever by 0.92, an 8% reduction in odds. This is what is meant by proportional odds. The new odds are calculated by taking the old odds and multiplying them by the proportional odds, which is 0.92 in this example. (p. 336)
 
-A limitation of relative measures measures like proportional odds is they ignore what you might think of as the reference or the baseline. 
+A limitation of relative measures measures like proportional odds is they ignore what you might think of as the reference or the baseline.
 
 > Consider for example a rare disease which occurs in 1 per 10-million people. Suppose also that reading this textbook increased the odds of the disease 5-fold. That would mean approximately 4 more cases of the disease per 10-million people. So only 5-in-10-million chance now. The book is safe. (p. 336)
 
@@ -569,7 +570,7 @@ tibble(disease_rate  = 1/1e7,
   mutate(new_disease_rate = disease_rate * fold_increase)
 ```
 
-The hard part, though, is that "neither absolute nor relative risk is sufficient for all purposes" (p. 337). Each provides it's own unique perspective on the data. Again, welcome to applied statistics. `r emo::ji("man_shrugging")`
+The hard part, though, is that "neither absolute nor relative risk is sufficient for all purposes" (p. 337). Each provides its own unique perspective on the data. Again, welcome to applied statistics. `r emo::ji("man_shrugging")`
 
 ### Aggregated binomial: Chimpanzees again, condensed.
 
@@ -651,14 +652,14 @@ Here's how we might attempt the comparison.
 loo_compare(b11.4, b11.6, criterion = "loo") %>% print(simplify = F)
 ```
 
-Unlike with McElreath's `compare()` code in the text, `loo_compare()` wouldn't even give us the results. All we get is the warning message that because these two models are not based on the same data, comparing them with the LOO is invalid and **brms** refuses to let us do it. We can, however, look at their LOO summaries separately. 
+Unlike with McElreath's `compare()` code in the text, `loo_compare()` wouldn't even give us the results. All we get is the warning message informing us that because these two models are not based on the same data, comparing them with the LOO is invalid and **brms** refuses to let us do it. We can, however, look at their LOO summaries separately. 
 
 ```{r}
 loo(b11.4)
 loo(b11.6)
 ```
 
-To understand why, consider how you might describe six 1's out of nine trials in the aggregated form,
+To understand what's going on, consider how you might describe six 1's out of nine trials in the aggregated form,
 
 $$\text{Pr}(6|9, p) = \frac{6!}{6!(9 - 6)!} p^6 (1 - p)^{9 - 6}.$$
 
@@ -685,9 +686,9 @@ loo(b11.6) %>%
   loo::pareto_k_table()
 ```
 
-> Before looking at the Pareto $k$ values, you might have noticed already that we didn’t get a similar warning before in the disaggregated logistic models of the same data. Why not? Because when we aggregated the data by actor-treatment, we forced PSIS (and WAIC) to imagine cross-validation that leaves out all 18 observations in each actor-treatment combination. So instead of leave-one-out cross-validation, it is more like leave-eighteen-out. This makes some observations more influential, because they are really now 18 observations.
+> Before looking at the Pareto $k$ values, you might have noticed already that we didn't get a similar warning before in the disaggregated logistic models of the same data. Why not? Because when we aggregated the data by actor-treatment, we forced PSIS (and WAIC) to imagine cross-validation that leaves out all 18 observations in each actor-treatment combination. So instead of leave-one-out cross-validation, it is more like leave-eighteen-out. This makes some observations more influential, because they are really now 18 observations.
 >
-> What's the bottom line? If you want to calculate WAIC or PSIS, you should use a logistic regression data format, not an aggregated format. (p. 340)
+> What's the bottom line? If you want to calculate WAIC or PSIS, you should use a logistic regression data format, not an aggregated format. Otherwise you are implicitly assuming that only large chunks of the data are separable. (p. 340)
 
 ### Aggregated binomial: Graduate school admissions.
 
@@ -723,9 +724,9 @@ Note the difference in how we defined out `gid`. Whereas McElreath used numeral 
 The univariable logistic model with `male` as the sole predictor of `admit` follows the form
 
 \begin{align*}
-\text{admit}_i    & \sim \operatorname{Binomial} (n_i, p_i) \\
+\text{admit}_i    & \sim \operatorname{Binomial}(n_i, p_i) \\
 \text{logit}(p_i) & = \alpha_{\text{gid}[i]} \\
-\alpha_j          & \sim \operatorname{Normal} (0, 1.5),
+\alpha_j          & \sim \operatorname{Normal}(0, 1.5),
 \end{align*}
 
 where $n_i = \text{applications}_i$, the rows are indexed by $i$, and the two levels of $\text{gid}$ are indexed by $j$. Since we're only using our index variable `gid` to model two intercepts with no further complications, we don't need to use the verbose non-linear syntax to fit this model with **brms**.
@@ -745,7 +746,7 @@ b11.7 <-
 print(b11.7)
 ```
 
-Our results are very similar to those in the text. But notice how our two rows have more informative row names than `a[1]` and `a[2]`. This is why you might consider using the ordered factor approach rather than using numeral indices. 
+Our results are very similar to those in the text. But notice how our two rows have more informative row names than `a[1]` and `a[2]`. This is why you might consider using the ordered factor approach rather than using numeral indices.
 
 Anyway, here we'll compute the difference score in two metrics and summarize them with a little help from `mean_qi()`.
 
@@ -876,7 +877,7 @@ d %>%
         legend.position = "none")
 ```
 
-As it turns out, "the departments with a larger proportion of women applicants are also those with lower overall admissions rates" (p. 344). If we presume gender influences both choice of department and admission rates, we might depict that in a simple DAG where $G$ is applicant gender, $D$ is department, and $A$ is acceptance into grad school.
+As it turns out, "The departments with a larger proportion of women applicants are also those with lower overall admissions rates" (p. 344). If we presume gender influences both choice of department and admission rates, we might depict that in a simple DAG where $G$ is applicant gender, $D$ is department, and $A$ is acceptance into grad school.
 
 ```{r, fig.width = 3, fig.height = 1.5, warning = F, message = F}
 library(ggdag)
@@ -1000,11 +1001,11 @@ posterior_samples(b11.8) %>%
   theme(strip.text = element_text(size = 11))
 ```
 
-> Why might we want to over-parameterize the model? Because it makes it easier to assign priors. If we made one of the genders baseline and measured the other as a deviation from it, we would stumble into the issue of assuming that the acceptance rate for one of the genders is pre-data more uncertain than the other. This isn’t to say that over-parameterizing a model is always a good idea. But it isn’t a violation of any statistical principle. You can always convert the posterior, post sampling, to any alternative parameterization. The only limitation is whether the algorithm we use to approximate the posterior can handle the high correlations. In this case, it can. (p. 345)
+> Why might we want to over-parameterize the model? Because it makes it easier to assign priors. If we made one of the genders baseline and measured the other as a deviation from it, we would stumble into the issue of assuming that the acceptance rate for one of the genders is pre-data more uncertain than the other. This isn't to say that over-parameterizing a model is always a good idea. But it isn't a violation of any statistical principle. You can always convert the posterior, post sampling, to any alternative parameterization. The only limitation is whether the algorithm we use to approximate the posterior can handle the high correlations. In this case, it can. (p. 345)
 
 #### Rethinking: Simpson's paradox is not a paradox. 
 
-> This empirical example is a famous one in statistical teaching. It is often used to illustrate a phenomenon known as **Simpson’s paradox**. Like most paradoxes, there is no violation of logic, just of intuition. And since different people have different intuition, Simpson’s paradox means different things to different people. The poor intuition being violated in this case is that a positive association in the entire population should also hold within each department. (p. 345, **emphasis** in the original)
+> This empirical example is a famous one in statistical teaching. It is often used to illustrate a phenomenon known as **Simpson’s paradox**. Like most paradoxes, there is no violation of logic, just of intuition. And since different people have different intuition, Simpson's paradox means different things to different people. The poor intuition being violated in this case is that a positive association in the entire population should also hold within each department. (p. 345, **emphasis** in the original)
 
 In my field of clinical psychology, Simpson's paradox is an important, if under-appreciated, phenomenon. If you're in the social sciences as well, I highly recommend spending more time thinking about it. To get you started, I blogged about it [here](https://solomonkurz.netlify.com/post/individuals-are-not-small-groups-i-simpson-s-paradox/) and @kievitSimpsonParadoxPsychological2013 wrote a great tutorial paper called [*Simpson's paradox in psychological science: a practical guide*](https://www.frontiersin.org/articles/10.3389/fpsyg.2013.00513/full).
 
@@ -1024,12 +1025,12 @@ tibble(y = rbinom(1e5, 1000, 1/1000)) %>%
 
 Yes, those statistics are virtually the same. When dealing with pure Poisson data, $\mu = \sigma^2$. When you have a number of trials for which $n$ is unknown or much larger than seen in the data, the Poisson likelihood is a useful tool. We define it as
 
-$$y_i \sim \text{Poisson} (\lambda).$$
+$$y_i \sim \text{Poisson}(\lambda),$$
 
-As $\lambda$ expresses both mean and variance because within this model, the variance scales right along with the mean. Since $\lambda$ is constrained to be positive, we typically use the log link. Thus the basic Poisson regression model is
+where $\lambda$ expresses both mean and variance because within this model, the variance scales right along with the mean. Since $\lambda$ is constrained to be positive, we typically use the log link. Thus the basic Poisson regression model is
 
 \begin{align*}
-y_i             & \sim \operatorname{Poisson} (\lambda_i) \\
+y_i             & \sim \operatorname{Poisson}(\lambda_i) \\
 \log(\lambda_i) & = \alpha + \beta (x_i - \bar x),
 \end{align*}
 
@@ -1066,10 +1067,10 @@ d <-
 Our statistical model will follow the form
 
 \begin{align*}
-\text{total_tools}_i  & \sim \operatorname{Poisson} (\lambda_i) \\
-\text{log}(\lambda_i) & = \alpha_{\text{cid}[i]} + \beta_{\text{cid}[i]} \text{log_pop_std}_i \\
-\alpha_j              & \sim \; ? \\
-\beta_j               & \sim \; ?, 
+\text{total_tools}_i & \sim \operatorname{Poisson}(\lambda_i) \\
+\log(\lambda_i)      & = \alpha_{\text{cid}[i]} + \beta_{\text{cid}[i]} \text{log_pop_std}_i \\
+\alpha_j             & \sim \; ? \\
+\beta_j              & \sim \; ?, 
 \end{align*}
 
 where the priors for $\alpha_j$ and $\beta_j$ have yet be defined. If we continue our convention of using a Normal prior on the $\alpha$ parameters, we should recognize those will be log-Normal distributed on the outcome scale. Why? Because we're modeling $\lambda$ with the log link. Here's our version of Figure 11.7, depicting the two log-Normal priors considered in the text. 
@@ -1098,7 +1099,7 @@ tibble(x       = c(3, 22),
   theme(legend.position = "none")
 ```
 
-In this context, $\alpha \sim \operatorname{Normal} (0, 10)$ has a very long tail on the outcome scale. The mean of the log-Normal distribution, recall, is $\exp (\mu + \sigma^2/2)$. Here that is in code.
+In this context, $\alpha \sim \operatorname{Normal}(0, 10)$ has a very long tail on the outcome scale. The mean of the log-Normal distribution, recall, is $\exp (\mu + \sigma^2/2)$. Here that is in code.
 
 ```{r}
 exp(0 + 10^2 / 2)
@@ -1114,7 +1115,7 @@ rnorm(1e4, 0, 10) %>%
   mean()
 ```
 
-Now compute the mean for the other prior under consiteration, $\alpha \sim \operatorname{Normal} (3, 0.5)$. 
+Now compute the mean for the other prior under consideration, $\alpha \sim \operatorname{Normal}(3, 0.5)$. 
 
 ```{r}
 exp(3 + 0.5^2 / 2)
@@ -1215,22 +1216,16 @@ p1 | p2
 Okay, after settling on our two priors, the updated model formula is
 
 \begin{align*}
-y_i              & \sim \operatorname{Poisson} (\lambda_i) \\
-\log (\lambda_i) & = \alpha + \beta (x_i - \bar x) \\
-\alpha           & \sim \operatorname{Normal}(3, 0.5) \\
-\beta            & \sim \operatorname{Normal}(0, 0.2).
+y_i             & \sim \operatorname{Poisson}(\lambda_i) \\
+\log(\lambda_i) & = \alpha + \beta (x_i - \bar x) \\
+\alpha          & \sim \operatorname{Normal}(3, 0.5) \\
+\beta           & \sim \operatorname{Normal}(0, 0.2).
 \end{align*}
 
-We're finally ready to fit the model. The only new thing in our model code is `family = poisson`. In this case, **brms** defaults to the `log()` link.
-
-```{r}
-d <-
-  d %>% 
-  mutate(total_tools_std = (total_tools - mean(total_tools)) / sd(total_tools))
-```
-
+We're finally ready to fit the model. The only new thing in our model code is `family = poisson`. In this case, **brms** defaults to the `log()` link. We'll fit both an intercept-only Poisson model and an interaction model.
 
 ```{r b11.9}
+# intercept only
 b11.9 <-
   brm(data = d, 
       family = poisson,
@@ -1240,6 +1235,7 @@ b11.9 <-
       seed = 11,
       file = "fits/b11.09") 
 
+# interaction model
 b11.10 <-
   brm(data = d, 
       family = poisson,
@@ -1260,6 +1256,8 @@ print(b11.9)
 print(b11.10)
 ```
 
+Now compute the LOO estimates and compare the models by the LOO.
+
 ```{r, message = F}
 b11.9  <- add_criterion(b11.9, "loo")
 b11.10 <- add_criterion(b11.10, "loo")
@@ -1279,7 +1277,7 @@ McElreath reported getting a warning from his `rethinking::compare()`. Our warni
 loo(b11.10) %>% loo::pareto_k_table()
 ```
 
-Wow. Let's take a closer look.
+Let's take a closer look.
 
 ```{r}
 tibble(culture = d$culture,
@@ -1357,7 +1355,7 @@ Combine the two subplots with **patchwork** and adjust the settings a little.
   theme(legend.position = "none")
 ```
 
-Hawaii is influential in that it has a very large population relative to the other islands. 
+Hawaii is influential in that it has a very large population relative to the other islands.
 
 #### Overthinking: Modeling tool innovation.
 
@@ -1367,15 +1365,13 @@ $$\widehat{\text{total_tools}} = \frac{\alpha_{\text{cid}[i]} \: \text{populatio
 
 We can use the Poisson likelihood to express this in a Bayesian model as
 
-$$
 \begin{align*}
 \text{total_tools} & \sim \operatorname{Poisson}(\lambda_i) \\
-\lambda_i & = \left( \exp (\alpha_{\text{cid}[i]}) \text{population}_i^{\beta_{\text{cid}[i]}} \right) / \gamma \\
+\lambda_i & = \left[ \exp (\alpha_{\text{cid}[i]}) \text{population}_i^{\beta_{\text{cid}[i]}} \right] / \gamma \\
 \alpha_j  & \sim \operatorname{Normal}(1, 1) \\
 \beta_j   & \sim \operatorname{Exponential}(1) \\
 \gamma    & \sim \operatorname{Exponential}(1),
 \end{align*}
-$$
 
 where we exponentiate $\alpha_{\text{cid}[i]}$ to restrict the posterior to zero and above. Here's how we might fit that model with **brms**.
 
@@ -1410,11 +1406,6 @@ Compute and check the PSIS-LOO estimates along with their diagnostic Pareto $k$ 
 b11.11 <- add_criterion(b11.11, "loo")
 loo(b11.11)
 ```
-
-
-
-
-
 
 We still have Pareto high $k$ values. Recall that due to the very small sample size, this isn't entirely surprising. Okay, it's time to make Figure 11.10.
 
@@ -1524,15 +1515,15 @@ y_i \sim \operatorname{Poisson}(\lambda_i) \\
 $$
 
 Therefore, you can rewrite the equation if the exposure ($\tau$) varies in your data and you still want to model the mean ($\mu$). Using the model we're about to fit as an example, here's what that might look like:
-
+$$
 \begin{align*}
 y_i & \sim \operatorname{Poisson}(\mu_i) \\
-\log \mu_i & = \log \tau_i + \alpha + \beta \text{monastery}_i \\
+\log \mu_i & = \color{#a4692f}{\log \tau_i} + \alpha + \beta \text{monastery}_i \\
 \alpha     & \sim \operatorname{Normal}(0, 1) \\
 \beta      & \sim \operatorname{Normal}(0, 1),
 \end{align*}
-
-where the offset does not get a prior. In this context, its value is added directly to the right side of the formula. With the **brms** package, you use the `offset()` function in the `formula` syntax. You just insert a pre-processed variable like `log_days` or the log of a variable, such as `log(days)`. Fit the model.
+$$
+where the offset $\log \tau_i$ does not get a prior. In this context, its value is added directly to the right side of the formula. With the **brms** package, you use the `offset()` function in the `formula` syntax. You just insert a pre-processed variable like `log_days` or the log of a variable, such as `log(days)`. Fit the model.
 
 ```{r b11.12}
 b11.12 <-
@@ -1574,22 +1565,24 @@ posterior_samples(b11.12) %>%
   mutate_if(is.double, round, digits = 2)
 ```
 
-Because we don't know what seed McElreath used to simulate his data, our simulated data differed a little from his and, as a consequence, our results differ a little.
+Because we don't know what seed McElreath used to simulate his data, our simulated data differed a little from his and, as a consequence, our results differ a little, too.
 
 ## Multinomial and categorical models
 
-> When more than two types of unordered events are possible, and the probability of each type of event is constant across trials, then the maximum entropy distribution is the **multinomial distribution**. [We] already met the multinomial, implicitly, in [Chapter 10][Big Entropy and the Generalized Linear Model] when we tossed pebbles into buckets as an introduction to maximum entropy. The binomial is really a special case of this distribution. And so its distribution formula resembles the binomial, just extrapolated out to three or more types of events. If there are $K$ types of events with probabilities $p_1, ..., p_K$, then the probability of observing $y_1, ..., y_K$ events of each type out of $n$ total trials is:
+> When more than two types of unordered events are possible, and the probability of each type of event is constant across trials, then the maximum entropy distribution is the **multinomial distribution**. [We] already met the multinomial, implicitly, in [Chapter 10][Big Entropy and the Generalized Linear Model] when we tossed pebbles into buckets as an introduction to maximum entropy. The binomial is really a special case of this distribution. And so its distribution formula resembles the binomial, just extrapolated out to three or more types of events. If there are $K$ types of events with probabilities $p_1, \dots, p_K$, then the probability of observing $y_1, \dots, y_K$ events of each type out of n total trials is:
 >
-> $$\operatorname{Pr} (y_1, ..., y_K | n, p_1, ..., p_K) = \frac{n!}{\prod_i y_i!} \prod_{i = 1}^K p_i^{y_i}$$
+> $$\operatorname{Pr} (y_1, \dots, y_K | n, p_1, \dots, p_K) = \frac{n!}{\prod_i y_i!} \prod_{i = 1}^K p_i^{y_i}$$
 >
-> The fraction with $n!$ on top just expresses the number of different orderings that give the same counts $y_1, ..., y_K$. It's the famous multiplicity from the previous chapter....
+> The fraction with $n!$ on top just expresses the number of different orderings that give the same counts $y_1, \dots, y_K$. It's the famous multiplicity from the previous chapter....
 >
-> The conventional and natural link is this context is the **multinomial logit**, also known as the **softmax** function. This link function takes a vector of *scores*, one for each $K$ event types, and computes the probability of a particular type of event $k$ as
+> The conventional and natural link in this context is the **multinomial logit**, also known as the **softmax** function. This link function takes a vector of scores, one for each of $K$ event types, and computes the probability of a particular type of event $k$ as
 >
-> $$\text{Pr} (k |s_1, s_2, ..., s_K) = \frac{\exp (s_k)}{\sum_{i = 1}^K \exp (s_i)}$$
+> $$\text{Pr} (k |s_1, s_2, \dots, s_K) = \frac{\exp (s_k)}{\sum_{i = 1}^K \exp (s_i)}$$
 > (p. 359, **emphasis** in the original)
 
 McElreath then went on to explain how multinomial logistic regression models are among the more difficult of the GLMs to master. He wasn't kidding. To get a grasp on these, we'll cover them in a little more detail than he did in the text. Before we begin, I'd like to give a big shout out to [Adam Bear](https://adambear.me/), whose initial comment on a [GitHub issue](https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse/issues/5) turned into a friendly and productive email collaboration on what, exactly, is going on with this section. Hopefully we got it.
+
+### Predictors matched to outcomes.
 
 To begin, let's simulate the data just like McElreath did in the **R** code 11.55 block.
 
@@ -1616,23 +1609,19 @@ for(i in 1:n) career[i] <- sample(1:3, size = 1, prob = p)
 
 Before moving on, it might be useful to examine what we just did. With the three lines below the "# simulate career choices among 500 individuals" comment, we defined the formulas for three scores. Those were
 
-$$
 \begin{align*}
 s_1 & = 0.5 \times \text{income}_1 \\
 s_2 & = 0.5 \times \text{income}_2 \\ 
 s_3 & = 0.5 \times \text{income}_3,
 \end{align*}
-$$
 
 where $\text{income}_1 = 1$, $\text{income}_2 = 2$, and $\text{income}_3 = 5$. What's a little odd about this setup and conceptually important to get is that although $\text{income}_i$ varies across the three levels of $s$, the $\text{income}_i$ value is constant within each level of $s$. E.g., $\text{income}_1$ is not a variable within the context of $s_1$. Therefore, we could also write the above as
 
-$$
 \begin{align*}
 s_1 & = 0.5 \cdot 1 = 0.5 \\
 s_2 & = 0.5 \cdot 2 = 1.0 \\ 
 s_3 & = 0.5 \cdot 5 = 2.5.
 \end{align*}
-$$
 
 Let's confirm.
 
@@ -1673,7 +1662,7 @@ tibble(income = c(1, 2, 5)) %>%
 
 Notice how the values in the `p` column match up well with the `probability` values from the output from the block just above. Our simulation successfully produces data corresponding to the data-generating values. Woot! Also note how the code we just used to compute those `p` values, `p = exp(score) / sum(exp(score))`, corresponds nicely with the formula from above,
 
-$$\text{Pr} (k |s_1, s_2, ..., s_K) = \frac{\exp (s_k)}{\sum_{i = 1}^K \exp (s_i)}.$$
+$$\text{Pr} (k |s_1, s_2, \dots, s_K) = \frac{\exp (s_k)}{\sum_{i = 1}^K \exp (s_i)}.$$
 
 What still might seem mysterious is what those $s$ values in the equation are. In the simulation and in the prose, McElreath called them *scores*. Another way to think about them is as weights. The thing to get is that their exact values aren't important so much as their difference one from another. You'll note that `score` for `income == 2` was 0.5 larger than that of `income == 1`. The same was true for `income == 3` and `income == 2`. So if we add an arbitrary constant to each of those `score` values, like 11, we'll get the same `p` values.
 
@@ -1684,9 +1673,9 @@ tibble(income        = c(1, 2, 5),
   mutate(p = exp(score) / sum(exp(score)))
 ```
 
-Now keeping that in mind, recall how McElreath said that though we have $K$ categories, $K = 3$ in this case, we only estimate $K - 1$ linear models. "In a multinomial (or categorical) GLM, you need $K - 1$ linear models for $K$ types of events. One of the outcome values is chosen as a "pivot" and the others are modeled relative to it." (p. 360). You could also think of the pivot category as the reference category.
+Now keeping that in mind, recall how McElreath said that though we have $K$ categories, $K = 3$ in this case, we only estimate $K - 1$ linear models. "In a multinomial (or categorical) GLM, you need $K - 1$ linear models for $K$ types of events. One of the outcome values is chosen as a 'pivot' and the others are modeled relative to it." (p. 360). You could also think of the pivot category as the reference category.
 
-Before we practice fitting multinomial models with **brms**, it'll be helpful if we first follow along with the text and fit the model directly in Stan. We will be working directly with Stan very infrequently in this ebook. If you're interested in learning more about modeling directly with Stan, you might check out the [*Stan user's guide, Version 2.23*](https://mc-stan.org/docs/2_23/stan-users-guide/index.html) [@standevelopmentteamStanUserGuide2020], the [*Stan reference manual, Version 2.23*](https://mc-stan.org/docs/2_23/reference-manual/) [@standevelopmentteamStanReferenceManual2020], and the [*Stan functions reference*](https://mc-stan.org/docs/2_23/functions-reference/index.html) [@standevelopmentteamStanFunctionsReference2020]. Fit the model with Stan.
+Before we practice fitting multinomial models with **brms**, it'll be helpful if we first follow along with the text and fit the model directly in Stan. We will be working directly with Stan very infrequently in this ebook. If you're interested in learning more about modeling directly with Stan, you might check out the [*Stan user's guide3*](https://mc-stan.org/docs/2_24/stan-users-guide/index.html) [@standevelopmentteamStanUserGuide2020], the [*Stan reference manual*](https://mc-stan.org/docs/2_24/reference-manual/) [@standevelopmentteamStanReferenceManual2020], and the [*Stan functions reference*](https://mc-stan.org/docs/2_24/functions-reference/index.html) [@standevelopmentteamStanFunctionsReference2020]. Fit the model with Stan.
 
 ```{r m11.13, echo = F}
 # save(list = c("code_m11.13", "dat_list", "m11.13"), file = "fits/m11.13.rda")
@@ -1776,7 +1765,7 @@ data.frame(s1 = score[3] + s1,
 
 In his Stan code (**R** code 11.56), you'll see McElreath chose the third category to be his pivot and that he used zero as a constant value. As it turns out, it is common practice to set the score value for the reference category to zero. It's also a common practice to use the first event type as the reference category. Importantly, in his [-@Bürkner2020Parameterization] vignette, [*Parameterization of response distributions in brms*](https://cran.r-project.org/package=brms/vignettes/brms_families.html#ordinal-and-categorical-models), Bürkner clarified the **brms** default is to use the first response category as the reference and set it to a zero as well. However, we can control this behavior with the `refcat` argument. In the examples to follow, we'll follow McElreath and use the third event type as the reference category by setting `refcat = 3`.
 
-In addition to the discrepancies with the code and results in the text, one of the things I don’t care for in this section is how fast McElreath covered the material. Our approach will be to slow down a little and start off by fitting a intercepts-only model before adding the covariate. Before we fit the model, we might take a quick look at the prior structure with `brms::get_prior()`.
+In addition to the discrepancies with the code and results in the text, one of the things I don't care for in this section is how fast McElreath covered the material. Our approach will be to slow down a little and start off by fitting a intercepts-only model before adding the covariate. Before we fit the model, we might take a quick look at the prior structure with `brms::get_prior()`.
 
 ```{r}
 get_prior(data = d, 
@@ -1812,13 +1801,13 @@ tibble(income = c(1, 2, 5)) %>%
   mutate(rescaled_score = score - 2.5)
 ```
 
-Now see how the `rescaled_score` values for the first two rows correspond nicely to `mu1_Intercept` and `mu2_Intercept` from our model. What I hope this clarifies is that our statistical model returned the scores. But recall these are not quite probabilities. Why? Because the weights are all relative to one another. The easiest way to get what we want, the probabilities for the three categories, is with `brms::fitted()`. Since this model has no predictors, only intercepts, we won’t specify any `newdata`. In such a case, `fitted()` will return fitted values for each case in the data. Going slow, let’s take a look at the structure of the output.
+Now notice how the `rescaled_score` values for the first two rows correspond nicely to `mu1_Intercept` and `mu2_Intercept` from our model. What I hope this clarifies is that our statistical model returned the scores. But recall these are not quite probabilities. *Why?* Because the weights are all relative to one another. The easiest way to get what we want, the probabilities for the three categories, is with `brms::fitted()`. Since this model has no predictors, only intercepts, we won't specify any `newdata`. In such a case, `fitted()` will return fitted values for each case in the data. Going slow, let's take a look at the structure of the output.
 
 ```{r}
 fitted(b11.13io) %>% str()
 ```
 
-Just as expected, we have 500 rows--one for each case in the original data. We have four summary columns, the typical `Estimate`, `Est.Error`, `Q2.5`, and `Q97.5`. We also have third dimension composed of three levels, `P(Y = 1)`, `P(Y = 2)`, and `P(Y = 3)`. Those index which of the three career categories each probability summary is for. Since the results are identical for each row, we’ll simplify the output by only keeping the first row.
+Just as expected, we have 500 rows--one for each case in the original data. We have four summary columns, the typical `Estimate`, `Est.Error`, `Q2.5`, and `Q97.5`. We also have third dimension composed of three levels, `P(Y = 1)`, `P(Y = 2)`, and `P(Y = 3)`. Those index which of the three career categories each probability summary is for. Since the results are identical for each row, we'll simplify the output by only keeping the first row.
 
 ```{r}
 fitted(b11.13io)[1, , ] %>% 
@@ -1841,7 +1830,7 @@ tibble(income = c(1, 2, 5)) %>%
   mutate(p = exp(score) / sum(exp(score)))
 ```
 
-How here's how to make use of the formula from the last `mutate()` line, $\frac{\exp (s_k)}{\sum_{i = 1}^K \exp (s_i)}$, to compute the marginal probabilities from `b11.13io` by hand.
+Now here's how to make use of the formula from the last `mutate()` line, $\frac{\exp (s_k)}{\sum_{i = 1}^K \exp (s_i)}$, to compute the marginal probabilities from `b11.13io` by hand.
 
 ```{r}
 posterior_samples(b11.13io) %>% 
@@ -1886,7 +1875,7 @@ b11.13io_nonlinear <-
 
 For the sake of space, I'm not going to show the results for those two models. If you fit them yourself, you'll see the results for `b11.13io` and `b11.13io_verbose` are exactly the same and `b11.13io_nonlinear` differs from them only within simulation variation. I point this out because it's the nonlinear approach that will allow us to fit a model like McElreath's `m11.13`. My hope is the syntax we used in the `b11.13io_verbose` model will help clarify what's going on with the non-linear syntax. When we fit multinomial models with **brms**, the terse conventional `formula` syntax might not make clear how there are actually $K - 1$ formulas. The more verbose syntax of our `b11.13io_verbose` model shows how we can specify those models directly. In our case, that was with those `mu1 ~ 1, mu2 ~ 1` lines. Had we used the **brms** default and used the first level of `career` as the pivot, those lines would have instead been `mu2 ~ 1, mu3 ~ 1`. So anyway, when we switch to the non-linear syntax, we explicitly model `mu1` and `mu2` and, as is typical of the non-linear syntax, we name our parameters. You can see another comparison of these three ways of fitting a multinomial model at the [Nonlinear syntax with a multinomial model?](https://discourse.mc-stan.org/t/nonlinear-syntax-with-a-multinomial-model/16122) thread on the Stan Forums.
 
-Now it's time to focus on the **brms** version of McElreath’s `m11.13`. To my eye, McElreath's model has two odd features. First, though he has two intercepts, he only has one $\beta$ parameter. Second, if you look at McElreath's `parameters` block, you'll see that he restricted his $\beta$ parameter to be zero and above (`real<lower=0> b;`). 
+Now it's time to focus on the **brms** version of McElreath's `m11.13`. To my eye, McElreath's model has two odd features. First, though he has two intercepts, he only has one $\beta$ parameter. Second, if you look at McElreath's `parameters` block, you'll see that he restricted his $\beta$ parameter to be zero and above (`real<lower=0> b;`).
 
 With the **brms** non-linear syntax, we can fit the model with one $\beta$ parameter or allow the one $\beta$ parameter to differ for `mu1` and `mu2`. As to setting a lower bound to the `b` parameter[s], we can do that with the `lb` argument within the `prior()` function. If we fit our version of `m11.13` by systemically varying these two features, we'll end up with the four versions listed in the table below. 
 
@@ -1962,6 +1951,13 @@ b11.13d <-
       file = "fits/b11.13d")
 ```
 
+```{r, eval = F, echo = F}
+print(b11.13a)
+print(b11.13b)
+print(b11.13c)
+print(b11.13d)
+```
+
 I'm not going to exhaustively show the `print()` output for each. If you check, you'll see they all fit reasonably well. Here we'll look at their parameter summaries in bulk with a coefficient plot.
 
 ```{r, fig.width = 7, fig.height = 1.25}
@@ -2035,7 +2031,7 @@ Now let's build.
 
 ### Predictors matched to observations.
 
-> Now consider an example in which each observed outcome has unique predictor values. Suppose you are still modeling career choice. But now you want to estimate the association between each person's family income and which career they choose. So the predictor variable must have the same value in each linear model, for each row in the data. But now there is a unique parameter multiplying it in each linear model. This provides an estimate of the impact of family income on choice, for each type of career. (p. 362)
+> Now consider an example in which each observed outcome has unique predictor values. Suppose you are still modeling career choice. But now you want to estimate the association between each person’s family income and which career they choose. So the predictor variable must have the same value in each linear model, for each row in the data. But now there is a unique parameter multiplying it in each linear model. This provides an estimate of the impact of family income on choice, for each type of career. (p. 362)
 
 ```{r, warning = F, message = F}
 n <- 500
@@ -2056,17 +2052,15 @@ for (i in 1:n) {
 
 In effect, we now have three data-generating equations:
 
-$$
 \begin{align*}
 s_1 & = 0.5 + -2 \cdot \text{family_income}_i \\
 s_2 & = 1.0 +  0 \cdot \text{family_income}_i \\ 
 s_3 & = 1.5 +  2 \cdot \text{family_income}_i,
 \end{align*}
-$$
 
 where, because `family_income` is an actual variable that can take on unique values for each row in the data, we can call the first term in each equation the $\alpha$ parameter and the second term in each equation the $\beta$ parameter AND those $\beta$ parameters will be more than odd double intercepts.
 
-We might examine what the `family_income` distributions look like across the three levels of `career`. We'll do it in two plots and combine them with the patchwork syntax. The first will be overlapping densities. For the second, we'll display the proportions of `career` across a discretized version of `family_income` in a stacked area plot.
+We might examine what the `family_income` distributions look like across the three levels of `career`. We'll do it in two plots and combine them with the **patchwork** syntax. The first will be overlapping densities. For the second, we'll display the proportions of `career` across a discretized version of `family_income` in a stacked area plot.
 
 ```{r, fig.width = 7, fig.height = 3}
 # put the data in a tibble
@@ -2141,7 +2135,7 @@ nd <- tibble(family_income = seq(from = 0, to = 1, length.out = 60))
 
 f <-
   fitted(b11.14,
-        newdata = nd)
+         newdata = nd)
 ```
 
 First we'll plot the fitted probabilities for each `career` level across the full range of `family_income` values.
@@ -2334,8 +2328,8 @@ rm(d, b11.1, b11.1b, b11.2, b11.3, prior, b11.4, post, tx, p1, nd, p2, b11.5, d_
 ```
 
 ```{r, echo = F, message = F, warning = F, results = "hide"}
-pacman::p_unload(pacman::p_loaded(), character.only = TRUE)
 ggplot2::theme_set(ggplot2::theme_grey())
 bayesplot::color_scheme_set("blue")
+pacman::p_unload(pacman::p_loaded(), character.only = TRUE)
 ```
 
