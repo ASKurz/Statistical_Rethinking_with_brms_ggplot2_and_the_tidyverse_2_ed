@@ -25,24 +25,20 @@ options(width = 100)
 
 "Africa is special" (p. 239). Let's load the `rugged` data [@nunn2012ruggedness] to see one of the reasons why.
 
-```{r, message = F}
-library(rethinking)
-data(rugged)
-d <- rugged
-```
-
-And here we switch out rethinking for **brms**.
-
 ```{r, message = F, warning = F}
-detach(package:rethinking, unload = T)
-library(brms)
+data(rugged, package = "rethinking")
+d <- rugged
 rm(rugged)
+
+# may as well load this, too
+library(brms)
 ```
 
 For this chapter, we'll take our plot theme from the [**ggthemes** package](https://cran.r-project.org/package=ggthemes) [@R-ggthemes].
 
 ```{r, message = F}
 # install.packages("ggthemes", dependencies = T)
+library(tidyverse)
 library(ggthemes)
 
 theme_set(
@@ -55,7 +51,6 @@ theme_set(
 We'll use the `pander` color scheme to help us make our first DAG.
 
 ```{r, fig.width = 3, fig.height = 1.5, message = F, warning = F}
-library(tidyverse)
 library(ggdag)
 
 dag_coords <-
@@ -699,9 +694,10 @@ fitted(b8.3,
 Look at the `tulips` data, which were adapted from @grafenModernStatisticsLife2002.
 
 ```{r, message = F, warning = F}
-library(rethinking)
-data(tulips)
+data(tulips, package = "rethinking")
 d <- tulips
+rm(tulips)
+
 glimpse(d)
 ```
 
@@ -763,14 +759,6 @@ Putting the same $\operatorname{Normal}(0, 0.25)$ prior on each would indicate a
 \beta_2 & \sim \operatorname{Normal}(0, 0.25) \\
 \sigma  & \sim \operatorname{Exponential}(1),
 \end{align*}
-
-Detach **rethinking** and reload **brms**.
-
-```{r, message = F, warning = F}
-detach(package:rethinking, unload = T)
-library(brms)
-rm(tulips)
-```
 
 Now fit the model.
 
