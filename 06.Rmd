@@ -349,28 +349,26 @@ posterior_samples(b6.2) %>%
 ### Multicollinear `milk`.
 
 Multicollinearity arises in real data, too.
-
+rethinking
 ```{r, message = F}
-library(rethinking)
-data(milk)
+data(milk, package = "rethinking")
 d <- milk
+rm(milk)
 ```
 
-Now use the handh `rethinking::standardize()` function to standardize our focal variables.
+Now use the handy `rethinking::standardize()` function to standardize our focal variables.
 
 ```{r}
 d <-
   d %>% 
-  mutate(k = standardize(kcal.per.g),
-         f = standardize(perc.fat),
-         l = standardize(perc.lactose))
+  mutate(k = rethinking::standardize(kcal.per.g),
+         f = rethinking::standardize(perc.fat),
+         l = rethinking::standardize(perc.lactose))
 ```
 
-Unload **rethinking** and load **brms**.
+Now load **brms**.
 
 ```{r, message = F}
-rm(milk)
-detach(package:rethinking, unload = T)
 library(brms)
 ```
 
@@ -1343,23 +1341,20 @@ impliedConditionalIndependencies(dag_6.2)
 In the last section, we used a DAG to explore how including/excluding different covariates might influence our estimate of the causal relationship between the number of Waffle Houses and the divorce rate ($W \rightarrow D$). To finish that example out, we might explore some of the possible models informed by the DAG. First we load the [Waffle House](https://www.snopes.com/fact-check/fema-waffle-house-index/) data.
 
 ```{r, message = F, warning = F}
-library(rethinking)
-data(WaffleDivorce)
+data(WaffleDivorce, package = "rethinking")
 d <- WaffleDivorce
 
 # standardize the continuous focal variables.
 d <-
   d %>% 
-  mutate(a = standardize(MedianAgeMarriage),
-         d = standardize(Divorce),
-         m = standardize(Marriage),
+  mutate(a = rethinking::standardize(MedianAgeMarriage),
+         d = rethinking::standardize(Divorce),
+         m = rethinking::standardize(Marriage),
          s = factor(South, levels = 0:1, labels = c("North", "South")),
-         w = standardize(WaffleHouses))
+         w = rethinking::standardize(WaffleHouses))
 
 # tidy up
 rm(WaffleDivorce)
-detach(package:rethinking, unload = T)
-library(brms)
 ```
 
 The only focal variable we did not standardize was `South`, which is binary. Technically, you can standardize binary variables and not break the regression model. However, my preference it so leave them in their 0/1 metric. To do otherwise would complicate how you'd interpret the result of any model including them. Here is our `ggpairs()` plot of all five focal variables. Remember, the central issue is the causal relation between `w` and `d`.
@@ -1471,11 +1466,11 @@ DAGs are nice tool for informing our data analytic strategy. But just as our mul
 sessionInfo()
 ```
 
-```{r, echo = F, eval = F}
+```{r, echo = F}
 rm(n, p, d, text, b6.1, sim_and_fit, sim, post, b6.2, b6.3, b6.4, b6.5, my_diag, my_lower, dag_coords, sim_coll, n_seed, n_rho, sim_p, b6.6, b6.7, b6.8, dag, gg_simple_dag, gg_fancy_dag, d2, b6.7b, b6.8b, b6.9, b6.10, b_gp, b_gc, b_pc, b_u, b6.11, b6.12, d1, d3, d4, p1, p2, p3, p4, dag_6.1, dag_6.2, b6.13, b6.14, b6.15, b6.16, b6.17, formula)
 ```
 
-```{r, echo = F, message = F, warning = F, results = "hide", eval = F}
+```{r, echo = F, message = F, warning = F, results = "hide"}
 ggplot2::theme_set(ggplot2::theme_grey())
 bayesplot::color_scheme_set("blue")
 pacman::p_unload(pacman::p_loaded(), character.only = TRUE)
