@@ -34,9 +34,9 @@ where $y$ is some count variable, $n$ is the number of trials, and $p$ it the pr
 Load the @silkChimpanzeesAreIndifferent2005 `chimpanzees` data.
 
 ```{r, message = F, warning = F}
-library(rethinking)
-data(chimpanzees)
+data(chimpanzees, package = "rethinking")
 d <- chimpanzees
+rm(chimpanzees)
 ```
 
 The data include two experimental conditions, `prosoc_left` and `condition`, each of which has two levels. This results in four combinations.
@@ -72,12 +72,10 @@ d %>%
   count(condition, treatment, prosoc_left)
 ```
  
-Before we go further, switch from **rethinking** to **brms**.
+Fire up **brms**.
 
 ```{r, message = F, warning = F}
-detach(package:rethinking, unload = T)
 library(brms)
-rm(chimpanzees)
 ```
  
 We start with the simple intercept-only logistic regression model, which follows the statistical formula
@@ -695,18 +693,10 @@ loo(b11.6) %>%
 Load the infamous `UCBadmit` data [see @bickelSexBiasGraduate1975].
 
 ```{r, message = F, warning = F}
-# detach(package:brms)
-library(rethinking)
-data(UCBadmit)
+data(UCBadmit, package = "rethinking")
 d <- UCBadmit
-```
-
-Switch from **rethinking** to **brms**.
-
-```{r, message = F, warning = F}
-detach(package:rethinking, unload = T)
-library(brms)
 rm(UCBadmit)
+
 d
 ```
 
@@ -1041,17 +1031,10 @@ where all model parameters receive priors following the forms we've been practic
 Load the `Kline` data [see @klinePopulationSizePredicts2010].
 
 ```{r, message = F, warning = F}
-library(rethinking)
-data(Kline)
+data(Kline, package = "rethinking")
 d <- Kline
-```
-
-Switch from **rethinking** to **brms**.
-
-```{r, message = F, warning = F}
-detach(package:rethinking, unload = T)
-library(brms)
 rm(Kline)
+
 d
 ```
 
@@ -2203,12 +2186,9 @@ For more practice fitting multinomial models with **brms**, check out [Chapter 2
 Here we fit a multinomial likelihood by refactoring it to a series of Poissons. Let's retrieve the Berkeley data.
 
 ```{r, warning = F, message = F}
-library(rethinking)
-data(UCBadmit)
+data(UCBadmit, package = "rethinking")
 d <- UCBadmit
 rm(UCBadmit)
-detach(package:rethinking, unload = T)
-library(brms)
 ```
 
 Fit the models.
