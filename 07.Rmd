@@ -1470,14 +1470,13 @@ A variety of approaches to model averaging are available with **brms** and I cov
 Time to bring back the `WaffleDivorce` data.
 
 ```{r}
-library(rethinking)
-data(WaffleDivorce)
+data(WaffleDivorce, package = "rethinking")
 
 d <-
   WaffleDivorce %>% 
-  mutate(d = standardize(Divorce),
-         m = standardize(Marriage),
-         a = standardize(MedianAgeMarriage))
+  mutate(d = rethinking::standardize(Divorce),
+         m = rethinking::standardize(Marriage),
+         a = rethinking::standardize(MedianAgeMarriage))
 
 rm(WaffleDivorce)
 ```
