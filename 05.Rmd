@@ -35,30 +35,29 @@ We'll approach the first two in this chapter. Interactions are reserved for [Cha
 Load the [Waffle House](https://www.snopes.com/fact-check/fema-waffle-house-index/) data.
 
 ```{r, message = F, warning = F}
-library(rethinking)
 library(tidyverse)
 
-data(WaffleDivorce)
+data(WaffleDivorce, package = "rethinking")
 d <- WaffleDivorce
 ```
 
-Standardize the focal variables with the `rethinking::standardize()` function.
+Did you notice how we used the `package` argument within the `data()` function, there? That allowed us to load the `WaffleDivorce` without actually loading the **rethinking** package. Since we generally don't want to have both **rethinking** and **brms** loaded up at the same time, using the `package` function will save us a line of code.
+
+Now standardize the focal variables with the `rethinking::standardize()` function.
 
 ```{r}
 d <-
   d %>% 
-  mutate(d = standardize(Divorce),
-         m = standardize(Marriage),
-         a = standardize(MedianAgeMarriage))
+  mutate(d = rethinking::standardize(Divorce),
+         m = rethinking::standardize(Marriage),
+         a = rethinking::standardize(MedianAgeMarriage))
 ```
 
-Unload **rethinking** and load **brms** and, while we're at it, the **tidyverse**.
+Because we avoided directly loading the **rethinking** package, we did not have immediate access to McElreath's handy `standardize()` function. If you want to use a function from a package without loading that package, you can use the double colon operator `::`. You can learn more about the double colon operator [here](https://stat.ethz.ch/R-manual/R-devel/library/base/html/ns-dblcolon.html). Now load **brms**.
 
 ```{r, message = F, warning = F}
 rm(WaffleDivorce)
-detach(package:rethinking, unload = T)
 library(brms)
-library(tidyverse)
 ```
 
 I'm not going to show the output, but you might go ahead and investigate the data with the typical functions. E.g.,
@@ -1120,19 +1119,11 @@ post %>%
 Let's load the @hindePrimateMilkProximate2011 milk data.
 
 ```{r, message = F}
-library(rethinking)
-data(milk)
+data(milk, package = "rethinking")
 d <- milk
+rm(milk)
 
 glimpse(d)
-```
-
-Unload **rethinking** and load **brms**.
-
-```{r, message = F, warning = F}
-rm(milk)
-detach(package:rethinking, unload = T)
-library(brms)
 ```
 
 You might inspect the primary variables in the data with the `pairs()` function.
@@ -1724,17 +1715,9 @@ These all demonstrate Markov equivalence. I should note that I [got help](https:
 Reload the `Howell1` data.
 
 ```{r, message = F}
-library(rethinking)
-data(Howell1)
+data(Howell1, package = "rethinking")
 d <- Howell1
-```
-
-Unload **rethinking** and load **brms**.
-
-```{r, message = F}
 rm(Howell1)
-detach(package:rethinking, unload = T)
-library(brms)
 ```
 
 If you forgot what these data were like, take a `glimpse()`.
@@ -1863,17 +1846,9 @@ Note how we used `tidybayes::mean_qi()` to summarize our difference variable, `d
 We'll practice with `milk`.
 
 ```{r, message = F}
-library(rethinking)
-data(milk)
+data(milk, package = "rethinking")
 d <- milk
-```
-
-Unload **rethinking** and load **brms**.
-
-```{r, message = F}
 rm(milk)
-detach(package:rethinking, unload = T)
-library(brms)
 ```
 
 With the **tidyverse**, we can peek at `clade` with `distinct()` in the place of base **R** `unique()`.
