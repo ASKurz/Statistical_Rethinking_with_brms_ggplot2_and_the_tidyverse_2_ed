@@ -305,19 +305,12 @@ This section is beyond the scope of this project.
 
 Much like McElreath's **rethinking** package, **brms** provides a convenient interface to HMC via Stan. Other packages providing Stan interfaces include [**rstanarm**](https://mc-stan.org/rstanarm/) [@R-rstanarm; @rstanarm2018] and [**blavaan**](https://faculty.missouri.edu/~merklee/blavaan/) [@R-blavaan; @Merkle2018blavaan]. I'm not aware of any up-to-date comparisons across the packages. If you're ever inclined to make one, [let the rest of us know](https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed/issues)!
 
-Here we load the `rugged` data.
-
-```{r, message = F}
-library(rethinking)
-data(rugged)
-d <- rugged
-```
-
-Switch from **rethinking** to **brms**.
+Here we load the `rugged` data and **brms**.
 
 ```{r, message = F, warning = F}
-detach(package:rethinking)
 library(brms)
+data(rugged, package = "rethinking")
+d <- rugged
 rm(rugged)
 ```
 
