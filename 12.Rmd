@@ -158,21 +158,15 @@ Here the size, $n$, is defined in the `applications` column in the data we'll lo
 
 We have an additional complication. The beta-binomial likelihood is not natively supported in **brms** at this time (see [GitHub issue #144](https://github.com/paul-buerkner/brms/issues/144)). However, **brms** versions 2.2.0 and above allow users to define custom distributions. To get all the details, you might check out Bürkner's [-@Bürkner2020Define] vignette, [*Define custom response distributions with brms*](https://CRAN.R-project.org/package=brms/vignettes/brms_customfamilies.html). Happily, Bürkner even used the [beta-binomial distribution as the exemplar](https://cran.r-project.org/package=brms/vignettes/brms_customfamilies.html#the-beta-binomial-distribution) in the vignette.
 
-Before we get carried away, let's load the data.
+Before we get carried away, let's load the data and **brms**.
 
 ```{r, warning = F, message = F}
-library(rethinking)
-data(UCBadmit) 
+data(UCBadmit, package = "rethinking") 
 d <- 
   UCBadmit %>% 
   mutate(gid = ifelse(applicant.gender == "male", "1", "2"))
-```
-
-Unload **rethinking** and load **brms**.
-
-```{r, message = F}
 rm(UCBadmit)
-detach(package:rethinking, unload = T)
+
 library(brms)
 ```
 
@@ -375,23 +369,15 @@ $$y_i \sim \operatorname{Gamma-Poisson}(\mu, \alpha),$$
 where $\mu$ is the mean or rate, taking the place of $\lambda$ from the Poisson distribution, and $\alpha$ is the shape.
 
 ```{r, warning = F, message = F}
-library(rethinking)
-data(Kline)
+data(Kline, package = "rethinking")
 d <- 
   Kline %>% 
-  mutate(p          = standardize(log(population)),
+  mutate(p          = rethinking::standardize(log(population)),
          contact_id = ifelse(contact == "high", 2L, 1L),
          cid        = contact)
+rm(Kline)
 
 print(d)
-```
-
-Unload **rethinking** and load **brms**.
-
-```{r, message = F}
-rm(Kline)
-detach(package:rethinking,  unload = T)
-library(brms)
 ```
 
 If you take a look of McElreath's `m12.2`, you'll see it's a gamma-Poisson version of the non-linear model he fit in last chapter, `m11.11`. You might also recall that we had to employ somewhat complicated non-linear syntax to translate that model into **brms**. Instead of jumping straight into a similarly complicated gamma-Poisson version of that model, I'm going to warm us up with a simple intercept-only model of the data. The formula will be
@@ -879,17 +865,9 @@ b12.3$model
 Let's get the `Trolley` data from **rethinking** [see @cushmanRoleConsciousReasoning2006].
 
 ```{r, message = F}
-library(rethinking)
-data(Trolley)
+data(Trolley, package = "rethinking")
 d <- Trolley
-```
-
-Unload **rethinking** and load **brms**.
-
-```{r, message = F}
 rm(Trolley)
-detach(package:rethinking, unload = T)
-library(brms)
 ```
 
 Use the `dplyr::glimpse()` to get a sense of the dimensions of the data.
