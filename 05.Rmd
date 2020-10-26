@@ -398,7 +398,9 @@ d %>%
 
 Our second DAG, above, suggests "that $D$ is independent of $M$, conditional on $A$" (p. 130). We can use the `dagitty::impliedConditionalIndependencies()` function to express that conditional independence in formal notation.
 
-```{r}
+```{r, warning = F, message = F}
+library(dagitty)
+
 dagitty('dag{ D <- A -> M }') %>% 
   impliedConditionalIndependencies()
 ```
