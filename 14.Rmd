@@ -815,7 +815,7 @@ Holy smokes that's a mess. This model suggests both $E$ and $Q$ have moderate to
 The statistical solution to this mess is to express the data-generating DAG as a multivariate statistical model following the form
 
 \begin{align*}
-\begin{bmatrix} W_i \\ E_i \end{bmatrix} & \sim \operatorname{MVNormal} \begin{pmatrix} \begin{bmatrix} \mu_{\text w,i} \\ \mu_{\text E,i} \end{bmatrix}, \mathbf S \end{pmatrix} \\
+\begin{bmatrix} W_i \\ E_i \end{bmatrix} & \sim \operatorname{MVNormal} \begin{pmatrix} \begin{bmatrix} \mu_{\text W,i} \\ \mu_{\text E,i} \end{bmatrix}, \mathbf S \end{pmatrix} \\
 \mu_{\text W,i} & = \alpha_\text W + \beta_\text{EW} E_i \\
 \mu_{\text E,i} & = \alpha_\text E + \beta_\text{QE} Q_i \\
 \mathbf S & = \begin{bmatrix} \sigma_\text W & 0 \\ 0  & \sigma_\text E \end{bmatrix} \mathbf R \begin{bmatrix} \sigma_\text W & 0 \\ 0  & \sigma_\text E \end{bmatrix} \\
