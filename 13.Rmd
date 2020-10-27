@@ -618,8 +618,8 @@ The initial multilevel update from model `b11.4` from [Section 11.1.1][Logistic 
 
 `r emo::ji("warning")` WARNING `r emo::ji("warning")`
 
-I am so sorry, but we are about to head straight into a load of confusion. If you follow along linearly in the book, we won't have the language to parse this all out until [Section 13.4][Divergent transitions and non-centered priors]. In short, our difficulties will have to do with what are called the centered and the non-centered parameterizations for multilevel models. In the next several models, McElreath used the **centered parameterization**. As we'll learn in Section 13.4, this often causes problems when you use Stan to fit your multilevel models. Happily, the solution to those problems is often the **non-centered parameterization**. This issue is well known among the Stan team. It's so well known, in fact, that Bürkner only supports the non-centered parameterization with **brms** (see [here](https://discourse.mc-stan.org/t/disable-non-centered-parameterization-in-brms/7184/7?u=solomon)). To my knowledge, there is no easy way around this. In the long run, this is a good thing. Your **brms** models will likely avoid some of the problems McElreath highlighted in this part of the text. In the short term, this also means that our results will not completely match up with those in the text. If you really want to reproduce McElreath's models `m13.4` through `m13.6`, you'll have to fit them with the **rethinking** package or directly in Stan. Our models `b13.4` through `b13.6` will be the non-centered **brms** alternatives. Either way, the models make the same predictions, but the nuts and bolts and gears we'll use to construct our multilevel golems will look a little different. With all that in mind, here's how we might express out statistical model using the non-centered parameterization more faithful to the way it will be expressed with `brms::brm()`:
-$$
+I am so sorry, but we are about to head straight into a load of confusion. If you follow along linearly in the book, we won't have the language to parse this all out until [Section 13.4][Divergent transitions and non-centered priors]. In short, our difficulties will have to do with what are called the centered and the non-centered parameterizations for multilevel models. For the next several models in the text, McElreath used the **centered parameterization**. As we'll learn in Section 13.4, this often causes problems when you use Stan to fit your multilevel models. Happily, the solution to those problems is often the **non-centered parameterization**, which is well known among the Stan team. This issue is so well known, in fact, that Bürkner only supports the non-centered parameterization with **brms** (see [here](https://discourse.mc-stan.org/t/disable-non-centered-parameterization-in-brms/7184/7?u=solomon)). To my knowledge, there is no easy way around this. In the long run, this is a good thing. Your **brms** models will likely avoid some of the problems McElreath highlighted in this part of the text. In the short term, this also means that our results will not completely match up with those in the text. If you really want to reproduce McElreath's models `m13.4` through `m13.6`, you'll have to fit them with the **rethinking** package or directly in Stan. Our models `b13.4` through `b13.6` will be the non-centered **brms** alternatives. Either way, the models make the same predictions, but the nuts and bolts and gears we'll use to construct our multilevel golems will look a little different. With all that in mind, here's how we might express our statistical model using the non-centered parameterization more faithful to the way it will be expressed with `brms::brm()`:
+
 \begin{align*}
 \text{left_pull}_i         & \sim \operatorname{Binomial}(n_i = 1, p_i) \\
 \operatorname{logit} (p_i) & = \bar \alpha + \beta_{\text{treatment}[i]} + \color{#CD8500}{z_{\text{actor}[i]} \sigma_\alpha + x_{\text{block}[i]} \sigma_\gamma} \\
@@ -630,20 +630,16 @@ $$
 \sigma_\alpha & \sim \operatorname{Exponential}(1) \\
 \sigma_\gamma & \sim \operatorname{Exponential}(1).
 \end{align*}
-$$
+
 If you jump ahead to [Section 13.4.2][Non-centered chimpanzees.], you'll see this is just re-write of the formula on the top of page 424. For now, let's load the data.
 
-```{r, warning = F, message = F}
-library(rethinking)
-data(chimpanzees)
+```{r}
+data(chimpanzees, package = "rethinking")
 d <- chimpanzees
-
-detach(package:rethinking, unload = T)
-library(brms)
 rm(chimpanzees)
 ```
 
-Wrangle.
+Wrangle and view.
 
 ```{r}
 d <-
@@ -799,7 +795,7 @@ b13.5 <- add_criterion(b13.5, "waic")
 loo_compare(b13.4, b13.5, criterion = "waic") %>% 
   print(simplify = F)
 
-model_weights(b13.4, b13.5, weights = "loo") %>% 
+model_weights(b13.4, b13.5, weights = "waic") %>% 
   round(digits = 2)
 ```
 
@@ -848,7 +844,7 @@ posterior_samples(b13.6) %>%
   theme(axis.text.y = element_text(hjust = 0))
 ```
 
-Now we'll compare `b13.6` to the last two models with the WAIC.
+Among the three $\sigma_\text{<group>}$ parameters, $\sigma_\text{block}$ is the smallest. Now we'll compare `b13.6` to the last two models with the WAIC.
 
 ```{r, message = F}
 b13.6 <- add_criterion(b13.6, "waic")
@@ -862,15 +858,15 @@ model_weights(b13.4, b13.5, b13.6, weights = "loo") %>%
 
 The models show little difference "on purely predictive criteria. This is the typical result, when each cluster (each treatment here) has a lot of data to inform its parameters" (p. 419). Unlike in the text, we didn't have a problem with divergent transitions. We'll see why in the next section.
 
-Before we move on, this section just hints at a historical software difficulty. In short, it's not uncommon to have a theory-based model that includes multiple sources of clustering (i.e., requiring many `( <varying parameter(s)> | <grouping variable(s)> )` parts in the model `formula`). This can make for all kinds of computational difficulties and result in software error messages, inadmissible solutions, and so on. One of the practical solutions to difficulties like these has been to simplify the statistical models by removing some of the clustering terms. Even though such simpler models were not the theory-based ones, at least they yielded solutions. Nowadays, Stan (via **brms** or otherwise) is making it easier to fit the full theoretically-based model. To learn more about this topic, check out this nice blog post by [Michael Frank](https://twitter.com/mcxfrank), [*Mixed effects models: Is it time to go Bayesian by default?*](http://babieslearninglanguage.blogspot.com/2018/02/mixed-effects-models-is-it-time-to-go.html). Make sure to check out the discussion in the comments section, which includes all-stars like Bürkner and [Douglas Bates](http://pages.stat.wisc.edu/~bates/). You can get more context for the issue from @barrRandomEffectsStructure2013,  [*Random effects structure for confirmatory hypothesis testing: Keep it maximal*](https://www.sciencedirect.com/science/article/pii/S0749596X12001180). 
+Before we move on, this section just hints at a historical software difficulty. In short, it's not uncommon to have a theory-based model that includes multiple sources of clustering (i.e., requiring many `( <varying parameter(s)> | <grouping variable(s)> )` parts in the model `formula`). This can make for all kinds of computational difficulties and result in software error messages, inadmissible solutions, and so on. One of the practical solutions to difficulties like these has been to simplify the statistical models by removing some of the clustering terms. Even though such simpler models were not the theory-based ones, at least they yielded solutions. Nowadays, Stan (via **brms** or otherwise) is making it easier to fit the full theoretically-based model. To learn more about this topic, check out this nice blog post by [Michael Frank](https://twitter.com/mcxfrank), [*Mixed effects models: Is it time to go Bayesian by default?*](http://babieslearninglanguage.blogspot.com/2018/02/mixed-effects-models-is-it-time-to-go.html). Make sure to check out the discussion in the comments section, which includes all-stars like Bürkner and [Douglas Bates](http://pages.stat.wisc.edu/~bates/). You can get more context for the issue from @barrRandomEffectsStructure2013,  [*Random effects structure for confirmatory hypothesis testing: Keep it maximal*](https://www.sciencedirect.com/science/article/pii/S0749596X12001180).
 
 ## Divergent transitions and non-centered priors
 
 Although we did not get divergent transitions warnings in from our last few models the way McElreath did with his, the issues is still relevant for **brms**.
 
-> One of the best things about Hamiltonian Monte Carlo is that it provides internal checks of efficiency and accuracy. One of these checks comes free, arising from the constraints on the physics simulation. Recall that HMC simulates the frictionless flow of a particle on a surface. In any given transition, which is just a single flick of the particle, the total energy at the start should be equal to the total energy at the end. That’s how energy in a closed system works. And in a purely mathematical system, the energy is always conserved correctly. It's just a fact about the physics.
+> One of the best things about Hamiltonian Monte Carlo is that it provides internal checks of efficiency and accuracy. One of these checks comes free, arising from the constraints on the physics simulation. Recall that HMC simulates the frictionless flow of a particle on a surface. In any given transition, which is just a single flick of the particle, the total energy at the start should be equal to the total energy at the end. That's how energy in a closed system works. And in a purely mathematical system, the energy is always conserved correctly. It's just a fact about the physics.
 >
-> But in a numerical system, it might not be. Sometimes the total energy is not the same at the end as it was at the start. In these cases, the energy is *divergent.* How can this happen? It tends to happen when the posterior distribution is very steep in some region of parameter space. Steep changes in probability are hard for a discrete physics simulation to follow. When that happens, the algorithm notices by comparing the energy at the start to the energy at the end. When they don’t match, it indicates numerical problems exploring that part of the posterior distribution.
+> But in a numerical system, it might not be. Sometimes the total energy is not the same at the end as it was at the start. In these cases, the energy is *divergent.* How can this happen? It tends to happen when the posterior distribution is very steep in some region of parameter space. Steep changes in probability are hard for a discrete physics simulation to follow. When that happens, the algorithm notices by comparing the energy at the start to the energy at the end. When they don't match, it indicates numerical problems exploring that part of the posterior distribution.
 >
 > Divergent transitions are rejected. They don't directly damage your approximation of the posterior distribution. But they do hurt it indirectly, because the region where divergent transitions happen is hard to explore correctly. (p. 420, *emphasis* in the original)
 
@@ -948,7 +944,7 @@ This ends up as a version of McElreath's Figure 13.5.a.
 
 > At low values of $v$, the distribution of $x$ contracts around zero. This forms a very steep valley that the Hamiltonian particle needs to explore. Steep surfaces are hard to simulate, because the simulation is not actually continuous. It happens in discrete steps. If the steps are too big, the simulation will overshoot. (p. 421)
 
-To avoid the divergent transitions than can arise from steep valleys like this, we can switch fron our origonal formula to a non-centered parameterization, such as:
+To avoid the divergent transitions than can arise from steep valleys like this, we can switch from our original formula to a non-centered parameterization, such as:
 
 \begin{align*}
 v & \sim \operatorname{Normal}(0, 3) \\
@@ -990,7 +986,7 @@ Recall that due to how **brms** only supports the non-centered parameterization,
 print(b13.4)
 ```
 
-Because we only fit this model using the non-centered parameterization, we won't be able to fully reproduce McElreath's Figure 13.6. But we can still plot our effective sample sizes. Recall that unlike the way **rethinking** only reports `n_eff`, **brms** now reports both `Bulk_ESS` and `Tail_ESS` [see @vehtariRanknormalizationFoldingLocalization2019]. At the moment, **brms** does not offer a convenience function that allows users to collect those values in a data frame. However you can do so with help from the [**posterior** package](https://github.com/stan-dev/posterior) [@R-posterior], which has not made its way to CRAN, yet, but can be downloaded directly from GitHub. 
+Because we only fit this model using the non-centered parameterization, we won't be able to fully reproduce McElreath's Figure 13.6. But we can still plot our effective sample sizes. Recall that unlike the way **rethinking** only reports `n_eff`, **brms** now reports both `Bulk_ESS` and `Tail_ESS` [see @vehtariRanknormalizationFoldingLocalization2019]. At the moment, **brms** does not offer a convenience function that allows users to collect those values in a data frame. However you can do so with help from the [**posterior** package](https://github.com/stan-dev/posterior) [@R-posterior], which has not made its way to CRAN, yet, but can be downloaded directly from GitHub.
 
 ```{r, eval = F}
 # install the beta release with this
@@ -1010,17 +1006,19 @@ posterior_samples(b13.4) %>%
   summarise_draws()
 ```
 
-Note how the last three columns are the `rhat`, the `ess_bulk`, and the `ess_tail`. Here we summarize those two effective sample size columns with histograms.
+Note how the last three columns are the `rhat`, the `ess_bulk`, and the `ess_tail`. Here we summarize those two effective sample size columns in a scatter plot similar to Figure 13.6, but based only on our `b13.4`, which used the non-centered parameterization.
 
-```{r, fig.width = 5, fig.height = 2.75, warning = F}
+```{r, fig.width = 3, fig.height = 2.75, warning = F}
 posterior_samples(b13.4) %>% 
   summarise_draws() %>% 
-  pivot_longer(starts_with("ess")) %>% 
-  
-  ggplot(aes(x = value)) +
-  geom_histogram(binwidth = 100, fill = "blue") +
-  xlim(0, NA) +
-  facet_wrap(~name)
+
+  ggplot(aes(x = ess_bulk, y = ess_tail)) +
+  geom_abline(linetype = 2) +
+  geom_point(color = "blue") +
+  xlim(0, 4700) +
+  ylim(0, 4700) +
+  ggtitle("Effective sample size summaries for b13.4",
+          subtitle = "ess_bulk is on the x and ess_tail is on the y")
 ```
 
 Both measures of effective sample size are fine.
@@ -1082,7 +1080,7 @@ McElreath didn't show the corresponding plot in the text. It might look like thi
 
 ```{r, fig.width = 2.5, fig.height = 4}
 f %>%
-  # if you want to use `geom_line()` or `geom_ribbon()` with a factor on the x axis,
+  # if you want to use `geom_line()` or `geom_ribbon()` with a factor on the x-axis,
   # you need to code something like `group = 1` in `aes()`
   ggplot(aes(x = treatment, y = Estimate, group = 1)) +
   geom_ribbon(aes(ymin = Q2.5, ymax = Q97.5), fill = "orange1") +
@@ -1116,7 +1114,7 @@ post %>%
   ggtitle("Chimp #5's density")
 ```
 
-And because we made the density only using the `r_actor__a[5,Intercept]` values (i.e., we didn’t add `b_Intercept` to them), the density is in a deviance-score metric.
+And because we made the density only using the `r_actor__a[5,Intercept]` values (i.e., we didn't add `b_Intercept` to them), the density is in a deviance-score metric.
 
 McElreath built his own `link()` function in **R** code 13.34. With this particular model, it will be easiest for us to just work directly with `post`.
 
@@ -1211,7 +1209,7 @@ p1
 
 If we want to depict the variability across the chimps, we need to include `sd_actor__a_Intercept` into the calculations. In the first block of code, below, we simulate a bundle of new intercepts defined by
 
-$$\text{simulated chimpanzees} \sim \operatorname{Normal} (\bar \alpha, \sigma_\alpha).$$
+$$\text{simulated chimpanzees} \sim \operatorname{Normal}(\bar \alpha, \sigma_\alpha).$$
 
 As before, we are also averaging over `block`.
 
@@ -1293,7 +1291,7 @@ library(patchwork)
 p1 | p2 | p3
 ```
 
-#### Bonus: Let's use `fitted()` this time. 
+#### Bonus: Let's use `fitted()` this time.
 
 We just made those plots using various wrangled versions of `post`, the data frame returned by `posterior_samples(b.13.4)`. If you followed along closely, part of what made that a great exercise is that it forced you to consider what the various vectors in `post` meant with respect to the model formula. But it's also handy to see how to do that from a different perspective. So in this section, we'll repeat that process by relying on the `fitted()` function, instead. We'll go in the same order, starting with the average actor.
 
@@ -1404,7 +1402,7 @@ Here they are altogether.
 p4 | p5 | p6
 ```
 
-### Post-stratification. 
+### Post-stratification.
 
 If you have estimates $p_i$ for each relevant demographic category $i$, the post-stratified prediction for the whole population just re-weights these estimates using the number of individuals $N_i$ in each category with the formula
 
@@ -1462,7 +1460,7 @@ Though some of the categories are large with an excess of 100,000 persons in the
 
 ### Settle the MR part of MRP.
 
-Like in the earlier examples in this chapter, we will model the data with multilevel logistic regression. Alexander fit her model with **brms** and kept things simple by using default priors. Here we'll continue on with McElreath's recommendations and use weakly regularizing priors. Though I am no expert on the topic of women’s name-changing practices following marriage, my layperson's sense is that most do not keep their maiden name after they marry. I’m not quite sure what the proportion might be, but I'd like my $\bar \alpha$ prior to tend closer to 0 than to 1. Recall that the $\bar \alpha$ for a multilevel logistic model is typically a Gaussion set on the log-odds scale. If we were to use $\operatorname{Normal}(-1, 1)$, here's what that would look like when converted back to the probability metric.
+Like in the earlier examples in this chapter, we will model the data with multilevel logistic regression. Alexander fit her model with **brms** and kept things simple by using default priors. Here we'll continue on with McElreath's recommendations and use weakly regularizing priors. Though I am no expert on the topic of women's name-changing practices following marriage, my layperson's sense is that most do not keep their maiden name after they marry. I'm not quite sure what the proportion might be, but I'd like my $\bar \alpha$ prior to tend closer to 0 than to 1. Recall that the $\bar \alpha$ for a multilevel logistic model is typically a Gaussian set on the log-odds scale. If we were to use $\operatorname{Normal}(-1, 1)$, here's what that would look like when converted back to the probability metric.
 
 ```{r, fig.width = 4, fig.height = 2.25}
 set.seed(13)
@@ -1743,7 +1741,7 @@ Interested readers should practice exploring the MRP estimates by the other two 
 
 * [Tim Mastny](https://twitter.com/timmastny) showed how to use MRP via **brms** with data of US state level opinions for gay marriage in his blog post, [*MRP Using brms and tidybayes*](https://timmastny.rbind.io/blog/multilevel-mrp-tidybayes-brms-stan/). 
 * [Rohan Alexander](https://twitter.com/RohanAlexander) showed how to fit political poling data with both **lme4** and **brms** in his post, [*Getting started with MRP*](https://rohanalexander.com/posts/2019-12-04-getting_started_with_mrp/). 
-* [Lauren Kennedy](https://twitter.com/jazzystats) and Andrew Gelman have a [-@kennedyKnowYourPopulation2020] preprint called [*Know your population and know your model: Using model-based regression and post-stratification to generalize findings beyond the observed sample*](https://arxiv.org/pdf/1906.11323.pdf), which shows how to use **brms** to apply MRP to Big Five personality data. 
+* [Lauren Kennedy](https://twitter.com/jazzystats) and Andrew Gelman have a [-@kennedyKnowYourPopulation2020] preprint called [*Know your population and know your model: Using model-based regression and post-stratification to generalize findings beyond the observed sample*](https://arxiv.org/pdf/1906.11323.pdf), which shows how to use **brms** to apply MRP to Big Five personality data.
 
 If anything, it seems we have an embarrassment of riches when it comes to **brms** and MRP! To wrap this section up, we'll give Monica Alexander the last words:
 
