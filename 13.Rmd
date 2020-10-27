@@ -25,26 +25,19 @@ These benefits include:
 
 > All of these benefits flow out of the same strategy and model structure. You learn one basic design and you get all of this for free.
 >
-> When it comes to regression, multilevel regression deserves to be the default approach. There are certainly contexts in which it would be better to use an old-fashioned single-level model. But the contexts in which multilevel models are superior are much more numerous. It is better to begin to build a multilevel analysis, and then realize it's unnecessary, than to overlook it. And once you grasp the basic multilevel strategy, it becomes much easier to incorporate related tricks such as allowing for measurement error in the data and even modeling missing data itself (Chapter 15). (p. 400)
+> When it comes to regression, multilevel regression deserves to be the default approach. There are certainly contexts in which it would be better to use an old-fashioned single-level model. But the contexts in which multilevel models are superior are much more numerous. It is better to begin to build a multilevel analysis, and then realize it's unnecessary, than to overlook it. And once you grasp the basic multilevel strategy, it becomes much easier to incorporate related tricks such as allowing for measurement error in the data and even modeling missing data itself ([Chapter 15][Missing Data and Other Opportunities]). (p. 400)
 
 I'm totally on board with this. After learning about the multilevel model, I see it everywhere. For more on the sentiment it should be the default, check out McElreath's blog post, [*Multilevel regression as default*](https://elevanth.org/blog/2017/08/24/multilevel-regression-as-default/).
 
 ## Example: Multilevel tadpoles
 
-Let's load the `reedfrogs` data [see @voneshCompensatoryLarvalResponses2005].
+Let's load the `reedfrogs` data [see @voneshCompensatoryLarvalResponses2005] and fire up **brms**.
 
 ```{r, message = F, warning = F}
-library(rethinking)
-data(reedfrogs)
-d <- reedfrogs
-```
-
-Detach **rethinking** and load **brms**.
-
-```{r, message = F}
-rm(reedfrogs)
-detach(package:rethinking, unload = T)
 library(brms)
+data(reedfrogs, package = "rethinking")
+d <- reedfrogs
+rm(reedfrogs)
 ```
 
 Go ahead and acquaint yourself with the `reedfrogs`.
@@ -72,7 +65,7 @@ Here's the formula for the un-pooled model in which each `tank` gets its own int
 \alpha_j                  & \sim \operatorname{Normal} (0, 1.5) & \text{for } j = 1..48,
 \end{align*}
 
-where $n_i$ is indexed by the `density` column. Its values are distributed like so: 
+where $n_i$ is indexed by the `density` column. Its values are distributed like so.
 
 ```{r}
 d %>% 
@@ -98,7 +91,7 @@ We don't need a `depth=2` argument to discover we have 48 different intercepts. 
 print(b13.1)
 ```
 
-This is much like the models we've fit in earlier chapters using McElreath's index approach, but on steroids. It'll be instructive to take a look at their distributions in density plots. We'll plot them in both their log-odds and probability metrics.
+This is much like the models we've fit in earlier chapters using McElreath's index approach, but on steroids. It'll be instructive to take a look at distribution of the $\alpha_j$ parameters in density plots. We'll plot them in both their log-odds and probability metrics.
 
 For kicks and giggles, let's use a [FiveThirtyEight-like theme](https://github.com/alex23lemm/theme_fivethirtyeight) for this chapter's plots. An easy way to do so is with help from the [**ggthemes** package](https://cran.r-project.org/package=ggthemes).
 
@@ -137,7 +130,7 @@ Even though it seems like we can derive important insights from how the `tank`-l
 
 where
 
-> the prior for the tank intercepts is now a function of two parameters, $\bar \alpha$ and $\sigma$. You can say $\bar \alpha$ like "bar alpha." The bar means average. These two parameters inside the prior is where the "multi" in multilevel arises. The Gaussian distribution with mean $\bar \alpha$ standard deviation $\sigma$ is the prior for each tank's intercept. But that prior itself has priors for $\bar \alpha$ and $\sigma$. So there are two *levels* in the model, each resembling a simpler model. (p. 403, *emphasis* in the original)
+> the prior for the tank intercepts is now a function of two parameters, $\bar \alpha$ and $\sigma$. You can say $\bar \alpha$ like "bar alpha." The bar means average. These two parameters inside the prior is where the "multi" in multilevel arises. The Gaussian distribution with mean $\bar \alpha$ standard deviation $\sigma$ is the prior for each tank’s intercept. But that prior itself has priors for $\bar \alpha$ and $\sigma$. So there are two levels in the model, each resembling a simpler model. (p. 403, *emphasis* in the original)
 
 With **brms**, you might specify the corresponding multilevel model like this.
 
@@ -154,9 +147,9 @@ b13.2 <-
       file = "fits/b13.02")
 ```
 
-The syntax for the varying effects follows the [**lme4** style](https://cran.r-project.org/package=brms/vignettes/brms_overview.pdf), `( <varying parameter(s)> | <grouping variable(s)> )`. In this case `(1 | tank)` indicates only the intercept, `1`, varies by `tank`. The extent to which parameters vary is controlled by the prior, `prior(exponential(1), class = sd)`, which is <u>parameterized in the standard deviation metric</u>. Do note that last part. It's common in multilevel software to model in the variance metric, instead. For technical reasons we won't really get into until Chapter 14, Stan parameterizes this as a standard deviation. 
+The syntax for the varying effects follows the [**lme4** style](https://cran.r-project.org/package=brms/vignettes/brms_overview.pdf), `( <varying parameter(s)> | <grouping variable(s)> )`. In this case `(1 | tank)` indicates only the intercept, `1`, varies by `tank`. The extent to which parameters vary is controlled by the prior, `prior(exponential(1), class = sd)`, which is <u>parameterized in the standard deviation metric</u>. Do note that last part. It's common in multilevel software to model in the variance metric, instead. For technical reasons we won't really get into until [Chapter 14][Adventures in Covariance], Stan parameterizes this as a standard deviation.
 
-Let's do the WAIC comparisons.
+Let's compute the WAIC comparisons.
 
 ```{r, message = F}
 b13.1 <- add_criterion(b13.1, "waic")
@@ -167,7 +160,7 @@ w <- loo_compare(b13.1, b13.2, criterion = "waic")
 print(w, simplify = F)
 ```
 
-The `se_diff` is large relative to the `elpd_diff`. If we convert the $\text{elpd}$ difference to the WAIC metric, the message stays the same.
+The `se_diff` is small relative to the `elpd_diff`. If we convert the $\text{elpd}$ difference to the WAIC metric, the message stays the same.
 
 ```{r}
 cbind(waic_diff = w[, 1] * -2,
@@ -181,7 +174,7 @@ model_weights(b13.1, b13.2, weights = "waic") %>%
   round(digits = 2)
 ```
 
-I'm not going to show it here, but if you'd like a challenge, try comparing the models with the PSIS-LOO. You'll get some great practice with high `pareto_k` values, `kfold()` recommendations, and challenges implementing those `kfold()` recommendations. If you're interested, pour yourself a calming adult  beverage, execute the code below, and check out the [Kfold(): "Error: New factor levels are not allowed"](https://discourse.mc-stan.org/t/kfold-error-new-factor-levels-are-not-allowed/8299) thread in the Stan forums.
+I'm not going to show it here, but if you'd like a challenge, try comparing the models with the PSIS-LOO. You'll get some great practice with high `pareto_k` values and the moment matching for problematic observations [see @paananenMomentMatching2020; @paananenImplicitlyAdaptiveImportance2020].
 
 ```{r, eval = F, echo = F}
 b13.1 <- add_criterion(b13.1, "loo")
@@ -281,7 +274,7 @@ Both plots show different ways in expressing the model uncertainty in terms of b
 
 #### Rethinking: Varying intercepts as over-dispersion. 
 
-> In the previous chapter ([page 369][Over-dispersed counts]), the beta-binomial and gamma-Poisson models were presented as ways for coping with **over-dispersion** of count data. Varying intercepts accomplish the same thing, allowing count outcomes to be over-dispersed. They accomplish this, because when each observed count gets its own unique intercept, but these intercepts are pooled through a common distribution, the predictions expect over-dispersion just like a beta-binomial or gamma-Poisson model would. Multilevel models are also mixtures. Compared to a beta-binomial or gamma-Poisson model, a binomial or Poisson model with a varying intercept on every observed outcome will often be easier to estimate and easier to extend. (p. 407, **emphasis** in the original)
+> In the previous chapter ([page 369][Over-dispersed counts]), the beta- binomial and gamma-Poisson models were presented as ways for coping with **over-dispersion** of count data. Varying intercepts accomplish the same thing, allowing count outcomes to be over-dispersed. They accomplish this, because when each observed count gets its own unique intercept, but these intercepts are pooled through a common distribution, the predictions expect over-dispersion just like a beta-binomial or gamma-Poisson model would. Multilevel models are also mixtures. Compared to a beta-binomial or gamma-Poisson model, a binomial or Poisson model with a varying intercept on every observed outcome will often be easier to estimate and easier to extend. (p. 407, **emphasis** in the original)
 
 #### Overthinking: Prior for variance components.
 
@@ -297,6 +290,8 @@ b13.2b <-
          seed = 13,
          file = "fits/b13.02b")
 ```
+
+McElreath mentioned how one might set a lower bound at zero for the half-Normal prior when using `rethinking::ulam()`. There's no need to do so when using `brms::brm()`. The lower bounds for priors of `class = sd` are already set to zero by default.
 
 Check the model summary.
 
@@ -342,7 +337,8 @@ By the way, this is why we set `iter = 5000` and `sample_prior = "yes"` for the 
 
 ## Varying effects and the underfitting/overfitting trade-off
 
-> Varying intercepts are just regularized estimates, but adaptively regularized by estimat- ing how diverse the clusters are while estimating the features of each cluster. This fact is not easy to grasp...
+> Varying intercepts are just regularized estimates, but adaptively regularized by estimating how diverse the clusters are while estimating the features of each cluster. This fact is not easy to grasp....
+>
 > A major benefit of using varying effects estimates, instead of the empirical raw estimates, is that they provide more accurate estimates of the individual cluster (tank) intercepts. On average, the varying effects actually provide a better estimate of the individual tank (cluster) means. The reason that the varying intercepts provide better estimates is that they do a better job of trading off underfitting and overfitting. (p. 408)
 
 In this section, we explicate this by contrasting three perspectives:
@@ -367,7 +363,7 @@ The simulation formula should look familiar.
 
 ### Assign values to the parameters.
 
-Here we follow along with McElreath and "assign specific values representative of the actual tadpole data" (p. 409). Because he included a `set.seed()` line, our results should match his exactly. 
+Here we follow along with McElreath and "assign specific values representative of the actual tadpole data" (p. 409). Because he included a `set.seed()` line in his **R** code 13.8, our results should match his exactly.
 
 ```{r}
 a_bar   <-  1.5
@@ -384,7 +380,7 @@ dsim <-
 head(dsim)
 ```
 
-McElreath twice urged us to inspect the contents of ths simulation. In addition to looking at the data with `head()`, we might well plot.
+McElreath twice urged us to inspect the contents of this simulation. In addition to looking at the data with `head()`, we might well plot.
 
 ```{r, fig.width = 5, fig.height = 3}
 dsim %>% 
@@ -418,7 +414,7 @@ set.seed(5005)
 
 ### Compute the no-pooling estimates.
 
-The no-pooling estimates (i.e., $\alpha_{\text{tank}_i}$) are the results of simple algebra.
+The no-pooling estimates (i.e., $\alpha_{\text{tank}[i]}$) are the results of simple algebra.
 
 ```{r}
 (
@@ -529,7 +525,7 @@ Although many years of work in statistics have shown that partially pooled estim
 
 > But there are some cases in which the no-pooling estimates are better. These exceptions often result from ponds with extreme probabilities of survival. The partial pooling estimates shrink such extreme ponds towards the mean, because few ponds exhibit such extreme behavior. But sometimes outliers really are outliers. (p. 414)
 
-I originally learned about the multilevel in order to work with [longitudinal data](https://gseacademic.harvard.edu/alda/). In that context, I found the basic principles of a multilevel structure quite intuitive. The concept of partial pooling, however, took me some time to wrap my head around. If you're struggling with this, be patient and keep chipping away. 
+I originally learned about the multilevel in order to work with [longitudinal data](https://gseacademic.harvard.edu/alda/). In that context, I found the basic principles of a multilevel structure quite intuitive. The concept of partial pooling, however, took me some time to wrap my head around. If you're struggling with this, be patient and keep chipping away.
 
 When McElreath [lectured on this topic in 2015](https://www.youtube.com/watch?v=82TaniPgzQc&t=2048s&frags=pl%2Cwn), he traced partial pooling to statistician [Charles M. Stein](https://imstat.org/2017/05/15/obituary-charles-m-stein-1920-2016/). Efron and Morris [-@efronSteinParadoxStatistics1977] wrote the now classic paper, [*Stein's paradox in statistics*](https://statweb.stanford.edu/~ckirby/brad/other/Article1977.pdf), which does a nice job breaking down why partial pooling can be so powerful. One of the primary examples they used in the paper was of 1970 batting average data. If you'd like more practice seeing how partial pooling works--or if you just like baseball--, check out my blog post, [*Stein's paradox and what partial pooling can do for you*](https://solomonkurz.netlify.com/post/stein-s-paradox-and-what-partial-pooling-can-do-for-you/).
 
@@ -601,13 +597,13 @@ b13.3$fit@stanmodel
 
 "We can use and often should use more than one type of cluster in the same model" (p. 415).
 
-#### Rethinking: Cross-classification and hierarchy. 
+#### Rethinking: Cross-classification and hierarchy.
 
 > The kind of data structure in `data(chimpanzees)` is usually called a **cross-classified multilevel** model. It is cross-classified, because actors are not nested within unique blocks. If each chimpanzee had instead done all of his or her pulls on a single day, within a single block, then the data structure would instead be *hierarchical*. However, the model specification would typically be the same. So the model structure and code you'll see below will apply both to cross-classified designs and hierarchical designs. (p. 415, **emphasis** in the original)
 
 ### Multilevel chimpanzees.
 
-The initial multilevel update from model `b10.4` from [Chapter 10][Logistic regression: Prosocial chimpanzees.] follows the statistical formula
+The initial multilevel update from model `b11.4` from [Section 11.1.1][Logistic regression: Prosocial chimpanzees.] follows the statistical formula
 
 \begin{align*}
 \text{left_pull}_i         & \sim \operatorname{Binomial}(n_i = 1, p_i) \\
@@ -623,7 +619,7 @@ The initial multilevel update from model `b10.4` from [Chapter 10][Logistic regr
 `r emo::ji("warning")` WARNING `r emo::ji("warning")`
 
 I am so sorry, but we are about to head straight into a load of confusion. If you follow along linearly in the book, we won't have the language to parse this all out until [Section 13.4][Divergent transitions and non-centered priors]. In short, our difficulties will have to do with what are called the centered and the non-centered parameterizations for multilevel models. In the next several models, McElreath used the **centered parameterization**. As we'll learn in Section 13.4, this often causes problems when you use Stan to fit your multilevel models. Happily, the solution to those problems is often the **non-centered parameterization**. This issue is well known among the Stan team. It's so well known, in fact, that Bürkner only supports the non-centered parameterization with **brms** (see [here](https://discourse.mc-stan.org/t/disable-non-centered-parameterization-in-brms/7184/7?u=solomon)). To my knowledge, there is no easy way around this. In the long run, this is a good thing. Your **brms** models will likely avoid some of the problems McElreath highlighted in this part of the text. In the short term, this also means that our results will not completely match up with those in the text. If you really want to reproduce McElreath's models `m13.4` through `m13.6`, you'll have to fit them with the **rethinking** package or directly in Stan. Our models `b13.4` through `b13.6` will be the non-centered **brms** alternatives. Either way, the models make the same predictions, but the nuts and bolts and gears we'll use to construct our multilevel golems will look a little different. With all that in mind, here's how we might express out statistical model using the non-centered parameterization more faithful to the way it will be expressed with `brms::brm()`:
-
+$$
 \begin{align*}
 \text{left_pull}_i         & \sim \operatorname{Binomial}(n_i = 1, p_i) \\
 \operatorname{logit} (p_i) & = \bar \alpha + \beta_{\text{treatment}[i]} + \color{#CD8500}{z_{\text{actor}[i]} \sigma_\alpha + x_{\text{block}[i]} \sigma_\gamma} \\
@@ -634,7 +630,7 @@ I am so sorry, but we are about to head straight into a load of confusion. If yo
 \sigma_\alpha & \sim \operatorname{Exponential}(1) \\
 \sigma_\gamma & \sim \operatorname{Exponential}(1).
 \end{align*}
-
+$$
 If you jump ahead to [Section 13.4.2][Non-centered chimpanzees.], you'll see this is just re-write of the formula on the top of page 424. For now, let's load the data.
 
 ```{r, warning = F, message = F}
