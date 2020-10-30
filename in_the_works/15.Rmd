@@ -1,0 +1,2085 @@
+---
+title: "Ch 15. Missing Data and Other Opportunities"
+author: "A Solomon Kurz"
+date: "`r format(Sys.Date())`"
+output:
+  github_document
+bibliography: bib.bib
+biblio-style: apalike
+csl: apa.csl
+link-citations: yes
+---
+
+```{r, echo = F, cache = F}
+knitr::opts_chunk$set(fig.retina = 2.5)
+knitr::opts_chunk$set(fig.align = "center")
+options(width = 100)
+```
+
+# Missing Data and Other Opportunities
+
+For the opening example, we're playing with the conditional probability
+
+$$
+\text{Pr(burnt down | burnt up)} = \frac{\text{Pr(burnt up, burnt down)}}{\text{Pr(burnt up)}}.
+$$
+
+Given McElreath's setup, it works out that
+
+$$
+\text{Pr(burnt down | burnt up)} = \frac{1/3}{1/2} = \frac{2}{3}.
+$$
+
+We might express the math toward the bottom of page 489 in tibble form like this.
+
+```{r, warning = F, message = F}
+library(tidyverse)
+
+p_pancake <- 1/3
+(
+  d <-
+    tibble(pancake = c("BB", "BU", "UU"),
+           p_burnt = c(1, .5, 0)) %>% 
+    mutate(p_burnt_up = p_burnt * p_pancake)
+)
+
+d %>% 
+  summarise(`p (burnt_down | burnt_up)` = p_pancake / sum(p_burnt_up))
+```
+
+I understood McElreath's simulation (**R** code 15.1) better after breaking it apart. The first part of `sim_pancake()` takes one random draw from the integers 1, 2, and 3. It just so happens that if we set `set.seed(1)`, the code returns a 1.
+
+```{r}
+set.seed(1)
+sample(x = 1:3, size = 1)
+```
+
+So here's what it looks like if we use seeds `2:11`.
+
+```{r}
+take_sample <- function(seed) {
+  set.seed(seed)
+  sample(x = 1:3, size = 1)
+}
+tibble(seed = 2:11) %>% 
+  mutate(value_returned = map_dbl(seed, take_sample))
+```
+
+Each of those `value_returned` values stands for one of the three pancakes: 1 = BB, 2 = BU, and 3 = UU. In the next line, McElreath made slick use of a matrix to specify that. Here's what the matrix looks like.
+
+```{r}
+matrix(c(1, 1, 1, 0, 0, 0), nrow = 2, ncol = 3)
+```
+
+See how the three columns are identified as `[,1]`, `[,2]`, and `[,3]`? If, say, we wanted to subset the values in the second column, we'd execute
+
+```{r}
+matrix(c(1, 1, 1, 0, 0, 0), nrow = 2, ncol = 3)[, 2]
+```
+
+which returns a numeric vector.
+
+```{r}
+matrix(c(1, 1, 1, 0, 0, 0), nrow = 2, ncol = 3)[, 2] %>% str()
+```
+
+That `1 0` corresponds to the pancake with one burnt (i.e., 1) and one unburnt (i.e., 0) side. So when McElreath then executed `sample(sides)`, he randomly sampled from one of those two values. In the case of `pancake == 2`, he randomly sampled one the pancake with one burnt and one unburnt side. Had he sampled from `pancake == 1`, he would have sampled from the pancake with both sides burnt.
+
+Going forward, let's amend McElreath's `sim_pancake()` function so it will take a `seed` argument, which will allow us to make the output reproducible.
+
+```{r}
+# simulate a `pancake` and return randomly ordered `sides`
+sim_pancake <- function(seed) {
+  
+  set.seed(seed)
+  
+  pancake <- sample(x = 1:3, size = 1)
+  sides   <- matrix(c(1, 1, 1, 0, 0, 0), nrow = 2, ncol = 3)[, pancake]
+  sample(sides)
+  
+}
+```
+
+Let's take this baby for a whirl.
+
+```{r, echo = F}
+# save(list = c("n_sim", "d"), file = "sims/15.sim_1.rda")
+load("sims/15.sim_1.rda")
+```
+
+```{r, eval = F}
+# how many simulations would you like?
+
+n_sim <- 1e4
+d <-
+  tibble(seed = 1:n_sim) %>% 
+  mutate(burnt = map(seed, sim_pancake)) %>% 
+  unnest(burnt) %>% 
+  mutate(side = rep(c("up", "down"), times = n() / 2))
+```
+
+Take a look at what we've done.
+
+```{r}
+head(d, n = 10)
+```
+
+Now we use `pivot_wider()` and `summarise()` to get the value we've been working for.
+
+```{r}
+d %>% 
+  pivot_wider(names_from = side, values_from = burnt) %>% 
+  summarise(`p (burnt_down | burnt_up)` = sum(up == 1 & down == 1) / (sum(up)))
+```
+
+The results are within rounding error of the ideal 2/3.
+
+> Probability theory is not difficult mathematically. It is just counting. But it is hard to interpret and apply. Doing so often seems to require some cleverness, and authors have an incentive to solve problems in clever ways, just to show off. But we don't need that cleverness, if we ruthlessly apply conditional probability....
+>
+> In this chapter, [we'll] meet two commonplace applications of this assume-and-deduce strategy. The first is the incorporation of **measurement error** into our models. The second is the estimation of **missing data** through **Bayesian imputation**....
+>
+> In neither application do [we] have to intuit the consequences of measurement errors nor the implications of missing values in order to design the models. All [we] have to do is state your information about the error or about the variables with missing values. Logic does the rest. [@mcelreathStatisticalRethinkingBayesian2020, p. 490, **emphasis** in the original]
+
+## Measurement error
+
+Let's grab those `WaffleDivorce` data from back in [Chapter 5][Spurious associations].
+
+```{r, message = F, warning = F}
+data(WaffleDivorce, package = "rethinking")
+d <- WaffleDivorce
+rm(WaffleDivorce)
+```
+
+In anticipation of **R** code 15.3 and 15.5, wrangle the data a little.
+
+```{r}
+d <-
+  d %>% 
+  mutate(D_obs = (Divorce - mean(Divorce)) / sd(Divorce),
+         D_sd  = Divorce.SE / sd(Divorce),
+         M     = (Marriage - mean(Marriage)) / sd(Marriage),
+         A     = (MedianAgeMarriage - mean(MedianAgeMarriage)) / sd(MedianAgeMarriage),
+         M_obs = M,
+         M_sd  = Marriage.SE / sd(Marriage))
+```
+
+For the plots in this chapter, we'll use the dark themes from the [**ggdark** package](https://CRAN.R-project.org/package=ggdark) [@R-ggdark]. Our primary theme will be `ggdark::dark_theme_bw()`. One way to use the `dark_theme_bw()` function is to make it part of the code for an individual plot, such as `ggplot() + geom_point() + dark_theme_bw()`. Another way is to make `dark_theme_bw()` the default setting with `ggplot2::theme_set()`. That will be our method.
+
+```{r, message = F, warning = F}
+library(ggdark)
+
+theme_set(
+  dark_theme_bw() +
+    theme(legend.position = "none",
+          panel.grid = element_blank())
+  )
+
+# to reset the default ggplot2 theme to its default parameters,
+# execute `ggplot2::theme_set(theme_gray())` and `ggdark::invert_geom_defaults()`
+```
+
+For the rest of our color palette, we'll use colors from the [**viridis** package](https://github.com/sjmgarnier/viridis) [@R-viridis], which provides a variety of colorblind-safe color palettes [see @rudisViridisColorPalettes2018].
+
+```{r, message = F, warning = F}
+# install.packages("viridis")
+library(viridis)
+```
+
+The `viridis_pal()` function gives a list of colors within a given palette. The colors in each palette fall on a spectrum. Within `viridis_pal()`, the `option` argument allows one to select a given spectrum, "C", in our case. The final parentheses, `()`, allows one to determine how many discrete colors one would like to break the spectrum up by. We'll choose 7.
+
+```{r}
+viridis_pal(option = "C")(7)
+```
+
+With a little data wrangling, we can put the colors of our palette in a tibble and display them in a plot.
+
+```{r, fig.height = 2, fig.width = 4}
+tibble(factor       = "a",
+       number       = factor(1:7),
+       color_number = str_c(1:7, ". ", viridis_pal(option = "C")(7))) %>% 
+  
+  ggplot(aes(x = factor, y = number)) +
+  geom_tile(aes(fill  = number)) +
+  geom_text(aes(color = number, label = color_number)) +
+  scale_color_manual(values = c(rep("black", times = 4), 
+                                rep("white", times = 3))) +
+  scale_fill_viridis(option = "C", discrete = T, direction = -1) +
+  scale_x_discrete(NULL, breaks = NULL, expand = c(0, 0)) +
+  scale_y_discrete(NULL, breaks = NULL, expand = c(0, 0)) +
+  ggtitle("Behold: viridis C!")
+```
+
+Now, let's make use of our custom theme and reproduce/reimagine Figure 15.1.a. 
+
+```{r}
+color <- viridis_pal(option = "C")(7)[7]
+
+p1 <-
+  d %>%
+  ggplot(aes(x = MedianAgeMarriage, 
+             y = Divorce,
+             ymin = Divorce - Divorce.SE, 
+             ymax = Divorce + Divorce.SE)) +
+  geom_pointrange(shape = 20, alpha = 2/3, color = color) +
+  labs(x = "Median age marriage" , 
+       y = "Divorce rate")
+```
+
+Notice how `viridis_pal(option = "C")(7)[7]` called the seventh color in the color scheme, `"#F0F921FF"`. For Figure 15.1.b, we'll select the sixth color in the palette by coding `viridis_pal(option = "C")(7)[6]`. We'll then combine the two subplots with patchwork.
+
+```{r, fig.width = 7.25, fig.height = 3.5}
+color <- viridis_pal(option = "C")(7)[6]
+
+p2 <-
+  d %>%
+  ggplot(aes(x = log(Population), 
+             y = Divorce,
+             ymin = Divorce - Divorce.SE, 
+             ymax = Divorce + Divorce.SE)) +
+  geom_pointrange(shape = 20, alpha = 2/3, color = color) +
+  scale_y_continuous(NULL, breaks = NULL) +
+  xlab("log population")
+
+library(patchwork)
+p1 | p2
+```
+
+Just like in the text, our plot shows states with larger populations tend to have smaller measurement error. The relation between measurement error and `MedianAgeMarriage` is less apparent.
+
+#### Rethinking: Generative thinking, Bayesian inference.
+
+> Bayesian models are *generative*, meaning they can be used to simulate observations just as well as they can be used to estimate parameters. One benefit of this fact is that a statistical model can be developed by thinking hard about how the data might have arisen. This includes sampling and measurement, as well as the nature of the process we are studying. Then let Bayesian updating discover the implications. (p. 491, *emphasis* in the original)
+
+### Error on the outcome.
+
+Now make a DAG of our data with **ggdag**.
+
+```{r, warning = F, message = F, fig.width = 3, fig.height = 1.25, }
+library(ggdag)
+
+dag_coords <-
+  tibble(name = c("A", "M", "D", "Dobs", "eD"),
+         x    = c(1, 2, 2, 3, 4),
+         y    = c(2, 3, 1, 1, 1))
+
+dagify(M    ~ A,
+       D    ~ A + M,
+       Dobs ~ D + eD,
+       coords = dag_coords) %>%
+  tidy_dagitty() %>% 
+  mutate(color = ifelse(name %in% c("D", "eD"), "a", "b")) %>% 
+  
+  ggplot(aes(x = x, y = y, xend = xend, yend = yend)) +
+  geom_dag_point(aes(color = color),
+                 size = 10, show.legend = F) +
+  geom_dag_text(parse = T, label = c("A", "D", "M", expression(italic(e)[D]), expression(D[obs]))) +
+  geom_dag_edges(edge_colour = "#FCF9F0") +
+  scale_color_manual(values = c(viridis_pal(option = "C")(7)[2], "black")) +
+  dark_theme_void()
+```
+
+Note our use of the `dark_theme_void()` function. But more to the substance of the matter,
+
+> there's a lot going on here. But we can proceed one step at a time. The left triangle of this DAG is the same system that we worked with back in [Chapter 5][Think before you regress.]. Age at marriage ($A$) influences divorce ($D$) both directly and indirectly, passing through marriage rate ($M$). Then we have the observation model. The true divorce rate $D$ cannot be observed, so it is circled as an unobserved node. However we do get to observe  $D_\text{obs}$, which is a function of both the true rate $D$ and some unobserved error $e_\text{D}$. (p. 492)
+
+To get a better sense of what we're about to do, imagine for a moment that each state's divorce rate is normally distributed with a mean of `Divorce` and standard deviation `Divorce.SE`. Those distributions would be like this.
+
+```{r}
+d %>% 
+  mutate(Divorce_distribution = str_c("Divorce ~ Normal(", Divorce, ", ", Divorce.SE, ")")) %>% 
+  select(Loc, Divorce_distribution) %>% 
+  head()
+```
+
+> Here's how to define the error distribution for each divorce rate. For each observed value $D_{\text{OBS},i}$, there will be one parameter, $D_{\text{TRUE},i}$, defined by:
+>
+> $$D_{\text{OBS},i} \sim \operatorname{Normal}(D_{\text{TRUE},i}, D_{\text{SE},i})$$
+>
+> All this does is define the measurement $D_{\text{OBS},i}$ as having the specified Gaussian distribution centered on the unknown parameter $D_{\text{TRUE},i}$. So the above defines a probability for each State $i$'s observed divorce rate, given a known measurement error. (p. 493)
+
+Our model will follow the form
+
+$$
+\begin{align*}
+\color{#5D01A6FF}{\text{Divorce}_{\text{OBS}, i}} & \color{#5D01A6FF}\sim \color{#5D01A6FF}{\operatorname{Normal}(\text{Divorce}_{\text{TRUE}, i}, \text{Divorce}_{\text{SE}, i})} \\
+\color{#5D01A6FF}{\text{Divorce}_{\text{TRUE}, i}} & \sim \operatorname{Normal}(\mu_i, \sigma) \\
+\mu     & = \alpha + \beta_1 \text A_i + \beta_2 \text M_i \\
+\alpha  & \sim \operatorname{Normal}(0, 0.2) \\
+\beta_1 & \sim \operatorname{Normal}(0, 0.5) \\
+\beta_2 & \sim \operatorname{Normal}(0, 0.5) \\
+\sigma  & \sim \operatorname{Exponential}(1).
+\end{align*}
+$$
+
+Fire up **brms**.
+
+```{r, warning = F, message = F}
+library(brms)
+```
+
+With **brms**, we accommodate measurement error in the criterion using the `mi()` syntax, following the general form `<response> | mi(<se_response>)`. This follows a missing data logic, resulting in Bayesian missing data imputation for the criterion values. The `mi()` syntax is based on the missing data capabilities for **brms**, which we will cover in greater detail in the second half of this chapter.
+
+```{r b15.1}
+# put the data into a `list()`
+dlist <- list(
+  D_obs = d$D_obs,
+  D_sd  = d$D_sd,
+  M     = d$M,
+  A     = d$A)
+
+b15.1 <- 
+  brm(data = dlist, 
+      family = gaussian,
+      D_obs | mi(D_sd) ~ 1 + A + M,
+      prior = c(prior(normal(0, 0.2), class = Intercept),
+                prior(normal(0, 0.5), class = b),
+                prior(exponential(1), class = sigma)),
+      iter = 2000, warmup = 1000, cores = 4, chains = 4,
+      seed = 15,
+      # note this line
+      save_mevars = TRUE,
+      file = "/Users/solomonkurz/Dropbox/Recoding Statistical Rethinking 2nd ed/fits/b15.01")
+```
+
+Check the model summary.
+
+```{r}
+print(b15.1)
+```
+
+To return the summaries for the `D_true[i]` parameters, you might execute `posterior_summary(b15.1)` or `b15.1$fit`. Here we'll use the `broom::tidy()` method, instead. 
+
+```{r}
+library(broom)
+
+tidy(b15.1, prob = .89) %>%
+  mutate_if(is.numeric, round, digits = 2)
+```
+
+Our rows `Yl[1]` through `Yl[50]` correspond to what **rethinking** named `D_true[1]` through `D_true[50]`. Here's the code for our Figure 15.2.a.
+
+```{r, message = F, warning = F}
+library(ggrepel)
+
+states <- c("AL", "AR", "ME", "NH", "RI", "DC", "VT", "AK", "SD", "UT", "ID", "ND", "WY")
+
+d_est <-
+  tidy(b15.1) %>% 
+  mutate(D_est = estimate) %>% 
+  select(term, D_est) %>% 
+  filter(str_detect(term, "Yl")) %>% 
+  bind_cols(d)
+
+color <- viridis_pal(option = "C")(7)[5]
+
+p1 <-
+  d_est %>%
+  ggplot(aes(x = D_sd, y = D_est - D_obs)) +
+  geom_hline(yintercept = 0, linetype = 2, color = "white") +
+  geom_point(alpha = 2/3, color = color) +
+  geom_text_repel(data = . %>% filter(Loc %in% states),  
+                  aes(label = Loc), 
+                  size = 3, seed = 15, color = "white") 
+```
+
+We'll use a little `posterior_samples()` + `expand()` magic to help with our version of Figure 15.2.b.
+
+```{r, warning = F, message = F}
+library(tidybayes)
+
+states <- c("AR", "ME", "RI", "ID", "WY", "ND", "MN")
+
+color <- viridis_pal(option = "C")(7)[4]
+
+p2 <-
+  posterior_samples(b15.1) %>% 
+  expand(nesting(b_Intercept, b_A),
+         A = seq(from = -3.5, to = 3.5, length.out = 50)) %>% 
+  mutate(fitted = b_Intercept + b_A * A) %>% 
+  
+  ggplot(aes(x = A)) +
+  stat_lineribbon(aes(y = fitted),
+                  .width = .95, size = 1/3, color = "grey50", fill = "grey20") +
+  geom_segment(data = d_est,
+               aes(xend = A,
+                   y = D_obs, yend = D_est),
+               size = 1/5) +
+  geom_point(data = d_est,
+             aes(y = D_obs),
+             color = color) +
+  geom_point(data = d_est,
+             aes(y = D_est),
+             shape = 1, stroke = 1/3) +
+  geom_text_repel(data = d %>% filter(Loc %in% states),  
+                  aes(y = D_obs, label = Loc), 
+                  size = 3, seed = 15, color = "white") +
+  labs(x = "median age marriage (std)",
+       y = "divorce rate (std)") +
+  coord_cartesian(xlim = range(d$A), 
+                  ylim = range(d$D_obs))
+```
+
+Now combine the two ggplots and plot.
+
+```{r, fig.width = 7.5, fig.height = 3.5}
+p1 | p2
+```
+
+If you look closely, our plot on the left is flipped relative to the one in the text. I'm pretty sure my code is correct, which leaves me to believe McElreath accidentally flipped the ordering in his code and made his $y$-axis 'D_obs - D_est.' Happily, our plot on the right matches up nicely with the one in the text.
+
+### Error on both outcome and predictor.
+
+Now we update the DAG to account for measurement error in the predictor.
+
+```{r, warning = F, message = F, fig.width = 3, fig.height = 1.25}
+dag_coords <-
+  tibble(name = c("A", "M", "Mobs", "eM", "D", "Dobs", "eD"),
+         x    = c(1, 2, 3, 4, 2, 3, 4),
+         y    = c(2, 3, 3, 3, 1, 1, 1))
+
+dagify(M    ~ A,
+       D    ~ A + M,
+       Mobs ~ M + eM,
+       Dobs ~ D + eD,
+       coords = dag_coords) %>%
+  tidy_dagitty() %>% 
+  mutate(color = ifelse(name %in% c("A", "Mobs", "Dobs"), "b", "a")) %>% 
+  
+  ggplot(aes(x = x, y = y, xend = xend, yend = yend)) +
+  geom_dag_point(aes(color = color),
+                 size = 10, show.legend = F) +
+  geom_dag_text(parse = T, label = c("A", "D", "M", 
+                                     expression(italic(e)[D]), expression(italic(e)[M]), 
+                                     expression(D[obs]), expression(M[obs]))) +
+  geom_dag_edges(edge_colour = "#FCF9F0") +
+  scale_color_manual(values = c(viridis_pal(option = "C")(7)[2], "black")) +
+  dark_theme_void()
+```
+
+We will express this DAG in an augmented statistical model following the form
+
+$$
+\begin{align*}
+\text{Divorce}_{\text{OBS}, i}  & \sim \operatorname{Normal}(\text{Divorce}_{\text{TRUE}, i}, \text{Divorce}_{\text{SE}, i}) \\
+\text{Divorce}_{\text{TRUE}, i} & \sim \operatorname{Normal}(\mu_i, \sigma) \\
+\mu_i & = \alpha + \beta_1 \text A_i + \beta_2 \color{#5D01A6FF}{\text{Marriage}_{\text{TRUE}, i}} \\
+\color{#5D01A6FF}{\text{Marriage}_{\text{OBS}, i}} & \color{#5D01A6FF}\sim \color{#5D01A6FF}{\operatorname{Normal}(\text{Marriage}_{\text{TRUE}, i}, \text{Marriage}_{\text{SE}, i})} \\
+\color{#5D01A6FF}{\text{Marriage}_{\text{TRUE}, i}} & \color{#5D01A6FF}\sim \color{#5D01A6FF}{\operatorname{Normal}(0, 1)} \\
+\alpha  & \sim \operatorname{Normal}(0, 0.2) \\
+\beta_1 & \sim \operatorname{Normal}(0, 0.5) \\
+\beta_2 & \sim \operatorname{Normal}(0, 0.5) \\
+\sigma  & \sim \operatorname{Exponential}(1).
+\end{align*}
+$$
+
+The current version **brms** allows users to specify error on predictors with an `me()` statement in the form of `me(predictor, sd_predictor)` where `sd_predictor` is a vector in the data denoting the size of the measurement error, presumed to be in a standard-deviation metric.
+      
+```{r b15.2}
+# put the data into a `list()`
+dlist <- list(
+  D_obs = d$D_obs,
+  D_sd  = d$D_sd,
+  M_obs = d$M_obs,
+  M_sd  = d$M_sd,
+  A     = d$A)
+
+b15.2 <- 
+  brm(data = dlist, 
+      family = gaussian,
+      D_obs | mi(D_sd) ~ 1 + A + me(M_obs, M_sd),
+      prior = c(prior(normal(0, 0.2), class = Intercept),
+                prior(normal(0, 0.5), class = b),
+                prior(normal(0, 1), class = meanme),
+                prior(exponential(1), class = sigma)),
+      iter = 2000, warmup = 1000, cores = 4, chains = 4,
+      seed = 15,
+      # note this line
+      save_mevars = TRUE,
+      file = "/Users/solomonkurz/Dropbox/Recoding Statistical Rethinking 2nd ed/fits/b15.02")
+```
+
+```{r, eval = F, echo = F}
+library(rethinking)
+
+dlist <- list(
+D_obs = standardize( d$Divorce ),
+D_sd = d$Divorce.SE / sd( d$Divorce ), M_obs = standardize( d$Marriage ),
+M_sd = d$Marriage.SE / sd( d$Marriage ), A = standardize( d$MedianAgeMarriage ), N = nrow(d)
+)
+m15.2 <- ulam( alist(
+D_obs ~ dnorm( D_true , D_sd ), vector[N]:D_true ~ dnorm( mu , sigma ), mu <- a + bA*A + bM*M_true[i],
+M_obs ~ dnorm( M_true , M_sd ), vector[N]:M_true ~ dnorm( 0 , 1 ),
+a ~ dnorm(0,0.2),
+bA ~ dnorm(0,0.5),
+bM ~ dnorm(0,0.5),
+sigma ~ dexp( 1 )
+    ) , data=dlist , chains=4 , cores=4 )
+
+# summary
+precis(m15.2, depth = 2)
+tidy(b15.2, prob = .89) %>% mutate_if(is.double, round, digits = 2) %>% filter(str_detect(term, "Xme_"))
+```
+
+We'll use `broom::tidy()`, again, to get a sense of `depth=2` summaries.
+
+```{r, results = 'hide'}
+tidy(b15.2) %>%
+  mutate_if(is.numeric, round, digits = 2)
+```
+
+Due to space concerns, I'm not going to show the results, here. You can do that on your own. Basically, now in addition to the posterior summaries for the `Yl[i]` parameters (what McElreath called $D_{\text{TRUE}, i}$), we now get posterior summaries for `Xme_meM_obs[i]` (what McElreath called $M_{\text{TRUE}, i}$). Note that you'll need to specify `save_mevars = TRUE` in the `brm()` function in order to save the posterior samples of error-adjusted variables obtained by using the `me()` argument. Without doing so, functions like `predict()` may give you trouble. Here's our version of Figure 15.3.
+
+```{r, fig.width = 3.75, fig.height = 3.675}
+color_y <- viridis_pal(option = "C")(7)[7]
+color_p <- viridis_pal(option = "C")(7)[2]
+
+# wrangle
+full_join(
+  tibble(Loc   = d %>% pull(Loc),
+         D_obs = d %>% pull(D_obs),
+         D_est = tidy(b15.2) %>% filter(str_detect(term, "Yl")) %>% pull(estimate)) %>% 
+    pivot_longer(-Loc, values_to = "d") %>% 
+    mutate(name = if_else(name == "D_obs", "observed", "posterior")),
+  
+  tibble(Loc   = d %>% pull(Loc),
+         M_obs = d %>% pull(M_obs),
+         M_est = tidy(b15.2) %>% filter(str_detect(term, "Xme_")) %>% pull(estimate)) %>% 
+    pivot_longer(-Loc, values_to = "m") %>% 
+    mutate(name = if_else(name == "M_obs", "observed", "posterior")),
+  by = c("Loc", "name")
+)  %>% 
+  
+  # plot!
+  ggplot(aes(x = m, y = d)) +
+  geom_line(aes(group = Loc),
+            size = 1/4) +
+  geom_point(aes(color = name)) +
+  scale_color_manual(values = c(color_p, color_y)) +
+  labs(subtitle = "Shrinkage of both divorce rate and marriage rate", 
+       x = "Marriage rate (std)" , 
+       y = "Divorce rate (std)")
+```
+
+The yellow points are model-implied; the purple ones are of the original data. It turns out our **brms** model regularized just a little more aggressively than McElreath's **rethinking** model.
+
+Anyway,
+
+> The big take home point for this section is that when you have a distribution of values, don't reduce it down to a single value to use in a regression. Instead, use the entire distribution. Anytime we use an average value, discarding the uncertainty around that average, we risk overconfidence and spurious inference. This doesn't only apply to measurement error, but also to cases in which data are averaged before analysis. (p. 497)
+
+### Measurement terrors.
+
+McElreath invited us to consider a few more DAGs. The first is an instance where both sources of measurement error have a common cause, $P$.
+
+```{r, warning = F, message = F, fig.width = 3.25, fig.height = 1.25}
+dag_coords <-
+  tibble(name = c("A", "M", "Mobs", "eM", "D", "Dobs", "eD", "P"),
+         x    = c(1, 2, 3, 4, 2, 3, 4, 5),
+         y    = c(2, 3, 3, 3, 1, 1, 1, 2))
+
+dagify(M    ~ A,
+       D    ~ A + M,
+       Mobs ~ M + eM,
+       Dobs ~ D + eD,
+       eM ~ P,
+       eD ~ P,
+       coords = dag_coords) %>%
+  tidy_dagitty() %>% 
+  mutate(color = ifelse(name %in% c("A", "Mobs", "Dobs", "P"), "b", "a")) %>% 
+  
+  ggplot(aes(x = x, y = y, xend = xend, yend = yend)) +
+  geom_dag_point(aes(color = color),
+                 size = 10, show.legend = F) +
+  geom_dag_text(parse = T, label = c("A", "D", "M", "P", 
+                                     expression(italic(e)[D]), expression(italic(e)[M]), 
+                                     expression(D[obs]), expression(M[obs]))) +
+  geom_dag_edges(edge_colour = "#FCF9F0") +
+  scale_color_manual(values = c(viridis_pal(option = "C")(7)[2], "black")) +
+  dark_theme_void()
+```
+
+The second instance is when the true marriage rate $M$ has a causal effect on the measurement error for Divorce, $e_\text{D}$.
+
+```{r, warning = F, message = F, fig.width = 3, fig.height = 1.25}
+dag_coords <-
+  tibble(name = c("A", "M", "Mobs", "eM", "D", "Dobs", "eD"),
+         x    = c(1, 2, 3, 4, 2, 3, 4),
+         y    = c(2, 3, 3, 3, 1, 1, 1))
+
+dagify(M    ~ A,
+       D    ~ A + M,
+       Mobs ~ M + eM,
+       Dobs ~ D + eD,
+       eD ~ M,
+       coords = dag_coords) %>%
+  tidy_dagitty() %>% 
+  mutate(color = ifelse(name %in% c("A", "Mobs", "Dobs"), "b", "a")) %>% 
+  
+  ggplot(aes(x = x, y = y, xend = xend, yend = yend)) +
+  geom_dag_point(aes(color = color),
+                 size = 10, show.legend = F) +
+  geom_dag_text(parse = T, label = c("A", "D", "M", 
+                                     expression(italic(e)[D]), expression(italic(e)[M]), 
+                                     expression(D[obs]), expression(M[obs]))) +
+  geom_dag_edges(edge_colour = "#FCF9F0") +
+  scale_color_manual(values = c(viridis_pal(option = "C")(7)[2], "black")) +
+  dark_theme_void()
+```
+
+The final example is when we have negligible measurement error for $M$ and $D$, but known nonignorable measurement error for the causal variable $A$.
+
+```{r, warning = F, message = F, fig.width = 3, fig.height = 1.25}
+dag_coords <-
+  tibble(name = c("eA", "Aobs", "A", "M", "D"),
+         x    = c(1, 2, 3, 4, 4),
+         y    = c(2, 2, 2, 3, 1))
+
+dagify(Aobs ~ A + eA,
+       M    ~ A,
+       D    ~ A,
+       coords = dag_coords) %>%
+  tidy_dagitty() %>% 
+  mutate(color = ifelse(name %in% c("A", "eA"), "a", "b")) %>% 
+  
+  ggplot(aes(x = x, y = y, xend = xend, yend = yend)) +
+  geom_dag_point(aes(color = color),
+                 size = 10, show.legend = F) +
+  geom_dag_text(parse = T, label = c("A", expression(italic(e)[A]), expression(A[obs]), "D", "M")) +
+  geom_dag_edges(edge_colour = "#FCF9F0") +
+  scale_color_manual(values = c(viridis_pal(option = "C")(7)[2], "black")) +
+  dark_theme_void()
+```
+
+On page 498, we read:
+
+> In this circumstance, it can happen that a naive regression of $D$ on $A_\text{obs}$ and $M$ will strongly suggest that $M$ influences $D$. The reason is that $M$ contains information about the true $A$. And $M$ is measured more precisely than $A$ is. It's like a proxy $A$. Here's a small simulation you can toy with that will produce such a frustration:
+
+```{r}
+n <- 500
+
+set.seed(15)
+
+dat <-
+  tibble(A = rnorm(n, mean = 0, sd = 1)) %>% 
+  mutate(M     = rnorm(n, mean = -A, sd = 1),
+         D     = rnorm(n, mean =  A, sd = 1),
+         A_obs = rnorm(n, mean =  A, sd = 1))
+```
+
+To get a sense of the havoc ignoring measurement error can cause, we'll fit to models. These aren't in the text, but, you know, let's live a little. The first model will include `A`, the true predictor for `D`. The second model will include `A_obs` instead, the version of `A` with measurement error added in.
+
+```{r b15.2b}
+# the model with A containing no measurement error
+b15.2b <- 
+  brm(data = dat, 
+      family = gaussian,
+      D ~ 1 + A + M,
+      prior = c(prior(normal(0, 0.2), class = Intercept),
+                prior(normal(0, 0.5), class = b),
+                prior(exponential(1), class = sigma)),
+      iter = 2000, warmup = 1000, cores = 4, chains = 4,
+      seed = 15,
+      # note this line
+      save_mevars = TRUE,
+      file = "/Users/solomonkurz/Dropbox/Recoding Statistical Rethinking 2nd ed/fits/b15.02b")
+
+# The model where A has measurement error, but we ignore it
+b15.2c <- 
+  brm(data = dat, 
+      family = gaussian,
+      D ~ 1 + A_obs + M,
+      prior = c(prior(normal(0, 0.2), class = Intercept),
+                prior(normal(0, 0.5), class = b),
+                prior(exponential(1), class = sigma)),
+      iter = 2000, warmup = 1000, cores = 4, chains = 4,
+      seed = 15,
+      # note this line
+      save_mevars = TRUE,
+      file = "/Users/solomonkurz/Dropbox/Recoding Statistical Rethinking 2nd ed/fits/b15.02c")
+```
+
+Check the summaries.
+
+```{r}
+print(b15.2b)
+print(b15.2c)
+```
+
+`b15.2b`, the model where `A` contains no measurement error, comes close to reproducing the data-generating parameters. The second model, `b15.2c`, which used `A` infused with measurement error (i.e., `A_obs`), is a disaster. A coefficient plot might help the comparison.
+
+```{r, fig.width = 6, fig.height = 3}
+# for annotation
+text <-
+  tibble(fit      = "b15.2b",
+         term     = "beta[0]",
+         estimate = fixef(b15.2b, probs = .99)["Intercept", 3],
+         label    = "In this plot, we like the yellow posteriors.")
+
+# wrangle
+bind_rows(
+  tidy(b15.2b) %>% filter(term != "lp__") %>% mutate(term = c(str_c("beta[", 0:2, "]"), "sigma")),
+  tidy(b15.2c) %>% filter(term != "lp__") %>% mutate(term = c(str_c("beta[", 0:2, "]"), "sigma"))
+  ) %>% 
+  mutate(fit = rep(c("b15.2b", "b15.2c"), each = n() / 2)) %>% 
+  
+  # plot!
+  ggplot(aes(x = estimate, y = fit)) +
+  geom_vline(xintercept = 0, linetype = 3, alpha = 1/2) +
+  geom_pointrange(aes(xmin = lower, xmax = upper, color = fit)) +
+  geom_text(data = text,
+            aes(label = label),
+            hjust = 0, color = color_y) +
+  scale_color_manual(values = c(color_y, "white")) +
+  labs(x = "marginal posterior",
+       y = NULL) +
+  theme(axis.ticks.y = element_blank(),
+        strip.background = element_rect(color = "transparent", fill = "transparent")) +
+  facet_wrap(~term, labeller = label_parsed, ncol = 1)
+```
+
+## Missing data
+
+> With measurement error, the insight is to realize that any uncertain piece of data can be replaced by a distribution that reflects uncertainty. But sometimes data are simply missing--no measurement is available at all. At first, this seems like a lost cause. What can be done when there is no measurement at all, not even one with error?...
+
+> So what can we do instead? We can think causally about missingness, and we can use
+the model to **impute** missing values. A generative model tells you whether the process that
+produced the missing values will also prevent the identification of causal effects. (p. 499, **emphasis** in the original)
+
+Starting with [version 2.2.0](https://cran.r-project.org/package=brms/news/news.html), **brms** supports Bayesian missing data imputation using adaptations of the [multivariate syntax](https://cran.r-project.org/package=brms/vignettes/brms_multivariate.html) [@Bürkner2020Multivariate]. Bürkner's [-@Bürkner2020HandleMissingValues] vignette, [*Handle missing values with brms*](https://cran.r-project.org/package=brms/vignettes/brms_missings.html), can provide a nice overview.
+
+#### Rethinking: Missing data are meaningful data. 
+
+> The fact that a variable has an unobserved value is still an observation. It is data, just with a very special value. The meaning of this value depends upon the context. Consider for example a questionnaire on personal income. If some people refuse to fill in their income, this may be associated with low (or high) income. Therefore a model that tries to predict the missing values can be enlightening. (p. 499)
+
+### DAG ate my homework.
+
+We'll start this section off with our versio of Figure 15.4. It's going to take a bit of effort on our part to make a nice representation those four DAGs. Here we make panels a, b, and d.
+
+```{r}
+# panel a
+dag_coords <-
+  tibble(name = c("S", "H", "Hs", "D"),
+         x    = c(1, 2, 2, 1),
+         y    = c(2, 2, 1, 1))
+
+p1 <-
+  dagify(H ~ S,
+         Hs ~ H + D,
+         coords = dag_coords) %>%
+  tidy_dagitty() %>% 
+  mutate(color = ifelse(name == "H", "a", "b")) %>% 
+  
+  ggplot(aes(x = x, y = y, xend = xend, yend = yend)) +
+  geom_dag_point(aes(color = color),
+                 size = 7, show.legend = F) +
+  geom_dag_text(label = c("D", "H", "S", "H*")) +
+  geom_dag_edges(edge_colour = "#FCF9F0")
+
+# panel b
+p2 <-
+  dagify(H ~ S,
+         Hs ~ H + D,
+         D ~ S,
+         coords = dag_coords) %>%
+  tidy_dagitty() %>% 
+  mutate(color = ifelse(name == "H", "a", "b")) %>% 
+  
+  ggplot(aes(x = x, y = y, xend = xend, yend = yend)) +
+  geom_dag_point(aes(color = color),
+                 size = 7, show.legend = F) +
+  geom_dag_text(label = c("D", "H", "S", "H*")) +
+  geom_dag_edges(edge_colour = "#FCF9F0")
+
+# panel d
+p4 <-
+  dagify(H ~ S,
+         Hs ~ H + D,
+         D ~ H,
+         coords = dag_coords) %>%
+  tidy_dagitty() %>% 
+  mutate(color = ifelse(name == "H", "a", "b")) %>% 
+  
+  ggplot(aes(x = x, y = y, xend = xend, yend = yend)) +
+  geom_dag_point(aes(color = color),
+                 size = 7, show.legend = F) +
+  geom_dag_text(label = c("D", "H", "S", "H*")) +
+  geom_dag_edges(edge_colour = "#FCF9F0")
+```
+
+Make panel c.
+
+```{r}
+dag_coords <-
+  tibble(name = c("S", "H", "Hs", "D", "X"),
+         x    = c(1, 2, 2, 1, 1.5),
+         y    = c(2, 2, 1, 1, 1.5))
+
+p3 <-
+  dagify(H ~ S + X,
+         Hs ~ H + D,
+         D ~ X,
+         coords = dag_coords) %>%
+  tidy_dagitty() %>% 
+  mutate(color = ifelse(name %in% c("H", "X"), "a", "b")) %>% 
+  
+  ggplot(aes(x = x, y = y, xend = xend, yend = yend)) +
+  geom_dag_point(aes(color = color),
+                 size = 7, show.legend = F) +
+  geom_dag_text(label = c("D", "H", "S", "X", "H*")) +
+  geom_dag_edges(edge_colour = "#FCF9F0")
+```
+
+Now combine, adjust a little, and plot.
+
+```{r, warning = F, message = F, fig.width = 5, fig.height = 5}
+(p1 + p2 + p3 + p4) +
+  plot_annotation(tag_levels = "a", tag_prefix = "(", tag_suffix = ")") &
+  scale_color_manual(values = c(viridis_pal(option = "C")(7)[2], "black")) &
+  dark_theme_void() +
+  theme(panel.background = element_rect(fill = "grey8"),
+        plot.margin = margin(0.2, 0.2, 0.2, 0.2, "in"))
+```
+
+On page 500, we read:
+
+> Consider a sample of students, all of whom own dogs. The students produce homework ($Hv). This homework varies in quality, influenced by how much each student studies ($S$). We could simulate 100 students, their attributes, and their homework like this:
+
+```{r}
+n <- 100
+
+set.seed(15)
+
+d <-
+  tibble(s = rnorm(n, mean = 0, sd = 1)) %>% 
+  mutate(h = rbinom(n, size = 10, inv_logit_scaled(s)),
+         d_a = rbinom(n, size = 1, prob = .5),
+         d_b = ifelse(s > 0, 1, 0)) %>%
+  mutate(hm_a = ifelse(d_a == 1, NA, h),
+         hm_b = ifelse(d_b == 1, NA, h))
+
+d
+```
+
+In that code block, we simulated the data corresponding to McElreath's **R** code 15.8 through 15.10. We have two `d` and `hm` variables. `d_a` and `hm_a` correspond to McElreath's **R** code 15.9 and the DAG in panel a. `d_b` and `hm_b` correspond to McElreath's **R** code 15.10 and the DAG in panel b.
+
+This wasn't in the text, but here we'll plot `h`, `hm_a`, and `hm_b` to get a sense of how the first two missing data examples compare to the original data.
+
+```{r, fig.width = 8, fig.height = 2.75, warning = F}
+p1 <-
+  d %>% 
+  ggplot(aes(x = s, y = h)) + 
+  geom_point(color = viridis_pal(option = "C")(7)[7], alpha = 2/3) +
+  scale_y_continuous(breaks = 1:10) +
+  labs(subtitle = "true distribution")
+
+p2 <-
+  d %>% 
+  ggplot(aes(x = s, y = hm_a)) + 
+  geom_point(color = viridis_pal(option = "C")(7)[6], alpha = 2/3) +
+  scale_y_continuous(breaks = 1:10) +
+  labs(subtitle = "missing completely at random")
+
+p3 <-
+  d %>% 
+  ggplot(aes(x = s, y = hm_b)) + 
+  geom_point(color = viridis_pal(option = "C")(7)[6], alpha = 2/3) +
+  scale_y_continuous(breaks = 1:10, limits = c(1, 10)) +
+  labs(subtitle = "missing conditional on s")
+
+p1 + p2 + p3
+```
+
+The left panel is the ideal situation letting us learn what we want to know, what is the effect of studying on the grade you'll get on your homework ($S \rightarrow H$). Once we enter in a missing data process (i.e., dogs $D$ eating homework), we end up with $H^*$, the homework left over after the dogs. Thus the homework outcomes we collect are a combination of the full set of homework and the hungry dogs. The middle panel depicts the scenario where the dogs eat the homework completely at random, $H \rightarrow H^* \leftarrow D$. In the right panel, we consider a scenario where the dogs only and always eat the homework on the occasions the students studied more than average, $H \rightarrow H^* \leftarrow D \leftarrow S$.
+
+The situation in the third DAG is more complicated. Now homework is conditional on both studying and how noisy it is in a students home, $X$. Also, our new variable $X$ isn't measured and whether the dogs eat the homework is also conditional on that unmeasured $X$. Here's the new data simulation.
+
+```{r}
+n <- 1000
+
+set.seed(501)
+
+d <-
+  tibble(x = rnorm(n, mean = 0, sd = 1),
+         s = rnorm(n, mean = 0, sd = 1)) %>% 
+  mutate(h = rbinom(n, size = 10, inv_logit_scaled(2 + s - 2 * x)),
+         d = ifelse(x > 1, 1, 0)) %>%
+  mutate(hm = ifelse(d == 1, NA, h))
+
+d
+```
+
+Those data look like this.
+
+```{r, fig.width = 5.5, fig.height = 2.75, warning = F}
+p1 <-
+  d %>% 
+  ggplot(aes(x = s, y = h)) + 
+  geom_point(color = viridis_pal(option = "C")(7)[7], alpha = 1/4) +
+  scale_y_continuous(breaks = 1:10) +
+  labs(subtitle = "true distribution")
+
+p2 <-
+  d %>% 
+  ggplot(aes(x = s, y = hm)) + 
+  geom_point(color = viridis_pal(option = "C")(7)[6], alpha = 1/4) +
+  scale_y_continuous(breaks = 1:10) +
+  labs(subtitle = "missing conditional on x")
+
+p1 + p2
+```
+
+Fit the model using the data with no missingness.
+
+```{r b15.3}
+b15.3 <-
+  brm(data = d,
+      family = binomial,
+      h ~ 1 + s,
+      prior = c(prior(normal(0, 1), class = Intercept),
+                prior(normal(0, 0.5), class = b)),
+      iter = 2000, warmup = 1000, chains = 4, cores = 4,
+      seed = 15,
+      file = "/Users/solomonkurz/Dropbox/Recoding Statistical Rethinking 2nd ed/fits/b15.03")
+```
+
+Check the results.
+
+```{r}
+print(b15.3)
+```
+
+Since this is not the data-generating model, we shouldn't be all that surprised the coefficient for `s` is off (it should be 1). Because this is an example of where we didn't collect data on $X$, we can think of our incorrect results as a case of **omitted variable bias**. Here's what happens when we run the model on `hm`, the homework variable after the hungry dogs got to it.
+
+```{r b15.4}
+b15.4 <-
+  brm(data = d %>% filter(d == 0),
+      family = binomial,
+      h ~ 1 + s,
+      prior = c(prior(normal(0, 1), class = Intercept),
+                prior(normal(0, 0.5), class = b)),
+      iter = 2000, warmup = 1000, chains = 4, cores = 4,
+      seed = 15,
+      file = "/Users/solomonkurz/Dropbox/Recoding Statistical Rethinking 2nd ed/fits/b15.04")
+```
+
+Check the results.
+
+```{r}
+print(b15.4)
+```
+
+Interestingly, both the intercept and the coefficient for `s` are now less biased. Because both $H$ and $D$ are conditional on $X$, omitting cases based on $X$ resulted in a model that conditional on $X$, even though $X$ wasn't directly in the statistical model. This won't always be the case. Consider what happens when we have a different missing data mechanism.
+
+```{r}
+d <-
+  d %>% 
+  mutate(d = ifelse(abs(x) < 1, 1, 0)) %>%
+  mutate(hm = ifelse(d == 1, NA, h))
+
+d
+```
+
+Here's what then updated data look like.
+
+```{r, fig.width = 5.5, fig.height = 2.75, warning = F}
+p1 <-
+  d %>% 
+  ggplot(aes(x = s, y = h)) + 
+  geom_point(color = viridis_pal(option = "C")(7)[7], alpha = 1/4) +
+  scale_y_continuous(breaks = 1:10) +
+  labs(subtitle = "true distribution")
+
+p2 <-
+  d %>% 
+  ggplot(aes(x = s, y = hm)) + 
+  geom_point(color = viridis_pal(option = "C")(7)[6], alpha = 1/4) +
+  scale_y_continuous(breaks = 1:10) +
+  labs(subtitle = "missing conditional on x")
+
+p1 + p2
+```
+McElreath didn't fit this model in the text, but he encouraged us to do so on our own (p. 503). Here it is.
+
+```{r b15.4b}
+b15.4b <-
+  brm(data = d %>% filter(d == 0),
+      family = binomial,
+      h ~ 1 + s,
+      prior = c(prior(normal(0, 1), class = Intercept),
+                prior(normal(0, 0.5), class = b)),
+      iter = 2000, warmup = 1000, chains = 4, cores = 4,
+      seed = 15,
+      file = "/Users/solomonkurz/Dropbox/Recoding Statistical Rethinking 2nd ed/fits/b15.04b")
+```
+
+```{r}
+print(b15.4b)
+```
+
+Yep, "now missingness makes things worse" (p. 503).
+
+#### Rethinking: Naming completely at random.
+
+McElreath briefly mentioned the terms **missing completely at random** (MCAR), **missing at random** (MAR), and **missing not at random** (MNAR). I share his sentiments; these terms are awful. However, they're peppered throughout the missing data literature and I recommend you familiarize yourself with them. In his endnote #227, McElreath pointed readers to the authoritative work of @rubinInferenceAndMissingData1976 and @littleStatisticalAnalysisMissing2019 (though he referenced the second edition, whereas I'm referencing the third). @baraldiIntroductionToModernMissingData2010 is a nice primer, too.
+
+### Imputing primates.
+
+We return to the `milk` data.
+
+```{r, message = F, warning = F}
+data(milk, package = "rethinking")
+d <- milk
+rm(milk)
+
+# transform
+d <-
+  d %>%
+  mutate(neocortex.prop = neocortex.perc / 100,
+         logmass        = log(mass)) %>% 
+  mutate(k = (kcal.per.g - mean(kcal.per.g)) / sd(kcal.per.g),
+         b = (neocortex.prop - mean(neocortex.prop, na.rm = T)) / sd(neocortex.prop, na.rm = T),
+         m = (logmass - mean(logmass)) / sd(logmass))
+```
+
+Note how we set `na.rm = T` within the `mean()` and `sd()` functions when computing `b`. See what happens if you leave that part out. As hinted at above and explicated in the text, we're missing 12 values for `neocortex.prop`.
+
+```{r}
+d %>% 
+  count(is.na(neocortex.prop))
+```
+
+We dropped those values when we fit the models back in [Chapter 5][Masked relationship]. To get a sense of whether this was a bad idea, let's consider the model with a DAG. Ignoring the missing data, we have this.
+
+```{r, warning = F, message = F, fig.width = 2.5, fig.height = 1.25}
+dag_coords <-
+  tibble(name = c("M", "U", "K", "B"),
+         x    = c(1, 2, 2, 3),
+         y    = c(2, 2, 1, 2))
+
+dagify(M ~ U,
+       B ~ U,
+       K ~ M + B,
+       coords = dag_coords) %>%
+  tidy_dagitty() %>% 
+  mutate(color = ifelse(name == "U", "a", "b")) %>% 
+  
+  ggplot(aes(x = x, y = y, xend = xend, yend = yend)) +
+  geom_dag_point(aes(color = color),
+                 size = 10, show.legend = F) +
+  geom_dag_text() +
+  geom_dag_edges(edge_colour = "#FCF9F0") +
+  scale_color_manual(values = c(viridis_pal(option = "C")(7)[2], "black")) +
+  dark_theme_void()
+```
+
+"$M$ is body mass, $B$ is neocortex percent, $K$ is milk energy, and $U$ is some unobserved variable that renders $M$ and $B$ positively correlated" (p. 504). Because we have missingness in $B$, our data in hand are actually $B^*$. McElreath considered three processes that may have generated these missing data. Here are the DAGs.
+
+```{r, warning = F, message = F, fig.width = 7, fig.height = 2}
+dag_coords <-
+  tibble(name = c("M", "U", "K", "B", "RB", "Bs"),
+         x    = c(1, 2, 2, 3, 2, 3),
+         y    = c(2, 2, 1, 2, 3, 3))
+
+# left
+p1 <-
+  dagify(M ~ U,
+         B ~ U,
+         K ~ M + B,
+         Bs ~ RB + B,
+         coords = dag_coords) %>%
+  tidy_dagitty() %>% 
+  mutate(color = ifelse(name %in% c("U", "B"), "a", "b")) %>% 
+  
+  ggplot(aes(x = x, y = y, xend = xend, yend = yend)) +
+  geom_dag_point(aes(color = color),
+                 size = 10, show.legend = F) +
+  geom_dag_text(parse = T, label = c("B", "M", expression(R[B]), "U", expression(B^'*'), "K")) +
+  geom_dag_edges(edge_colour = "#FCF9F0")
+
+# middle
+p2 <-
+  dagify(M ~ U,
+         B ~ U,
+         K ~ M + B,
+         Bs ~ RB + B,
+         RB ~ M,
+         coords = dag_coords) %>%
+  tidy_dagitty() %>% 
+  mutate(color = ifelse(name %in% c("U", "B"), "a", "b")) %>% 
+  
+  ggplot(aes(x = x, y = y, xend = xend, yend = yend)) +
+  geom_dag_point(aes(color = color),
+                 size = 10, show.legend = F) +
+  geom_dag_text(parse = T, label = c("B", "M", expression(R[B]), "U", expression(B^'*'), "K")) +
+  geom_dag_edges(edge_colour = "#FCF9F0")
+
+# right
+p3 <-
+  dagify(M ~ U,
+         B ~ U,
+         K ~ M + B,
+         Bs ~ RB + B,
+         RB ~ B,
+         coords = dag_coords) %>%
+  tidy_dagitty() %>% 
+  mutate(color = ifelse(name %in% c("U", "B"), "a", "b")) %>% 
+  
+  ggplot(aes(x = x, y = y, xend = xend, yend = yend)) +
+  geom_dag_point(aes(color = color),
+                 size = 10, show.legend = F) +
+  geom_dag_text(parse = T, label = c("B", "M", expression(R[B]), "U", expression(B^'*'), "K")) +
+  geom_dag_edges(edge_colour = "#FCF9F0")
+
+# combine!
+(p1 + p2 + p3) &
+  scale_color_manual(values = c(viridis_pal(option = "C")(7)[2], "black")) &
+  dark_theme_void() &
+  theme(panel.background = element_rect(fill = "black"),
+        plot.background = element_rect(fill = "grey8", color = "grey8"),
+        plot.margin = margin(0.1, 0.1, 0.1, 0.1, "in"))
+```
+
+In each of the DAGs, the new variable $R_B$ simply indicates whether a given species has missingness in $B^*$, much like our dog variable $D$ indicated the missing data in the DAGs from the earlier DAGs. The big difference between then and now is that whereas we had a sense of what was causing the missing data in the earlier examples (i.e., those hungry $D$ dogs), now we only have a generic missing data mechanism, $R_B$. In the middle of page 505, McElreath asked we consider one more missing data mechanism, this time with a new unmeasured causal variable $V$.
+
+```{r, warning = F, message = F, fig.width = 3.75, fig.height = 1.25}
+dag_coords <-
+  tibble(name = c("M", "U", "K", "B", "Bs", "RB", "V"),
+         x    = c(1, 2, 2, 3, 4, 4, 3.4),
+         y    = c(2, 2, 1, 2, 2, 1, 1.45))
+
+dagify(M ~ U,
+       B ~ U + V,
+       K ~ M + B,
+       Bs ~ RB + B,
+       RB ~ V,
+       coords = dag_coords) %>%
+  tidy_dagitty() %>% 
+  mutate(color = ifelse(name %in% c("U", "B", "V"), "a", "b")) %>% 
+  
+  ggplot(aes(x = x, y = y, xend = xend, yend = yend)) +
+  geom_dag_point(aes(color = color),
+                 size = 10, show.legend = F) +
+  geom_dag_text(parse = T, label = c("B", "M", expression(R[B]), "U", "V", expression(B^'*'), "K")) +
+  geom_dag_edges(edge_colour = "#FCF9F0") +
+  scale_color_manual(values = c(viridis_pal(option = "C")(7)[2], "black")) +
+  dark_theme_void()
+```
+
+However, our statistical model will follow the form
+
+$$
+\begin{align*}
+K_i     & \sim \operatorname{Normal}(\mu_i, \sigma) \\
+\mu_i   & = \alpha + \beta_1 \color{#5D01A6FF}{B_i} + \beta_2 \log M_i \\
+\color{#5D01A6FF}{B_i} & \color{#5D01A6FF}\sim \color{#5D01A6FF}{\operatorname{Normal}(\nu, \sigma_B)} \\
+\alpha  & \sim \operatorname{Normal}(0, 0.5) \\
+\beta_1 & \sim \operatorname{Normal}(0, 0.5) \\
+\beta_2 & \sim \operatorname{Normal}(0, 0.5) \\
+\sigma  & \sim \operatorname{Exponential}(1) \\
+\color{#5D01A6FF}\nu & \color{#5D01A6FF}\sim \color{#5D01A6FF}{\operatorname{Normal}(0, 0.5)} \\
+\color{#5D01A6FF}{\sigma_B} & \color{#5D01A6FF}\sim \color{#5D01A6FF}{\operatorname{Exponential}(1)},
+\end{align*}
+$$
+
+where we simply presume the missing values in $B_i$, which was $B^*$ in our DAGs, are unrelated to any of the other variables in the model. But those missing values in $B_i$ values do get their own prior distribution, $\operatorname{Normal}(\nu, \sigma_B)$. If you look closely, you'll discover the prior McElreath reported for $\nu$ $[\operatorname{Normal}(0.5, 1)]$ does not match up with his `rethinking::ulam()` code in his **R** code block 15.17, $\operatorname{Normal}(0, 0.5)$. Here we use the latter.
+
+When writing a multivariate model in **brms**, I find it easier to save the model code by itself and then insert it into the `brm()` function. Otherwise, things start to feel cluttered.
+
+```{r}
+b_model <- 
+  # here's the primary `k` model
+  bf(k ~ 1 + mi(b) + m) + 
+  # here's the model for the missing `b` data 
+  bf(b | mi() ~ 1) + 
+  # here we set the residual correlations for the two models to zero
+  set_rescor(FALSE)
+```
+
+Note the `mi(b)` syntax in the `k` model. This indicates that the predictor, `b`, has missing values that are themselves being modeled. To get a sense of how to specify the priors for such a model in **brms**, use the `get_prior()` function.
+
+```{r}
+get_prior(data = d, 
+          family = gaussian,
+          b_model)
+```
+
+With the one-step Bayesian imputation procedure in **brms**, you might need to use the `resp` argument when specifying non-default priors. Now fit the model.
+
+```{r b15.5}
+b15.5 <- 
+  brm(data = d, 
+      family = gaussian,
+      b_model,  # here we insert the model
+      prior = c(prior(normal(0, 0.5), class = Intercept, resp = k),
+                prior(normal(0, 0.5), class = Intercept, resp = b),
+                prior(normal(0, 0.5), class = b,         resp = k),
+                prior(exponential(1), class = sigma,     resp = k),
+                prior(exponential(1), class = sigma,     resp = b)),
+      iter = 2000, warmup = 1000, chains = 4, cores = 4,
+      seed = 15,
+      file = "/Users/solomonkurz/Dropbox/Recoding Statistical Rethinking 2nd ed/fits/b15.05")
+```
+
+With a model like this, `print()` only gives up part of the picture.
+
+```{r}
+print(b15.5)
+```
+
+Note that for the parameters summarized in the 'Population-Level Effects:' section, the criterion is indexed in the prefix. The parameters in the 'Family Specific Parameters:', however, have the criteria indexed in the suffix. I don't know why. Anyway, we can get a summary of the imputed values with `tidy()`.
+
+```{r}
+tidy(b15.5) %>%
+  mutate_if(is.numeric, round, digits = 2)
+```
+
+The imputed `b` values are indexed by occasion number from the original data. This is in contrast with McElreath's `precis()` output, which simply serially indexes the missing values as `B_impute[1]`, `B_impute[2]`, and so on.
+
+Before we move on to the next model, let's plot to get a sense of what we've done.
+
+```{r, fig.width = 5, fig.height = 3}
+posterior_samples(b15.5) %>% 
+  select(starts_with("Ymi_b")) %>% 
+  set_names(filter(d, is.na(b)) %>% pull(species)) %>% 
+  pivot_longer(everything(),
+               names_to = "species") %>% 
+  
+  ggplot(aes(x = value, 
+             y = reorder(species, value))) +
+  stat_slab(fill = viridis_pal(option = "C")(7)[4], 
+            alpha = 3/4, height = 1.5, slab_color = "black") +
+  labs(x = "imputed values for b",
+       y = NULL) +
+  theme(axis.text.y = element_text(hjust = 0),
+        axis.ticks.y = element_blank())
+```
+
+Here's the model that drops the cases with NAs on `b`.
+
+```{r b15.6}
+b15.6 <- 
+  brm(data = d, 
+      family = gaussian,
+      k ~ 1 + b + m,
+      prior = c(prior(normal(0, 0.5), class = Intercept),
+                prior(normal(0, 0.5), class = b),
+                prior(exponential(1), class = sigma)),
+      iter = 2000, warmup = 1000, chains = 4, cores = 4,
+      seed = 15,
+      file = "/Users/solomonkurz/Dropbox/Recoding Statistical Rethinking 2nd ed/fits/b15.06")
+```
+
+If you run this on your computer, you'll notice the following message at the top: "Rows containing NAs were excluded from the model." This time `print()` gives us the same basic summary information as `tidy()`.
+
+```{r}
+print(b15.6)
+```
+
+We can't use McElreath's `plot(coeftab())` trick with our **brms** output, but we can still get by.
+
+```{r, fig.width = 6, fig.height = 1.75}
+# wrangle
+bind_rows(
+  tidy(b15.5) %>% slice(3:4) %>% mutate(term = str_c("beta[", 2:1, "]")),
+  tidy(b15.6) %>% slice(2:3) %>% mutate(term = str_c("beta[", 1:2, "]"))
+  ) %>% 
+  mutate(fit = rep(c("b15.5", "b15.6"), each = n() / 2)) %>% 
+  
+  # plot!
+  ggplot(aes(x = estimate, y = fit)) +
+  geom_vline(xintercept = 0, linetype = 3, alpha = 1/2) +
+  geom_pointrange(aes(xmin = lower, xmax = upper)) +
+  labs(x = "marginal posterior",
+       y = NULL) +
+  theme(axis.ticks.y = element_blank(),
+        strip.background = element_rect(color = "transparent")) +
+  facet_wrap(~term, labeller = label_parsed, ncol = 1)
+```
+
+The model using Bayesian imputation (`b15.5`) used more information, resulting in narrower marginal posteriors for $\beta_1$ and $\beta_2$. Because it wasted perfectly good information, the conventional `b15.6` model was less certain.
+
+In order to make our version of Figure 15.5, we'll want to add the summary values for the imputed `b` data from `b15.1` to the primary data file `d`.
+
+```{r}
+d <-
+  d %>% 
+  mutate(row = 1:n()) %>% 
+  left_join(
+    tidy(b15.5) %>%
+      filter(str_detect(term, "Ymi")) %>% 
+      mutate(row = str_extract(term, "(\\d)+") %>% as.integer()),
+    by = "row"
+  ) 
+
+d %>% 
+  select(species, k:upper)
+```
+
+Now make Figure 15.5.
+
+```{r, fig.width = 6.5, fig.height = 3, warning = F}
+color <- viridis_pal(option = "D")(7)[4]
+
+# left
+p1 <-
+  d %>% 
+  ggplot(aes(y = k)) +
+  geom_point(aes(x = b),
+             color = color) +
+  geom_pointrange(aes(x = estimate, xmin = lower, xmax = upper),
+                  shape = 1, size = 1/4, fatten = 8, stroke = 1/4) +
+  labs(x = "neocortex percent (std)",
+       y = "kcal milk (std)") +
+  coord_cartesian(xlim = range(d$b, na.rm = T))
+
+# right
+p2 <-
+  d %>% 
+  ggplot(aes(x = m)) +
+  geom_point(aes(y = b),
+             color = color) +
+  geom_pointrange(aes(y = estimate, ymin = lower, ymax = upper),
+                  shape = 1, size = 1/4, fatten = 8, stroke = 1/4) +
+  labs(x = "log body mass (std)",
+       y = "neocortex percent (std)") +
+  coord_cartesian(ylim = range(d$b, na.rm = T))
+
+# combine and plot!
+p1 + p2
+```
+
+"We can improve this model by changing the imputation model to estimate the relationship between the two predictors" (p. 509). In the text, McElreath accomplished this with the model
+
+$$
+\begin{align*}
+K_i   & \sim \operatorname{Normal}(\mu_i, \sigma) \\
+\mu_i & = \alpha + \beta_1 \color{#5D01A6FF}{B_i} + \beta_2 \log M_i \\
+\color{#5D01A6FF}{\begin{bmatrix} M_i \\ B_i \end{bmatrix}} & \color{#5D01A6FF} \sim \color{#5D01A6FF}{\operatorname{MVNormal}
+\begin{pmatrix} 
+\begin{bmatrix} \mu_M \\\mu_B \end{bmatrix}, 
+\mathbf \Sigma \end{pmatrix}} \\
+\alpha  & \sim \operatorname{Normal}(0, 0.5) \\
+\beta_1 & \sim \operatorname{Normal}(0, 0.5) \\
+\beta_2 & \sim \operatorname{Normal}(0, 0.5) \\
+\sigma  & \sim \operatorname{Exponential}(1) \\
+\color{#5D01A6FF}{\mu_M} & \color{#5D01A6FF} \sim \color{#5D01A6FF}{\operatorname{Normal}(0, 0.5)} \\
+\color{#5D01A6FF}{\mu_B} & \color{#5D01A6FF} \sim \color{#5D01A6FF}{\operatorname{Normal}(0, 0.5)} \\
+\color{#5D01A6FF}{\mathbf \Sigma} & \color{#5D01A6FF} = \color{#5D01A6FF}{\operatorname{\mathbf S \mathbf R \mathbf S}} \\
+\color{#5D01A6FF}{\mathbf S} & \color{#5D01A6FF} = \color{#5D01A6FF}{\begin{bmatrix} \sigma_M & 0 \\ 0 & \sigma_B \end{bmatrix}} \\
+\color{#5D01A6FF}{\mathbf R} & \color{#5D01A6FF} = \color{#5D01A6FF}{\begin{bmatrix} 1 & \rho \\ \rho & 1 \end{bmatrix}} \\
+\color{#5D01A6FF}{\sigma_M}  & \color{#5D01A6FF} \sim \color{#5D01A6FF}{\operatorname{Exponential}(1)} \\
+\color{#5D01A6FF}{\sigma_B}  & \color{#5D01A6FF} \sim \color{#5D01A6FF}{\operatorname{Exponential}(1)} \\
+\color{#5D01A6FF} \rho       & \color{#5D01A6FF} \sim \color{#5D01A6FF}{\operatorname{LKJ}(2)},
+\end{align*}
+$$
+
+which expresses the relationship between the two predictors with a residual correlation matrix, $\mathbf \Sigma$. Importantly, though $\mathbf \Sigma$ involves the variables $B_i$ and $M_i$, it does not directly involve the criterion, $K_i$. As it turns out, **brms** cannot handle a model of this form. When you fit multivariate models with residual correlations, you have to set them for either all variables or none of them. For a little more on this topic, you can skim through the [*Brms and heterogeneous residual covariance - equivalent of "at.level" function*](https://discourse.mc-stan.org/t/brms-and-heterogeneous-residual-covariance-equivalent-of-at-level-function/6637) thread on the Stan Forums. Bürkner's response to the initial question indicated this kind of model will be available in **brms** version 3.0+, which I believe will entail a substantial reworkign of the multivariate syntax. Until then, we can fit the alternative model 
+
+$$
+\begin{align*}
+K_i   & \sim \operatorname{Normal}(\mu_i, \sigma) \\
+\mu_i & = \alpha + \beta_1 \color{#5D01A6FF}{B_i} + \beta_2 \log M_i \\
+\color{#5D01A6FF}{B_i}   & \color{#5D01A6FF} \sim \color{#5D01A6FF}{\operatorname{Normal}(\nu_i, \sigma_B)} \\
+\color{#5D01A6FF}{\nu_i} & \color{#5D01A6FF} = \color{#5D01A6FF}{\gamma + \delta_1 \log M_i} \\
+\alpha  & \sim \operatorname{Normal}(0, 0.5) \\
+\beta_1 & \sim \operatorname{Normal}(0, 0.5) \\
+\beta_2 & \sim \operatorname{Normal}(0, 0.5) \\
+\sigma  & \sim \operatorname{Exponential}(1) \\
+\color{#5D01A6FF}\gamma     & \color{#5D01A6FF} \sim \color{#5D01A6FF}{\operatorname{Normal}(0, 0.5)} \\
+\color{#5D01A6FF}{\delta_1} & \color{#5D01A6FF} \sim \color{#5D01A6FF}{\operatorname{Normal}(0, 0.5)} \\
+\color{#5D01A6FF}{\sigma_B} & \color{#5D01A6FF} \sim \color{#5D01A6FF}{\operatorname{Exponential}(1)},
+\end{align*}
+$$
+
+which captures the relation among the two predictors as a regression of $M_i$ predicting $B_i$. Here's how to fit the model.
+
+```{r, eval = F, echo = F}
+library(rethinking)
+
+dat_list <- 
+  list(K = d$k,
+       B = d$b, 
+       M = d$m
+       )
+
+obs_idx <- which( !is.na(d$neocortex.prop) )
+
+# dat_list_obs <- 
+#   list(K = dat_list$K[obs_idx], 
+#        B = dat_list$B[obs_idx], 
+#        M = dat_list$M[obs_idx] )
+
+m15.7 <- ulam( 
+  alist(
+    # K as function of B and M
+    K ~ dnorm(m , sigma),
+    mu <- a + bB*B_merge + bM*M,
+    
+    # M and B correlation
+    MB ~ multi_normal(c(muM, muB), Rho_BM, Sigma_BM), 
+    matrix[29, 2]:MB <<- append_col(M, B_merge),
+    
+    # define B_merge as mix of observed and imputed values 
+    vector[29]:B_merge <- merge_missing( B, B_impute),
+    
+    # priors
+    c(a,muB,muM) ~ dnorm(0, 0.5),
+    c(bB,bM) ~ dnorm(0, 0.5),
+    sigma ~ dexp(1),
+    Rho_BM ~ lkj_corr(2),
+    Sigma_BM ~ dexp(1)) ,
+  data = dat_list, chains = 4, cores = 4)
+
+precis(m15.7, depth = 3, pars = c("bM", "bB", "Rho_BM"))
+precis(m15.7, depth = 3)
+```
+
+```{r b15.7}
+b_model <-
+  mvbf(bf(k ~ 1 + mi(b) + m), 
+       bf(b | mi() ~ 1 + m), 
+       rescor = FALSE)
+
+b15.7 <- 
+  brm(data = d, 
+      family = gaussian,
+      b_model,
+      prior = c(prior(normal(0, 0.5), class = Intercept, resp = k),
+                prior(normal(0, 0.5), class = Intercept, resp = b),
+                prior(normal(0, 0.5), class = b, resp = k),
+                prior(normal(0, 0.5), class = b, resp = b),
+                prior(exponential(1), class = sigma,     resp = k),
+                prior(exponential(1), class = sigma,     resp = b)),
+      iter = 2000, warmup = 1000, chains = 4, cores = 4,
+      seed = 15,
+      file = "/Users/solomonkurz/Dropbox/Recoding Statistical Rethinking 2nd ed/fits/b15.07")
+```
+
+Let's see what we did.
+
+```{r}
+print(b15.7)
+```
+
+We have two intercepts, `k_Intercept` ($\alpha$) and `b_Intercept` ($\gamma$). Both are near zero because both `k` and `b` are standardized. Our `k_mib` ($\beta_1$) and `k_m` ($\beta_2$) parameters correspond with McElreath's `bB` and `bM` parameters, respectively. Our summaries for them are very similar to his. Notice our summary for `b_m` ($\delta_1$). McElreath doesn't have a parameter exactly like that, but his close analogue is `Rho_BM[1,2]` (also `Rho_BM[2,1]`, which is really the same thing). Also, notice how our summary for `b_m` is almost the same as the summary for McElreath's `Rho_BM[1,2]`. This is because a univariable regression coefficient between two standardized variables is in the same metric as a correlation and McElreath's `Rho_BM[1,2]` is just that--a correlation. If you fit McElreath's model with **rethinking** and execute `precis(m15.7, depth = 3)`, you'll see that our `sigma_k` ($\sigma$) summary corresponds nicely with his summary for `sigma`. However, our `sigma_b` ($\sigma_B$) is not the same as his `Sigma_BM[2]`. Why? Because whereas our `sigma_b` is a residual standard deviation after accounting for the effect of `m` on `b`, McElreath's `Sigma_BM[2]` is just an estimate of the standard deviation of `b`. Also, notice that whereas McElreath's output has a `Sigma_BM[1]` parameter, we have no direct analogue. Why? Because although `m` is a predictor variable for both `k` and `b`, we did not give it its own likelihood. McElreath, in contrast, entered `m` into the bivariate likelihood with `b`.
+
+Our workflow for Figure 15.6 is largely the same as for Figure 15.5. The biggest difference is we need to remove the columns `term` through `upper` from our earlier model before we can replace them with those from the current model. After that, it's basically cut and paste.
+
+```{r}
+d <-
+  d %>% 
+  select(-(term:upper)) %>% 
+  left_join(
+    tidy(b15.7) %>%
+      filter(str_detect(term, "Ymi")) %>% 
+      mutate(row = str_extract(term, "(\\d)+") %>% as.integer()),
+    by = "row"
+  ) 
+
+d %>% 
+  select(species, k:upper)
+```
+
+Now make Figure 15.6.
+
+```{r, fig.width = 6.5, fig.height = 3, warning = F}
+color <- viridis_pal(option = "D")(7)[3]
+
+p1 <-
+  d %>% 
+  ggplot(aes(y = k)) +
+  geom_point(aes(x = b),
+             color = color) +
+  geom_pointrange(aes(x = estimate, xmin = lower, xmax = upper),
+                  shape = 1, size = 1/4, fatten = 8, stroke = 1/4) +
+  labs(x = "neocortex percent (std)",
+       y = "kcal milk (std)") +
+  coord_cartesian(xlim = range(d$b, na.rm = T))
+
+p2 <-
+  d %>% 
+  ggplot(aes(x = m)) +
+  geom_point(aes(y = b),
+             color = color) +
+  geom_pointrange(aes(y = estimate, ymin = lower, ymax = upper),
+                  shape = 1, size = 1/4, fatten = 8, stroke = 1/4) +
+  labs(x = "log body mass (std)",
+       y = "neocortex percent (std)") +
+  coord_cartesian(ylim = range(d$b, na.rm = T))
+
+p1 + p2
+```
+
+The results further show that our fully standardized regression coefficient ($\delta_1$) had the same effect on the Bayesian imputation as McElreath's residual correlation. Our $\delta_1$ coefficient is basically just a correlation in disguise.
+
+#### Rethinking: Multiple imputations.
+
+> Missing data imputation has a messy history. There are many forms of imputation... A common non-Bayesian procedure is **multiple imputation**. Multiple imputation was developed in the context of survey non-response, and it actually has a Bayesian justification. But it was invented when Bayesian imputation on the desktop was impractical, so it tries to approximate the full Bayesian solution to a "missing at random" missingness model. If you aren't comfortable dropping incomplete cases, then you shouldn't be comfortable using multiple imputation either. The procedure performs multiple draws from an approximate posterior distribution of the missing values, performs separate analyses with these draws, and then combines the analyses in a way that approximates full Bayesian imputation. Multiple imputation is more limited than full Bayesian imputation, so now we just use the real thing. (p. 511)
+
+We won't be walking through an example in this ebook, but you should know that **brms** is capable of multiple imputation, too. You can find an example of multiple imputation in Bürkner's [-@Bürkner2020HandleMissingValues] vignette, [*Handle missing values with brms*](https://CRAN.R-project.org/package=brms/vignettes/brms_missings.html). To learn about the origins of this approach, check out the authoritative work by Rubin [-@rubinMultipleImputationNonresponse1987; -@rubinMultipleImputation181996; @littleStatisticalAnalysisMissing2019].
+
+### 15.2.3. Where is your god now?
+
+"Sometimes there are no statistical solutions to scientific problems. But even then, careful statistical thinking can be useful because it will tell us that there is no statistical solution" (p. 512).
+
+Let' load the `Moralizing_gods` data from @whitehouseComplexSocietiesPrecede2019.
+
+```{r, message = F, warning = F}
+data(Moralizing_gods, package = "rethinking")
+d <- Moralizing_gods
+rm(Moralizing_gods)
+```
+
+Take a look at the new data.
+
+```{r}
+glimpse(d)
+```
+
+The bulk of the values for `moralizing_gods` are missing and very few are `0`'s.
+
+```{r}
+d %>% 
+  count(moralizing_gods) %>% 
+  mutate(`%` = 100 * n / sum(n))
+```
+
+To get a sense of how these values are distributed, here's our version of Figure 15.7.
+
+```{r, fig.width = 6.5, fig.height = 2.75}
+d %>% 
+  mutate(mg = factor(ifelse(is.na(moralizing_gods), 2, 1 - moralizing_gods),
+                     levels = 0:2,
+                     labels = c("present", "absent", "unknown"))) %>% 
+  
+  ggplot(aes(x = year, y = population, color = mg)) +
+  geom_point(alpha = 2/3) +
+  scale_color_manual("Moralizing gods", 
+                     values = viridis_pal(option = "D")(7)[c(7, 4, 1)]) +
+  labs(subtitle = '"This is a highly non-random missingness pattern" (p. 514).',
+       x = "Time (year)",
+       y = "Population size (log)") +
+  theme(legend.position = c(.125, .75))
+```
+
+Here are the counts broken down by gods and literacy status.
+
+```{r}
+d %>% 
+  mutate(gods     = moralizing_gods,
+         literacy = writing) %>% 
+  count(gods, literacy) %>% 
+  mutate(`%` = 100 * n / sum(n))
+```
+
+The bulk of the missing `moralizing_gods` values are from non-literate polities and the figure above shows that smaller polities also tend to have missing values. We can try to make sense of all this with McElreath's DAG.
+
+```{r, warning = F, message = F, fig.width = 2.75, fig.height = 1.25}
+dag_coords <-
+  tibble(name = c("P", "W", "G", "RG", "Gs"),
+         x    = c(1, 2.33, 4, 5.67, 7),
+         y    = c(2, 1, 2, 1, 2))
+
+dagify(P ~ G,
+       W ~ P,
+       RG ~ W,
+       Gs ~ G + RG,
+       coords = dag_coords) %>%
+  tidy_dagitty() %>% 
+  mutate(color = ifelse(name == "G", "a", "b")) %>% 
+  
+  ggplot(aes(x = x, y = y, xend = xend, yend = yend)) +
+  geom_dag_point(aes(color = color),
+                 size = 10, show.legend = F) +
+  geom_dag_text(parse = T, label = c("G", "P", expression(R[G]), "W", expression(G^'*'))) +
+  geom_dag_edges(edge_colour = "#FCF9F0") +
+  scale_color_manual(values = c(viridis_pal(option = "C")(7)[2], "black")) +
+  dark_theme_void()
+```
+
+> Here $P$ is rate of population growth (not the same as the population size variable in the data), $G$ is the presence of belief in moralizing gods (which is unobserved), $G^*$ is the observed variable with missing values, $W$ is writing, and $R_G$ is the missing values indicator. This is an optimistic scenario, because it assumes there are no unobserved confounds among $P$, $G$, and $W$. These are purely observational data, recall. But the goal is to use this example to think through the impact of missing data. If we can’t recover from missing data with the DAG above, adding confounds isn't going to help. (p. 515)
+
+Consider the case of Hawaii.
+
+```{r}
+d %>% 
+  filter(polity == "Big Island Hawaii") %>% 
+  select(year, writing, moralizing_gods)
+```
+
+> What happened in 1778? Captain James Cook and his crew finally made contact....
+>
+> After Captain Cook, Hawaii is correctly coded with 1 for belief in moralizing gods. It is also a fact that Hawaii never developed its own writing system. So there is no direct evidence of when moralizing gods appeared in Hawaii. Any imputation model needs to decide how to fill in those `NA` values. With so much missing data, any imputation model would necessarily make very strong assumptions. (pp. 515--516)
+
+#### Rethinking: Present details about missing data.
+
+> Clear documentation of missing data and its treatment is necessary. This is best done with a causal model that makes transparent what is being assumed about the source of missing values and simultaneously justifies how they are handled. But the minimum is to report the counts of missing values in each variable and what was done with them. (p. 516)
+
+## 15.3. Categorical errors and discrete absences
+
+### 15.3.1. Discrete cats.
+
+
+```{r}
+set.seed(9)
+
+n_houses <- 1000L 
+alpha <- 5
+beta <- (-3)
+k <- 0.5
+r <- 0.2
+
+dat <-
+  tibble(cat = rbinom(n_houses, size = 1, prob = k)) %>% 
+  mutate(notes   = rpois(n_houses, lambda = alpha + beta * cat),
+         r_c     = rbinom(n_houses, size = 1, prob = r)) %>% 
+  mutate(cat_obs = if_else(r_c == 1, (-9L), cat))
+
+dat
+```
+
+
+If you execute `log_sum_exp`, you'll discover it's a custom function defined like this.
+
+```{r, eval = F}
+log_sum_exp <- function (x) {
+    xmax <- max(x)
+    xsum <- sum(exp(x - xmax))
+    xmax + log(xsum)
+}
+```
+
+"This function just takes a vector of log-probabilities, exponentiates them, sums them, and then returns the log of the sum. But it does all of this in a numerically stable way" (p. 519). For example here's what it does with the vector of log probabilities, $\log [.1, .2, .3]$.
+
+```{r}
+log(1:3 / 10) %>% 
+  log_sum_exp()
+```
+
+```{r}
+log(-3)
+```
+
+
+```{r}
+library(rethinking)
+
+dat <- 
+  list(notes = dat$notes,
+       cat   = dat$cat_obs,
+       RC    = dat$r_c,
+       N     = as.integer(n_houses))
+
+m15.8 <- ulam( 
+  alist(
+    # singing bird model
+    ## cat known present/absent: 
+    notes | RC == 0 ~ poisson(lambda), 
+    log(lambda) <- a + b * cat,
+    
+    ## cat NA:
+    notes | RC == 1 ~ custom(log_sum_exp(
+      log(k) + poisson_lpmf(notes | exp(a + b)),
+      log(1 - k) + poisson_lpmf(notes | exp(a)) 
+    )),
+    
+    # priors
+    a ~ normal(0, 1), 
+    b ~ normal(0, 0.5),
+    
+    # sneaking cat model 
+    cat | RC == 0 ~ bernoulli(k),
+    k ~ beta(2, 2)
+  ), 
+  data = dat, chains = 4, cores = 4)
+```
+
+Here's a look at the posterior summary.
+
+```{r}
+precis(m15.8)
+```
+
+```{r}
+extract.samples(m15.8) %>% 
+  data.frame() %>% 
+  mutate(N  = exp(a),
+         Nc = exp(a + b)) %>% 
+  pivot_longer(k:Nc) %>%
+  mutate(name = factor(name,
+                      levels = c("N", "Nc", "k"),
+                      labels = c("italic(N[i])*' | '*no~cat", "italic(N[i])*' | '*cat", "probability~of~a~cat"))) %>% 
+  
+  ggplot(aes(x = value)) +
+  stat_halfeye(.width = .95, normalize = "panels",
+               color = "white", fill = viridis_pal(option = "C")(7)[3]) +
+  scale_y_continuous(NULL, breaks = NULL) +
+  xlab("marginal posterior") +
+  facet_wrap(~name, scales = "free", labeller = label_parsed)
+```
+
+```{r}
+exp(c(1.59, -0.93))
+```
+
+
+
+### Improving the imputation model
+
+Like McElreath, we'll update the imputation line of our statistical model to:
+
+\begin{align*}
+\text{neocortex}_i & \sim \text{Normal} (\nu_i, \sigma_\text{neocortex}) \\
+\nu_i              & = \alpha_\text{neocortex} + \gamma_1 \text{logmass}_i,
+\end{align*}
+
+which includes the updated priors
+
+\begin{align*}
+\alpha_\text{neocortex} & \sim \text{Normal} (0.5, 1) \\
+\gamma_1                & \sim \text{Normal} (0, 10).
+\end{align*}
+
+As far as the brms code goes, adding `logmass` as a predictor to the `neocortex` submodel is pretty simple.
+
+```{r b14.4}
+# define the model
+b_model <- 
+  bf(kcal ~ 1 + mi(neocortex) + logmass) + 
+  bf(neocortex | mi() ~ 1 + logmass) + # here's the big difference
+  set_rescor(FALSE)
+# fit the model
+b14.4 <- 
+  brm(data = data_list, 
+      family = gaussian,
+      b_model,
+      prior = c(prior(normal(0, 100), class = Intercept, resp = kcal),
+                prior(normal(0.5, 1), class = Intercept, resp = neocortex),
+                prior(normal(0, 10),  class = b,         resp = kcal),
+                prior(normal(0, 10),  class = b,         resp = neocortex),
+                prior(cauchy(0, 1),   class = sigma,     resp = kcal),
+                prior(cauchy(0, 1),   class = sigma,     resp = neocortex)),
+      iter = 1e4, chains = 2, cores = 2,
+      seed = 14,
+      file = "fits/b14.04")
+```
+
+Behold the parameter estimates.
+
+```{r}
+tidy(b14.4) %>%
+  mutate_if(is.numeric, round, digits = 2)
+```
+
+Here's our pre-Figure 14.5 data wrangling.
+
+```{r}
+f_b14.4 <-
+  fitted(b14.4, newdata = nd) %>%
+  as_tibble() %>%
+  bind_cols(nd)
+f_b14.4_mi <-
+  tidy(b14.4) %>%
+  filter(str_detect(term, "Ymi")) %>%
+  bind_cols(
+    data_list %>%
+      as_tibble() %>%
+      filter(is.na(neocortex))
+    )
+f_b14.4 %>%
+  glimpse()
+f_b14.4_mi %>%
+  glimpse()
+```
+
+For our final plots, let's play around with colors from `viridis_pal(option = "D")`. Here's the code for Figure 14.5.a.
+
+```{r, fig.width = 4, fig.height = 3.75, warning = F}
+color <- viridis_pal(option = "D")(7)[3]
+p1 <-
+  f_b14.4 %>% 
+  ggplot(aes(x = neocortex)) +
+  geom_smooth(aes(y = Estimate.kcal, ymin = Q2.5.kcal, ymax = Q97.5.kcal),
+              stat = "identity",
+              fill = color, color = color, alpha = 1/2, size = 1/2) +
+  geom_point(data = data_list %>% as_tibble(),
+             aes(y = kcal),
+             color = "white") +
+  geom_point(data = f_b14.4_mi,
+             aes(x = estimate, y = kcal),
+             color = color, shape = 1) +
+  geom_segment(data = f_b14.4_mi, 
+               aes(x = lower, xend = upper,
+                   y = kcal, yend = kcal),
+               color = color, size = 1/4) +
+  labs(subtitle = "Note: For the regression line in this plot,\nlog(mass) has been set to its median, 1.244.",
+       x = "neocortex proportion",
+       y = "kcal per gram") +
+  coord_cartesian(xlim = c(.55, .8),
+                  ylim = range(data_list$kcal, na.rm = T))
+```
+
+Make the code for Figure 14.5.b, combine it with Figure 14.5.a, and plot.
+
+```{r, fig.width = 7.5, fig.height = 3.75, warning = F}
+color <- viridis_pal(option = "D")(7)[3]
+p2 <-
+  data_list %>% 
+  as_tibble() %>% 
+  
+  ggplot(aes(x = logmass, y = neocortex)) +
+  geom_point(color = "white") +
+  geom_pointrange(data = f_b14.4_mi,
+                  aes(y = estimate, ymin = lower, ymax = upper),
+                  color = color, size = 1/3, shape = 1) +
+  scale_x_continuous("log(mass)", breaks = -2:4) +
+  ylab("neocortex proportion") +
+  coord_cartesian(xlim = range(data_list$logmass, na.rm = T),
+                  ylim = c(.55, .8))
+p1 | p2
+```
+
+If modern missing data methods are new to you, you might also check out van Burren's great online text, [*Flexible Imputation of Missing Data. Second Edition*](https://stefvanbuuren.name/fimd/). I'm also a fan of Enders's [*Applied Missing Data Analysis*](http://www.appliedmissingdata.com), for which you can find a free sample chapter [here](http://www.appliedmissingdata.com/sample-chapter.pdf). I'll also quickly mention that [brms accommodates multiple imputation](https://cran.r-project.org/package=brms/vignettes/brms_missings.html), too.
+
+## ~~Summary~~ Bonus: Meta-analysis
+
+If your mind isn't fully blown by those measurement-error and missing-data models, let's keep building. As it turns out, meta-analyses are often just special kinds of multilevel measurement-error models. Thus, you can use `brms::brm()` to fit Bayesian meta-analyses, too. 
+
+Before we proceed, I should acknowledge that this section is heavily influenced by [Matti Vourre](https://mvuorre.github.io/#about)'s great blog post, [*Meta-analysis is a special case of Bayesian multilevel modeling*](https://mvuorre.github.io/post/2016/09/29/meta-analysis-is-a-special-case-of-bayesian-multilevel-modeling/). And since McElreath's text doesn’t directly address meta-analyses, we'll also have to borrow a bit from Gelman, Carlin, Stern, Dunson, Vehtari, and Rubin's [*Bayesian data analysis, Third edition*](https://stat.columbia.edu/~gelman/book/). We'll let Gelman and colleagues introduce the topic:
+
+> Discussions of meta-analysis are sometimes imprecise about the estimands of interest in the analysis, especially when the primary focus is on testing the null hypothesis of no effect in any of the studies to be combined. Our focus is on estimating meaningful parameters, and for this objective there appear to be three possibilities, accepting the overarching assumption that the studies are comparable in some broad sense. The first possibility is that we view the studies as identical replications of each other, in the sense we regard the individuals in all the studies as independent samples from a common population, with the same outcome measures and so on. A second possibility is that the studies are so different that the results of any one study provide no information about the results of any of the others. A third, more general, possibility is that we regard the studies as exchangeable but not necessarily either identical or completely unrelated; in other words we allow differences from study to study, but such that the differences are not expected *a priori* to have predictable effects favoring one study over another.... this third possibility represents a continuum between the two extremes, and it is this exchangeable model (with unknown hyperparameters characterizing the population distribution) that forms the basis of our Bayesian analysis…
+>
+> The first potential estimand of a meta-analysis, or a hierarchically structured problem in general, is the mean of the distribution of effect sizes, since this represents the overall 'average' effect across all studies that could be regarded as exchangeable with the observed studies. Other possible estimands are the effect size in any of the observed studies and the effect size in another, comparable (exchangeable) unobserved study. (pp. 125—126, *emphasis* in the original)
+The basic version of a Bayesian meta-analysis follows the form
+
+$$y_i \sim \text{Normal}(\theta_i, \sigma_i),$$
+
+where $y_i$ = the point estimate for the effect size of a single study, $i$, which is presumed to have been a draw from a Normal distribution centered on $\theta_i$. The data in meta-analyses are typically statistical summaries from individual studies. The one clear lesson from this chapter is that those estimates themselves come with error and those errors should be fully expressed in the meta-analytic model. Which we do. The standard error from study $i$ is specified $\sigma_i$, which is also a stand-in for the standard deviation of the Normal distribution from which the point estimate was drawn. Do note, we’re not estimating $\sigma_i$, here. Those values we take directly from the original studies. 
+
+Building on the model, we further presume that study $i$ is itself just one draw from a population of related studies, each of which have their own effect sizes. As such. we presume $\theta_i$ itself has a distribution following the form
+
+$$\theta_i \sim \text{Normal} (\mu, \tau),$$
+
+where $\mu$ is the meta-analytic effect (i.e., the population mean) and $\tau$ is the variation around that mean, what you might also think of as $\sigma_\tau$.
+
+Since there's no example of a meta-analysis in the text, we'll have to get our data elsewhere. We'll focus on Gershoff and Grogan-Kaylor's (2016) paper, [*Spanking and child outcomes: Old controversies and new meta-analyses*](https://pdfs.semanticscholar.org/0d03/a2e9f085f0a268b4c0a52f5ac31c17a3e5f3.pdf). From their introduction, we read:
+
+> Around the world, most children (80%) are spanked or otherwise physically punished by their parents ([UNICEF, 2014](https://www.unicef.org/publications/index_74865.html)). The question of whether parents should spank their children to correct misbehaviors sits at a nexus of arguments from ethical, religious, and human rights perspectives both in the U.S. and around the world ([Gershoff, 2013](https://onlinelibrary.wiley.com/doi/abs/10.1111/cdep.12038)). Several hundred studies have been conducted on the associations between parents' use of spanking or physical punishment and children's behavioral, emotional, cognitive, and physical outcomes, making spanking one of the most studied aspects of parenting. What has been learned from these hundreds of studies? (p. 453)
+Our goal will be to learn Bayesian meta-analysis by answering part of that question. I've transcribed the values directly from Gershoff and Grogan-Kaylor’s paper and saved them as a file called `spank.xlsx`.
+You can find the data in [this project's GitHub repository](https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse). Let's load them and `glimpse()`.
+
+```{r}
+spank <- readxl::read_excel("spank.xlsx")
+glimpse(spank)
+```
+
+In this paper, the effect size of interest is a Cohen's $d$, derived from the formula
+
+$$d = \frac{\mu_\text{treatment} - \mu_\text{comparison}}{\sigma_\text{pooled}},$$
+
+where
+
+$$\sigma_\text{pooled} = \sqrt{\frac{((n_1 - 1) \sigma_1^2) + ((n_2 - 1) \sigma_2^2)}{n_1 + n_2 -2}}.$$
+
+To help make the equation for $d$ clearer for our example, we might re-express it as
+
+$$d = \frac{\mu_\text{spanked} - \mu_\text{not spanked}}{\sigma_\text{pooled}}.$$
+
+McElreath didn't really focus on effect sizes in his text. If you need a refresher, you might check out Kelley and Preacher's [*On effect size*](https://www.researchgate.net/profile/Ken_Kelley/publication/270757972_On_Effect_Size/links/0046351b0cd48217ce000000/On-Effect-Size.pdf). But in words, Cohen's $d$ is a standardized mean difference between two groups.
+
+So if you look back up at the results of `glimpse(spank)` you'll notice the column `d`, which is indeed a vector of Cohen's $d$ effect sizes. The last two columns, `ll` and `ul`, are the lower and upper limits of the associated 95% frequentist confidence intervals. But we don't want confidence intervals for our `d`-values; we want their standard errors. Fortunately, we can compute those with the following formula
+
+$$SE = \frac{\text{upper limit} - \text{lower limit}}{3.92}.$$
+
+Here it is in code.
+
+```{r}
+spank <-
+  spank %>% 
+  mutate(se = (ul - ll) / 3.92)
+glimpse(spank)
+```
+
+Now are data are ready, we can express our first Bayesian meta-analysis with the formula
+
+\begin{align*}
+\text{d}_i & \sim \text{Normal}(\theta_i, \sigma_i = \text{se}_i) \\
+\theta_i   & \sim \text{Normal} (\mu, \tau) \\
+\mu        & \sim \text{Normal} (0, 1) \\
+\tau       & \sim \text{HalfCauchy} (0, 1).
+\end{align*}
+
+The last two lines, of course, spell out our priors. In psychology, it's pretty rare to see Cohen's $d$-values greater than the absolute value of $\pm 1$. So in the absence of more specific domain knowledge--which I don't have--, it seems like $\text{Normal} (0, 1)$ is a reasonable place to start. And just like McElreath used $\text{HalfCauchy} (0, 1)$ as the default prior for the group-level standard deviations, [it makes sense to use it here](https://psyarxiv.com/7tbrm/) for our meta-analytic $\tau$ parameter.
+
+Here's the code for the first model.
+
+```{r b14.5}
+b14.5 <- 
+  brm(data = spank, 
+      family = gaussian,
+      d | se(se) ~ 1 + (1 | study),
+      prior = c(prior(normal(0, 1), class = Intercept),
+                prior(cauchy(0, 1), class = sd)),
+      iter = 4000, warmup = 1000, cores = 4, chains = 4,
+      seed = 14,
+      file = "fits/b14.05")
+```
+
+One thing you might notice is our `se(se)` function excluded the `sigma` argument. If you recall from section 14.1, we specified `sigma = T` in our measurement-error models. The brms default is that within `se()`, `sigma = FALSE`. As such, we have no estimate for sigma the way we would if we were doing this analysis with the raw data from the studies. Hopefully this makes sense. The uncertainty around the `d`-value for each study $i$ has already been encoded in the data as `se`.
+
+This brings us to another point. We typically perform meta-analyses on data summaries. In my field and perhaps in yours, this is due to the historical accident that it has not been the norm among researchers to make their data publically available. So effect size summaries were the best we typically had. However, times are changing (e.g., [here](https://www.apa.org/monitor/2017/11/trends-open-science.aspx), [here](https://www.blog.google/products/search/making-it-easier-discover-datasets/)). If the raw data from all the studies for your meta-analysis are available, you can just fit a multilevel model in which the data are nested in the studies. Heck, you could even allow the studies to vary by $\sigma$ by taking the [distributional modeling approach](https://cran.r-project.org/package=brms/vignettes/brms_distreg.html#a-simple-distributional-model) and specify something like `sigma ~ 0 + study` or even `sigma ~ 1 + (1 | study)`.
+But enough technical talk. Let's look at the model results.
+
+```{r}
+print(b14.5)
+```
+
+Thus, in our simple Bayesian meta-analysis, we have a population Cohen's $d$ of about `r round(fixef(b14.5)[1], 2)`. Our estimate for $\tau$, `r round(posterior_summary(b14.5)[2, 1], 2)`, suggests we have quite a bit of between-study variability. One question you might ask is: *What exactly are these Cohen's* $d$*s measuring, anyways?* We've encoded that in the `outcome` vector of the `spank` data.
+
+```{r}
+spank %>% 
+  distinct(outcome) %>% 
+  knitr::kable()
+```
+
+There are a few things to note. First, with the possible exception of `Adult support for physical punishment`, all of the outcomes are negative. We prefer conditions associated with lower values for things like `Child aggression` and `Adult mental health problems`. Second, the way the data are coded, larger effect sizes are interpreted as more negative outcomes associated with children having been spanked. That is, our analysis suggests spanking children is associated with worse outcomes. What might not be immediately apparent is that even though there are 111 cases in the data, there are only 76 distinct studies.
+
+```{r}
+spank %>% 
+  distinct(study) %>% 
+  count()
+```
+
+In other words, some studies have multiple outcomes. In order to better accommodate the `study`- and `outcome`-level variances, let's fit a cross-classified Bayesian meta-analysis reminiscent of the cross-classified chimp model from [Chapter 13][Example: Cross-classified `chimpanzees` with varying slopes].
+
+```{r b14.6}
+b14.6 <- 
+  brm(data = spank, 
+      family = gaussian,
+      d | se(se) ~ 1 + (1 | study) + (1 | outcome),
+      prior = c(prior(normal(0, 1), class = Intercept),
+                prior(cauchy(0, 1), class = sd)),
+      iter = 4000, warmup = 1000, cores = 4, chains = 4,
+      seed = 14,
+      file = "fits/b14.06")
+```
+
+```{r}
+print(b14.6)
+```
+
+Now we have two $\tau$ parameters. We might plot them to get a sense of where the variance is at.
+
+```{r, fig.width = 5, fig.height = 2}
+# we'll want this to label the plot
+label <-
+  tibble(tau   = c(.12, .3),
+         y     = c(15, 10),
+         label = c("sigma['outcome']", "sigma['study']"))
+# wrangle
+posterior_samples(b14.6) %>% 
+  select(starts_with("sd")) %>% 
+  gather(key, tau) %>% 
+  mutate(key = str_remove(key, "sd_") %>% str_remove(., "__Intercept")) %>% 
+  
+  # plot
+  ggplot(aes(x = tau)) +
+  geom_density(aes(fill = key),
+               color = "transparent") +
+  geom_text(data = label,
+            aes(y = y, label = label, color = label),
+            size = 5, parse = T) +
+  scale_fill_viridis_d(NULL, option = "B", begin = .5) +
+  scale_color_viridis_d(NULL, option = "B", begin = .5) +
+  scale_y_continuous(NULL, breaks = NULL) +
+  xlab(expression(tau)) +
+  theme(panel.grid = element_blank())
+```
+
+So at this point, the big story is there's more variability between the studies than there is the outcomes. But I still want to get a sense of the individual outcomes. Here we'll use `tidybayes::geom_halfeyeh()` to help us make our version of a [forest plot](https://cran.r-project.org/package=forestplot/vignettes/forestplot.html) and `tidybayes::spread_draws()` to help with the initial wrangling.
+
+```{r, fig.width = 5, fig.height = 4, message = F, warning = F}
+library(tidybayes)
+b14.6 %>% 
+  spread_draws(b_Intercept, r_outcome[outcome,]) %>%
+  # add the grand mean to the group-specific deviations
+  mutate(mu = b_Intercept + r_outcome) %>%
+  ungroup() %>%
+  mutate(outcome = str_replace_all(outcome, "[.]", " ")) %>% 
+  # plot
+  ggplot(aes(x = mu, y = reorder(outcome, mu), fill = reorder(outcome, mu))) +
+  geom_vline(xintercept = fixef(b14.6)[1, 1], color = "grey33", size = 1) +
+  geom_vline(xintercept = fixef(b14.6)[1, 3:4], color = "grey33", linetype = 2) +
+  geom_halfeyeh(.width = .95, size = 2/3, color = "white") +
+  scale_fill_viridis_d(option = "B", begin = .2) +
+  labs(x = expression(italic("Cohen's d")),
+       y = NULL) +
+  theme(axis.text.y = element_text(hjust = 0),
+        axis.ticks.y = element_blank(),
+        panel.grid = element_blank())
+```
+
+The solid and dashed vertical white lines in the background mark off the grand mean (i.e., the meta-analytic effect) and its 95% intervals. But anyway, there's not a lot of variability across the outcomes. Let's go one step further with the model. Doubling back to Gelman and colleagues, we read:
+
+> When assuming exchangeability we assume there are no important covariates that might form the basis of a more complex model, and this assumption (perhaps misguidedly) is widely adopted in meta-analysis. What if other information (in addition to the data $(n, y)$) is available to distinguish among the $J$ studies in a meta-analysis, so that an exchangeable model is inappropriate? In this situation, we can expand the framework of the model to be exchangeable in the observed data and covariates, for example using a hierarchical regression model. (p. 126)
+One important covariate Gershoff and Grogan-Kaylor addressed in their meta-analysis was the type of study. The 76 papers they based their meta-analysis on contained both between- and within-participants designs. In the `spank` data, we've dummy coded that information with the `between` and `within` vectors. Both are dummy variables and $\text{within} = 1 - \text{between}$. Here are the counts.
+
+```{r}
+spank %>% 
+  count(between)
+```
+
+When I use dummies in my models, I prefer to have the majority group stand as the reference category. As such, I typically name those variables by the minority group. In this case, most occasions are based on within-participant designs. Thus, we'll go ahead and add the `between` variable to the model. While we're at it, we'll practice using the `0 + intercept` syntax.
+
+```{r b14.7}
+b14.7 <- 
+  brm(data = spank, 
+      family = gaussian,
+      d | se(se) ~ 0 + Intercept + between + (1 | study) + (1 | outcome),
+      prior = c(prior(normal(0, 1), class = b),
+                prior(cauchy(0, 1), class = sd)),
+      iter = 4000, warmup = 1000, cores = 4, chains = 4,
+      seed = 14,
+      file = "fits/b14.07")
+```
+
+Behold the summary.
+
+```{r}
+print(b14.7)
+```
+
+Let's take a closer look at the `b_between` parameter.
+
+```{r, fig.width = 4.5, fig.height = 2}
+color <- viridis_pal(option = "B")(7)[5]
+posterior_samples(b14.7) %>% 
+  
+  ggplot(aes(x = b_between, y = 0)) +
+  geom_halfeyeh(.width = c(.5, .95), color = "white", fill = color) +
+  scale_y_continuous(NULL, breaks = NULL) +
+  xlab("Overall difference for between- vs within-participant designs") +
+  theme(panel.grid = element_blank())
+```
+
+That difference isn't as large I'd expect it to be. But then again, I'm no spanking researcher. So what do I know?
+
+There are other things you might do with these data. For example, you might check for trends by year or, as the authors did in their manuscript, distinguish among different severities of corporal punishment. But I think we've gone far enough to get you started.
+
+If you'd like to learn more about these methods, do check out Vourre's [*Meta-analysis is a special case of Bayesian multilevel modeling*](https://mvuorre.github.io/post/2016/09/29/meta-analysis-is-a-special-case-of-bayesian-multilevel-modeling/). From his blog, you'll learn additional tricks, like making a more traditional-looking forest plot with the `brmstools::forest()` function and how our Bayesian brms method compares with frequentist meta-analyses via the [metafor package](https://CRAN.R-project.org/package=metafor). You might also check out Williams, Rast, and Bürkner's manuscript, [*Bayesian Meta-Analysis with Weakly Informative Prior Distributions*](https://psyarxiv.com/7tbrm/) to give you an empirical justification for using a half-Cauchy prior for your meta-analysis $\tau$ parameters.
+
+## Session info {-}
+
+```{r}
+sessionInfo()
+```
+
+```{r, echo = F}
+rm(p_pancake, take_sample, sim_pancake, n_sim, d, color, dlist, inits, inits_list, b14.1_se, b14.1_mi, data_error, p1, b14.1b, nd, f_error, f_no_error, color_y, color_r, p2, b14.2_se, b14.2_mi, color_p, data_list, b_model, b14.3, b14.3cc, f_b14.3, f_b14.3_mi, b14.4, f_b14.4, f_b14.4_mi, spank, b14.5, b14.6, label, b14.7)
+```
+
+```{r, echo = F, message = F, warning = F, results = "hide"}
+pacman::p_unload(pacman::p_loaded(), character.only = TRUE)
+ggplot2::theme_set(ggplot2::theme_grey())
+bayesplot::color_scheme_set("blue")
+```
+
