@@ -1876,7 +1876,7 @@ You can find supporting materials for the replication project on the Open Scienc
 
 Here we load the data.
 
-```{r h, warning = F, message = F}
+```{r d, warning = F, message = F}
 d <- 
   readr::read_csv("https://raw.githubusercontent.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed/master/data/Hauser_1_study_by_order_all_CLEAN_CASE.csv")
 
@@ -2007,7 +2007,7 @@ Now are data are ready, we can express our first Bayesian meta-analysis with the
 \tau       & \sim \operatorname{Exponential}(1),
 \end{align*}
 
-where the last two lines spell out our priors. As we learned in [Section 11.1](https://bookdown.org/content/4857/god-spiked-the-integers.html#binomial-regression), the $\operatorname{Normal}(0, 1.5)$ prior in the log-odds space is just about flat on the probability space. If you wanted to be more conservative, consider something like $\operatorname{Normal}(0, 1)$. Here's how to fit the model with **brms**.
+where the last two lines spell out our priors. As we learned in [Section 11.1][Binomial regression], the $\operatorname{Normal}(0, 1.5)$ prior in the log-odds space is just about flat on the probability space. If you wanted to be more conservative, consider something like $\operatorname{Normal}(0, 1)$. Here's how to fit the model with **brms**.
 
 ```{r b15.10, message = F, warning = F, results = "hide"}
 b15.10 <- 
@@ -2017,7 +2017,8 @@ b15.10 <-
       prior = c(prior(normal(0, 1.5), class = Intercept),
                 prior(exponential(1), class = sd)),
       iter = 2000, warmup = 1000, cores = 4, chains = 4,
-      seed = 15)
+      seed = 15,
+      file = "/Users/solomonkurz/Dropbox/Recoding Statistical Rethinking 2nd ed/fits/b15.10")
 ```
 
 `se()` is one of the **brms** helper functions designed to provide additional information about the criterion variable. Here it informs `brm()` that each `estimate` value has an associated measurement error defined in the `std.error` column. Unlike the `mi()` function, which we used earlier in the chapter to accommodate measurement error and the Bayesian imputation of missing data, the `se()` function is specially designed to handle meta-analyses. `se()` contains a `sigma` argument which is set to `FALSE` by default. This will return a model with no estimate for sigma, which is what we want. The uncertainty around the `estimate`-value for each study $j$ has already been encoded in the data as `std.error`.
@@ -2067,7 +2068,8 @@ b15.11 <-
                 prior(exponential(1), class = sd),
                 prior(lkj(2), class = cor)),
       iter = 2000, warmup = 1000, cores = 4, chains = 4,
-      seed = 15)
+      seed = 15,
+      file = "/Users/solomonkurz/Dropbox/Recoding Statistical Rethinking 2nd ed/fits/b15.11")
 ```
 
 The results for the focal parameters are very similar to those from `b15.10`.
@@ -2197,7 +2199,7 @@ my_format <- function(number) {
 groups <-
   coef(b15.11)$loc[, , "factorSideEffect"] %>% 
   data.frame() %>% 
-  mutate(loc = distinct(h, loc) %>% pull()) %>% 
+  mutate(loc = distinct(d, loc) %>% pull()) %>% 
   arrange(Estimate)
 
 # grab the mu summary
