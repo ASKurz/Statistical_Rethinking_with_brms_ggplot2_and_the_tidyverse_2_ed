@@ -1019,7 +1019,7 @@ Yep, "now missingness makes things worse" (p. 503).
 
 #### Rethinking: Naming completely at random.
 
-McElreath briefly mentioned the terms **missing completely at random** (MCAR), **missing at random** (MAR), and **missing not at random** (MNAR). I share his sentiments; these terms are awful. However, they're peppered throughout the missing data literature and I recommend you familiarize yourself with them. In his endnote #227, McElreath pointed readers to the authoritative work of @rubinInferenceAndMissingData1976 and @littleStatisticalAnalysisMissing2019 (though he referenced the second edition, whereas I'm referencing the third). @baraldiIntroductionToModernMissingData2010 is a nice primer, too.
+McElreath briefly mentioned the terms **missing completely at random** (MCAR), **missing at random** (MAR), and **missing not at random** (MNAR). I share his sentiments; these terms are awful. However, they're peppered throughout the missing data literature and I recommend you familiarize yourself with them. In his endnote #227, McElreath pointed readers to the authoritative work of @rubinInferenceAndMissingData1976 and @littleStatisticalAnalysisMissing2019 (though he referenced the second edition, whereas I'm referencing the third). @baraldiIntroductionToModernMissingData2010 is a nice primer, too. Also, the great Donald Rubin has several lectures available online. Here's a [link](https://www.youtube.com/watch?v=AH7lvy45k2U) to a talk on causal inference, which includes bits of insights into missing data analysis and lots of historical tidbits, too.
 
 ### Imputing primates.
 
@@ -1390,7 +1390,7 @@ K_i   & \sim \operatorname{Normal}(\mu_i, \sigma) \\
 \end{align*}
 $$
 
-which captures the relation among the two predictors as a regression of $M_i$ predicting $B_i$. Here's how to fit the model.
+which captures the relation among the two predictors as a regression of $M_i$ predicting $B_i$. Here's how to fit the model with **brms**.
 
 ```{r, eval = F, echo = F}
 library(rethinking)
@@ -1840,232 +1840,454 @@ p1 | p2
 
 If modern missing data methods are new to you, you might also check out van Burren's great online text, [*Flexible Imputation of Missing Data. Second Edition*](https://stefvanbuuren.name/fimd/). I'm also a fan of Enders's [*Applied Missing Data Analysis*](http://www.appliedmissingdata.com), for which you can find a free sample chapter [here](http://www.appliedmissingdata.com/sample-chapter.pdf). I'll also quickly mention that [brms accommodates multiple imputation](https://cran.r-project.org/package=brms/vignettes/brms_missings.html), too.
 
-## ~~Summary~~ Bonus: Meta-analysis
+## ~~Summary~~ Bonus: Bayesian meta-analysis with odds ratios
 
-If your mind isn't fully blown by those measurement-error and missing-data models, let's keep building. As it turns out, meta-analyses are often just special kinds of multilevel measurement-error models. Thus, you can use `brms::brm()` to fit Bayesian meta-analyses, too. 
+If your mind isn't fully blown by those measurement-error and missing-data models, let's keep building. As it turns out, meta-analyses are often just special kinds of multilevel measurement-error models. Thus, you can use `brms::brm()` to fit Bayesian meta-analyses, too.
 
-Before we proceed, I should acknowledge that this section is heavily influenced by [Matti Vourre](https://mvuorre.github.io/#about)'s great blog post, [*Meta-analysis is a special case of Bayesian multilevel modeling*](https://mvuorre.github.io/post/2016/09/29/meta-analysis-is-a-special-case-of-bayesian-multilevel-modeling/). And since McElreath's text doesn’t directly address meta-analyses, we'll also have to borrow a bit from Gelman, Carlin, Stern, Dunson, Vehtari, and Rubin's [*Bayesian data analysis, Third edition*](https://stat.columbia.edu/~gelman/book/). We'll let Gelman and colleagues introduce the topic:
+Before we proceed, I should acknowledge that this section is heavily influenced by [Matti Vourre](https://mvuorre.github.io/#about)'s great blog post, [*Meta-analysis is a special case of Bayesian multilevel modeling*](https://mvuorre.github.io/post/2016/09/29/meta-analysis-is-a-special-case-of-bayesian-multilevel-modeling/). Since neither editions of McElreath's text directly address meta-analyses, we'll also have to borrow a bit from Gelman, Carlin, Stern, Dunson, Vehtari, and Rubin's [-@gelman2013bayesian] [*Bayesian data analysis, Third edition*](https://stat.columbia.edu/~gelman/book/).
 
-> Discussions of meta-analysis are sometimes imprecise about the estimands of interest in the analysis, especially when the primary focus is on testing the null hypothesis of no effect in any of the studies to be combined. Our focus is on estimating meaningful parameters, and for this objective there appear to be three possibilities, accepting the overarching assumption that the studies are comparable in some broad sense. The first possibility is that we view the studies as identical replications of each other, in the sense we regard the individuals in all the studies as independent samples from a common population, with the same outcome measures and so on. A second possibility is that the studies are so different that the results of any one study provide no information about the results of any of the others. A third, more general, possibility is that we regard the studies as exchangeable but not necessarily either identical or completely unrelated; in other words we allow differences from study to study, but such that the differences are not expected *a priori* to have predictable effects favoring one study over another.... this third possibility represents a continuum between the two extremes, and it is this exchangeable model (with unknown hyperparameters characterizing the population distribution) that forms the basis of our Bayesian analysis…
+### How do meta-analyses fit into the picture?
+
+Let Gelman and colleagues introduce the topic:
+
+> Discussions of meta-analysis are sometimes imprecise about the estimands of interest in the analysis, especially when the primary focus is on testing the null hypothesis of no effect in any of the studies to be combined. Our focus is on estimating meaningful parameters, and for this objective there appear to be three possibilities, accepting the overarching assumption that the studies are comparable in some broad sense. The first possibility is that we view the studies as identical replications of each other, in the sense we regard the individuals in all the studies as independent samples from a common population, with the same outcome measures and so on. A second possibility is that the studies are so different that the results of any one study provide no information about the results of any of the others. A third, more general, possibility is that we regard the studies as exchangeable but not necessarily either identical or completely unrelated; in other words we allow differences from study to study, but such that the differences are not expected *a priori* to have predictable effects favoring one study over another.... this third possibility represents a continuum between the two extremes, and it is this exchangeable model (with unknown hyperparameters characterizing the population distribution) that forms the basis of our Bayesian analysis....
 >
-> The first potential estimand of a meta-analysis, or a hierarchically structured problem in general, is the mean of the distribution of effect sizes, since this represents the overall 'average' effect across all studies that could be regarded as exchangeable with the observed studies. Other possible estimands are the effect size in any of the observed studies and the effect size in another, comparable (exchangeable) unobserved study. (pp. 125—126, *emphasis* in the original)
+> The first potential estimand of a meta-analysis, or a hierarchically structured problem in general, is the mean of the distribution of effect sizes, since this represents the overall 'average' effect across all studies that could be regarded as exchangeable with the observed studies. Other possible estimands are the effect size in any of the observed studies and the effect size in another, comparable (exchangeable) unobserved study. (pp. 125--126, *emphasis* in the original)
+
 The basic version of a Bayesian meta-analysis follows the form
 
-$$y_i \sim \text{Normal}(\theta_i, \sigma_i),$$
+$$y_j \sim \operatorname{Normal}(\theta_j, \sigma_j),$$
 
-where $y_i$ = the point estimate for the effect size of a single study, $i$, which is presumed to have been a draw from a Normal distribution centered on $\theta_i$. The data in meta-analyses are typically statistical summaries from individual studies. The one clear lesson from this chapter is that those estimates themselves come with error and those errors should be fully expressed in the meta-analytic model. Which we do. The standard error from study $i$ is specified $\sigma_i$, which is also a stand-in for the standard deviation of the Normal distribution from which the point estimate was drawn. Do note, we’re not estimating $\sigma_i$, here. Those values we take directly from the original studies. 
+where $y_j$ = the point estimate for the effect size of a single study, $j$, which is presumed to have been a draw from a Normal distribution centered on $\theta_j$. The data in meta-analyses are typically statistical summaries from individual studies. The one clear lesson from this chapter is that those estimates themselves come with error and those errors should be fully expressed in the meta-analytic model. The standard error from study $j$ is specified $\sigma_j$, which is also a stand-in for the standard deviation of the Normal distribution from which the point estimate was drawn. Do note, we're not estimating $\sigma_j$, here. Those values we take directly from the original studies.
 
-Building on the model, we further presume that study $i$ is itself just one draw from a population of related studies, each of which have their own effect sizes. As such. we presume $\theta_i$ itself has a distribution following the form
+Building on the model, we further presume that study $j$ is itself just one draw from a population of related studies, each of which have their own effect sizes. As such, we presume $\theta_j$ itself has a distribution following the form
 
-$$\theta_i \sim \text{Normal} (\mu, \tau),$$
+$$\theta_j \sim \operatorname{Normal}(\mu, \tau),$$
 
 where $\mu$ is the meta-analytic effect (i.e., the population mean) and $\tau$ is the variation around that mean, what you might also think of as $\sigma_\tau$.
 
-Since there's no example of a meta-analysis in the text, we'll have to get our data elsewhere. We'll focus on Gershoff and Grogan-Kaylor's (2016) paper, [*Spanking and child outcomes: Old controversies and new meta-analyses*](https://pdfs.semanticscholar.org/0d03/a2e9f085f0a268b4c0a52f5ac31c17a3e5f3.pdf). From their introduction, we read:
+### We need some data.
 
-> Around the world, most children (80%) are spanked or otherwise physically punished by their parents ([UNICEF, 2014](https://www.unicef.org/publications/index_74865.html)). The question of whether parents should spank their children to correct misbehaviors sits at a nexus of arguments from ethical, religious, and human rights perspectives both in the U.S. and around the world ([Gershoff, 2013](https://onlinelibrary.wiley.com/doi/abs/10.1111/cdep.12038)). Several hundred studies have been conducted on the associations between parents' use of spanking or physical punishment and children's behavioral, emotional, cognitive, and physical outcomes, making spanking one of the most studied aspects of parenting. What has been learned from these hundreds of studies? (p. 453)
-Our goal will be to learn Bayesian meta-analysis by answering part of that question. I've transcribed the values directly from Gershoff and Grogan-Kaylor’s paper and saved them as a file called `spank.xlsx`.
-You can find the data in [this project's GitHub repository](https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse). Let's load them and `glimpse()`.
+Our data in this section come from the second large-scale replication project by the Many Labs team [@kleinManyLabsInvestigating2018]. Of the 28 studies replicated in the study, we will focus on the replication of the trolley experiment from @hauserDissociationMoralJudgments2007. Here's how the study was described by Klein and colleagues:
 
-```{r}
-spank <- readxl::read_excel("spank.xlsx")
-glimpse(spank)
+> According to the principle of double effect, an act that harms other people is more morally permissible if the act is a foreseen side effect rather than the means to the greater good. @hauserDissociationMoralJudgments2007 compared participants' reactions to two scenarios to test whether their judgments followed this principle. In the *foreseen-side-effect* scenario, a person on an out-of-control train changed the train’s trajectory so that the train killed one person instead of five. In the *greater-good* scenario, a person pushed a fat man in front of a train, killing him, to save five people. Whereas $89\%$ of participants judged the action in the foreseen-side-effect scenario as permissible $(95 \% \; \text{CI} = [87\%, 91\%]),$ only $11\%$ of participants in the greater-good scenario judged it as permissible $(95 \% \; \text{CI} = [9\%, 13\%])$. The difference between the percentages was significant$, \chi^2(1, N = 2,646) = 1,615.96,$ $p < .001,$ $w = .78,$ $d = 2.50,$ $95 \% \; \text{CI} = [2.22, 2.86]$. Thus, the results provided evidence for the principle of double effect. (p. 459, *emphasis* in the original)
+
+You can find supporting materials for the replication project on the Open Science Framework at [https://osf.io/8cd4r/](https://osf.io/8cd4r/). The relevant subset of the data for the replication of Hauser et al. come from the `Trolley Dilemma 1 (Hauser et al., 2007)` folder within the `OSFdata.zip` ([https://osf.io/ag2pd/](https://osf.io/ag2pd/)). I've downloaded the file and saved it on GitHub.
+
+Here we load the data.
+
+```{r h, warning = F, message = F}
+d <- 
+  readr::read_csv("https://raw.githubusercontent.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed/master/data/Hauser_1_study_by_order_all_CLEAN_CASE.csv")
+
+d <- 
+  d %>% 
+  mutate(y   = ifelse(variable == "Yes", 1, 0),
+         loc = factor(Location,
+                      levels = distinct(d, Location) %>% pull(Location),
+                      labels = 1:59))
+
+glimpse(d)
 ```
 
-In this paper, the effect size of interest is a Cohen's $d$, derived from the formula
-
-$$d = \frac{\mu_\text{treatment} - \mu_\text{comparison}}{\sigma_\text{pooled}},$$
-
-where
-
-$$\sigma_\text{pooled} = \sqrt{\frac{((n_1 - 1) \sigma_1^2) + ((n_2 - 1) \sigma_2^2)}{n_1 + n_2 -2}}.$$
-
-To help make the equation for $d$ clearer for our example, we might re-express it as
-
-$$d = \frac{\mu_\text{spanked} - \mu_\text{not spanked}}{\sigma_\text{pooled}}.$$
-
-McElreath didn't really focus on effect sizes in his text. If you need a refresher, you might check out Kelley and Preacher's [*On effect size*](https://www.researchgate.net/profile/Ken_Kelley/publication/270757972_On_Effect_Size/links/0046351b0cd48217ce000000/On-Effect-Size.pdf). But in words, Cohen's $d$ is a standardized mean difference between two groups.
-
-So if you look back up at the results of `glimpse(spank)` you'll notice the column `d`, which is indeed a vector of Cohen's $d$ effect sizes. The last two columns, `ll` and `ul`, are the lower and upper limits of the associated 95% frequentist confidence intervals. But we don't want confidence intervals for our `d`-values; we want their standard errors. Fortunately, we can compute those with the following formula
-
-$$SE = \frac{\text{upper limit} - \text{lower limit}}{3.92}.$$
-
-Here it is in code.
+The total sample size is $N = 6,842$.
 
 ```{r}
-spank <-
-  spank %>% 
-  mutate(se = (ul - ll) / 3.92)
-glimpse(spank)
+d %>% 
+  distinct(uID) %>% 
+  count()
 ```
+
+All cases are to be included.
+
+```{r}
+d %>% 
+  count(case.include)
+```
+
+The data were collected in 59 locations with sample sizes ranging from 34 to 325.
+
+```{r}
+d %>% 
+  count(Location) %>% 
+  arrange(desc(n))
+```
+
+### Our effect size will be an odds ratio.
+
+Here's how Klein and colleagues summarized their primary results:
+
+> In the aggregate replication sample $(N = 6,842$ after removing participants who responded in less than $4$ s$), 71\%$ of participants judged the action in the foreseen-side-effect scenario as permissible, but only $17\%$ of participants in the greater-good scenario judged it as permissible. The difference between the percentages was significant, $p = 2.2 \text e^{-16},$ $\text{OR} = 11.54,$ $d = 1.35,$ $95\% \; \text{CI} = [1.28, 1.41]$. The replication results were consistent with the double-effect hypothesis, and the effect was about half the magnitude of the original $(d = 1.35,$ $95\% \; \text{CI} = [1.28, 1.41],$ vs. original $d = 2.50)$. (p. 459)
+
+Here is the breakdown of the outcome and primary experimental condition, which will confirm the two empirical percentages mentioned, above.
+
+```{r}
+d %>% 
+  count(variable, factor) %>% 
+  group_by(factor) %>% 
+  mutate(percent = 100 * n / sum(n))
+```
+
+Though the authors presented their overall effect size with a $p$-value, an odds-ratio (OR), and a Cohen's $d$ (i.e., a kind of standardized mean difference), we will focus on the OR. The primary data are binomial counts, which are well-handled with logistic regression. When you perform a logistic regression where a control condition is compared with some experimental condition, the difference between those conditions may be expressed as an OR. To get a sense of what that is, we'll first practice fitting a logistic regression model with the frequentist `glm()` function. Here are the results based on the subset of data from the first location.
+
+```{r}
+glm0 <- glm(y ~ factor, family = binomial(logit), data = d %>% filter(loc == 1))
+
+summary(glm0)
+```
+
+Just like with **brms**, the base-**R** `glm()` function returns the results of a logistic regression model in the log-odds metric. The intercept is the log-odds probability of selecting *yes* in the study for participants in the `GreaterGood` condition. The 'factorSideEffect' parameter is the difference in log-odds probability for participants in the `SideEffect` condition. Here's what happens when you exponentiate that coefficient.
+
+```{r}
+coef(glm0)[2] %>% exp()
+```
+
+That, my friends, is an odds ratio (OR). **Odds ratios are simply exponentiated logistic regression coefficients**. The implication of this particular OR is that those in the `SideEffect` condition have about 10 times the odds of selecting *yes* compared to those in the `GreaterGood` condition. In the case of this subset of the data, that's 18% yeses versus 69%, which seems like a large difference, to me.
+
+```{r}
+d %>% 
+  filter(loc == 1) %>% 
+  count(variable, factor) %>% 
+  group_by(factor) %>% 
+  mutate(percent = 100 * n / sum(n)) %>% 
+  filter(variable == "Yes")
+```
+
+### Log-odds, odds ratios, and modeling effect sizes.
+
+Though it's common for researchers to express their effect sizes as odds ratios, we don't want to work directly with odds ratios in a meta-analysis. *Why?* Well, think back on why we model binomial data with the logit link. The logit link transforms a bounded $[0, 1]$ parameter space into an unbounded parameter space ranging from negative to positive infinity. For us Bayesians, it also provides a context in which our $\beta$ parameters are approximately Gaussian. However, when we exponentiate those approximately Gaussian log-odds coefficients, the resulting odds ratios aren't so Gaussian any more. This is why, even if our ultimate goal is to express a meta-analytic effect as an OR, we want to work with effect sizes in the log-odds metric. It allows us to use the Bayesian meta-analytic framework outlined by Gelman and colleagues, above,
+
+\begin{align*}
+y_j      & \sim \operatorname{Normal}(\theta_j, \sigma_j) \\
+\theta_j & \sim \operatorname{Normal}(\mu, \tau),
+\end{align*}
+
+where $y_j$ is the point estimate in the $j$th study still in the log-odds scale. After fitting the model, we can then exponentiate the meta-analytic parameter $\mu$ into the OR metric.
+
+### Compute the study-specific effect sizes.
+
+Our `d` data from the Klein et al replication study includes the un-aggregated data from all of the study locations combined. Before we compute our meta-analysis, we'll need to compute the study-specific effect sizes and standard errors. Here we do so within a nested tibble.
+
+```{r glms}
+glms <-
+  d %>% 
+  select(loc, y, factor) %>% 
+  nest(data = c(y, factor)) %>% 
+  mutate(glm = map(data, ~update(glm0, data = .))) %>% 
+  mutate(coef = map(glm, tidy)) %>% 
+  select(-data, -glm) %>% 
+  unnest(coef) %>% 
+  filter(term == "factorSideEffect")
+
+# what did we do?
+glms %>% 
+  mutate_if(is.double, round, digits = 3)
+```
+
+In the `estimate` column we have all the $y_j$ values and `std.error` contains the corresponding $\sigma_j$ values. Here they are in a plot.
+
+```{r, fig.width = 4, fig.height = 3}
+color <- viridis_pal(option = "C")(7)[5]
+
+glms %>% 
+  ggplot(aes(x = std.error, y = estimate)) +
+  geom_point(color = color) +
+  labs(x = expression(sigma[italic(j)]~("log-odds")),
+       y = expression(italic(y[j])~("log-odds")))
+```
+
+### Fit the Bayesian meta-analysis.
 
 Now are data are ready, we can express our first Bayesian meta-analysis with the formula
 
 \begin{align*}
-\text{d}_i & \sim \text{Normal}(\theta_i, \sigma_i = \text{se}_i) \\
-\theta_i   & \sim \text{Normal} (\mu, \tau) \\
-\mu        & \sim \text{Normal} (0, 1) \\
-\tau       & \sim \text{HalfCauchy} (0, 1).
+\text{estimate}_j & \sim \operatorname{Normal}(\theta_j, \; \text{std.error}_j) \\
+\theta_j   & \sim \operatorname{Normal}(\mu, \tau) \\
+\mu        & \sim \operatorname{Normal}(0, 1.5) \\
+\tau       & \sim \operatorname{Exponential}(1),
 \end{align*}
 
-The last two lines, of course, spell out our priors. In psychology, it's pretty rare to see Cohen's $d$-values greater than the absolute value of $\pm 1$. So in the absence of more specific domain knowledge--which I don't have--, it seems like $\text{Normal} (0, 1)$ is a reasonable place to start. And just like McElreath used $\text{HalfCauchy} (0, 1)$ as the default prior for the group-level standard deviations, [it makes sense to use it here](https://psyarxiv.com/7tbrm/) for our meta-analytic $\tau$ parameter.
+where the last two lines spell out our priors. As we learned in [Section 11.1](https://bookdown.org/content/4857/god-spiked-the-integers.html#binomial-regression), the $\operatorname{Normal}(0, 1.5)$ prior in the log-odds space is just about flat on the probability space. If you wanted to be more conservative, consider something like $\operatorname{Normal}(0, 1)$. Here's how to fit the model with **brms**.
 
-Here's the code for the first model.
-
-```{r b14.5}
-b14.5 <- 
-  brm(data = spank, 
+```{r b15.10, message = F, warning = F, results = "hide"}
+b15.10 <- 
+  brm(data = glms, 
       family = gaussian,
-      d | se(se) ~ 1 + (1 | study),
-      prior = c(prior(normal(0, 1), class = Intercept),
-                prior(cauchy(0, 1), class = sd)),
-      iter = 4000, warmup = 1000, cores = 4, chains = 4,
-      seed = 14,
-      file = "fits/b14.05")
+      estimate | se(std.error) ~ 1 + (1 | loc),
+      prior = c(prior(normal(0, 1.5), class = Intercept),
+                prior(exponential(1), class = sd)),
+      iter = 2000, warmup = 1000, cores = 4, chains = 4,
+      seed = 15)
 ```
 
-One thing you might notice is our `se(se)` function excluded the `sigma` argument. If you recall from section 14.1, we specified `sigma = T` in our measurement-error models. The brms default is that within `se()`, `sigma = FALSE`. As such, we have no estimate for sigma the way we would if we were doing this analysis with the raw data from the studies. Hopefully this makes sense. The uncertainty around the `d`-value for each study $i$ has already been encoded in the data as `se`.
+`se()` is one of the **brms** helper functions designed to provide additional information about the criterion variable. Here it informs `brm()` that each `estimate` value has an associated measurement error defined in the `std.error` column. Unlike the `mi()` function, which we used earlier in the chapter to accommodate measurement error and the Bayesian imputation of missing data, the `se()` function is specially designed to handle meta-analyses. `se()` contains a `sigma` argument which is set to `FALSE` by default. This will return a model with no estimate for sigma, which is what we want. The uncertainty around the `estimate`-value for each study $j$ has already been encoded in the data as `std.error`.
 
-This brings us to another point. We typically perform meta-analyses on data summaries. In my field and perhaps in yours, this is due to the historical accident that it has not been the norm among researchers to make their data publically available. So effect size summaries were the best we typically had. However, times are changing (e.g., [here](https://www.apa.org/monitor/2017/11/trends-open-science.aspx), [here](https://www.blog.google/products/search/making-it-easier-discover-datasets/)). If the raw data from all the studies for your meta-analysis are available, you can just fit a multilevel model in which the data are nested in the studies. Heck, you could even allow the studies to vary by $\sigma$ by taking the [distributional modeling approach](https://cran.r-project.org/package=brms/vignettes/brms_distreg.html#a-simple-distributional-model) and specify something like `sigma ~ 0 + study` or even `sigma ~ 1 + (1 | study)`.
-But enough technical talk. Let's look at the model results.
+Let's look at the model results.
 
 ```{r}
-print(b14.5)
+print(b15.10)
 ```
 
-Thus, in our simple Bayesian meta-analysis, we have a population Cohen's $d$ of about `r round(fixef(b14.5)[1], 2)`. Our estimate for $\tau$, `r round(posterior_summary(b14.5)[2, 1], 2)`, suggests we have quite a bit of between-study variability. One question you might ask is: *What exactly are these Cohen's* $d$*s measuring, anyways?* We've encoded that in the `outcome` vector of the `spank` data.
+Our estimate for heterogeneity across studies, $\tau$, is about `r round(posterior_summary(b15.10)[2, 1], 1)`, suggesting modest differences across the studies. The meta-analytic effect, $\mu$, is about `r round(fixef(b15.10)[1], 1)`. Both, recall, are in the log-odds metric. Here we exponentiate $\mu$ to get our odds ratio.
 
 ```{r}
-spank %>% 
-  distinct(outcome) %>% 
-  knitr::kable()
+fixef(b15.10) %>% exp()
 ```
 
-There are a few things to note. First, with the possible exception of `Adult support for physical punishment`, all of the outcomes are negative. We prefer conditions associated with lower values for things like `Child aggression` and `Adult mental health problems`. Second, the way the data are coded, larger effect sizes are interpreted as more negative outcomes associated with children having been spanked. That is, our analysis suggests spanking children is associated with worse outcomes. What might not be immediately apparent is that even though there are 111 cases in the data, there are only 76 distinct studies.
+If you look back up to the results reported by Klein and colleagues, you'll see this is rather close to their OR estimate of 11.54.
+
+### Fit the Bayesian muiltilevel alternative.
+
+We said earlier that meta-analysis is just a special case of the multilevel model, applied to summary data. We typically perform meta-analyses on data summaries because historically it has not been the norm among researchers to make their data publicly available. So effect size summaries were the best we typically had for aggregating study results. However, times are changing (e.g., [here](https://www.apa.org/monitor/2017/11/trends-open-science.aspx), [here](https://www.blog.google/products/search/making-it-easier-discover-datasets/)). In this case, Klein and colleagues engaged in open-science practices and reported all their data. Thus we can just directly fit the model
+
+\begin{align*}
+\text{y}_{ij} & \sim \operatorname{Binomial}(n = 1, p_{ij}) \\
+\operatorname{logit}(p_{ij}) & \sim \alpha + \beta \text{factor}_{ij} + u_{\alpha j} + u_{\beta j} \text{factor}_{ij} \\
+
+\begin{bmatrix} u_{\alpha j} \\ u_{\beta j} \end{bmatrix} & \sim \operatorname{MVNormal} \begin{pmatrix} \begin{bmatrix} 0 \\ 0 \end{bmatrix}, \mathbf{SRS} \end{pmatrix} \\
+
+\mathbf S & = \begin{bmatrix} \sigma_\alpha & 0 \\ 0 & \sigma_\beta \end{bmatrix} \\
+\mathbf R & = \begin{bmatrix} 0 & \rho_{\alpha \beta} \\ \rho_{\beta \alpha} & 0 \end{bmatrix} \\
+
+\alpha & \sim \operatorname{Normal}(0, 1.5) \\
+\beta  & \sim \operatorname{Normal}(0, 1.5) \\
+\sigma_\alpha & \sim \operatorname{Exponential}(1) \\
+\sigma_\beta  & \sim \operatorname{Exponential}(1) \\
+\mathbf R & \sim \operatorname{LKJ}(2),
+\end{align*}
+
+where the criterion variable, $y$, is nested in $i$ participants within $j$ locations. The $\beta$ parameter is analogous to the meta-analytic effect ($\mu$) and $\sigma_\beta$ is analogous to the expression of heterogeneity in the meta-analytic effect ($\tau$). Here is how to fit the model with **brms**.
+
+```{r b15.11, message = F, results = "hide"}
+b15.11 <- 
+  brm(data = d, 
+      family = binomial,
+      y | trials(1) ~ 0 + Intercept + factor + (1 + factor | loc),
+      prior = c(prior(normal(0, 1.5), class = b),
+                prior(exponential(1), class = sd),
+                prior(lkj(2), class = cor)),
+      iter = 2000, warmup = 1000, cores = 4, chains = 4,
+      seed = 15)
+```
+
+The results for the focal parameters are very similar to those from `b15.10`.
 
 ```{r}
-spank %>% 
-  distinct(study) %>% 
-  count()
+print(b15.11)
 ```
 
-In other words, some studies have multiple outcomes. In order to better accommodate the `study`- and `outcome`-level variances, let's fit a cross-classified Bayesian meta-analysis reminiscent of the cross-classified chimp model from [Chapter 13][Example: Cross-classified `chimpanzees` with varying slopes].
-
-```{r b14.6}
-b14.6 <- 
-  brm(data = spank, 
-      family = gaussian,
-      d | se(se) ~ 1 + (1 | study) + (1 | outcome),
-      prior = c(prior(normal(0, 1), class = Intercept),
-                prior(cauchy(0, 1), class = sd)),
-      iter = 4000, warmup = 1000, cores = 4, chains = 4,
-      seed = 14,
-      file = "fits/b14.06")
-```
+Here's the multilevel version of the effect size as an odds ratio.
 
 ```{r}
-print(b14.6)
+fixef(b15.11)[2, -2] %>% exp()
 ```
 
-Now we have two $\tau$ parameters. We might plot them to get a sense of where the variance is at.
+Here we compare the study specific effect sizes, $\theta_j$, by our two modeling approaches.
 
-```{r, fig.width = 5, fig.height = 2}
-# we'll want this to label the plot
-label <-
-  tibble(tau   = c(.12, .3),
-         y     = c(15, 10),
-         label = c("sigma['outcome']", "sigma['study']"))
-# wrangle
-posterior_samples(b14.6) %>% 
-  select(starts_with("sd")) %>% 
-  gather(key, tau) %>% 
-  mutate(key = str_remove(key, "sd_") %>% str_remove(., "__Intercept")) %>% 
+```{r, fig.width = 7, fig.height = 5}
+color <- viridis_pal(option = "C")(7)[3]
+
+# how many levels are there?
+n_loc <- distinct(d, loc) %>% count() %>% pull(n)
+
+# rank by meta-analysis
+ranks <-
+  tibble(Estimate = coef(b15.10)$loc[, 1, "Intercept"],
+         index    = 1:n_loc) %>% 
+  arrange(Estimate) %>% 
+  mutate(rank = 1:n_loc)
+
+rbind(coef(b15.10)$loc[, , "Intercept"],
+      coef(b15.11)$loc[, , "factorSideEffect"]) %>% 
+  data.frame() %>% 
+  mutate(index = rep(1:n_loc, times = 2),
+         type  = rep(c("meta-analysis", "multilevel model"), each = n_loc)) %>% 
+  left_join(select(ranks, -Estimate), 
+            by = "index") %>% 
   
-  # plot
-  ggplot(aes(x = tau)) +
-  geom_density(aes(fill = key),
-               color = "transparent") +
-  geom_text(data = label,
-            aes(y = y, label = label, color = label),
-            size = 5, parse = T) +
-  scale_fill_viridis_d(NULL, option = "B", begin = .5) +
-  scale_color_viridis_d(NULL, option = "B", begin = .5) +
+  ggplot(aes(x = Estimate, xmin = Q2.5, xmax = Q97.5, y = rank)) +
+  geom_pointrange(fatten = 1, color = color) +
+  scale_x_continuous(expression(log-odds~effect~size~(theta[italic(j)])), limits = c(0, 4.5)) +
   scale_y_continuous(NULL, breaks = NULL) +
-  xlab(expression(tau)) +
-  theme(panel.grid = element_blank())
+  facet_wrap(~type)
 ```
 
-So at this point, the big story is there's more variability between the studies than there is the outcomes. But I still want to get a sense of the individual outcomes. Here we'll use `tidybayes::geom_halfeyeh()` to help us make our version of a [forest plot](https://cran.r-project.org/package=forestplot/vignettes/forestplot.html) and `tidybayes::spread_draws()` to help with the initial wrangling.
+The results are very similar. You might be curious how to show these results in a more conventional looking forest plot where the names of the groups (typically studies) for the $\theta_j$ values are listed on the left, the point estimate and 95% interval summaries are listed on the right, and the summary for the population level effect, $\mu$, is listed beneath all all the $\theta_j$'s. That'll require some prep work. First we'll need to reformat the location names. I'll save the results in an object called `labs`.
 
-```{r, fig.width = 5, fig.height = 4, message = F, warning = F}
-library(tidybayes)
-b14.6 %>% 
-  spread_draws(b_Intercept, r_outcome[outcome,]) %>%
-  # add the grand mean to the group-specific deviations
-  mutate(mu = b_Intercept + r_outcome) %>%
-  ungroup() %>%
-  mutate(outcome = str_replace_all(outcome, "[.]", " ")) %>% 
-  # plot
-  ggplot(aes(x = mu, y = reorder(outcome, mu), fill = reorder(outcome, mu))) +
-  geom_vline(xintercept = fixef(b14.6)[1, 1], color = "grey33", size = 1) +
-  geom_vline(xintercept = fixef(b14.6)[1, 3:4], color = "grey33", linetype = 2) +
-  geom_halfeyeh(.width = .95, size = 2/3, color = "white") +
-  scale_fill_viridis_d(option = "B", begin = .2) +
-  labs(x = expression(italic("Cohen's d")),
-       y = NULL) +
-  theme(axis.text.y = element_text(hjust = 0),
+```{r}
+labs <-
+  d %>% 
+  mutate(lab = case_when(
+    Location == "Social and Work Psychology Department, University of Brasilia, DF, Brazil" ~ "University of Brasilia",
+    Location == "Wilfrid Laurier University, Waterloo, Ontario, Canada" ~ "Wilfrid Laurier University",
+    Location == "University of British Columbia, Vancouver, Canada" ~ "University of British Columbia",
+    Location == "University of Toronto, Scarborough" ~ "University of Toronto",
+    Location == "Division of Social Science, The Hong Kong University of Science and Technology, Hong Kong, China" ~ "Hong Kong University of Science and Technology",
+    Location == "Chinese Academy of Science, Beijing, China" ~ "Chinese Academy of Science",
+    Location == "Shanghai International Studies University, SISU Intercultural Institute, Shanghai, China" ~ "Shanghai International Studies University",
+    Location == "Guangdong Literature & Art Vocational College, Guangzhou, China" ~ "Guangdong Literature & Art Vocational College",
+    Location == "The University of J. E. Purkyně, Ústí nad Labem, Czech Republic" ~ "The University of J. E. Purkyně",
+    Location == "University of Leuven, Belgium" ~ "University of Leuven",
+    Location == "Department of Experimental and Applied Psychology, VU Amsterdam, 1081BT, Amsterdam, The Netherlands" ~ "VU Amsterdam",
+    Location == "Department of Social Psychology, Tilburg University, P.O. Box 90153, Tilburg, 5000 LE, Netherlands" ~ "Department of Social Psychology, Tilburg University",
+    Location == "Eindhoven University of Technology, Eindhoven, Netherlands" ~ "Eindhoven University of Technology",
+    Location == "Department of Communication and Information Sciences, P.O. Box 90153, Tilburg, 5000 LE, Netherlands" ~ "Department of Communication and Information Sciences, Tilburg University",
+    Location == "University of Navarra, Spain" ~ "University of Navarra",
+    Location == "University of Lausanne, Switzerland" ~ "University of Lausanne",
+    Location == "Université de Poitiers, France" ~ "Université de Poitiers",
+    Location == "Eotvos Lorand University, in Budapest, Hungary" ~ "Eotvos Lorand University",
+    Location == "MTurk India Workers" ~ "MTurk India Workers",
+    Location == "University of Winchester, Winchester, Hampshire, England" ~ "University of Winchester",
+    Location == "Doshisha University, Kyoto, Japan" ~ "Doshisha University",
+    Location == "Victoria University of Wellington, New Zealand" ~ "Victoria University of Wellington",
+    Location == "University of Social Sciences and Humanities, Wroclaw, Poland" ~ "University of Social Sciences and Humanities",
+    Location == "Department of Psychology, SWPS University of Social Sciences and Humanities Campus Sopot, Sopot, Poland" ~ "SWPS University of Social Sciences and Humanities Campus Sopot",
+    Location == "badania.net" ~ "badania.net",
+    Location == "Universidade do Porto, Portugal" ~ "Universidade do Porto",
+    Location == "University of Belgrade, Belgrade, Serbia" ~ "University of Belgrade",
+    Location == "University of Johannesburg, Johanneburg, South Africa" ~ "University of Johannesburg",
+    Location == "Santiago, Chile" ~ "Santiago, Chile",
+    Location == "Universidad de Costa Rica, Costa Rica" ~ "Universidad de Costa Rica",
+    Location == "National Autonomous University of Mexico in Mexico City" ~ "National Autonomous University of Mexico",
+    Location == "University of the Republic, Montevideo, Uruguay" ~ "University of the Republic",
+    Location == "Lund University, Lund, Sweden" ~ "Lund University",
+    Location == "Academia Sinica, Taiwan National Taiwan Normal University, Taiwan" ~ "Taiwan National Taiwan Normal University",
+    Location == "Bilgi University, Istanbul, Turkey" ~ "Bilgi University",
+    Location == "Koç University, Istanbul, Turkey" ~ "Koç University",
+    Location == "American University of Sharjah, United Arab Emirates" ~ "American University of Sharjah",
+    Location == "University of Hawaii, Honolulu, HI" ~ "University of Hawaii",
+    Location == "Social Science and Policy Studies Department, Worcester Polytechnic Institute, Worcester, MA 01609" ~ "Worcester Polytechnic Institute",
+    Location == "Department of Psychology, Washington and Lee University, Lexington, VA 24450" ~ "Washington and Lee University",
+    Location == "Department of Psychology, San Diego State University, San Diego, CA 92182" ~ "San Diego State University",
+    Location == "Tufts" ~ "Tufts",
+    Location == "University of Florida, Florida" ~ "University of Florida",
+    Location == "University of Illinois at Urbana-Champaign, Champaign, IL" ~ "University of Illinois at Urbana-Champaign",
+    Location == "Pacific Lutheran University, Tacoma, WA" ~ "Pacific Lutheran University",
+    Location == "University of Virginia, VA" ~ "University of Virginia",
+    Location == "Marian University, Indianapolis, IN" ~ "Marian University",
+    Location == "Department of Psychology, Ithaca College, Ithaca, NY 14850" ~ "Ithaca College",
+    Location == "University of Michigan" ~ "University of Michigan",
+    Location == "Department of Psychology, Pennsylvania State University Abington, Abington, PA 19001" ~ "Pennsylvania State University Abington",
+    Location == "Department of Psychology, Texas A&M University, College Station, TX 77843" ~ "Texas A&M University",
+    Location == "William Paterson University, Wayne, NJ" ~ "William Paterson University",
+    Location == "Department of Cognitive Science, Occidental College, Los Angeles, CA" ~ "Occidental College",
+    Location == "The Pennsylvania State University" ~ "The Pennsylvania State University",
+    Location == "MTurk US Workers" ~ "MTurk US Workers",
+    Location == "University of Graz AND the Universty of Vienna" ~ "University of Graz and the Universty of Vienna",
+    Location == "University of Potsdam, Germany" ~ "University of Potsdam",
+    Location == "Open University of Hong Kong" ~ "Open University of Hong Kong",
+    Location == "Concepción, Chile" ~ "Concepción"
+  )) %>% 
+  distinct(loc, lab)
+
+# what is this?
+labs %>% 
+  glimpse()
+```
+
+Now we'll do some tricky wrangling with the output from `coef()` and `fixef()` to arrange the odds ratio summaries for the population average and the location-specific results.
+
+```{r}
+# this will help us format the labels on the secondary y-axis
+my_format <- function(number) {
+  formatC(number, digits = 2, format = "f")
+}
+
+# grab the theta_j summaries
+groups <-
+  coef(b15.11)$loc[, , "factorSideEffect"] %>% 
+  data.frame() %>% 
+  mutate(loc = distinct(h, loc) %>% pull()) %>% 
+  arrange(Estimate)
+
+# grab the mu summary
+average <-
+  fixef(b15.11) %>% 
+  data.frame() %>% 
+  slice(2) %>% 
+  mutate(loc = "Average")
+
+# combine and wrangle
+post <-
+  bind_rows(groups, average) %>% 
+  mutate(rank     = c(1:59, 0),
+         Estimate = exp(Estimate),
+         Q2.5     = exp(Q2.5),
+         Q97.5    = exp(Q97.5)) %>% 
+  left_join(labs, by = "loc") %>% 
+  arrange(rank) %>% 
+  mutate(label   = ifelse(is.na(lab), "POPULATION AVERAGE", lab),
+         summary = str_c(my_format(Estimate), " [", my_format(Q2.5), ", ", my_format(Q97.5), "]"))
+
+# what have we done?
+post %>% 
+  glimpse()
+```
+
+Here's our custom forest plot.
+
+```{r, fig.width = 8, fig.height = 7.5}
+post %>% 
+  ggplot(aes(x = Estimate, xmin = Q2.5, xmax = Q97.5, y = rank)) +
+  geom_interval(aes(color = label == "POPULATION AVERAGE"),
+                size = 1/2) +
+  geom_point(aes(size = 1 - Est.Error, color = label == "POPULATION AVERAGE"),
+             shape = 15) +
+  scale_color_viridis_d(option = "C", begin = .33, end = .67) +
+  scale_size_continuous(range = c(1, 3.5)) +
+  scale_x_continuous("odds ratio", breaks = 1:6 * 10, expand = expansion(mult = c(0.005, 0.005))) +
+  scale_y_continuous(NULL, breaks = 0:59, limits = c(-1, 60), expand = c(0, 0),
+                     labels = pull(post, label),
+                     sec.axis = dup_axis(labels = pull(post, summary))) +
+  theme(text = element_text(family = "Times"),
+        axis.text.y = element_text(hjust = 0, color = "white", size = 7),
+        axis.text.y.right = element_text(hjust = 1, size = 7),
         axis.ticks.y = element_blank(),
-        panel.grid = element_blank())
+        panel.background = element_rect(fill = "grey8"),
+        panel.border = element_rect(color = "transparent"))
 ```
 
-The solid and dashed vertical white lines in the background mark off the grand mean (i.e., the meta-analytic effect) and its 95% intervals. But anyway, there's not a lot of variability across the outcomes. Let's go one step further with the model. Doubling back to Gelman and colleagues, we read:
+You may have noticed this plot is based on the results of our multilevel model, `b15.11`. We could have done the same basic thing with the results from the more conventional meta-analysis model, `b15.10`, too.
 
-> When assuming exchangeability we assume there are no important covariates that might form the basis of a more complex model, and this assumption (perhaps misguidedly) is widely adopted in meta-analysis. What if other information (in addition to the data $(n, y)$) is available to distinguish among the $J$ studies in a meta-analysis, so that an exchangeable model is inappropriate? In this situation, we can expand the framework of the model to be exchangeable in the observed data and covariates, for example using a hierarchical regression model. (p. 126)
-One important covariate Gershoff and Grogan-Kaylor addressed in their meta-analysis was the type of study. The 76 papers they based their meta-analysis on contained both between- and within-participants designs. In the `spank` data, we've dummy coded that information with the `between` and `within` vectors. Both are dummy variables and $\text{within} = 1 - \text{between}$. Here are the counts.
+I'm not aware this it typical in random effect meta-analyses, but it might be useful to further clarify the meaning of the two primary parameters, $\mu$ and $\tau$. Like with the forest plot, above, we could examine these with either `b15.10` or `b15.11`. For kicks, we'll use `b15.10` (the conventional Bayesian meta-analysis). In the output from `posterior_samples(b15.10)`, $\mu$ and $\tau$ are in the columns named `b_Intercept` and `sd_loc__Intercept`, respectively.
 
 ```{r}
-spank %>% 
-  count(between)
+post <- posterior_samples(b15.10)
+
+post %>% 
+  select(b_Intercept:sd_loc__Intercept) %>% 
+  head()
 ```
 
-When I use dummies in my models, I prefer to have the majority group stand as the reference category. As such, I typically name those variables by the minority group. In this case, most occasions are based on within-participant designs. Thus, we'll go ahead and add the `between` variable to the model. While we're at it, we'll practice using the `0 + intercept` syntax.
+If you scroll back above, you'll see our random effect meta-analysis explicitly presumed our empirical effect-size estimates $y_j$ are approximations of the true effect sizes $\theta_j$, which are themselves normally distributed in the population of possible effect sizes from similar studies: $\theta_j \sim \operatorname{Normal}(\mu, \tau)$. Why not use our posterior samples to simulate draws from $\operatorname{Normal}(\mu, \tau)$ to get a sense of what this distribution might look like? Recall that the parameters are in the log-odds metric. We'll present the distribution in that metric and as odds ratios.
 
-```{r b14.7}
-b14.7 <- 
-  brm(data = spank, 
-      family = gaussian,
-      d | se(se) ~ 0 + Intercept + between + (1 | study) + (1 | outcome),
-      prior = c(prior(normal(0, 1), class = b),
-                prior(cauchy(0, 1), class = sd)),
-      iter = 4000, warmup = 1000, cores = 4, chains = 4,
-      seed = 14,
-      file = "fits/b14.07")
-```
+```{r, fig.width = 7, fig.height = 3.25}
+color <- viridis_pal(option = "C")(7)[6]
+set.seed(15)
 
-Behold the summary.
-
-```{r}
-print(b14.7)
-```
-
-Let's take a closer look at the `b_between` parameter.
-
-```{r, fig.width = 4.5, fig.height = 2}
-color <- viridis_pal(option = "B")(7)[5]
-posterior_samples(b14.7) %>% 
+post %>% 
+  transmute(lo = rnorm(n(), mean = b_Intercept, sd = sd_loc__Intercept),
+            or = rnorm(n(), mean = b_Intercept, sd = sd_loc__Intercept) %>% exp()) %>% 
+  slice(1:1e3) %>% 
+  pivot_longer(lo:or, values_to = "effect size") %>% 
+  mutate(name = factor(name, labels = c("log-odds", "odds ratio"))) %>% 
   
-  ggplot(aes(x = b_between, y = 0)) +
-  geom_halfeyeh(.width = c(.5, .95), color = "white", fill = color) +
+  ggplot(aes(x = `effect size`, y = 0)) +
+  geom_dots(color = color, fill = color) +
   scale_y_continuous(NULL, breaks = NULL) +
-  xlab("Overall difference for between- vs within-participant designs") +
-  theme(panel.grid = element_blank())
+  xlab(expression(Normal(mu*', '*tau))) +
+  theme(text = element_text(family = "Times"),
+        strip.background = element_rect(color = "transparent")) +
+  facet_wrap(~name, scales = "free")
 ```
 
-That difference isn't as large I'd expect it to be. But then again, I'm no spanking researcher. So what do I know?
+Both panels show 1,000 draws, each of which is depicted by a single dot. If we were to run this experiment 1,000 times and compute the effect size separately for each one, this is what we'd expect those distributions of effect sizes to look like. Seems like there's a lot of variation in there, eh? The next time you observe your fellow scientists debating over whether a study replicated or not, keep these distributions in mind. Once you start thinking about distributions, replication becomes a tricky notion.
 
-There are other things you might do with these data. For example, you might check for trends by year or, as the authors did in their manuscript, distinguish among different severities of corporal punishment. But I think we've gone far enough to get you started.
+### Parting thoughts.
 
-If you'd like to learn more about these methods, do check out Vourre's [*Meta-analysis is a special case of Bayesian multilevel modeling*](https://mvuorre.github.io/post/2016/09/29/meta-analysis-is-a-special-case-of-bayesian-multilevel-modeling/). From his blog, you'll learn additional tricks, like making a more traditional-looking forest plot with the `brmstools::forest()` function and how our Bayesian brms method compares with frequentist meta-analyses via the [metafor package](https://CRAN.R-project.org/package=metafor). You might also check out Williams, Rast, and Bürkner's manuscript, [*Bayesian Meta-Analysis with Weakly Informative Prior Distributions*](https://psyarxiv.com/7tbrm/) to give you an empirical justification for using a half-Cauchy prior for your meta-analysis $\tau$ parameters.
+There are other things you might do with these data. For example, you might inspect how much the effect size varies between those from WEIRD and non-WEIRD countries. You might also model the data as clustered by `Language` rather than by `Location`. But I think we've gone far enough to get you started.
+
+If you'd like to learn more about these methods, do check out Vourre's [*Meta-analysis is a special case of Bayesian multilevel modeling*](https://mvuorre.github.io/post/2016/09/29/meta-analysis-is-a-special-case-of-bayesian-multilevel-modeling/). You might also read Williams, Rast, and Bürkner's [-@williamsBayesianMetaanalysisWeakly2018] manuscript, [*Bayesian meta-analysis with weakly informative prior distributions*](https://psyarxiv.com/7tbrm/). For an alternative workflow, consider the [**baggr** package](https://github.com/wwiecek/baggr) [@R-baggr], which is designed to fit hierarchical Bayesian meta-analyses with Stan under the hood.
 
 ## Session info {-}
 
@@ -2074,7 +2296,7 @@ sessionInfo()
 ```
 
 ```{r, echo = F}
-rm(p_pancake, take_sample, sim_pancake, n_sim, d, color, dlist, inits, inits_list, b14.1_se, b14.1_mi, data_error, p1, b14.1b, nd, f_error, f_no_error, color_y, color_r, p2, b14.2_se, b14.2_mi, color_p, data_list, b_model, b14.3, b14.3cc, f_b14.3, f_b14.3_mi, b14.4, f_b14.4, f_b14.4_mi, spank, b14.5, b14.6, label, b14.7)
+rm()
 ```
 
 ```{r, echo = F, message = F, warning = F, results = "hide"}
