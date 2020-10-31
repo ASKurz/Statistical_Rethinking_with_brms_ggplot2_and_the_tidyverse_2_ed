@@ -3,7 +3,7 @@ title: "Ch 15. Missing Data and Other Opportunities"
 author: "A Solomon Kurz"
 date: "`r format(Sys.Date())`"
 output:
-  github_document
+  html_document
 bibliography: bib.bib
 biblio-style: apalike
 csl: apa.csl
@@ -13,7 +13,7 @@ link-citations: yes
 ```{r, echo = F, cache = F}
 knitr::opts_chunk$set(fig.retina = 2.5)
 knitr::opts_chunk$set(fig.align = "center")
-options(width = 100)
+options(width = 110)
 ```
 
 # Missing Data and Other Opportunities
@@ -104,7 +104,7 @@ Let's take this baby for a whirl.
 
 ```{r, echo = F}
 # save(list = c("n_sim", "d"), file = "sims/15.sim_1.rda")
-load("sims/15.sim_1.rda")
+load("/Users/solomonkurz/Dropbox/Recoding Statistical Rethinking 2nd ed/sims/15.sim_1.rda")
 ```
 
 ```{r, eval = F}
@@ -225,7 +225,7 @@ p1 <-
        y = "Divorce rate")
 ```
 
-Notice how `viridis_pal(option = "C")(7)[7]` called the seventh color in the color scheme, `"#F0F921FF"`. For Figure 15.1.b, we'll select the sixth color in the palette by coding `viridis_pal(option = "C")(7)[6]`. We'll then combine the two subplots with patchwork.
+Notice how `viridis_pal(option = "C")(7)[7]` called the seventh color in the color scheme, `"#F0F921FF"`. For Figure 15.1.b, we'll select the sixth color in the palette by coding `viridis_pal(option = "C")(7)[6]`. We'll then combine the two subplots with **patchwork**.
 
 ```{r, fig.width = 7.25, fig.height = 3.5}
 color <- viridis_pal(option = "C")(7)[6]
@@ -254,7 +254,7 @@ Just like in the text, our plot shows states with larger populations tend to hav
 
 Now make a DAG of our data with **ggdag**.
 
-```{r, warning = F, message = F, fig.width = 3, fig.height = 1.25, }
+```{r, warning = F, message = F, fig.width = 3.5, fig.height = 1.5}
 library(ggdag)
 
 dag_coords <-
@@ -271,7 +271,7 @@ dagify(M    ~ A,
   
   ggplot(aes(x = x, y = y, xend = xend, yend = yend)) +
   geom_dag_point(aes(color = color),
-                 size = 10, show.legend = F) +
+                 size = 7, show.legend = F) +
   geom_dag_text(parse = T, label = c("A", "D", "M", expression(italic(e)[D]), expression(D[obs]))) +
   geom_dag_edges(edge_colour = "#FCF9F0") +
   scale_color_manual(values = c(viridis_pal(option = "C")(7)[2], "black")) +
@@ -431,7 +431,7 @@ If you look closely, our plot on the left is flipped relative to the one in the 
 
 Now we update the DAG to account for measurement error in the predictor.
 
-```{r, warning = F, message = F, fig.width = 3, fig.height = 1.25}
+```{r, warning = F, message = F, fig.width = 3.5, fig.height = 1.5}
 dag_coords <-
   tibble(name = c("A", "M", "Mobs", "eM", "D", "Dobs", "eD"),
          x    = c(1, 2, 3, 4, 2, 3, 4),
@@ -447,7 +447,7 @@ dagify(M    ~ A,
   
   ggplot(aes(x = x, y = y, xend = xend, yend = yend)) +
   geom_dag_point(aes(color = color),
-                 size = 10, show.legend = F) +
+                 size = 7, show.legend = F) +
   geom_dag_text(parse = T, label = c("A", "D", "M", 
                                      expression(italic(e)[D]), expression(italic(e)[M]), 
                                      expression(D[obs]), expression(M[obs]))) +
@@ -570,7 +570,7 @@ Anyway,
 
 McElreath invited us to consider a few more DAGs. The first is an instance where both sources of measurement error have a common cause, $P$.
 
-```{r, warning = F, message = F, fig.width = 3.25, fig.height = 1.25}
+```{r, warning = F, message = F, fig.width = 3.75, fig.height = 1.5}
 dag_coords <-
   tibble(name = c("A", "M", "Mobs", "eM", "D", "Dobs", "eD", "P"),
          x    = c(1, 2, 3, 4, 2, 3, 4, 5),
@@ -588,7 +588,7 @@ dagify(M    ~ A,
   
   ggplot(aes(x = x, y = y, xend = xend, yend = yend)) +
   geom_dag_point(aes(color = color),
-                 size = 10, show.legend = F) +
+                 size = 7, show.legend = F) +
   geom_dag_text(parse = T, label = c("A", "D", "M", "P", 
                                      expression(italic(e)[D]), expression(italic(e)[M]), 
                                      expression(D[obs]), expression(M[obs]))) +
@@ -599,7 +599,7 @@ dagify(M    ~ A,
 
 The second instance is when the true marriage rate $M$ has a causal effect on the measurement error for Divorce, $e_\text{D}$.
 
-```{r, warning = F, message = F, fig.width = 3, fig.height = 1.25}
+```{r, warning = F, message = F, fig.width = 3.5, fig.height = 1.5}
 dag_coords <-
   tibble(name = c("A", "M", "Mobs", "eM", "D", "Dobs", "eD"),
          x    = c(1, 2, 3, 4, 2, 3, 4),
@@ -616,7 +616,7 @@ dagify(M    ~ A,
   
   ggplot(aes(x = x, y = y, xend = xend, yend = yend)) +
   geom_dag_point(aes(color = color),
-                 size = 10, show.legend = F) +
+                 size = 7, show.legend = F) +
   geom_dag_text(parse = T, label = c("A", "D", "M", 
                                      expression(italic(e)[D]), expression(italic(e)[M]), 
                                      expression(D[obs]), expression(M[obs]))) +
@@ -627,7 +627,7 @@ dagify(M    ~ A,
 
 The final example is when we have negligible measurement error for $M$ and $D$, but known nonignorable measurement error for the causal variable $A$.
 
-```{r, warning = F, message = F, fig.width = 3, fig.height = 1.25}
+```{r, warning = F, message = F, fig.width = 3.5, fig.height = 1.5}
 dag_coords <-
   tibble(name = c("eA", "Aobs", "A", "M", "D"),
          x    = c(1, 2, 3, 4, 4),
@@ -642,7 +642,7 @@ dagify(Aobs ~ A + eA,
   
   ggplot(aes(x = x, y = y, xend = xend, yend = yend)) +
   geom_dag_point(aes(color = color),
-                 size = 10, show.legend = F) +
+                 size = 7, show.legend = F) +
   geom_dag_text(parse = T, label = c("A", expression(italic(e)[A]), expression(A[obs]), "D", "M")) +
   geom_dag_edges(edge_colour = "#FCF9F0") +
   scale_color_manual(values = c(viridis_pal(option = "C")(7)[2], "black")) +
@@ -830,18 +830,18 @@ p3 <-
 
 Now combine, adjust a little, and plot.
 
-```{r, warning = F, message = F, fig.width = 5, fig.height = 5}
+```{r, warning = F, message = F, fig.width = 5, fig.height = 4.5}
 (p1 + p2 + p3 + p4) +
   plot_annotation(tag_levels = "a", tag_prefix = "(", tag_suffix = ")") &
   scale_color_manual(values = c(viridis_pal(option = "C")(7)[2], "black")) &
   dark_theme_void() +
   theme(panel.background = element_rect(fill = "grey8"),
-        plot.margin = margin(0.2, 0.2, 0.2, 0.2, "in"))
+        plot.margin = margin(0.15, 0.15, 0.15, 0.15, "in"))
 ```
 
 On page 500, we read:
 
-> Consider a sample of students, all of whom own dogs. The students produce homework ($Hv). This homework varies in quality, influenced by how much each student studies ($S$). We could simulate 100 students, their attributes, and their homework like this:
+> Consider a sample of students, all of whom own dogs. The students produce homework ($H$). This homework varies in quality, influenced by how much each student studies ($S$). We could simulate 100 students, their attributes, and their homework like this:
 
 ```{r}
 n <- 100
@@ -1049,7 +1049,7 @@ d %>%
 
 We dropped those values when we fit the models back in [Chapter 5][Masked relationship]. To get a sense of whether this was a bad idea, let's consider the model with a DAG. Ignoring the missing data, we have this.
 
-```{r, warning = F, message = F, fig.width = 2.5, fig.height = 1.25}
+```{r, warning = F, message = F, fig.width = 2.5, fig.height = 1.5}
 dag_coords <-
   tibble(name = c("M", "U", "K", "B"),
          x    = c(1, 2, 2, 3),
@@ -1064,7 +1064,7 @@ dagify(M ~ U,
   
   ggplot(aes(x = x, y = y, xend = xend, yend = yend)) +
   geom_dag_point(aes(color = color),
-                 size = 10, show.legend = F) +
+                 size = 7, show.legend = F) +
   geom_dag_text() +
   geom_dag_edges(edge_colour = "#FCF9F0") +
   scale_color_manual(values = c(viridis_pal(option = "C")(7)[2], "black")) +
@@ -1073,7 +1073,7 @@ dagify(M ~ U,
 
 "$M$ is body mass, $B$ is neocortex percent, $K$ is milk energy, and $U$ is some unobserved variable that renders $M$ and $B$ positively correlated" (p. 504). Because we have missingness in $B$, our data in hand are actually $B^*$. McElreath considered three processes that may have generated these missing data. Here are the DAGs.
 
-```{r, warning = F, message = F, fig.width = 7, fig.height = 2}
+```{r, warning = F, message = F, fig.width = 7.25, fig.height = 2.5}
 dag_coords <-
   tibble(name = c("M", "U", "K", "B", "RB", "Bs"),
          x    = c(1, 2, 2, 3, 2, 3),
@@ -1091,7 +1091,7 @@ p1 <-
   
   ggplot(aes(x = x, y = y, xend = xend, yend = yend)) +
   geom_dag_point(aes(color = color),
-                 size = 10, show.legend = F) +
+                 size = 7, show.legend = F) +
   geom_dag_text(parse = T, label = c("B", "M", expression(R[B]), "U", expression(B^'*'), "K")) +
   geom_dag_edges(edge_colour = "#FCF9F0")
 
@@ -1108,7 +1108,7 @@ p2 <-
   
   ggplot(aes(x = x, y = y, xend = xend, yend = yend)) +
   geom_dag_point(aes(color = color),
-                 size = 10, show.legend = F) +
+                 size = 7, show.legend = F) +
   geom_dag_text(parse = T, label = c("B", "M", expression(R[B]), "U", expression(B^'*'), "K")) +
   geom_dag_edges(edge_colour = "#FCF9F0")
 
@@ -1125,7 +1125,7 @@ p3 <-
   
   ggplot(aes(x = x, y = y, xend = xend, yend = yend)) +
   geom_dag_point(aes(color = color),
-                 size = 10, show.legend = F) +
+                 size = 7, show.legend = F) +
   geom_dag_text(parse = T, label = c("B", "M", expression(R[B]), "U", expression(B^'*'), "K")) +
   geom_dag_edges(edge_colour = "#FCF9F0")
 
@@ -1140,7 +1140,7 @@ p3 <-
 
 In each of the DAGs, the new variable $R_B$ simply indicates whether a given species has missingness in $B^*$, much like our dog variable $D$ indicated the missing data in the DAGs from the earlier DAGs. The big difference between then and now is that whereas we had a sense of what was causing the missing data in the earlier examples (i.e., those hungry $D$ dogs), now we only have a generic missing data mechanism, $R_B$. In the middle of page 505, McElreath asked we consider one more missing data mechanism, this time with a new unmeasured causal variable $V$.
 
-```{r, warning = F, message = F, fig.width = 3.75, fig.height = 1.25}
+```{r, warning = F, message = F, fig.width = 3.75, fig.height = 1.75}
 dag_coords <-
   tibble(name = c("M", "U", "K", "B", "Bs", "RB", "V"),
          x    = c(1, 2, 2, 3, 4, 4, 3.4),
@@ -1157,7 +1157,7 @@ dagify(M ~ U,
   
   ggplot(aes(x = x, y = y, xend = xend, yend = yend)) +
   geom_dag_point(aes(color = color),
-                 size = 10, show.legend = F) +
+                 size = 7, show.legend = F) +
   geom_dag_text(parse = T, label = c("B", "M", expression(R[B]), "U", "V", expression(B^'*'), "K")) +
   geom_dag_edges(edge_colour = "#FCF9F0") +
   scale_color_manual(values = c(viridis_pal(option = "C")(7)[2], "black")) +
@@ -1236,7 +1236,7 @@ The imputed `b` values are indexed by occasion number from the original data. Th
 
 Before we move on to the next model, let's plot to get a sense of what we've done.
 
-```{r, fig.width = 5, fig.height = 3}
+```{r, fig.width = 5, fig.height = 2.5}
 posterior_samples(b15.5) %>% 
   select(starts_with("Ymi_b")) %>% 
   set_names(filter(d, is.na(b)) %>% pull(species)) %>% 
@@ -1291,7 +1291,7 @@ bind_rows(
   labs(x = "marginal posterior",
        y = NULL) +
   theme(axis.ticks.y = element_blank(),
-        strip.background = element_rect(color = "transparent")) +
+        strip.background = element_rect(color = "transparent", fill = "transparent")) +
   facet_wrap(~term, labeller = label_parsed, ncol = 1)
 ```
 
@@ -1311,7 +1311,8 @@ d <-
   ) 
 
 d %>% 
-  select(species, k:upper)
+  select(species, k:upper) %>% 
+  glimpse()
 ```
 
 Now make Figure 15.5.
@@ -1476,7 +1477,8 @@ d <-
   ) 
 
 d %>% 
-  select(species, k:upper)
+  select(species, k:upper) %>% 
+  glimpse()
 ```
 
 Now make Figure 15.6.
@@ -1558,7 +1560,7 @@ d %>%
   labs(subtitle = '"This is a highly non-random missingness pattern" (p. 514).',
        x = "Time (year)",
        y = "Population size (log)") +
-  theme(legend.position = c(.125, .75))
+  theme(legend.position = c(.125, .67))
 ```
 
 Here are the counts broken down by gods and literacy status.
@@ -1573,7 +1575,7 @@ d %>%
 
 The bulk of the missing `moralizing_gods` values are from non-literate polities and the figure above shows that smaller polities also tend to have missing values. We can try to make sense of all this with McElreath's DAG.
 
-```{r, warning = F, message = F, fig.width = 2.75, fig.height = 1.25}
+```{r, warning = F, message = F, fig.width = 2.75, fig.height = 1.5}
 dag_coords <-
   tibble(name = c("P", "W", "G", "RG", "Gs"),
          x    = c(1, 2.33, 4, 5.67, 7),
@@ -1589,7 +1591,7 @@ dagify(P ~ G,
   
   ggplot(aes(x = x, y = y, xend = xend, yend = yend)) +
   geom_dag_point(aes(color = color),
-                 size = 10, show.legend = F) +
+                 size = 7, show.legend = F) +
   geom_dag_text(parse = T, label = c("G", "P", expression(R[G]), "W", expression(G^'*'))) +
   geom_dag_edges(edge_colour = "#FCF9F0") +
   scale_color_manual(values = c(viridis_pal(option = "C")(7)[2], "black")) +
@@ -1637,10 +1639,9 @@ dat <-
 dat
 ```
 
-
 If you execute `log_sum_exp`, you'll discover it's a custom function defined like this.
 
-```{r, eval = F}
+```{r}
 log_sum_exp <- function (x) {
     xmax <- max(x)
     xsum <- sum(exp(x - xmax))
@@ -1660,7 +1661,7 @@ log(-3)
 ```
 
 
-```{r}
+```{r, eval = F}
 library(rethinking)
 
 dat <- 
@@ -1695,11 +1696,11 @@ m15.8 <- ulam(
 
 Here's a look at the posterior summary.
 
-```{r}
+```{r, eval = F}
 precis(m15.8)
 ```
 
-```{r}
+```{r, eval = F}
 extract.samples(m15.8) %>% 
   data.frame() %>% 
   mutate(N  = exp(a),
@@ -1721,8 +1722,6 @@ extract.samples(m15.8) %>%
 exp(c(1.59, -0.93))
 ```
 
-
-
 ### Improving the imputation model
 
 Like McElreath, we'll update the imputation line of our statistical model to:
@@ -1741,7 +1740,7 @@ which includes the updated priors
 
 As far as the brms code goes, adding `logmass` as a predictor to the `neocortex` submodel is pretty simple.
 
-```{r b14.4}
+```{r b14.4, eval = F}
 # define the model
 b_model <- 
   bf(kcal ~ 1 + mi(neocortex) + logmass) + 
@@ -1765,14 +1764,14 @@ b14.4 <-
 
 Behold the parameter estimates.
 
-```{r}
+```{r, eval = F}
 tidy(b14.4) %>%
   mutate_if(is.numeric, round, digits = 2)
 ```
 
 Here's our pre-Figure 14.5 data wrangling.
 
-```{r}
+```{r, eval = F}
 f_b14.4 <-
   fitted(b14.4, newdata = nd) %>%
   as_tibble() %>%
@@ -1793,7 +1792,7 @@ f_b14.4_mi %>%
 
 For our final plots, let's play around with colors from `viridis_pal(option = "D")`. Here's the code for Figure 14.5.a.
 
-```{r, fig.width = 4, fig.height = 3.75, warning = F}
+```{r, fig.width = 4, fig.height = 3.75, warning = F, eval = F}
 color <- viridis_pal(option = "D")(7)[3]
 p1 <-
   f_b14.4 %>% 
@@ -1820,7 +1819,7 @@ p1 <-
 
 Make the code for Figure 14.5.b, combine it with Figure 14.5.a, and plot.
 
-```{r, fig.width = 7.5, fig.height = 3.75, warning = F}
+```{r, fig.width = 7.5, fig.height = 3.75, warning = F, eval = F}
 color <- viridis_pal(option = "D")(7)[3]
 p2 <-
   data_list %>% 
@@ -1838,7 +1837,7 @@ p2 <-
 p1 | p2
 ```
 
-If modern missing data methods are new to you, you might also check out van Burren's great online text, [*Flexible Imputation of Missing Data. Second Edition*](https://stefvanbuuren.name/fimd/). I'm also a fan of Enders's [*Applied Missing Data Analysis*](http://www.appliedmissingdata.com), for which you can find a free sample chapter [here](http://www.appliedmissingdata.com/sample-chapter.pdf). I'll also quickly mention that [brms accommodates multiple imputation](https://cran.r-project.org/package=brms/vignettes/brms_missings.html), too.
+If modern missing data methods are new to you, you might also check out van Burren's great online [-@vanbuurenFlexibleImputationMissing2018] text, [*Flexible imputation of missing data*](https://stefvanbuuren.name/fimd/). I'm also a fan of Enders's [-@enders2010applied] [*Applied missing data analysis*](http://www.appliedmissingdata.com), for which you can find a free sample chapter [here](http://www.appliedmissingdata.com/sample-chapter.pdf). I'll also quickly mention that [brms accommodates multiple imputation](https://cran.r-project.org/package=brms/vignettes/brms_missings.html), too.
 
 ## ~~Summary~~ Bonus: Bayesian meta-analysis with odds ratios
 
@@ -1917,7 +1916,7 @@ d %>%
 
 Here's how Klein and colleagues summarized their primary results:
 
-> In the aggregate replication sample $(N = 6,842$ after removing participants who responded in less than $4$ s$), 71\%$ of participants judged the action in the foreseen-side-effect scenario as permissible, but only $17\%$ of participants in the greater-good scenario judged it as permissible. The difference between the percentages was significant, $p = 2.2 \text e^{-16},$ $\text{OR} = 11.54,$ $d = 1.35,$ $95\% \; \text{CI} = [1.28, 1.41]$. The replication results were consistent with the double-effect hypothesis, and the effect was about half the magnitude of the original $(d = 1.35,$ $95\% \; \text{CI} = [1.28, 1.41],$ vs. original $d = 2.50)$. (p. 459)
+> In the aggregate replication sample $(N = 6,842$ after removing participants who responded in less than $4$ s$),$ $71\%$ of participants judged the action in the foreseen-side-effect scenario as permissible, but only $17\%$ of participants in the greater-good scenario judged it as permissible. The difference between the percentages was significant, $p = 2.2 \text e^{-16},$ $\text{OR} = 11.54,$ $d = 1.35,$ $95\% \; \text{CI} = [1.28, 1.41]$. The replication results were consistent with the double-effect hypothesis, and the effect was about half the magnitude of the original $(d = 1.35,$ $95\% \; \text{CI} = [1.28, 1.41],$ vs. original $d = 2.50)$. (p. 459)
 
 Here is the breakdown of the outcome and primary experimental condition, which will confirm the two empirical percentages mentioned, above.
 
@@ -2099,11 +2098,13 @@ ranks <-
   arrange(Estimate) %>% 
   mutate(rank = 1:n_loc)
 
+# combine parameter summaries
 rbind(coef(b15.10)$loc[, , "Intercept"],
       coef(b15.11)$loc[, , "factorSideEffect"]) %>% 
   data.frame() %>% 
   mutate(index = rep(1:n_loc, times = 2),
          type  = rep(c("meta-analysis", "multilevel model"), each = n_loc)) %>% 
+  # add the ranks
   left_join(select(ranks, -Estimate), 
             by = "index") %>% 
   
