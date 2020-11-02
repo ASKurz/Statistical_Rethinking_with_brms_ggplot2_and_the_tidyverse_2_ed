@@ -207,8 +207,8 @@ The statistical formula for our varying intercepts and slopes café model follow
 \begin{align*}
 \text{wait}_i & \sim \operatorname{Normal}(\mu_i, \sigma) \\
 \mu_i         & = \alpha_{\text{café}[i]} + \beta_{\text{café}[i]} \text{afternoon}_i \\
-\begin{bmatrix} \alpha_\text{café} \\ \beta_\text{café} \end{bmatrix} & \sim \operatorname{MVNormal} \begin{pmatrix} \begin{bmatrix} \alpha \\ \beta \end{bmatrix}, \mathbf{S} \end{pmatrix} \\
-\mathbf S     & = \begin{bmatrix} \sigma_\alpha & 0 \\ 0 & \sigma_\beta \end{bmatrix} \mathbf R \begin{bmatrix} \sigma_\alpha & 0 \\ 0 & \sigma_\beta \end{bmatrix} \\
+\begin{bmatrix} \alpha_\text{café} \\ \beta_\text{café} \end{bmatrix} & \sim \operatorname{MVNormal} \begin{pmatrix} \begin{bmatrix} \alpha \\ \beta \end{bmatrix}, \mathbf \Sigma \end{pmatrix} \\
+\mathbf \Sigma     & = \begin{bmatrix} \sigma_\alpha & 0 \\ 0 & \sigma_\beta \end{bmatrix} \mathbf R \begin{bmatrix} \sigma_\alpha & 0 \\ 0 & \sigma_\beta \end{bmatrix} \\
 \alpha        & \sim \operatorname{Normal}(5, 2) \\
 \beta         & \sim \operatorname{Normal}(-1, 0.5) \\
 \sigma        & \sim \operatorname{Exponential}(1) \\
@@ -217,7 +217,7 @@ The statistical formula for our varying intercepts and slopes café model follow
 \mathbf R     & \sim \operatorname{LKJcorr}(2),
 \end{align*}
 
-where $\mathbf S$ is the covariance matrix and $\mathbf R$ is the corresponding correlation matrix, which we might more fully express as
+where $\mathbf \Sigma$ is the covariance matrix and $\mathbf R$ is the corresponding correlation matrix, which we might more fully express as
 
 $$\mathbf R = \begin{bmatrix} 1 & \rho \\ \rho & 1 \end{bmatrix}.$$
 
@@ -478,19 +478,14 @@ library(patchwork)
 
 ## Advanced varying slopes
 
-In [Section 13.3][More than one type of cluster] we saw that data can be considered **cross-classified** if they have multiple grouping factors. We used the `chipanzees` data in that section and we only considered cross-cassification by single intercepts. Turns out cross-classified models can be extended further. Let's load and wrangle those data.
+In [Section 13.3][More than one type of cluster] we saw that data can be considered **cross-classified** if they have multiple grouping factors. We used the `chipanzees` data in that section and we only considered cross-classification by single intercepts. Turns out cross-classified models can be extended further. Let's load and wrangle those data.
 
 ```{r, warning = F, message = F}
-library(rethinking)
-data(chimpanzees)
+data(chimpanzees, package = "rethinking")
 d <- chimpanzees
-
-detach(package:rethinking, unload = T)
-library(brms)
 rm(chimpanzees)
 
-# wrangle.
-
+# wrangle
 d <-
   d %>% 
   mutate(actor     = factor(actor),
@@ -504,7 +499,7 @@ d <-
 glimpse(d)
 ```
 
-If I'm following along correctly with the text, McElreath's `m14.2` uses the centered parameterization. Recall from the last chapter that **brms** only supports the non-centered parameterization. Happily, McElreath's `m14.3` appears to use the non-centered parameterization. Thus, we'll skip making a `b14/2` and jump directly into making a `b14.3`. I believe one could describe the statistical model as
+If I'm following along correctly with the text, McElreath's `m14.2` uses the centered parameterization. Recall from the last chapter that **brms** only supports the non-centered parameterization. Happily, McElreath's `m14.3` appears to use the non-centered parameterization. Thus, we'll skip making a `b14.2` and jump directly into making a `b14.3`. I believe one could describe the statistical model as
 
 \begin{align*}
 \text{left_pull}_i & \sim \operatorname{Binomial}(n_i = 1, p_i) \\
@@ -514,13 +509,13 @@ If I'm following along correctly with the text, McElreath's `m14.2` uses the cen
 \begin{bmatrix} \beta_{j, 1} \\ \beta_{j, 2} \\ \beta_{j, 3} \\ \beta_{j, 4} \end{bmatrix} & \sim \operatorname{MVNormal} \begin{pmatrix} \begin{bmatrix} 0 \\ 0 \\ 0 \\ 0 \end{bmatrix}, \mathbf \Sigma_\text{block} \end{pmatrix} \\
 \mathbf \Sigma_\text{actor} & = \mathbf{S_\alpha R_\alpha S_\alpha} \\
 \mathbf \Sigma_\text{block} & = \mathbf{S_\beta R_\beta S_\beta} \\
-\sigma_{\alpha, [1]}, ..., \sigma_{\alpha, [4]} & \sim \operatorname{Exponential}(1) \\
-\sigma_{\beta, [1]}, ..., \sigma_{\beta, [4]}   & \sim \operatorname{Exponential}(1) \\
+\sigma_{\alpha, [1]}, \dots, \sigma_{\alpha, [4]} & \sim \operatorname{Exponential}(1) \\
+\sigma_{\beta, [1]}, \dots, \sigma_{\beta, [4]}   & \sim \operatorname{Exponential}(1) \\
 \mathbf R_\alpha & \sim \operatorname{LKJ}(2) \\
 \mathbf R_\beta  & \sim \operatorname{LKJ}(2).
 \end{align*}
 
-In this model, we have four population-level intercepts, $\gamma_1, ..., \gamma_4$, one for each of the four levels of `treatment`. There are two higher-level grouping variables, `actor` and `block`, making this a cross-classified model.
+In this model, we have four population-level intercepts, $\gamma_1, \dots, \gamma_4$, one for each of the four levels of `treatment`. There are two higher-level grouping variables, `actor` and `block`, making this a cross-classified model.
 
 The term $\alpha_{\text{actor}[i], \text{treatment}[i]}$ is meant to convey that each of the `treatment` effects can vary by `actor`. The first line containing the $\operatorname{MVNormal}(\cdot)$ operator indicates the `actor`-level deviations from the population-level estimates for $\gamma_j$ follow the multivariate normal distribution where the four means are set to zero (i.e., they are deviations) and their spread around those zeros are controlled by $\Sigma_\text{actor}$. In the first line below the last line containing $\operatorname{MVNormal}(\cdot)$, we learn that $\Sigma_\text{actor}$ can be decomposed into two terms, $\mathbf S_\alpha$ and $\mathbf R_\alpha$. It may not yet be clear by the notation, but $\mathbf S_\alpha$ is a $4 \times 4$ matrix,
 
@@ -534,7 +529,7 @@ $$
 \mathbf R_\alpha = \begin{bmatrix} 1 & \rho_{\alpha, [1, 2]} & \rho_{\alpha, [1, 3]} & \rho_{\alpha, [1, 4]} \\ \rho_{\alpha, [2, 1]} & 1 & \rho_{\alpha, [2, 3]} & \rho_{\alpha, [2, 4]} \\ \rho_{\alpha, [3, 1]} & \rho_{\alpha, [3, 2]} & 1 & \rho_{\alpha, [3, 4]} \\ \rho_{\alpha, [4, 1]} & \rho_{\alpha, [4, 2]} & \rho_{\alpha, [4, 3]} & 1 \end{bmatrix}.
 $$
 
-The same overall pattern holds true for $\beta_{\text{block}[i], \text{treatment}[i]}$ and the associated $\beta$ parameters connected to the `block` grouping variable. All the population parameters $\sigma_{\alpha, [1]}, ..., \sigma_{\alpha, [4]}$ and $\sigma_{\beta, [1]}, ..., \sigma_{\beta, [4]}$ have individual $\operatorname{Exponential}(1)$ priors. The two $\mathbf R_{< \cdot >}$ matrices have the priors $\operatorname{LKJ}(2)$.
+The same overall pattern holds true for $\beta_{\text{block}[i], \text{treatment}[i]}$ and the associated $\beta$ parameters connected to the `block` grouping variable. All the population parameters $\sigma_{\alpha, [1]}, \dots, \sigma_{\alpha, [4]}$ and $\sigma_{\beta, [1]}, \dots, \sigma_{\beta, [4]}$ have individual $\operatorname{Exponential}(1)$ priors. The two $\mathbf R_{< \cdot >}$ matrices have the priors $\operatorname{LKJ}(2)$.
 
 I know; this is a lot. This all takes time to grapple with. Here's how to fit such a model with **brms**.
 
@@ -610,7 +605,7 @@ Like McElreath explained on page 450, our `b14.3` has 76 parameters:
 * 8 standard deviations listed in the eight rows beginning with `sd(`; and 
 * 12 free correlation parameters listed in the eight rows beginning with `cor(`.
 
-Compute the WAIC estmiate.
+Compute the WAIC estimate.
 
 ```{r, warning = F, message = F}
 b14.3 <- add_criterion(b14.3, "waic")
@@ -675,7 +670,7 @@ fitted(b14.3,
 
 ## Instruments and causal designs
 
-> Sometimes it won’t be possible to close all of the non-causal paths or rule of unobserved confounds. What can be done in that case? More than nothing. If you are lucky, there are ways to exploit a combination of natural experiments and clever modeling that allow causal inference even when non-causal paths cannot be closed. (p. 445)
+> Of course sometimes it won't be possible to close all of the non-causal paths or rule of unobserved confounds. What can be done in that case? More than nothing. If you are lucky, there are ways to exploit a combination of natural experiments and clever modeling that allow causal inference even when non-causal paths cannot be closed. (p. 455)
 
 ### Instrumental variables.
 
@@ -770,7 +765,7 @@ dat_sim <-
 dat_sim
 ```
 
-$Q$ in this context is like quarter in the school year, but inversely scaled such that larger numbers indicate more quarters. In this simulation, we have set the true effect of education on wages--$E \rightarrow W$--to be zero. Any univariate association is through the coufounding variable $U$. Also, $Q$ has no direct effect on $W$ or $U$, but it does have a causal relation with $E$, which is $Q \rightarrow E \leftarrow U$. First we fit the univariable model corresponding to $E \rightarrow W$.
+$Q$ in this context is like quarter in the school year, but inversely scaled such that larger numbers indicate more quarters. In this simulation, we have set the true effect of education on wages--$E \rightarrow W$--to be zero. Any univariate association is through the confounding variable $U$. Also, $Q$ has no direct effect on $W$ or $U$, but it does have a causal relation with $E$, which is $Q \rightarrow E \leftarrow U$. First we fit the univariable model corresponding to $E \rightarrow W$.
 
 ```{r}
 b14.4 <-
@@ -810,16 +805,16 @@ print(b14.5)
 
 Holy smokes that's a mess. This model suggests both $E$ and $Q$ have moderate to strong causal effects on $W$, even though we know neither do based on the true data-generating model. Like McElreath said, "bad stuff happens" when we condition on an instrumental variable this way.
 
-> There is no backdoor path through $Q$, as you can see. But there is a non-causal path from $Q$ to $W$ through $U$: $Q \rightarrow E \leftarrow U \rightarrow W$. This is a non-causal path, because changing $Q$ doesn't result in any change in W through this path. But since we are conditioning on $E$ in the same model, and $E$ is a collider of $Q$ and $U$, the non-causal path is open. This confounds the coefficient on $Q$. It won’t be zero, because it'll pick up the association between $U$ and $W$. And then, as a result, the coefficient on $E$ can get even more confounded. Used this way, an instrument like $Q$ might be called a **bias amplifier**. (p. 456, **emphasis** in the original)
+> There is no backdoor path through $Q$, as you can see. But there is a non-causal path from $Q$ to $W$ through $U$: $Q \rightarrow E \leftarrow U \rightarrow W$. This is a non-causal path, because changing $Q$ doesn't result in any change in $W$ through this path. But since we are conditioning on $E$ in the same model, and $E$ is a collider of $Q$ and $U$, the non-causal path is open. This confounds the coefficient on $Q$. It won't be zero, because it'll pick up the association between $U$ and $W$. And then, as a result, the coefficient on $E$ can get even more confounded. Used this way, an instrument like $Q$ might be called a **bias amplifier**. (p. 456, **emphasis** in the original)
 
 The statistical solution to this mess is to express the data-generating DAG as a multivariate statistical model following the form
 
 \begin{align*}
-\begin{bmatrix} W_i \\ E_i \end{bmatrix} & \sim \operatorname{MVNormal} \begin{pmatrix} \begin{bmatrix} \mu_{\text W,i} \\ \mu_{\text E,i} \end{bmatrix}, \mathbf S \end{pmatrix} \\
+\begin{bmatrix} W_i \\ E_i \end{bmatrix} & \sim \operatorname{MVNormal} \begin{pmatrix} \begin{bmatrix} \mu_{\text W,i} \\ \mu_{\text E,i} \end{bmatrix}, \color{#A65141}{\mathbf \Sigma} \end{pmatrix} \\
 \mu_{\text W,i} & = \alpha_\text W + \beta_\text{EW} E_i \\
 \mu_{\text E,i} & = \alpha_\text E + \beta_\text{QE} Q_i \\
-\mathbf S & = \begin{bmatrix} \sigma_\text W & 0 \\ 0  & \sigma_\text E \end{bmatrix} \mathbf R \begin{bmatrix} \sigma_\text W & 0 \\ 0  & \sigma_\text E \end{bmatrix} \\
-\mathbf R & = \begin{bmatrix} 1 & \rho \\ \rho & 1 \end{bmatrix} \\
+\color{#A65141}{\mathbf\Sigma} & \color{#A65141}= \color{#A65141}{\begin{bmatrix} \sigma_\text W & 0 \\ 0  & \sigma_\text E \end{bmatrix} \mathbf R \begin{bmatrix} \sigma_\text W & 0 \\ 0  & \sigma_\text E \end{bmatrix}} \\
+\color{#A65141}{\mathbf R} & \color{#A65141}= \color{#A65141}{\begin{bmatrix} 1 & \rho \\ \rho & 1 \end{bmatrix}} \\
 \alpha_\text W \text{ and } \alpha_\text E & \sim \operatorname{Normal}(0, 0.2) \\
 \beta_\text{EW} \text{ and } \beta_\text{QE} & \sim \operatorname{Normal}(0, 0.5) \\
 \sigma_\text W \text{ and } \sigma_\text E & \sim \operatorname{Exponential}(1) \\
@@ -828,7 +823,7 @@ The statistical solution to this mess is to express the data-generating DAG as a
 
 You might not remember, but we've actually fit a model like this before. It was `b5.3_A` from way back in [Section 5.1.5.3][Counterfactual plots.]. The big difference between that earlier model and this one is whereas the former did not include a residual correlation, $\rho$, this one will. Thus, this time we will make sure to set `set_rescor(TRUE)` in the `formula`. Within **brms** parlance, priors for residual correlations are of `class = rescor`.
 
-```{r}
+```{r b14.6}
 e_model <- bf(e ~ 1 + q)
 w_model <- bf(w ~ 1 + e)
 
@@ -857,7 +852,7 @@ b14.6 <-
 print(b14.6)
 ```
 
-Now the parameter for $E \rightarrow W$, `w_e`, is just where it should be--near zero. The residual correlation between $E$ and $Q$ is positive and large in magnitude, indicating their common influence from the unmeasured variable $U$. Next we'll take McElreath's direction to "adjust the simulation and try other scenarios" (p. 459) by adjusting the causal relations, as in his **R** code 14.28.
+Now the parameter for $E \rightarrow W$, `w_e`, is just where it should be--near zero. The residual correlation between $E$ and $Q$, `rescor(e,w)`, is positive and large in magnitude, indicating their common influence from the unmeasured variable $U$. Next we'll take McElreath's direction to "adjust the simulation and try other scenarios" (p. 459) by adjusting the causal relations, as in his **R** code 14.28.
 
 ```{r}
 set.seed(73) 
@@ -948,11 +943,15 @@ instrumentalVariables(dagIV, exposure = "E", outcome = "W")
 >
 > In general, it is not possible to statistically prove whether a variable is a good instrument. As always, we need scientific knowledge outside of the data to make sense of the data. (p. 460)
 
+#### Rethinking: Two-stage worst squares. 
+
+"The instrumental variable model is often discussed with an estimation procedure known as **two-stage least squares** (2SLS)" (p. 460, **emphasis** in the original). For a nice introduction to instrumental variables via 2SLS, see this [practical introduction](https://evalf20.classes.andrewheiss.com/example/iv/), and also the [slides and video-lecture files](https://evalf20.classes.andrewheiss.com/content/11-content/), from the great [Andrew Heiss](https://twitter.com/andrewheiss).
+
 ### Other designs.
 
-> There are potentially many ways to find natural experiments. Not all of them are strictly instrumental variables. But they can provide theoretically correct designs for causal inference, if you can believe the assumptions. Let’s consider two more.
+> There are potentially many ways to find natural experiments. Not all of them are strictly instrumental variables. But they can provide theoretically correct designs for causal inference, if you can believe the assumptions. Let's consider two more.
 >
-> In addition to the backdoor criterion you met in Chapter 6, there is something called the **front-door criterion**. (p. 460, **emphasis** in the original)
+> In addition to the backdoor criterion you met in [Chapter 6][The Haunted DAG & The Causal Terror], there is something called the **front-door criterion**. (p. 460, **emphasis** in the original)
 
 To get a sense of the front-door criterion, consider the following DAG with observed variables $X$, $Y$, and $Z$ and an unobserved variable, $U$.
 
@@ -978,9 +977,9 @@ dagify(X ~ U,
 
 > We are interested, as usual, in the causal influence of $X$ on $Y$. But there is an unobserved confound $U$, again as usual. It turns out that, if we can find a perfect mediator $Z$, then we can possibly estimate the causal effect of $X$ on $Y$. It isn't crazy to think that causes are mediated by other causes. Everything has a mechanism. $Z$ in the DAG above is such a mechanism. If you have a believable $Z$ variable, then the causal effect of $X$ on $Y$ is estimated by expressing the generative model as a statistical model, similar to the instrumental variable example before. (p. 461)
 
-McElreath's second example is the **regression discontinuity** approach. If you have a time series where the variable of interest is measured before and after some relevant intervention variable, you can estimate intercepts and slopes before and after the intervention, the cuttoff. However,
+McElreath's second example is the **regression discontinuity** approach. If you have a time series where the variable of interest is measured before and after some relevant intervention variable, you can estimate intercepts and slopes before and after the intervention, the cutoff. However,
 
-> in practice, one trend is fit for individuals above the cutoff and another to those below the cutoff. Then an estimate of the causal effect is the average difference between individuals just above and just below the cutoff. While the difference near the cuttoff if of interest, the entire function influences this difference. So some care is needed in choosing functions for the overall relationship between the exposure and the outcome. (p. 461)
+> in practice, one trend is fit for individuals above the cutoff and another to those below the cutoff. Then an estimate of the causal effect is the average difference between individuals just above and just below the cutoff. While the difference near the cuttoff is of interest, the entire function influences this difference. So some care is needed in choosing functions for the overall relationship between the exposure and the outcome. (p. 461)
 
 McElreath's not kidding about the need for care when fitting regression discontinuity models. Gleman's blog is littered with awful examples (e.g., [here](https://statmodeling.stat.columbia.edu/2019/06/25/another-regression-discontinuity-disaster-and-what-can-we-learn-from-it/), [here](https://statmodeling.stat.columbia.edu/2018/08/02/38160/), [here](https://statmodeling.stat.columbia.edu/2020/07/02/no-i-dont-believe-that-claim-based-on-regression-discontinuity-analysis-that/), [here](https://statmodeling.stat.columbia.edu/2020/01/13/how-to-get-out-of-the-credulity-rut-regression-discontinuity-edition-getting-beyond-whack-a-mole/), [here](https://statmodeling.stat.columbia.edu/2020/07/18/please-socially-distance-me-from-this-regression-model/)). See also Gelman and Imbens' [-@gelmanWhyHighorderPolynomials2019] paper, [*Why high-order polynomials should not be used in regression discontinuity designs*](https://amstat.tandfonline.com/doi/pdf/10.1080/07350015.2017.1366909?needAccess=true).
 
@@ -1274,7 +1273,7 @@ colnames(d_mat) <- c("Ml", "Ti", "SC", "Ya", "Fi", "Tr", "Ch", "Mn", "To", "Ha")
 round(d_mat, 1)
 ```
 
-If you wanted to use color to more effectively visualize the values in the matirx, you might do something like this.
+If you wanted to use color to more effectively visualize the values in the matrix, you might do something like this.
 
 ```{r, fig.height = 2.5, fig.width = 5.5}
 d_mat %>%
@@ -1328,7 +1327,7 @@ rm(Kline2)
 d %>% glimpse()
 ```
 
-`r emo::ji("wave")` **Heads up**: The **brms** package is capable of handling a variety of Gaussian process models using the `gp()` function. As we will see throughout this section, this method will depart in important ways from how McElreath fits Gaussian process models with **rethinking**. Due in large part to these differences, this section and its analogue in the first edition of *Statistical Rethinking* [@mcelreathStatisticalRethinkingBayesian2015] baffled me, at first. Happily, fellow enthusiasts [Louis Bliard](https://twitter.com/LBliard) and [Richard Torkar](https://twitter.com/rtorkar) reached out and helped me hammer this section out behind the scenes. The method to follow is due in large part to their efforts. `r emo::ji("handshake")`
+`r emo::ji("wave")` **Heads up**: The **brms** package is capable of handling a variety of Gaussian process models using the `gp()` function. As we will see throughout this section, this method will depart in important ways from how McElreath fits Gaussian process models with **rethinking**. Due in large part to these differences, this section and its analogue in the first edition of *Statistical rethinking* [@mcelreathStatisticalRethinkingBayesian2015] baffled me, at first. Happily, fellow enthusiasts [Louis Bliard](https://twitter.com/LBliard) and [Richard Torkar](https://twitter.com/rtorkar) reached out and helped me hammer this section out behind the scenes. The method to follow is due in large part to their efforts. `r emo::ji("handshake")`
 
 The `brms::gp()` function takes a handful of arguments. The first and most important argument, `...`, accepts the names of one or more predictors from the data. When fitting a spatial Gaussian process of this kind, we'll enter in the latitude and longitude data for each of levels of `culture`. This will be an important departure from the text. For his `m14.8`, McElreath directly entered in the `Dmat` distance matrix data into `ulam()`. In so doing, he defined $D_{ij}$, the matrix of distances between each of the societies. When using **brms**, we instead *estimate* the distance matrix from the latitude and longitude variables.
 
@@ -1930,8 +1929,7 @@ dagify(G ~ U + M,
 **Phylogenetic regression** models, which "use some function of phylogenetic distance to model the covariation among species" (p. 478) attempt to grapple with all this. To see how, load the primates data and its phylogeny [see @streetCoevolutionCulturalIntelligence2017].
 
 ```{r}
-library(rethinking) 
-data(Primates301) 
+data(Primates301, package = "rethinking") 
 data(Primates301_nex)
 ```
 
@@ -1962,7 +1960,7 @@ glimpse(d)
 
 Our first model, which we might call the naïve model, explores the conditional relations of $\log(\text{body mass})$ and $\log(\text{group size})$ on $\log(\text{brain size})$ without accounting for phylogenetic relationships.
 
-```{r}
+```{r b14.9}
 b14.9 <-
   brm(data = d,
       family = gaussian,
@@ -2290,8 +2288,11 @@ You may have noticed my statistical notation differs a bit from McElreath's, her
 
 Here is how to fit our simple multilevel growth model with **brms**.
 
+```{r, echo = F, eval = F}
+# 4.775435 mins
+```
+
 ```{r b14.12}
-# 5.583446 mins
 b14.12 <-
   brm(data = dat,
       family = gaussian,
@@ -2390,11 +2391,15 @@ To get a sense of what this looks like, we'll augment our previous model, but th
 \mathbf R & = \begin{bmatrix} 1 & \rho_{12} & \rho_{13} \\ \rho_{21} & 1 & \rho_{23} \\ \rho_{31} & \rho_{32} & 1 \end{bmatrix} \\
 \beta_0   & \sim \operatorname{Normal}(0, 0.2) \\
 \beta_1 \text{and } \eta_0 & \sim \operatorname{Normal}(0, 1) \\
-\sigma_0,..., \sigma_2     & \sim \operatorname{Exponential}(1) \\
+\sigma_0,\dots, \sigma_2     & \sim \operatorname{Exponential}(1) \\
 \mathbf R & \sim \operatorname{LKJ}(2).
 \end{align*}
 
-In the opening likelihood statement from the prior model, we simply set $\text{NA}_{ij} \sim \operatorname{Normal}\begin{pmatrix} \mu_{ij}, \sigma \end{pmatrix}$. For our first MELSM, we now refer to $\sigma_i$, meaning the levels of variation not accounted for by the mean structure can vary across participants (hence the $i$ subscript). Two lines down, we see the formula for $\log \begin{pmatrix} \sigma_i \end{pmatrix}$ contains population-level intercept, $\eta_0$, and participant-specific deviations around that parameter, $u_{2i}$. In the next three lines, the plot deepens. We see that all three participant-level deviations, $u_{0i},...,u_{2i}$ are multivariate normal with means set to zero and variation expressed in the parameters $\sigma_0,...,\sigma_2$ of the $\mathbf S$ matrix. In the $\mathbf R$ matrix, we now have three correlation parameters, with $\rho_{31}$ and $\rho_{32}$ allowing us to assess the correlations among individual differences in variability and individual differences in starting points and change over time, respectively. Let's fit the model.
+In the opening likelihood statement from the prior model, we simply set $\text{NA}_{ij} \sim \operatorname{Normal}\begin{pmatrix} \mu_{ij}, \sigma \end{pmatrix}$. For our first MELSM, we now refer to $\sigma_i$, meaning the levels of variation not accounted for by the mean structure can vary across participants (hence the $i$ subscript). Two lines down, we see the formula for $\log \begin{pmatrix} \sigma_i \end{pmatrix}$ contains population-level intercept, $\eta_0$, and participant-specific deviations around that parameter, $u_{2i}$. In the next three lines, the plot deepens. We see that all three participant-level deviations, $u_{0i},\dots,u_{2i}$ are multivariate normal with means set to zero and variation expressed in the parameters $\sigma_0,\dots,\sigma_2$ of the $\mathbf S$ matrix. In the $\mathbf R$ matrix, we now have three correlation parameters, with $\rho_{31}$ and $\rho_{32}$ allowing us to assess the correlations among individual differences in variability and individual differences in starting points and change over time, respectively. Let's fit the model.
+
+```{r, echo = F, eval = F}
+# 55.00394 mins
+```
 
 ```{r b14.13}
 b14.13 <-
@@ -2415,7 +2420,7 @@ b14.13 <-
       file = "fits/b14.13")
 ```
 
-We should note a few things about the `brm()` syntax. First, because we modeled both $\mu_{ij}$ and $\sigma_i$, we nested both model formulas within the `bf()` function. Second, because the **brms** default is to use the log link when modeling $\sigma_i$, there was no need to explicitly set it that wah in the `family` line. However, we could have if we wanted to. Third, notice our use of the `|i|` syntax within the parentheses in the `formula` lines. If we had used the conventional `|` syntax, that would have not allowed our $u_{2i}$ parameters to correlate with $u_{0i}$ and $u_{1i}$ from the mean structure. It would have effectively set $\rho_{31} = \rho_{32} = 0$. Finally, notice how within the `prior()` functions, we explicitly referred to those for the new $\sigma$ structure with the `dpar = sigma` operator.
+We should note a few things about the `brm()` syntax. First, because we modeled both $\mu_{ij}$ and $\sigma_i$, we nested both model formulas within the `bf()` function. Second, because the **brms** default is to use the log link when modeling $\sigma_i$, there was no need to explicitly set it that way in the `family` line. However, we could have if we wanted to. Third, notice our use of the `|i|` syntax within the parentheses in the `formula` lines. If we had used the conventional `|` syntax, that would have not allowed our $u_{2i}$ parameters to correlate with $u_{0i}$ and $u_{1i}$ from the mean structure. It would have effectively set $\rho_{31} = \rho_{32} = 0$. Finally, notice how within the `prior()` functions, we explicitly referred to those for the new $\sigma$ structure with the `dpar = sigma` operator.
 
 Okay, time to check the model summary.
 
@@ -2488,11 +2493,15 @@ That's a big improvement. Let's expand our skill set. Within the MELSM paradigm,
 \mathbf R & = \begin{bmatrix} 1 & \rho_{12} & \rho_{13} & \rho_{14} \\ \rho_{21} & 1 & \rho_{23} & \rho_{24} \\ \rho_{31} & \rho_{32} & 1 & \rho_{34} \\ \rho_{41} & \rho_{42} & \rho_{43} & 1 \end{bmatrix} \\
 \beta_0   & \sim \operatorname{Normal}(0, 0.2) \\
 \beta_1, \eta_0, \text{and } \eta_1 & \sim \operatorname{Normal}(0, 1) \\
-\sigma_0,..., \sigma_3 & \sim \operatorname{Exponential}(1) \\
+\sigma_0,\dots, \sigma_3 & \sim \operatorname{Exponential}(1) \\
 \mathbf R & \sim \operatorname{LKJ}(2).
 \end{align*}
 
 Note how in the very first line we are now speaking in terms of $\sigma_{ij}$. Variation in the criterion $\text{NA}_{ij}$ not accounted for by the mean structure can now vary across participants, $i$, and time, $j$. This results in four $u_{xi}$ terms, a $4 \times 4$ $\mathbf S$ matrix and a $4 \times 4$ $\mathbf R$ matrix. Here's how you might fit the model with `brms::brm()`. **Warning**: it'll probably take a couple hours.
+
+```{r, echo = F, eval = F}
+# 1.858795 hours
+```
 
 ```{r b14.14}
 b14.14 <-
@@ -2546,7 +2555,7 @@ Note how we attached the statistical terms from the lower triangle of the $\math
 ```{r}
 levels <- c("beta[0]", "beta[1]", "eta[0]", "eta[1]")
 
-r <-
+rho <-
   posterior_summary(b14.14) %>% 
   data.frame() %>% 
   rownames_to_column("param") %>% 
@@ -2569,13 +2578,13 @@ r <-
          right = factor(right, levels = levels)) %>%
   mutate(right = fct_rev(right))
 
-r
+rho
 ```
 
 Note how instead of naming the correlations in terms of $\rho_{xx}$, we are now referring to them as the correlations of the deviations among the population parameters, $\beta_0$ through $\eta_1$. I'm hoping this will make sense in the plot. Here it is.
 
 ```{r, fig.width = 3.5, fig.height = 3.25}
-r %>% 
+rho %>% 
   ggplot(aes(x = left, y = right)) +
   geom_tile(aes(fill = Estimate)) +
   geom_text(aes(label = label),
@@ -2631,7 +2640,7 @@ With respect to $\rho_{31}$, participant 115 showed both a higher intercept and 
 ### Time to go multivariate.
 
 For our final stage in this progression, we will fit what @williamsBayesianMultivariateMixedeffects2019a called a M-MELSM, a multivariate mixed-effects location scale model. Recall these data have measures of both negative and positive affect. The standardized values for PA are waiting for us in the `P_A.std` column. Within the **brms** framework, this is a combination of sensibilities from Bürkner's vignettes on distributional models [@Bürkner2020Distributional] and multivariate models [@Bürkner2020Multivariate]. We might express the statistical model as
-
+$$
 \begin{align*}
 \color{#A65141}{\begin{bmatrix} \text{NA}_{ij} \\ \text{PA}_{ij} \end{bmatrix}} & \color{#A65141}\sim \color{#A65141}{\operatorname{MVNormal}\begin{pmatrix} \begin{bmatrix} 
 \mu_{ij}^\text{NA} \\ \mu_{ij}^\text{PA} \end{bmatrix}, \mathbf \Sigma \end{pmatrix}} \\
@@ -2658,15 +2667,15 @@ For our final stage in this progression, we will fit what @williamsBayesianMulti
 
 \beta_0^\text{NA} \text{ and } \beta_0^\text{PA} & \sim \operatorname{Normal}(0, 0.2) \\
 \beta_1^\text{NA} \text{ and } \beta_1^\text{PA} & \sim \operatorname{Normal}(0, 1) \\
-\eta_0^\text{NA},..., \eta_1^\text{PA} & \sim \operatorname{Normal}(0, 1) \\
-\sigma_0^\text{NA},..., \sigma_1^\text{PA} & \sim \operatorname{Exponential}(1) \\
+\eta_0^\text{NA},\dots, \eta_1^\text{PA} & \sim \operatorname{Normal}(0, 1) \\
+\sigma_0^\text{NA},\dots, \sigma_1^\text{PA} & \sim \operatorname{Exponential}(1) \\
 \mathbf R & \sim \operatorname{LKJ}(2),
 \end{align*}
-
-where the $\text{NA}$ and $\text{PA}$ superscripts indicate which variable is connected with which parameter. This is a straight multivariate generalization from the previous model, `b14.14`. Now we have eight parameters varying across participants, resulting in an $8 \times 8$ $\mathbf S$ matrix and an $8 \times 8$ $\mathbf R$ matrix. Here's the `brms::brm()` code. 
+$$
+where the $\text{NA}$ and $\text{PA}$ superscripts indicate which variable is connected with which parameter. This is a straight multivariate generalization from the previous model, `b14.14`. Now we have eight parameters varying across participants, resulting in an $8 \times 8$ $\mathbf S$ matrix and an $8 \times 8$ $\mathbf R$ matrix. Here's the `brms::brm()` code.
 
 ```{r, eval = F, echo = F}
-# takes 3.460296 hours
+# 4.100232 hours
 ```
 
 ```{r b14.15}
@@ -2713,7 +2722,7 @@ levels <- c("beta[0]^'NA'", "beta[1]^'NA'", "eta[0]^'NA'", "eta[1]^'NA'",
 # levels <- c("beta[0]^'NA'", "beta[1]^'NA'", "beta[0]^'PA'", "beta[1]^'PA'", "eta[0]^'NA'", "eta[1]^'NA'", "eta[0]^'PA'", "eta[1]^'PA'")
 # levels <- c("beta[0]^'NA'", "beta[0]^'PA'", "beta[1]^'NA'", "beta[1]^'PA'","eta[0]^'NA'", "eta[0]^'PA'", "eta[1]^'NA'", "eta[1]^'PA'")
 
-r <-
+rho <-
   posterior_summary(b14.15) %>% 
   data.frame() %>% 
   rownames_to_column("param") %>% 
@@ -2747,20 +2756,20 @@ r <-
          right = factor(right, levels = levels)) %>% 
   mutate(right = fct_rev(right))
 
-r %>% head()
+rho %>% head()
 ```
       
 Now we plot!
 
 ```{r, echo = F, eval = F}
-# Easter egg for the super nerds
+# Easter egg for the super nerds:
 # 
 # The color I used for the low end of the fill gradient, "#59708b", is not technically part of the `dutchmasters$pearl_earring` color palette. Originally, I wanted to use "#80A0C7", which is part of that palette. The difficulty, however, is the red used for the high end of the fill gradient has a lower lightness value, making the gradient look unbalanced. You can compare the stats for the red at https://www.color-hex.com/color/a65141 to the stats for blue at https://color-hex.org/color/80a0c7. Based on the aforementioned website for the blue color, the HEX color "#59708b" is two shades darker and, importantly, has the same lightness value as the red (see https://www.color-hex.com/color/606683).
 ```
 
 ```{r, fig.width = 6.25, fig.height = 5.25}
-r %>% 
-  full_join(rename(r, right = left, left = right),
+rho %>% 
+  full_join(rename(rho, right = left, left = right),
             by = c("left", "right", "Estimate", "Est.Error", "Q2.5", "Q97.5", "label")) %>%
   
   ggplot(aes(x = left, y = right)) +
@@ -2787,15 +2796,15 @@ To my eye, a few things pop out. First, the correlations within `N_A.std` are ge
 
 #### Plot with uncertainty.
 
-As fond as I am with that last correlation plot, it has a glaring defect: there is no expression of uncertainty. Sometimes we express uncertainty with percentile-based intervals. Other times we do so with marginal densities. But the correlation plots only describe the marginal posteriors for all the $\rho$ parameters with their means--no uncertainty. If you have one or a small few correlations to plot, coefficient or density plots might do. However, they don't scale well. If you don't believe me, just try. I'm not sure there are any good solutions to this, but it can be helpful to at least try grappling with the issue. 
+As fond as I am with that last correlation plot, it has a glaring defect: there is no expression of uncertainty. Sometimes we express uncertainty with percentile-based intervals. Other times we do so with marginal densities. But the correlation plots only describe the marginal posteriors for all the $\rho$ parameters with their means--no uncertainty. If you have one or a small few correlations to plot, coefficient or density plots might do. However, they don't scale well. If you don't believe me, just try. I'm not sure there are any good solutions to this, but it can be helpful to at least try grappling with the issue.
 
-Fortunately for us, [Matthew Kay](https://twitter.com/mjskay) (creator of the [**tidybayes** package](http://mjskay.github.io/tidybayes)) has already tried his hand at a few approaches. For all the deets, check out the [multivariate-regression.md](https://github.com/mjskay/uncertainty-examples/blob/master/multivariate-regression.md) file in his [uncertainty-examples](https://github.com/mjskay/uncertainty-examples) GitHub repo. One of his more imaginative approaches is to use what he calls dithering. Imagine breaking each of the cells in our correlation plot, above, into a $50 \times 50 = 2,500$-cell grid. Now assign each of the cells within that grid one of the values from the HMC draws of that correlation's posterior distribution. Then color code each of those cells by that value in the same basic way we color coded our previous correlation plots. Simultaneously do that for all of the correlations within the $\mathbf R$ matrix and plot them in a faceted plot. That's the essence of the dithering approach. This is all probably hard to make sense of in words. Hopefully it will all come together with a little code and the resulting plot. Hold on to your hat.
+Fortunately for us, [Matthew Kay](https://twitter.com/mjskay) (creator of the [**tidybayes** package](http://mjskay.github.io/tidybayes)) has already tried his hand at a few approaches. For all the deets, check out the [multivariate-regression.md](https://github.com/mjskay/uncertainty-examples/blob/master/multivariate-regression.md) file in his [uncertainty-examples](https://github.com/mjskay/uncertainty-examples) GitHub repo. One of his more imaginative approaches is to use what he calls dithering. Imagine breaking each of the cells in our correlation plot, above, into a $50 \times 50 = 2{,}500$-cell grid. Now assign each of the cells within that grid one of the values from the HMC draws of that correlation's posterior distribution. Then color code each of those cells by that value in the same basic way we color coded our previous correlation plots. Simultaneously do that for all of the correlations within the $\mathbf R$ matrix and plot them in a faceted plot. That's the essence of the dithering approach. This is all probably hard to make sense of in words. Hopefully it will all come together with a little code and the resulting plot. Hold on to your hat.
 
 ```{r, fig.width = 6.25, fig.height = 5.25}
 levels <- c("beta[0]^'NA'", "beta[1]^'NA'", "eta[0]^'NA'", "eta[1]^'NA'",
             "beta[0]^'PA'", "beta[1]^'PA'", "eta[0]^'PA'", "eta[1]^'PA'")
 
-r <-
+rho <-
   posterior_samples(b14.15) %>% 
   select(starts_with("cor_")) %>% 
   sample_n(size = 50 * 50) %>% 
@@ -2828,8 +2837,8 @@ r <-
   mutate(col = factor(col, levels = levels),
          row = factor(row, levels = levels))
 
-r %>% 
-  full_join(rename(r, col = row, row = col),
+rho %>% 
+  full_join(rename(rho, col = row, row = col),
             by = c("x", "y", "col", "row", "value")) %>%
   
   ggplot(aes(x = x, y = y, fill = value)) +
@@ -2862,7 +2871,7 @@ To learn more about the MELSM approach and its extensions, check out
 * Williams' and colleagues' [-@williamsBayesianNonlinearMixedeffects2019a] paper, [*A Bayesian nonlinear mixed-effects location scale model for learning*](https://doi.org/10.3758/s13428-019-01255-9);
 * Williams' tutorial blog post, [*A defining feature of cognitive interference tasks: Heterogeneous within-person variance*](https://donaldrwilliams.github.io/2020/04/04/a-defining-feature-of-cognitive-interference-tasks-heterogeneous-within-person-variance/).
 
-From a **brms** standpoint, it might also be helpful to brush up on 
+From a **brms** standpoint, it might also be helpful to brush up on
 
 * Bürkner's [-@Bürkner2020Distributional] vignette, [*Estimating distributional models with brms*](https://CRAN.R-project.org/package=brms/vignettes/brms_distreg.html) and
 * Bürkner's [-@Bürkner2020Multivariate] vignette, [*Estimating multivariate models with brms*](https://CRAN.R-project.org/package=brms/vignettes/brms_multivariate.html).
@@ -2873,11 +2882,11 @@ From a **brms** standpoint, it might also be helpful to brush up on
 sessionInfo()
 ```
 
-```{r, warning = F, echo = F, eval = F}
-rm()
+```{r, warning = F, echo = F}
+rm(a, b, sigma_a, sigma_b, rho, mu, cov_ab, sigma, sigmas, n_cafes, vary_effects, theme_pearl_earring, n_visits, d, n_sim, r_1, r_2, r_4, text, b14.1, post, partially_pooled_params, un_pooled_params, params, p1, partially_pooled_estimates, un_pooled_estimates, estimates, p2, b14.3, names, nd, dag_coords, theme_pearl_dag, standardize, n, dat_sim, b14.4, b14.5, e_model, w_model, b14.6, b14.4x, b14.6x, dagIV, kl_dyads, kl_dyads, kl_data, m14.7, islandsDistMatrix, d_mat, b14.8, k, tidy_rho, f, b14.8_nb, Primates301, b14.9, spp_obs, tree_trimmed, Rbm, V, Dmat, R, b14.10, dat_list, m14.11, dat, b14.12, b14.13, b14.14, levels, rho, b14.15)
 ```
 
-```{r, echo = F, message = F, warning = F, results = "hide", eval = F}
+```{r, echo = F, message = F, warning = F, results = "hide"}
 ggplot2::theme_set(ggplot2::theme_grey())
 bayesplot::color_scheme_set("blue")
 pacman::p_unload(pacman::p_loaded(), character.only = TRUE)
