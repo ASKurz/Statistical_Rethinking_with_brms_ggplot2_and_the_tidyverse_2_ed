@@ -1,0 +1,432 @@
+---
+title: "Ch. 16 Generalized Linear Madness"
+author: "A Solomon Kurz"
+date: "`r format(Sys.Date())`"
+output:
+  github_document
+bibliography: bib.bib
+biblio-style: apalike
+csl: apa.csl
+link-citations: yes
+---
+
+```{r, echo = F, cache = F}
+knitr::opts_chunk$set(fig.retina = 2.5)
+knitr::opts_chunk$set(fig.align = "center")
+options(width = 110)
+```
+
+# Generalized Linear Madness
+
+> Applied statistics has to apply to all the sciences, and so it is often much vaguer about models. Instead it focuses on average performance, regardless of the model. The generalized linear models in the preceding chapters are not credible scientific models of most natural processes. They are powerful, geocentric ([Chapter 4][Geocentric Models]) descriptions of associations. In combination with a logic of causal inference, for example DAGs and *do*-calculus, generalized linear models can nevertheless be unreasonably powerful.
+>
+> But there are problems with this GLMs-plus-DAGs approach. Not everything can be modeled as a GLM—a linear combination of variables mapped onto a non-linear outcome. But if it is the only approach you know, then you have to use it....
+>
+> In this chapter, I will go **beyond generalized linear madness**. I'll work through examples in which the scientific context provides a causal model that will breathe life into the statistical model. I've chosen examples which are individually distinct and highlight different challenges in developing and translating causal models into *bespoke* (see the Rethinking box below) statistical models. You won't require any specialized scientific expertise to grasp these examples. And the basic strategy is the same as it has been from the start: Define a generative model of a phenomenon and then use that model to design strategies for causal inference and statistical estimation. [@mcelreathStatisticalRethinkingBayesian2020, p. 525, *emphasis* in the original]
+
+#### Rethinking: Bespoken for.
+
+> Mass production has some advantages, but it also makes our clothes fit badly. Garments bought off-the-shelf are not manufactured with you in mind. They are not *bespoke* products, designed for any particular person with a particular body. Unless you are lucky to have a perfectly average body shape, you will need a tailor to get better.
+> 
+> Statistical analyses are similar. Generalized linear models are off-the-shelf products, mass produced for a consumer market of impatient researchers with diverse goals. Science asked statisticians for tools that could be used anywhere. And so they delivered. But the clothes don't always fit. (p. 526, *emphasis* in the original)
+
+## 16.1. Geometric people
+
+> Back in [Chapter 4][Geocentric Models], you met linear regression in the context of building a predictive model of height using weight. You even saw how to measure non-linear associations between the two variables. But nothing in that example was scientifically satisfying. The height-weight model was just a statistical device. It contains no biological information and tells us nothing about how the association between height and weight arises. Consider for example that weight obviously does not *cause* height, at least not in humans. If anything, the causal relationship is the reverse.
+>
+> So now let's try to do better. Why? Because when the model is scientifically inspired, rather than just statistically required, disagreements between model and data are informative of real causal relationships.
+>
+> Suppose for example that a person is shaped like a cylinder. Of course a person isn't exactly shaped like a cylinder. There are arms and a head. But let's see how far this cylinder model gets us. The weight of the cylinder is a consequence of the volume of the cylinder. And the volume of the cylinder is a consequence of growth in the height and width of the cylinder. So if we can relate the height to the volume, then we’d have a model to predict weight from height. (p. 526, *emphasis* in the original)
+
+### 16.1.1. The scientific model.
+
+If we let $V$ stand for volume, $r$ stand for a radius, and $h$ stand for height, we can solve for volume by
+
+$$V = \pi r^2 h.$$
+If we further presume a person's radius is unknown, but some proportion ($p$) of height ($ph$), we can rewrite the formula as 
+
+$$
+\begin{align*}
+V & = \pi (ph)^2 h \\
+  & = \pi p^2 h^3.
+\end{align*}
+$$
+Though we're not interested in volume per se, we might presume weight is some proportion of volume. Thus we could include a final parameter $k$ to stand for the conversion form weight to volume, leaving us with the formula
+
+$$W = kV = k \pi p^2 h^3,$$
+where $W$ denotes weight.
+
+### 16.1.2. The statistical model. 
+
+```{r}
+library(tidyverse)
+data(Howell1, package = "rethinking")
+d <- Howell1
+rm(Howell1)
+
+# scale observed variables
+d <-
+  d %>% 
+  mutate(w = weight / mean(weight),
+         h = height / mean(height))
+```
+
+McElreath's proposed statistical model follows the form
+
+$$
+\begin{align*}
+\text{w}_i  & \sim \operatorname{Log-Normal}(\mu_i, \sigma) \\
+\exp(\mu_i) & = k \pi p^2 \text{h}_i^3 \\
+k      & \sim \operatorname{Exponential}(0.5) \\
+p      & \sim \operatorname{Beta}(2, 18) \\
+\sigma & \sim \operatorname{Exponential}(1), && \text{where} \\
+\text w_i & = \text{weight}_i / \overline{\text{weight}} && \text{and} \\
+\text h_i & = \text{height}_i / \overline{\text{height}}.
+\end{align*}
+$$
+
+The Log-Normal likelihood ensures the predictions for $\text{weight}_i$ will always be non-negative. Because our parameter $p$ is the ratio of radius to height, $p = r / h$, it must be positive. Since people are typically taller than their width, it should also be less than one, and probably substantially less than that. Here's a look at our priors.
+
+```{r}
+library(ggthemes)
+
+theme_set(
+  theme_base(base_size = 12) +
+    theme(axis.ticks = element_line(size = 0.25),
+          axis.ticks.length = unit(0.1, "cm"),
+          panel.background = element_rect(size = 0.1),
+          plot.background = element_blank(),
+          )
+  )
+```
+
+
+```{r}
+library(tidybayes)
+library(brms)
+
+c(prior(beta(2, 18), nlpar = p, coef = italic(p)),
+  prior(exponential(0.5), nlpar = p, coef = italic(k)),
+  prior(exponential(1), class = sigma, coef = sigma)) %>% 
+  
+  parse_dist(prior) %>%
+  
+  ggplot(aes(y = 0, dist = .dist, args = .args)) +
+  stat_dist_halfeye(.width = .5, size = 1, p_limits = c(0, 0.9995),
+                    n = 2e3, normalize = "xy") +
+  scale_y_continuous(NULL, breaks = NULL) +
+  xlab(expression(theta)) +
+  facet_wrap(~coef, scales = "free_x", labeller = label_parsed)
+```
+
+Here the points are the posterior medians and the horizontal lines the 50% intervals. Turns out that $\operatorname{Beta}(2, 18)$ prior for $p$ pushes the bulk of the prior mass down by zero. The beta distribution also forces the parameter space for $p$ to range between 0 and 1. If we denote the two parameters of the beta distribution as $\alpha$ and $beta$, we can compute the mean for any beta distribution as $\alpha / (\alpha + \beta)$. Thus the mean for our $\operatorname{Beta}(2, 18)$ prior is $2 / (2 + 18) = 2 / 20 = 0.1$. 
+
+Because we computed our weight and height variables, `w` and `h`, by dividing the original variables by their respective means, each now has a mean of 1.
+
+```{r, message = F}
+d %>% 
+  pivot_longer(w:h) %>% 
+  group_by(name) %>% 
+  summarise(mean = mean(value))
+```
+
+Here's their bivaraite distribution in a scatter plot.
+
+```{r}
+d %>% 
+  ggplot(aes(x = h, y = w)) +
+  geom_vline(xintercept = 1, linetype = 2, color = "grey50") +
+  geom_hline(yintercept = 1, linetype = 2, color = "grey50") +
+  geom_point(size = 1/4)
+```
+
+With this scaling, here is the formula for an individual with average weight and height:
+
+$$
+\begin{align*}
+1 & = k \pi p^2 1^3 \\
+  & = k \pi p^2.
+\end{align*}
+$$
+
+If you assume $p < .5$, $k$ must be greater than 1. $k$ also has to be positive. To get a sense of this, we can further work the algebra:
+
+$$
+\begin{align*}
+1 & = k \pi p^2 \\
+1/k  & = \pi p^2 \\
+k  & = 1 / \pi p^2.
+\end{align*}
+$$
+
+To get a better sense of that relation, we might plot.
+
+```{r}
+tibble(p = seq(from = 0.001, to = 0.499, by = 0.001)) %>% 
+  mutate(k = 1 / (pi * p^2)) %>% 
+  ggplot(aes(x = p, y = k)) +
+  geom_line() +
+  labs(x = expression(italic(p)),
+       y = expression(italic(k))) +
+  coord_cartesian(ylim = c(0, 500))
+```
+
+McElreath's quick and dirty solution was to set $k \sim \operatorname{Exponential}(0.5)$, which has a prior predictive mean of 2.  
+
+By setting up his model formula as `exp(mu) = ...`, McElreath effectively used the log link. It turns out that **brms** only supports the `identity` and `inverse` links for `family = lognormal`. However, we can sneak in the log link by nesting the right-hand side of the formula within `log()`.
+
+```{r b16.1}
+b16.1 <- 
+  brm(data = d,
+      family = lognormal,
+      bf(w ~ log(3.141593 * k * p^2 * h^3),
+         k + p ~ 1,
+         nl = TRUE),
+      prior = c(prior(beta(2, 18), nlpar = p, lb = 0, ub = 1),
+                prior(exponential(0.5), nlpar = k, lb = 0),
+                prior(exponential(1), class = sigma)),
+      iter = 2000, warmup = 1000, chains = 4, cores = 4,
+      seed = 16)
+```
+
+Check the parameter summary.
+
+```{r}
+print(b16.1)
+```
+
+McElreath didn't show the parameter summary for his `m16.1` in the text. If you fit the model with both **rethinking** and **brms**, you'll see our `b16.1` matches up quite well. To make our version of Figure 16.2, we'll use a `GGally::ggpairs()` workflow.
+
+```{r}
+my_lower <- function(data, mapping, ...) {
+  
+  # get the x and y data to use the other code
+  x <- eval_data_col(data, mapping$x)
+  y <- eval_data_col(data, mapping$y)
+  
+  # compute the correlations
+  corr <- cor(x, y, method = "p", use = "pairwise")
+  abs_corr <- abs(corr)
+  
+  # plot the cor value
+  ggally_text(
+    label = formatC(corr, digits = 2, format = "f") %>% str_replace(., "0.", "."),
+    mapping = aes(),
+    size = 3.5, 
+    color = "black") +
+    scale_x_continuous(NULL, breaks = NULL) +
+    scale_y_continuous(NULL, breaks = NULL)
+}
+
+my_diag <- function(data, mapping, ...) {
+  ggplot(data = data, mapping = mapping) + 
+    geom_histogram(size = 1/4, color = "white", fill = "grey67", bins = 20) +
+    scale_x_continuous(NULL, breaks = NULL) +
+    scale_y_continuous(NULL, breaks = NULL)
+}
+
+my_upper <- function(data, mapping, ...) {
+  ggplot(data = data, mapping = mapping) + 
+    geom_point(size = 1/4, alpha = 1/4) +
+    scale_x_continuous(NULL, breaks = NULL) +
+    scale_y_continuous(NULL, breaks = NULL)
+}
+```
+
+Figure 16.2.a.
+
+```{r}
+library(GGally)
+
+delta_labels <- c("Elem", "MidSch", "SHS", "HSG", "SCol", "Bach", "Mast", "Grad")
+
+posterior_samples(b16.1) %>% 
+  select(-lp__) %>% 
+  set_names(c("italic(k)", "italic(p)", "sigma")) %>% 
+  ggpairs(upper = list(continuous = my_upper),
+          diag = list(continuous = my_diag),
+          lower = list(continuous = my_lower),
+          labeller = label_parsed) +
+  theme(strip.text = element_text(size = 8),
+        strip.text.y = element_text(angle = 0))
+```
+
+We see the lack of identifiability of $k$ and $p$ resulted in a strong inverse relation between them. Now here's how we might make Figure 16.2.b.
+
+```{r}
+nd <- 
+  tibble(h = seq(from = 0, to = 1.5, length.out = 50))
+
+p <-
+  predict(b16.1,
+          newdata = nd) %>% 
+  data.frame() %>% 
+  bind_cols(nd)
+
+d %>% 
+  ggplot(aes(x = h)) +
+  geom_smooth(data = p,
+              aes(y = Estimate, ymin = Q2.5, ymax = Q97.5),
+              stat = "identity",
+              fill = "grey76", color = "black", size = 1/4) +
+  geom_point(aes(y = w),
+             size = 1/3) +
+  coord_cartesian(xlim = c(0, max(d$h)),
+                  ylim = c(0, max(d$w))) +
+  labs(x = "height (scaled)",
+       y = "weight (scaled)")
+```
+
+Overall the model did okay, but the poor fit for the cases with lower values of height and weight suggests we might be missing important differences between children and adults.
+
+### 16.1.3. GLM in disguise.
+
+Recall that because **brms** does not support the log link for the Log-Normal likelihood, we recast our `b16.1` likelihood as
+
+$$
+\begin{align*}
+\text{w}_i & \sim \operatorname{Log-Normal}(\mu_i, \sigma) \\
+\mu_i      & = \log(k \pi p^2 \text{h}_i^3).
+\end{align*}
+$$
+Because multiplication becomes addition on the log scale, we can also express this as
+
+$$
+\begin{align*}
+\text{w}_i & \sim \operatorname{Log-Normal}(\mu_i, \sigma) \\
+\mu_i      & = \log(k) + \log(\pi) + 2 \log(p) + 3 \log(\text{h}_i),
+\end{align*}
+$$
+
+which means our fancy non-linear model is just linear regression on the log scale. McElreath pointed this out
+
+> to highlight one of the reasons that generalized linear models are so powerful. Lots of natural relationships are GLM relationships, on a specific scale of measurement. At the same time, the GLM approach wants to simply estimate parameters which may be informed by a proper theory, as in this case. (p. 531)
+
+## 16.2. Hidden minds and observed behavior
+
+```{r}
+data(Boxes, package = "rethinking")
+d <- Boxes
+rm(Boxes)
+
+rethinking::precis(d)
+```
+
+
+
+### 16.2.1. The scientific model.
+
+### 16.2.2. The statistical model.
+
+### 16.2.3. Coding the statistical model.
+
+```{r}
+b16.2 <-
+  brm(data = d,
+      family = cumulative,
+      y ~ 1,
+      iter = 2000, warmup = 1000, chains = 4, cores = 4,
+      seed = 16)
+```
+
+```{r}
+print(b16.2)
+```
+
+```{r}
+get_prior(data = d,
+      family = mixture(cumulative, cumulative, cumulative, cumulative, cumulative),
+      y ~ 1)
+```
+
+I don't think the `constant()` prior trick will work, here. Rather, I suspect this will require a custom likelihood. If you look at McElreath's Stan code at the top of page 536, I think that's him defining a custom likelihood.
+
+```{r}
+b16.2 <-
+  brm(data = d,
+      family = mixture(cumulative, cumulative, cumulative, cumulative, cumulative),
+      y ~ 1,
+      prior= c(prior(dirichlet(4, 4, 4, 4, 4), theta),
+               prior(constant(), class = Intercept, coef = , dpar = mu1),
+               prior(constant(), class = Intercept, coef = , dpar = mu1),
+               prior(constant(), class = Intercept, coef = , dpar = mu2),
+               prior(constant(), class = Intercept, coef = , dpar = mu2),
+               prior(constant(), class = Intercept, coef = , dpar = mu3),
+               prior(constant(), class = Intercept, coef = , dpar = mu3),
+               prior(constant(), class = Intercept, coef = , dpar = mu4),
+               prior(constant(), class = Intercept, coef = , dpar = mu4),
+               prior(constant(), class = Intercept, coef = , dpar = mu5),
+               prior(constant(), class = Intercept, coef = , dpar = mu5)),
+      iter = 2000, warmup = 1000, chains = 4, cores = 4,
+      seed = 16)
+```
+
+```{r}
+print(b16.2)
+```
+
+```{r}
+library(rethinking)
+data(Boxes_model) 
+cat(Boxes_model)
+```
+
+```{r}
+# prep data 
+dat_list <- list(
+  N = nrow(d),
+  y = d$y,
+  majority_first = d$majority_first )
+
+# run the sampler
+m16.2 <- stan( model_code=Boxes_model , data=dat_list , chains=3 , cores=3 )
+
+# show marginal posterior for p
+p_labels <- c("1 Majority","2 Minority","3 Maverick","4 Random", "5 Follow First")
+plot( precis(m16.2,2) , labels=p_labels )
+```
+
+```{r}
+precis(m16.2)
+precis(m16.2, 2)
+```
+
+```{r}
+label <- c("Majority~(italic(s)[1])", 
+           "Minority~(italic(s)[2])",
+           "Maverick~(italic(s)[3])", 
+           "Random~(italic(s)[4])", 
+           "Follow~First~(italic(s)[5])")
+
+precis(m16.2, 2) %>% 
+  data.frame() %>% 
+  mutate(name = factor(label, levels = label)) %>% 
+  mutate(name = fct_rev(name)) %>% 
+  
+  ggplot(aes(x = mean, xmin = X5.5., xmax = X94.5., y = name)) +
+  geom_vline(xintercept = .5, size = 1/4, linetype = 2) +
+  geom_pointrange(size = 1/4, fatten = 6/4) +
+  scale_x_continuous(expression(italic(p)[italic(s)]), limits = c(0, 1),
+                     breaks = 0:4 / 4, labels = c("0", ".25", ".5", ".75", "1")) +
+  scale_y_discrete(NULL, labels = ggplot2:::parse_safe) +
+  theme(axis.text.y = element_text(hjust = 0))
+```
+
+
+
+## Session info {-}
+
+```{r}
+sessionInfo()
+```
+
+```{r, warning = F, echo = F, eval = F}
+rm()
+```
+
+```{r, echo = F, message = F, warning = F, results = "hide", eval = F}
+ggplot2::theme_set(ggplot2::theme_grey())
+bayesplot::color_scheme_set("blue")
+pacman::p_unload(pacman::p_loaded(), character.only = TRUE)
+```
+
