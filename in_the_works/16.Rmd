@@ -58,7 +58,7 @@ where $W$ denotes weight.
 
 ### 16.1.2. The statistical model. 
 
-```{r}
+```{r, warning = F, message = F}
 library(tidyverse)
 data(Howell1, package = "rethinking")
 d <- Howell1
@@ -92,7 +92,9 @@ library(ggthemes)
 
 theme_set(
   theme_base(base_size = 12) +
-    theme(axis.ticks = element_line(size = 0.25),
+    theme(text = element_text(family = "Times"),
+          axis.text = element_text(family = "Times"),
+          axis.ticks = element_line(size = 0.25),
           axis.ticks.length = unit(0.1, "cm"),
           panel.background = element_rect(size = 0.1),
           plot.background = element_blank(),
@@ -135,8 +137,8 @@ Here's their bivaraite distribution in a scatter plot.
 ```{r}
 d %>% 
   ggplot(aes(x = h, y = w)) +
-  geom_vline(xintercept = 1, linetype = 2, color = "grey50") +
-  geom_hline(yintercept = 1, linetype = 2, color = "grey50") +
+  geom_vline(xintercept = 1, linetype = 2, size = 1/4, color = "grey50") +
+  geom_hline(yintercept = 1, linetype = 2, size = 1/4, color = "grey50") +
   geom_point(size = 1/4)
 ```
 
@@ -213,7 +215,8 @@ my_lower <- function(data, mapping, ...) {
     label = formatC(corr, digits = 2, format = "f") %>% str_replace(., "0.", "."),
     mapping = aes(),
     size = 3.5, 
-    color = "black") +
+    color = "black",
+    family = "Times") +
     scale_x_continuous(NULL, breaks = NULL) +
     scale_y_continuous(NULL, breaks = NULL)
 }
