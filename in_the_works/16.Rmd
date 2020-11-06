@@ -2,7 +2,8 @@
 title: "Ch. 16 Generalized Linear Madness"
 author: "A Solomon Kurz"
 date: "`r format(Sys.Date())`"
-output: github_document
+output:
+  github_document
 bibliography: bib.bib
 biblio-style: apalike
 csl: apa.csl
