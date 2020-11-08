@@ -3,7 +3,7 @@ title: "Ch. 16 Generalized Linear Madness"
 author: "A Solomon Kurz"
 date: "`r format(Sys.Date())`"
 output:
-  github_document
+  html_document
 bibliography: bib.bib
 biblio-style: apalike
 csl: apa.csl
@@ -22,7 +22,9 @@ options(width = 110)
 >
 > But there are problems with this GLMs-plus-DAGs approach. Not everything can be modeled as a GLM—a linear combination of variables mapped onto a non-linear outcome. But if it is the only approach you know, then you have to use it....
 >
-> In this chapter, I will go **beyond generalized linear madness**. I'll work through examples in which the scientific context provides a causal model that will breathe life into the statistical model. I've chosen examples which are individually distinct and highlight different challenges in developing and translating causal models into *bespoke* (see the Rethinking box below) statistical models. You won't require any specialized scientific expertise to grasp these examples. And the basic strategy is the same as it has been from the start: Define a generative model of a phenomenon and then use that model to design strategies for causal inference and statistical estimation. [@mcelreathStatisticalRethinkingBayesian2020, p. 525, *emphasis* in the original]
+> In this chapter, I will go **beyond generalized linear madness**. I'll work through examples in which the scientific context provides a causal model that will breathe life into the statistical model. I've chosen examples which are individually distinct and highlight different challenges in developing and translating causal models into *bespoke* (see the Rethinking ~~box~~ [section] below) statistical models. You won't require any specialized scientific expertise to grasp these examples. And the basic strategy is the same as it has been from the start: Define a generative model of a phenomenon and then use that model to design strategies for causal inference and statistical estimation. [@mcelreathStatisticalRethinkingBayesian2020, p. 525, *emphasis* in the original]
+
+McElreath then reported he was going to work with Stan code, via `rstan::stan()`, in this chapter because of the unique demands of some of the models. Our approach will be mixed. We can fit at least a few of the models with **brms**, particularly with help from the non-linear syntax. However, some of the models to ome are either beyond the current scope of **brms** or are at least beyond my current skill set. In those cases, we'll follow McElreath's approach and fit the models with `stan()`.
 
 #### Rethinking: Bespoken for.
 
@@ -58,7 +60,9 @@ $$W = kV = k \pi p^2 h^3,$$
 
 where $W$ denotes weight.
 
-### 16.1.2. The statistical model. 
+### 16.1.2. The statistical model.
+
+For one last time, together, let's load the `Howell1` data.
 
 ```{r, warning = F, message = F}
 library(tidyverse)
@@ -82,8 +86,8 @@ $$
 k      & \sim \operatorname{Exponential}(0.5) \\
 p      & \sim \operatorname{Beta}(2, 18) \\
 \sigma & \sim \operatorname{Exponential}(1), && \text{where} \\
-\text w_i & = \text{weight}_i / \overline{\text{weight}}, && \text{and} \\
-\text h_i & = \text{height}_i / \overline{\text{height}}.
+\text w_i & = \text{weight}_i \big / \overline{\text{weight}}, && \text{and} \\
+\text h_i & = \text{height}_i \big / \overline{\text{height}}.
 \end{align*}
 $$
 
@@ -275,7 +279,7 @@ d %>%
   geom_smooth(data = p,
               aes(y = Estimate, ymin = Q2.5, ymax = Q97.5),
               stat = "identity",
-              fill = "grey76", color = "black", size = 1/4) +
+              fill = "grey67", color = "black", size = 1/4) +
   geom_point(aes(y = w),
              size = 1/3) +
   coord_cartesian(xlim = c(0, max(d$h)),
@@ -312,6 +316,8 @@ which means our fancy non-linear model is just linear regression on the log scal
 
 ## 16.2. Hidden minds and observed behavior
 
+Load the `Boxes` data [@vanleeuwenDevelopmentHumanSocial2018].
+
 ```{r}
 data(Boxes, package = "rethinking")
 d <- Boxes
@@ -320,36 +326,118 @@ rm(Boxes)
 rethinking::precis(d)
 ```
 
+The data are from 629 children.
 
+```{r}
+d %>% count()
+```
+
+Their ages ranged from 4 to 14 years and, as indicated by the histogram above, the bulk were on the younger end.
+
+```{r}
+d %>% 
+  summarise(min = min(age),
+            max = max(age))
+```
+
+Here's a depiction of our criterion variable `y`.
+
+```{r, fig.width = 6.25, fig.height = 2}
+# wrangle
+d %>% 
+  mutate(color = factor(y,
+                        levels = 1:3,
+                        labels = c("unchosen", "majority", "minority"))) %>%
+  mutate(y = str_c(y, " (", color, ")")) %>% 
+  count(y) %>% 
+  mutate(percent = (100 * n / sum(n))) %>% 
+  mutate(label = str_c(round(percent, digits = 1), "%")) %>% 
+  
+  # plot
+  ggplot(aes(y = y)) +
+  geom_col(aes(x = n)) +
+  geom_text(aes(x = n + 4, label = label),
+            hjust = 0, family = "Times") +
+  scale_x_continuous(expression(italic(n)), expand = expansion(mult = c(0, 0.1))) +
+  labs(title = "The criterion variable y indexes three kinds of color choices",
+       subtitle = "Children tended to prefer the 'majority' color.",
+       y = NULL) +
+  theme(axis.text.y = element_text(hjust = 0),
+        axis.ticks.y = element_blank())
+```
 
 ### 16.2.1. The scientific model.
 
+> The key, as always, is to think generatively. Consider for example a group of children in which half of them choose at random and the other half follow the majority. If we simulate choices for these children, we can figure out how often we might see the "2" choice, the one that indicates the majority color. (p. 532)
+
+Here's an alternative way to set up McEreath's **R** code 16.6.
+
+```{r}
+set.seed(16)
+
+n <- 30 # number of children
+
+tibble(name  = rep(c("y1", "y2"), each = n / 2),
+       value = c(sample(1:3, size = n / 2, replace = T),
+                 rep(2, n / 2))) %>% 
+  mutate(y = sample(value)) %>% 
+  summarise(`number of 2s` = sum(y == 2) / n)
+```
+
+
+> We'll consider 5 different strategies children might use.
+>
+> 1. Follow the Majority: Copy the majority demonstrated color.
+> 2. Follow the Minority: Copy the minority demonstrated color.
+> 3. Maverick: Choose the color that no demonstrator chose.
+> 4. Random: Choose a color at random, ignoring the demonstrators.
+> 5. Follow First: Copy the color that was demonstrated first. This was either the majority color (when `majority_first` equals 1) or the minority color (when 0). (p. 533)
+
 ### 16.2.2. The statistical model.
+
+Our statistical will follow the form
+
+$$
+\begin{align*}
+y_i & \sim \operatorname{Categorical}(\theta) \\
+\theta_j & = \sum_{s = 1}^5 p_s \operatorname{Pr}(j | s) \;\;\; \text{for} \; j = 1, \dots, 3 \\
+p & \sim \operatorname{Dirichlet}(4, 4, 4, 4, 4),
+\end{align*}
+$$
+
+where $s$ indexes one of our five latent strategies and $\operatorname{Pr}(j | s)$ is the probability of one of the three color choices given a child is using the $s$th strategy. The $\sum_{s = 1}^5 p_s$ portion conveys these five probabilities are treated as a simplex, which means they will sum to one. We give these probabilities a Dirichlet prior, which we learned about back in [Section 12.4][Ordered categorical predictors]. Here's what that prior looks like.
+
+```{r, fig.width = 8, fig.height = 2.25}
+set.seed(16)
+
+rdirichlet(n = 1e5, alpha = rep(4, times = 5)) %>% 
+  data.frame() %>% 
+  set_names(1:5) %>% 
+  pivot_longer(everything()) %>% 
+  mutate(name  = name %>% as.double(),
+         alpha = str_c("alpha[", name, "]")) %>% 
+  
+  ggplot(aes(x = value, group = name)) + 
+  geom_histogram(fill = "grey67", binwidth = .02, boundary = 0) +
+  scale_x_continuous(expression(italic(p[s])), limits = c(0, 1),
+                     breaks = c(0, .2, .5, 1), labels = c("0", ".2", ".5", "1"), ) +
+  scale_y_continuous(NULL, breaks = NULL) +
+  labs(subtitle = expression("Dirichlet"*(4*", "*4*", "*4*", "*4*", "*4))) +
+  facet_wrap(~alpha, labeller = label_parsed, nrow = 1)
+```
 
 ### 16.2.3. Coding the statistical model.
 
 ```{r, eval = F, echo = F}
+# doesn't work
 b16.2 <-
   brm(data = d,
       family = cumulative,
       y ~ 1,
       iter = 2000, warmup = 1000, chains = 4, cores = 4,
       seed = 16)
-```
-
-```{r, eval = F, echo = F}
-print(b16.2)
-```
-
-```{r, eval = F, echo = F}
-get_prior(data = d,
-      family = mixture(cumulative, cumulative, cumulative, cumulative, cumulative),
-      y ~ 1)
-```
-
-I don't think the `constant()` prior trick will work, here. Rather, I suspect this will require a custom likelihood. If you look at McElreath's Stan code at the top of page 536, I think that's him defining a custom likelihood.
-
-```{r, eval = F, echo = F}
+ 
+# doesn't work
 b16.2 <-
   brm(data = d,
       family = mixture(cumulative, cumulative, cumulative, cumulative, cumulative),
@@ -367,11 +455,11 @@ b16.2 <-
                prior(constant(), class = Intercept, coef = , dpar = mu5)),
       iter = 2000, warmup = 1000, chains = 4, cores = 4,
       seed = 16)
+
+# I don't think the `constant()` prior trick will work, here. Rather, I suspect this will require a custom likelihood. If you look at McElreath's Stan code at the top of page 536, I think that's him defining a custom likelihood.
 ```
 
-```{r, eval = F, echo = F}
-print(b16.2)
-```
+Let's take a look at McElreath's Stan code.
 
 ```{r, warning = F, message = F}
 library(rethinking)
@@ -379,7 +467,7 @@ data(Boxes_model)
 cat(Boxes_model)
 ```
 
-Now fit the model with `rstan::stan()`.
+I'm not aware that one can fit this model directly with **brms**. My guess is that if it's possible, it would require a custom likelihood [see @Bürkner2020Define]. If you can reproduce McElreath's Stan code with this or some other approach in **brms**, please [share your code on GitHub](https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed/issues). In the mean time, we're going to follow along with the text and fit the model with `rstan::stan()`.
 
 ```{r m16.2, echo = F}
 # save(list = c("dat_list", "m16.2"), file = "/Users/solomonkurz/Dropbox/Recoding Statistical Rethinking 2nd ed/fits/m16.2.rda")
@@ -398,12 +486,19 @@ dat_list <- list(
 m16.2 <-
   stan(model_code = Boxes_model, 
        data = dat_list, 
-       chains = 3, cores = 3)
+       chains = 3, cores = 3,
+       seed = 16)
 ```
 
-Check the summary.
+Here's what it looks like if you `print()` a fit object from the `stan()` function.
 
 ```{r}
+print(m16.2)
+```
+
+Here's the summary with `rethinking::precis()`.
+
+```{r, warning = F, message = F}
 precis(m16.2, depth = 2)
 ```
 
@@ -430,7 +525,7 @@ precis(m16.2, depth = 2) %>%
   theme(axis.text.y = element_text(hjust = 0))
 ```
 
-As an alternative, this might be a good time to revisit the `tidybayes::stat_ccdfinterval()` approach (see [Section 12.3.3][Adding predictor variables.]), which will depict those posteriors with a bar plot where the top parts of the bars depict our uncertainty in terms of cumulative density curves.
+As an alternative, this might be a good time to revisit the `tidybayes::stat_ccdfinterval()` approach (see [Section 12.3.3][Adding predictor variables.]), which will depict those posteriors with a bar plot where the ends of the bars depict our uncertainty in terms of cumulative density curves.
 
 ```{r, fig.width = 5, fig.height = 2.5}
 extract.samples(m16.2) %>% 
@@ -453,7 +548,11 @@ extract.samples(m16.2) %>%
 
 ### 16.2.4. State space models.
 
+In this section of the text, McElreath mentioned state space models and hidden Markov models. Based on [this thread](https://discourse.mc-stan.org/t/state-space-models-with-brms/4087) in the Stan forums and [this issue](https://github.com/paul-buerkner/brms/issues/173) in the **brms** GitHub repo, it looks like state space models are not supported in **brms** at this time. As for hidden Markov models, I'm not sure whether they are supported by **brms**. The best I could find was [this thread](https://discourse.mc-stan.org/t/modelling-with-non-binary-proportions-as-outcome/12324) on the Stan forums. If you know more about either of these topics, please share your knowledge [on this book's GitHub repo](https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed/issues).
+
 ## 16.3. Ordinary differential nut cracking
+
+Load the `Panda_nuts` data [@boeschLearningCurvesTeaching2019].
 
 ```{r}
 data(Panda_nuts, package = "rethinking")
@@ -472,15 +571,70 @@ d <-
 glimpse(d)
 ```
 
+Our criterion is `n`, the number of *Panda* nuts opened by a chimpanzee on a given occasion. The two focal predictor variables are `age` and `seconds`. Here they are depicted in a pairs plot.
+
+```{r, warning = F, message = F, fig.width = 4.5, fig.height = 4}
+d %>% 
+  select(n, age, seconds) %>% 
+  ggpairs(upper = list(continuous = my_upper),
+          diag = list(continuous = my_diag),
+          lower = list(continuous = my_lower)) +
+  theme(strip.text.y = element_text(hjust = 0, angle = 0))
+```
+
 ### 16.3.1. Scientific model.
 
-Figure 16.4
+As a starting point, McElreath proposed we the strength of a chimpanzee would relate to the number of nuts they might open. We don't have a measure of strength, but we do have `age`, which is a proxy for how close a chimp might be to their maximum body size, and we presume body size would be proportional to strength. If we let $t$ index time, $M_\text{max}$ be the maximum body size (mass), $M_t$ be the current body size, and $k$ stand for the rate of skill gain the comes with age, we can write
+
+$$M_t = M_\text{max} [1 - \exp(-kt) ]$$
+
+to solve for mass at a given age [@vonbertalanffyUntersuchungenUeberGesetzlichkeit1934]. But again, we actually care about strength, not mass. Letting $S_t$ be strength at time $t$, we can express a proportional relation between the two as $S_t = \beta M_t$. Now if we let $\lambda$ stand in for the number of nuts opening, $\alpha$ express the relation of strength to nut opening, we can write
+
+$$\lambda = \alpha S_t^\theta = \alpha \big ( \beta M_\text{max} [1 - \exp(-kt) ]  \big ) ^\theta,$$
+
+"where $\theta$ is some exponent greater than 1" (p. 538). If we rescale $M_\text{max} = 1$, we can simplify the equation to
+
+$$\lambda = \alpha \beta^\theta [1 - \exp(-kt) ]^\theta.$$
+
+As "the product $\alpha \beta^\theta$ in the front just rescales strength to nuts-opened-per-second" (p. 538), we can colapse it to a single parameter, $\phi$, which leaves us with
+
+$$\lambda = \phi [1 - \exp(-kt) ]^\theta.$$
+
+This is our scientific model.
+
+### 16.3.2. Statistical model.
+
+Now if we let $n_i$ be the number of nuts opened, we can write our statistical model as
+
+$$
+\begin{align*}
+n_i & \sim \operatorname{Poisson}(\lambda_i) \\
+\lambda_i & = \text{seconds}_i \, \phi [1 - \exp(-k \,\text{age}_i) ]^\theta,
+\end{align*}
+$$
+
+where we have replaced our time index, $t$, with the variable `age`. By including the variable `seconds` in the equation, we have scaled the results to be nuts per second. McElreath proposed the priors:
+
+$$
+\begin{align*}
+\phi   & \sim \operatorname{Log-Normal}(\log 1, 0.10) \\
+k      & \sim \operatorname{Log-Normal}(\log 2, 0.25) \\
+\theta & \sim \operatorname{Log-Normal}(\log 5, 0.25),
+\end{align*}
+$$
+
+all of which were Log-Normal to ensure the parameters were positive and continuous. To get a sense of what these priors implied, he simulated. Here's our version of his simulations, which make up Figure 16.4. 
 
 ```{r, fig.width = 6, fig.height = 3.5}
 n <- 1e4
+
+# define the x-axis breaks
 at <- 0:6 / 4
+
+# how many prior draws would you like?
 sample_n <- 50
 
+# simulate
 set.seed(16)
 
 prior <-
@@ -494,6 +648,7 @@ prior <-
   mutate(bm = 1 - exp(-k * age),
          ns = phi * (1 - exp(-k * age))^theta) 
 
+# left panel
 p1 <-
   prior %>% 
   ggplot(aes(x = age, y = bm, group = index)) +
@@ -501,6 +656,7 @@ p1 <-
   scale_x_continuous(breaks = at, labels = round(at * max(d$age))) +
   ylab("body mass")
 
+# right panel
 p2 <-
   prior %>% 
   ggplot(aes(x = age, y = ns, group = index)) +
@@ -508,13 +664,32 @@ p2 <-
   scale_x_continuous(breaks = at, labels = round(at * max(d$age))) +
   ylab("nuts per second")
 
+# combine and plot
 library(patchwork)
+
 p1 + p2 + 
   plot_annotation(title = "Prior predictive simulation for the nut opening model",
                   subtitle = "Each panel shows the results from 50 prior draws.")
 ```
 
+McElreath suggested we inspect the distributions of these priors. Here they are in a series of histograms.
 
+```{r, fig.width = 8, fig.height = 2.75}
+set.seed(16)
+
+tibble(phi         = rlnorm(n, meanlog = log(1), sdlog = 0.1),
+       `italic(k)` = rlnorm(n, meanlog = log(2), sdlog = 0.25),
+       theta       = rlnorm(n, meanlog = log(5), sdlog = 0.25)) %>% 
+  pivot_longer(everything()) %>% 
+  
+  ggplot(aes(x = value)) +
+  geom_histogram(fill = "grey67", bins = 40, boundary = 0) +
+  scale_y_continuous(NULL, breaks = NULL) +
+  scale_x_continuous("marginal prior", limits = c(0, NA)) +
+  facet_wrap(~name, scales = "free", labeller = label_parsed)
+```
+
+Happily, we can fit this model using the non-linear **brms** syntax.
 
 ```{r b16.4}
 b16.4 <- 
@@ -537,9 +712,9 @@ Check the parameter summary.
 print(b16.4)
 ```
 
-Now make our version of Figure 16.5.
+No we might get a sense of what this posterior means by plotting nuts per second as a function of `age` in our version of Figure 16.5.
 
-```{r, fig.width = 4, fig.height = 2.75}
+```{r, fig.width = 4, fig.height = 3.2}
 posterior_samples(b16.4) %>% 
   mutate(iter = 1:n()) %>% 
   sample_n(sample_n) %>% 
@@ -555,10 +730,13 @@ posterior_samples(b16.4) %>%
               shape = 1, width = 0.01, color = "grey50") +
   scale_size_continuous(breaks = c(1, 50, 100), limits = c(1, NA)) +
   scale_x_continuous(breaks = at, labels = round(at * max(d$age))) +
-  ylab("nuts per second") +
+  labs(title = "Posterior predictive distribution for the\nnut opening model",
+       y = "nuts per second") +
   theme(legend.background = element_blank(),
         legend.position = c(.9, .25))
 ```
+
+Looks like things flatten out around `age == 16`. Yet since the data drop off at that `age`, we probably shouldn't get overconfident.
 
 ## 16.4. Population dynamics
 
@@ -605,11 +783,11 @@ A typical way to model evenly-spaced time series data like this would be with an
 
 $$\operatorname{E}(y_t) = \alpha + \beta_1 y_{t-1},$$
 
-where $t$ indexes time and $t - 1$ is the time point immediately before $t$. Models following this form are called first-order autoregressive models (AR1), meaning that the current time point is only influenced by the previous time point, but none of the earlier ones. You can build on this format by adding other predictors. A natural way would be to use a predictor from $t - 1$ to predict $y_t$, following the form
+where $t$ indexes time and $t - 1$ is the time point immediately before $t$. Models following this form are called first-order autoregressive models, AR(1), meaning that the current time point is only influenced by the previous time point, but none of the earlier ones. You can build on this format by adding other predictors. A natural way would be to use a predictor from $t - 1$ to predict $y_t$, following the form
 
 $$\operatorname{E}(y_t) = \alpha + \beta_1 y_{t-1} + \beta_2 x_{t-1}.$$
 
-But that's still a first-order model. A second order model, AR2, would include a term for $x_{t - 2}$, such as
+But that's still a first-order model. A second-order model, AR(2), would include a term for $y_{t - 2}$, such as
 
 $$\operatorname{E}(y_t) = \alpha + \beta_1 y_{t-1} + \beta_2 x_{t-1} + \beta_3 y_{t-2}.$$
 
@@ -775,7 +953,7 @@ $$
 
 It's not immediately clear from the text, but if you look closely at the output from `cat(Lynx_Hare_model)` (see below), you'll see $\alpha_H = \alpha_L = 40$ and $\beta_H = \beta_L = 200$.
 
-Happily, Stan has built-in functions for solving differential equations [@standevelopmentteamStanReferenceManual2020, Chapter 13] and doing is, in principle, possible with **brms**, For an example of an ODE model with **brms**, see [Markus Gesmann](https://twitter.com/MarkusGesmann)'s blog post, [*PK/PD reserving models*](https://magesblog.com/post/2018-01-30-pkpd-reserving-models/). However, this model is beyond my current skill set. Instead of attempting to fit the model with `brms::brm()`, we'll follow McElreath's example and load his pre-written Stan code.
+Happily, Stan has built-in functions for solving differential equations [@standevelopmentteamStanReferenceManual2020, Chapter 13] and using them is, in principle, possible with **brms**, For an example of an ODE model with **brms**, see [Markus Gesmann](https://twitter.com/MarkusGesmann)'s blog post, [*PK/PD reserving models*](https://magesblog.com/post/2018-01-30-pkpd-reserving-models/). However, this model is beyond my current skill set. Instead of attempting to fit the model with `brms::brm()`, we'll follow McElreath's example and load his pre-written Stan code.
 
 ```{r}
 data(Lynx_Hare_model) 
@@ -850,11 +1028,12 @@ p1 <-
   geom_line(aes(group = interaction(iter, name), color = name),
             size = 1/3, alpha = 1/2) +
   geom_point(data = Lynx_Hare %>% pivot_longer(Lynx:Hare),
-             aes(x = Year, color = name),
-             size = 2) +
+             aes(x = Year, fill = name),
+             size = 3, shape = 21, stroke = 1/4, color = "white") +
   geom_text(data = text,
             aes(label = label, color = name),
             hjust = 0, family = "Times") +
+  scale_fill_grey(start = 0, end = .5, breaks = NULL) +
   scale_color_grey(start = 0, end = .5, breaks = NULL) +
   scale_x_continuous(NULL, breaks = NULL) +
   scale_y_continuous("thousands of pelts", breaks = 0:6 * 20) +
@@ -906,7 +1085,7 @@ $$
 
 were $\beta_1$ is the first-order autoregressive coefficient and the question marks in the third and fourth lines indicate we're not wedding ourselves to specific priors, at the moment. Also, note the $t$ subscripts, which denote which time period the observation is drawn from, which in these data is $\text{Year} = 1900, 1901, \dots, 1920$. Conceptually, $t$ is *now* and $t - 1$ the time point just before now. So if we were particularly interested in $\operatorname E (\text{Hare}_{t = 1920})$, $\text{Hare}_{t - 1}$ would be the same as $\text{Hare}_{t = 1919}$.
 
-With **brms**, you can fit a model like this using the `ar()` function. By default, `ar()` presumes the criterion variable (`Hare`, in this case) is ordered chronologically. If you're unsure or just want to be on the safe side, you can enter your *time* variable in the `time` argument. Also, though the `ar()` function presumes a first-order autoregressive structure by default, it is capable of fitting models with higher-order autoregressive structures. You can manually specify this with the `p` argument. Here's how to fit our model with explicit `ar()` syntax.
+With **brms**, you can fit a model like this using the `ar()` function. By default, `ar()` presumes the criterion variable (`Hare`, in this case) is ordered chronologically. If you're unsure or just want to be on the safe side, you can enter your *time* variable in the `time` argument. Also, though the `ar()` function presumes a first-order autoregressive structure by default, it is capable of fitting models with higher-order autoregressive structures. You can manually specify this with the `p` argument. Here's how to fit our simple AR(1) model with explicit `ar()` syntax.
 
 ```{r b16.6}
 b16.6 <-
@@ -919,7 +1098,7 @@ b16.6 <-
       file = "/Users/solomonkurz/Dropbox/Recoding Statistical Rethinking 2nd ed/fits/b16.06")
 ```
 
-For simplicity, we just went with the default **brms** priors for $\alpha$ and $\beta_1$. We got the value for the exponential prior for $\sigma$ by executing the following.
+You may have noticed we just went with the default **brms** priors for $\alpha$ and $\beta_1$. We got the value for the exponential prior for $\sigma$ by executing the following.
 
 ```{r}
 1 / sd(Lynx_Hare$Hare)
@@ -959,7 +1138,7 @@ b16.7 <-
 print(b16.7)
 ```
 
-Did you notice how the third line in the output read 'Number of observations: 20?' That's because we had that one missing value for `Hare_1`. One quick and dirty hack might be to use the missing data syntax we learned from [Chapter 15][Missing Data and Other Opportunities]. Here's how that might look like.
+Did you notice how the fourth line in the output read 'Number of observations: 20?' That's because we had that one missing value for `Hare_1`. One quick and dirty hack might be to use the missing data syntax we learned from [Chapter 15][Missing Data and Other Opportunities]. Here's how that might look like.
 
 ```{r b16.8}
 b16.8 <-
@@ -1002,14 +1181,18 @@ fitted(b16.6,
   geom_line(aes(y = value, group = iter),
             size = 1/3, alpha = 1/2) +
   geom_point(data = Lynx_Hare,
-             aes(y = Hare)) +
+             aes(y = Hare),
+             size = 3, shape = 21, stroke = 1/4, 
+             fill = "black", color = "white") +
   annotate(geom = "text",
            x = 1913.5, y = 85,
            label = "Lepus", family = "Times") +
   scale_y_continuous("thousands of hare pelts", breaks = 0:6 * 20, limits = c(0, 120))
 ```
 
-So far we've been fitting the autoregressive models with the Gaussian likelihood, which is typical. If you look at McElreath's practice problem 16H3, you'll see he proposed a bivariate autoregressive model using the Log-Normal likelihood. His approach used hand-made lagged predictors and ignored the missing value problem by dropping the first case. That model followed the form
+The model did a pretty good job capturing the non-linear trends in the data. But notice how the fitted lines appear to be one step off from the data. This is actually expected behavior for a simple AR(1) model. For insights on why, check out [this thread](https://stats.stackexchange.com/questions/404650/why-is-arima-in-r-one-time-step-off) on Stack Exchange.
+
+So far we've been fitting the autoregressive models with the Gaussian likelihood, which is a typical approach. If you look at McElreath's practice problem 16H3, you'll see he proposed a bivariate autoregressive model using the Log-Normal likelihood. His approach used hand-made lagged predictors and ignored the missing value problem by dropping the first case. That model followed the form
 
 $$
 \begin{align*}
