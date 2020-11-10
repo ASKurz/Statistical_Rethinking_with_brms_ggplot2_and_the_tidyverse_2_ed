@@ -38,6 +38,15 @@ theme_set(
 
 In the middle of the [thirteenth lecture of his 2019 lecture series](https://www.youtube.com/watch?v=p7g-CgGCS34&feature=youtu.be&t=1423), McElreath briefly covered continuous-time survival analysis. Sadly, the problem didn't make it into the text. Here we'll slip it in as a bonus section. To fully understand this section, do listen to this section of the lecture. It's only about ten minutes.
 
+```{r, echo = F, eval = F}
+# it looks like this is not supported when using output: github_document.
+# it does work for output: html_document.
+# hopefully, it'll also work for the ebook.
+
+vembedr::embed_url("https://www.youtube.com/watch?v=p7g-CgGCS34&feature=youtu.be&t=1423") %>%
+  vembedr::use_align("center")
+```
+
 Now let's load the `AustinCats` data.
 
 ```{r}
@@ -140,19 +149,20 @@ $$
 
 This is the same model McElreath discussed in the lecture. We've just renamed a couple variables. When you fit a continuous-time survival analysis with `brm()`, you'll want to tell the software about how the data have been censored with help from the `cens()` function. For many of the models in this chapter, we used the `trials()` function to include the $n_i$ information into our binomial models. Both `trials()` and `cens()` are members of a class of functions designed to provide `brm()` about our criterion variables. The `cens()` function lets us add in information about censoring. In his lecture, McElreath mentioned there can be different kinds of censoring. **brms** can handle variables with left, right, or interval censoring. In the case of our `days_to_event` data, some of the values have been right censored, which is typical in survival models. We will feed this information into the model with the `formula` code `days_to_event | cens(censored)`, where `censored` is the name of the variable in our data that indexes the censoring. The `cens()` function has been set up to expect our data to be coded as either
 
-*  `'left'`, `'none'`, `'right'`, and/or `'interval'` or
+*  `'left'`, `'none'`, `'right'`, and/or `'interval'`; or
 * `-1`, `0`, `1`, and/or `2`.
 
-Since we coded our `censored` variable as *censored* = 1 and *not censored* = 0, we have followerd the second coding scheme. For more on the topic, see the `Additional response information` subsection within the `brmsformula` section of [**brms** reference manual](https://cran.r-project.org/package=brms/brms.pdf) [@brms2020RM]. Here's how to fit our survival model with **brms**.
+Since we coded our `censored` variable as *censored* = 1 and *not censored* = 0, we have followed the second coding scheme. For more on the topic, see the `Additional response information` subsection within the `brmsformula` section of [**brms** reference manual](https://cran.r-project.org/package=brms/brms.pdf) [@brms2020RM]. Here's how to fit our survival model with **brms**.
 
-```{r b11.15, warning = F, message = F, results = 'hide'}
+```{r b11.15}
 b11.15 <-
   brm(data = d,
       family = exponential,
       days_to_event | cens(censored) ~ 0 + black,
       prior(normal(0, 1), class = b),
       iter = 2000, warmup = 1000, chains = 4, cores = 4,
-      seed = 11)
+      seed = 11,
+      file = "/Users/solomonkurz/Dropbox/Recoding Statistical Rethinking 2nd ed/fits/b11.15")
 ```
 
 Check the summary.
@@ -176,7 +186,7 @@ Here are the posterior means for our two $\lambda$'s.
 1 / exp(fixef(b11.15)[, -2])
 ```
 
-It still might not be clear what any of this all means. To get a better sense, let's plot.
+It still might not be clear what any of this all means. To get a better sense, let's make our version of one of the plots from McElreath's lecture.
 
 ```{r, fig.width = 5, fig.height = 3}
 # annotation
@@ -254,7 +264,7 @@ The model suggests it takes about six days longer for the half of the black cats
 
 ### 11.5.1 Survival summary.
 
-In addition to those with the Exponential likelihood, **brms** supports a variety of survival models. Some of the more popular likelihoods are the log-Normal, the gamma, and the Weibull. For details, see the [*Time-to-event models*](https://cran.r-project.org/web/packages/brms/vignettes/brms_families.html#time-to-event-models) of Bürkner's [-@Bürkner2020Parameterization] vignette, [*Parameterization of response distributions in brms*](https://CRAN.R-project.org/package=brms/vignettes/brms_families.html). Starting with the release of [version 2.13.5](https://github.com/paul-buerkner/brms/blob/master/NEWS.md#brms-2135), **brms** now supports the Cox proportional hazards model via `family = cox`. If you're tricky with your coding, you can also fit discrete-time survival models with the binomial likelihood (see [here](https://bookdown.org/content/4253/fitting-basic-discrete-time-hazard-models.html)). For some examples of discrete and continuous-time survival models, you might check out my [-@kurzAppliedLongitudinalDataAnalysis2019] ebook translation of Singer and Willett's [-@singerAppliedLongitudinalData2003] text, [*Applied longitudinal data analysis: Modeling change and event occurrence*](https://oxford.universitypressscholarship.com/view/10.1093/acprof:oso/9780195152968.001.0001/acprof-9780195152968), the later chapters of which provide an exhaustive introduction to survival analysis.
+In addition to those with the exponential likelihood, **brms** supports a variety of survival models. Some of the more popular likelihoods are the log-Normal, the gamma, and the Weibull. For details, see the [*Time-to-event models*](https://cran.r-project.org/web/packages/brms/vignettes/brms_families.html#time-to-event-models) of Bürkner's [-@Bürkner2020Parameterization] vignette, [*Parameterization of response distributions in brms*](https://CRAN.R-project.org/package=brms/vignettes/brms_families.html). Starting with the release of [version 2.13.5](https://github.com/paul-buerkner/brms/blob/master/NEWS.md#brms-2135), **brms** now supports the Cox proportional hazards model via `family = cox`. If you're tricky with your coding, you can also fit discrete-time survival models with the binomial likelihood (see [here](https://bookdown.org/content/4253/fitting-basic-discrete-time-hazard-models.html)). For some examples of discrete and continuous-time survival models, you might check out my [-@kurzAppliedLongitudinalDataAnalysis2019] ebook translation of Singer and Willett's [-@singerAppliedLongitudinalData2003] text, [*Applied longitudinal data analysis: Modeling change and event occurrence*](https://oxford.universitypressscholarship.com/view/10.1093/acprof:oso/9780195152968.001.0001/acprof-9780195152968), the later chapters of which provide an exhaustive introduction to survival analysis.
 
 ```{r, echo = F, message = F, warning = F, results = "hide"}
 ggplot2::theme_set(ggplot2::theme_grey())
