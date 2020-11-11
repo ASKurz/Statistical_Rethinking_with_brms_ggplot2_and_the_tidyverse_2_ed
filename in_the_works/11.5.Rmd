@@ -3,7 +3,7 @@ title: 'Ch. 11.5 Bonus: Survival analysis'
 author: "A Solomon Kurz"
 date: "`r format(Sys.Date())`"
 output:
-  github_document
+  html_document
 bibliography: bib.bib
 biblio-style: apalike
 csl: apa.csl
@@ -38,10 +38,10 @@ theme_set(
 
 In the middle of the [thirteenth lecture of his 2019 lecture series](https://www.youtube.com/watch?v=p7g-CgGCS34&feature=youtu.be&t=1423), McElreath briefly covered continuous-time survival analysis. Sadly, the problem didn't make it into the text. Here we'll slip it in as a bonus section. To fully understand this section, do listen to this section of the lecture. It's only about ten minutes.
 
-```{r, echo = F, eval = F}
+```{r, echo = F}
 # it looks like this is not supported when using output: github_document.
 # it does work for output: html_document.
-# hopefully, it'll also work for the ebook.
+# it will also work for the ebook.
 
 vembedr::embed_url("https://www.youtube.com/watch?v=p7g-CgGCS34&feature=youtu.be&t=1423") %>%
   vembedr::use_align("center")
@@ -57,11 +57,12 @@ rm(AustinCats)
 glimpse(d)
 ```
 
-At the moment, it doesn't look like the **rethinking** package contains documentation about the `AustinCats`. Based on McElreath's lecture, he downloaded them from the website of an animal shelter in Austin, TX. We have data on 22,356 cats on whether they were adopted and how long it took. The cats came in a variety of colors.
+At the moment, it doesn't look like the **rethinking** package contains documentation about the `AustinCats`. Based on McElreath's lecture, he downloaded them from the website of an animal shelter in Austin, TX. We have data on 22,356 cats on whether they were adopted and how long it took. The cats came in a variety of colors. Here are the first ten.
 
 ```{r}
 d %>% 
-  count(color)
+  count(color) %>% 
+  slice(1:10)
 ```
 
 McElreath wondered whether it took longer for black cats to be adopted. If you look at the `color` categories, above, you'll see the people doing the data entry were creative with their descriptions. To keep things simple, we'll just be comparing cats for whom `color == "Black"` to all the others.
@@ -132,7 +133,7 @@ $$f(y) = \lambda e^{-\lambda y},$$
 
 where $\lambda$ is called the rate. The mean of the exponential distribution is the inverse of the rate
 
-$\operatorname{E}[y] = \frac{1}{\lambda}.$
+$$\operatorname{E}[y] = \frac{1}{\lambda}.$$
 
 Importantly, **brms** paramaterizes exponential models in terms of $\operatorname{E}[y]$. By default, it uses the log link. The is the same set-up McElreath used for **rethinking** in his lecture. To get a sense of how this all works, we can write our continuous-time survival model as
 
@@ -147,7 +148,7 @@ $$
 \end{align*}
 $$
 
-This is the same model McElreath discussed in the lecture. We've just renamed a couple variables. When you fit a continuous-time survival analysis with `brm()`, you'll want to tell the software about how the data have been censored with help from the `cens()` function. For many of the models in this chapter, we used the `trials()` function to include the $n_i$ information into our binomial models. Both `trials()` and `cens()` are members of a class of functions designed to provide `brm()` about our criterion variables. The `cens()` function lets us add in information about censoring. In his lecture, McElreath mentioned there can be different kinds of censoring. **brms** can handle variables with left, right, or interval censoring. In the case of our `days_to_event` data, some of the values have been right censored, which is typical in survival models. We will feed this information into the model with the `formula` code `days_to_event | cens(censored)`, where `censored` is the name of the variable in our data that indexes the censoring. The `cens()` function has been set up to expect our data to be coded as either
+This is the same model McElreath discussed in the lecture. We've just renamed a couple variables. When you fit a continuous-time survival analysis with `brm()`, you'll want to tell the software about how the data have been censored with help from the `cens()` function. For many of the models in this chapter, we used the `trials()` function to include the $n_i$ information into our binomial models. Both `trials()` and `cens()` are members of a class of functions designed to provide supplemental information about our criterion variables to `brm()`. The `cens()` function lets us add in information about censoring. In his lecture, McElreath mentioned there can be different kinds of censoring. **brms** can handle variables with left, right, or interval censoring. In the case of our `days_to_event` data, some of the values have been right censored, which is typical in survival models. We will feed this information into the model with the `formula` code `days_to_event | cens(censored)`, where `censored` is the name of the variable in our data that indexes the censoring. The `cens()` function has been set up to expect our data to be coded as either
 
 *  `'left'`, `'none'`, `'right'`, and/or `'interval'`; or
 * `-1`, `0`, `1`, and/or `2`.
@@ -209,7 +210,7 @@ f <-
          ll = 1 - pexp(days, rate = 1 / exp(Q2.5)),
          ul = 1 - pexp(days, rate = 1 / exp(Q97.5)))
   
-  # plot!
+# plot!
 f %>% 
   ggplot(aes(x = days)) +
   geom_hline(yintercept = .5, linetype = 3, color = wes_palette("Moonrise2")[2]) +
@@ -264,7 +265,7 @@ The model suggests it takes about six days longer for the half of the black cats
 
 ### 11.5.1 Survival summary.
 
-In addition to those with the exponential likelihood, **brms** supports a variety of survival models. Some of the more popular likelihoods are the log-Normal, the gamma, and the Weibull. For details, see the [*Time-to-event models*](https://cran.r-project.org/web/packages/brms/vignettes/brms_families.html#time-to-event-models) of Bürkner's [-@Bürkner2020Parameterization] vignette, [*Parameterization of response distributions in brms*](https://CRAN.R-project.org/package=brms/vignettes/brms_families.html). Starting with the release of [version 2.13.5](https://github.com/paul-buerkner/brms/blob/master/NEWS.md#brms-2135), **brms** now supports the Cox proportional hazards model via `family = cox`. If you're tricky with your coding, you can also fit discrete-time survival models with the binomial likelihood (see [here](https://bookdown.org/content/4253/fitting-basic-discrete-time-hazard-models.html)). For some examples of discrete and continuous-time survival models, you might check out my [-@kurzAppliedLongitudinalDataAnalysis2019] ebook translation of Singer and Willett's [-@singerAppliedLongitudinalData2003] text, [*Applied longitudinal data analysis: Modeling change and event occurrence*](https://oxford.universitypressscholarship.com/view/10.1093/acprof:oso/9780195152968.001.0001/acprof-9780195152968), the later chapters of which provide an exhaustive introduction to survival analysis.
+We've really just scratched the surface on survival models. In addition to those which use the exponential likelihood, **brms** supports a variety of survival models. Some of the more popular likelihoods are the log-Normal, the gamma, and the Weibull. For details, see the [*Time-to-event models*](https://cran.r-project.org/web/packages/brms/vignettes/brms_families.html#time-to-event-models) of Bürkner's [-@Bürkner2020Parameterization] vignette, [*Parameterization of response distributions in brms*](https://CRAN.R-project.org/package=brms/vignettes/brms_families.html). Starting with the release of [version 2.13.5](https://github.com/paul-buerkner/brms/blob/master/NEWS.md#brms-2135), **brms** now supports the Cox proportional hazards model via `family = cox`. If you're tricky with your coding, you can also fit discrete-time survival models with the binomial likelihood (see [here](https://bookdown.org/content/4253/fitting-basic-discrete-time-hazard-models.html)). For some examples of discrete and continuous-time survival models, you might check out my [-@kurzAppliedLongitudinalDataAnalysis2019] ebook translation of Singer and Willett's [-@singerAppliedLongitudinalData2003] text, [*Applied longitudinal data analysis: Modeling change and event occurrence*](https://oxford.universitypressscholarship.com/view/10.1093/acprof:oso/9780195152968.001.0001/acprof-9780195152968), the later chapters of which provide an exhaustive introduction to survival analysis.
 
 ```{r, echo = F, message = F, warning = F, results = "hide"}
 ggplot2::theme_set(ggplot2::theme_grey())
