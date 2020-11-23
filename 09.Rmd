@@ -401,10 +401,10 @@ For more technical details, see the paper. In short, `Bulk_ESS` in the output fr
 
 > You can easily parallelize those chains... They can all run at the same time, instead of in sequence. So as long as your computer has four cores (it probably does), it won't take longer to run four chains than one chain. To run four independent Markov chains for the model above, and to distribute them across separate cores in your computer, just increase the number of chains and add a cores argument. (p. 281)
 
-If you don't know how many cores you have on your computer, you can always check with the `detectCores()` function. My current laptop has 16.
+If you don't know how many cores you have on your computer, you can always check with the `parallel::detectCores()` function. My current laptop has 16.
 
 ```{r}
-detectCores()
+parallel::detectCores()
 ```
 
 Here we sample from four HMC chains in parallel by adding `cores = 4`.
@@ -442,7 +442,7 @@ You can get that information on the model priors with the `prior_summary()` func
 prior_summary(b9.1b)
 ```
 
-I am not aware of a convenient way to pull the information on how long each chain ran for. As to the sample size, our output is a little different than McElreath's. The **brms** default is to run 4 chains, each containing 2,000 total samples, the first 1,000 of which are warmups. Since we used those defaults, we ended up with $(2,000 - 1,000) \times 4 = 4,000$ post-warmup HMC samples. But anyways, just like all of McElreath's `n_eff` values were above 2,000, most of our `Bulk_ESS` values were above 4,000, which is
+I am not aware of a convenient way to pull the information on how long each chain ran for. As to the sample size, our output is a little different than McElreath's. The **brms** default is to run 4 chains, each containing 2,000 total samples, the first 1,000 of which are warmups. Since we used those defaults, we ended up with $(2{,}000 - 1{,}000) \times 4 = 4{,}000$ post-warmup HMC samples. But anyways, just like all of McElreath's `n_eff` values were above 2,000, most of our `Bulk_ESS` values were above 4,000, which is
 
 > no mistake. The adaptive sampler that Stan uses is so good, it can actually produce sequential samples that are better than uncorrelated. They are anti-correlated. This means it can explore the posterior distribution so efficiently that it can beat random. (p. 282)
 
