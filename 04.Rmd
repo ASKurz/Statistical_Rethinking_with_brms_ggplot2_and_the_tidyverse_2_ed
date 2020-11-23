@@ -2063,7 +2063,7 @@ It looks like there are some wiggly trends, but it's hard to tell with a scatter
 
 > Our goal is to approximate the blossom trend with a wiggly function. With B-splines, just like with polynomial regression, we do this by generating new predictor variables and using those in the linear model, $\mu_i$. Unlike polynomial regression, B-splines do not directly transform the predictor by squaring or cubing it. Instead they invent a series of entirely new, synthetic predictor variables. Each of these synthetic variables exists only to gradually turn a specific parameter on and off within a specific range of the real predictor variable. Each of the synthetic variables is called a **basis function**. The linear model ends up looking very familiar:
 >
-> $$\mu_i = \alpha + w_1 B_{i, 1} + w_2 B_{i, 2} + w_3 B_{i, 3} + \; ...$$
+> $$\mu_i = \alpha + w_1 B_{i, 1} + w_2 B_{i, 2} + w_3 B_{i, 3} + \dots$$
 >
 > where $B_{i,n}$ is the $n$-th basis function's value on row $i$, and the $w$ parameters are corresponding weights for each. The parameters act like slopes, adjusting the influence of each basis function on the mean $\mu_i$. So really this is just another linear regression, but with some fancy, synthetic predictor variables. (p. 115, **emphasis** in the original)
 
