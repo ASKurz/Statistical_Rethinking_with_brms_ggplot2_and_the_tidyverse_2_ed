@@ -62,7 +62,7 @@ Here's the formula for the un-pooled model in which each `tank` gets its own int
 \begin{align*}
 \text{surv}_i             & \sim \operatorname{Binomial}(n_i, p_i) \\
 \operatorname{logit}(p_i) & = \alpha_{\text{tank}[i]} \\
-\alpha_j                  & \sim \operatorname{Normal} (0, 1.5) & \text{for } j = 1..48,
+\alpha_j                  & \sim \operatorname{Normal} (0, 1.5) & \text{for } j = 1, \dots, 48,
 \end{align*}
 
 where $n_i$ is indexed by the `density` column. Its values are distributed like so.
@@ -608,9 +608,9 @@ The initial multilevel update from model `b11.4` from [Section 11.1.1][Logistic 
 \begin{align*}
 \text{left_pull}_i         & \sim \operatorname{Binomial}(n_i = 1, p_i) \\
 \operatorname{logit} (p_i) & = \alpha_{\text{actor}[i]}  + \color{#CD8500}{\gamma_{\text{block}[i]}} + \beta_{\text{treatment}[i]} \\
-\beta_j  & \sim \operatorname{Normal}(0, 0.5) \;\;\; , \text{for } j = 1..4 \\
-\alpha_j & \sim \operatorname{Normal}(\bar \alpha, \sigma_\alpha) \;\;\; , \text{for } j = 1..7 \\
-\color{#CD8500}{\gamma_j} & \color{#CD8500} \sim \color{#CD8500}{\operatorname{Normal}(0, \sigma_\gamma) \;\;\; , \text{for } j = 1..6} \\
+\beta_j  & \sim \operatorname{Normal}(0, 0.5) \;\;\; , \text{for } j = 1, \dots, 4 \\
+\alpha_j & \sim \operatorname{Normal}(\bar \alpha, \sigma_\alpha) \;\;\; , \text{for } j = 1, \dots, 7 \\
+\color{#CD8500}{\gamma_j} & \color{#CD8500} \sim \color{#CD8500}{\operatorname{Normal}(0, \sigma_\gamma) \;\;\; , \text{for } j = 1, \dots, 6} \\
 \bar \alpha   & \sim \operatorname{Normal}(0, 1.5) \\
 \sigma_\alpha & \sim \operatorname{Exponential}(1) \\
 \color{#CD8500}{\sigma_\gamma} & \color{#CD8500} \sim \color{#CD8500}{\operatorname{Exponential}(1)}.
@@ -624,7 +624,7 @@ I am so sorry, but we are about to head straight into a load of confusion. If yo
 \text{left_pull}_i         & \sim \operatorname{Binomial}(n_i = 1, p_i) \\
 \operatorname{logit} (p_i) & = \bar \alpha + \beta_{\text{treatment}[i]} + \color{#CD8500}{z_{\text{actor}[i]} \sigma_\alpha + x_{\text{block}[i]} \sigma_\gamma} \\
 \bar \alpha   & \sim \operatorname{Normal}(0, 1.5) \\
-\beta_j       & \sim \operatorname{Normal}(0, 0.5) \;\;\; , \text{for } j = 1..4 \\
+\beta_j       & \sim \operatorname{Normal}(0, 0.5) \;\;\; , \text{for } j = 1, \dots, 4 \\
 \color{#CD8500}{z_j} & \color{#CD8500}\sim \color{#CD8500}{\operatorname{Normal}(0, 1)} \\
 \color{#CD8500}{x_j} & \color{#CD8500}\sim \color{#CD8500}{\operatorname{Normal}(0, 1)} \\
 \sigma_\alpha & \sim \operatorname{Exponential}(1) \\
