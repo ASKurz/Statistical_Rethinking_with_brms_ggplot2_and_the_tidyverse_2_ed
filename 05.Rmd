@@ -1791,7 +1791,7 @@ We can update our statistical model to include `sex` with the formula
 \begin{align*}
 \text{height}_i & \sim \operatorname{Normal}(\mu_i, \sigma) \\
 \mu_i    & = \alpha_{\text{sex}[i]} \\
-\alpha_j & \sim \operatorname{Normal}(178, 20) & \text{for } j = 1..2 \\
+\alpha_j & \sim \operatorname{Normal}(178, 20) & \text{for } j = 1 \; \& \; 2 \\
 \sigma   & \sim \operatorname{Exponential}(1),
 \end{align*}
 
@@ -1873,7 +1873,7 @@ Our statistical model follows the form
 \begin{align*}
 \text{kcal.per.g_s}_i & \sim \operatorname{Normal}(\mu_i, \sigma) \\
 \mu_i    & = \alpha_{\text{clade}[i]} \\
-\alpha_j & \sim \operatorname{Normal}(0, 0.5), & \text{for } j = 1..4 \\
+\alpha_j & \sim \operatorname{Normal}(0, 0.5), & \text{for } j = 1, \dots, 4 \\
 \sigma   & \sim \operatorname{Exponential}(1).
 \end{align*}
 
@@ -1991,8 +1991,8 @@ I bring this all up because the **rethinking** package has no problem handling m
 \begin{align*}
 \text{kcal.per.g_s}_i & \sim \operatorname{Normal}(\mu_i, \sigma) \\
 \mu_i    & = \alpha_{\color{#8B1A1A}{\text{clade}[i]}} + \alpha_{\color{#8B1A1A}{\text{house}[i]}} \\
-\alpha_{\color{#8B1A1A}{\text{clade}, j}} & \sim \operatorname{Normal}(0, 0.5), && \color{#8B1A1A}{\text{for } j = 1..4} \\
-\alpha_{\color{#8B1A1A}{\text{house}, k}} & \sim \operatorname{Normal}(0, 0.5), && \color{#8B1A1A}{\text{for } k = 1..4} \\
+\alpha_{\color{#8B1A1A}{\text{clade}, j}} & \sim \operatorname{Normal}(0, 0.5), && \color{#8B1A1A}{\text{for } j = 1, \dots, 4} \\
+\alpha_{\color{#8B1A1A}{\text{house}, k}} & \sim \operatorname{Normal}(0, 0.5), && \color{#8B1A1A}{\text{for } k = 1, \dots, 4} \\
 \sigma   & \sim \operatorname{Exponential}(1),
 \end{align*}
 
@@ -2221,7 +2221,7 @@ Our multilevel ANOVA approach will give us an overall intercept (mean) for `kcal
 \mu_i & = \alpha + \color{#8B1A1A}{u_{j[i]}} \\
 \alpha & \sim \operatorname{Normal}(0, 0.5) \\
 \sigma   & \sim \operatorname{Exponential}(1) \\
-\color{#8B1A1A}{u_j} & \color{#8B1A1A}\sim \color{#8B1A1A}{\operatorname{Normal}(0, \sigma_\text{clade})}, & \color{#8B1A1A}{\text{for } j = 1..4}  \\
+\color{#8B1A1A}{u_j} & \color{#8B1A1A}\sim \color{#8B1A1A}{\operatorname{Normal}(0, \sigma_\text{clade})}, & \color{#8B1A1A}{\text{for } j = 1, \dots, 4}  \\
 \color{#8B1A1A}{\sigma_\text{clade}} & \color{#8B1A1A}\sim \color{#8B1A1A}{\operatorname{Exponential}(1)},
 \end{align*}
 
