@@ -53,7 +53,7 @@ d %>%
   knitr::kable()
 ```
 
-It would be conventional to include these two variables and their interaction using dummy variables. We're going to follow McElreath and use an index variable approach, instead. If you'd like to see what this would look like using the dummy variable approach, check out my [-@kurzStatisticalRethinkingBrms2020] [translation of the corresponding section](https://bookdown.org/content/3890/counting-and-classification.html#logistic-regression-prosocial-chimpanzees.) from McElreath's first edition [@mcelreathStatisticalRethinkingBayesian2015]. For now, make the index, which we'll be saving as a factor.
+It would be conventional to include these two variables and their interaction using dummy variables. We're going to follow McElreath and use an index variable approach, instead. If you'd like to see what this would look like using the dummy variable approach, check out my [-@kurzStatisticalRethinkingBrms2020] [translation of the corresponding section](https://bookdown.org/content/3890/counting-and-classification.html#logistic-regression-prosocial-chimpanzees.) from McElreath's first [-@mcelreathStatisticalRethinkingBayesian2015] edition. For now, make the index, which we'll be saving as a factor.
 
 ```{r}
 d <-
@@ -444,7 +444,7 @@ p2 <-
                   fatten = 2.5, show.legend = F) + 
   labs(subtitle = "posterior predictions")
 
-# combine the to subplots
+# combine the two ggplots
 library(patchwork)
 
 (p1 / p2) &
@@ -538,7 +538,7 @@ fitted(b11.5,
 
 #### Overthinking: Adding log-probability calculations to a Stan model. 
 
-For retrieving log-probability summaries, our approach with **brms** is a little different than the one you might take with McElreath's **rethinking**. Rather than adding a `log_lik=TRUE` argument within `rethinking::ulam()`, we just use the `log_lik()` after fitting a **brms** model. You may recall we already practiced this way back in [Section 7.2.4.1][Overthinking: Computing the lppd.]. Here's a quick example of what that looks like for `b11.5`.
+For retrieving log-probability summaries, our approach with **brms** is a little different than the one you might take with McElreath's **rethinking**. Rather than adding a `log_lik=TRUE` argument within `rethinking::ulam()`, we just use the `log_lik()` function after fitting a **brms** model. You may recall we already practiced this way back in [Section 7.2.4.1][Overthinking: Computing the lppd.]. Here's a quick example of what that looks like for `b11.5`.
 
 ```{r}
 log_lik(b11.5) %>% str()
@@ -987,7 +987,7 @@ posterior_samples(b11.8) %>%
           lower = list(continuous = my_lower),
           labeller = "label_parsed") +
   labs(title = "Model: b11.8",
-       subtitle = "The parameters are highly correlated") +
+       subtitle = "The parameters are strongly correlated.") +
   theme(strip.text = element_text(size = 11))
 ```
 
@@ -1171,7 +1171,7 @@ prior <-
   expand(nesting(i, a, b),
          x = seq(from = log(100), to = log(200000), length.out = 100))
 
-# plot
+# left
 p1 <-
   prior %>% 
   ggplot(aes(x = x, y = exp(a + b * x), group = i)) +
@@ -1182,6 +1182,7 @@ p1 <-
        y = "total tools") +
   coord_cartesian(xlim = c(log(100), log(200000)),
                   ylim = c(0, 500))
+# right
 p2 <-
   prior %>% 
   ggplot(aes(x = exp(x), y = exp(a + b * x), group = i)) +
@@ -1193,6 +1194,7 @@ p2 <-
   coord_cartesian(xlim = c(100, 200000),
                   ylim = c(0, 500))
 
+# combine
 p1 | p2
 ```
 
