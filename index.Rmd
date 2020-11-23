@@ -1,6 +1,6 @@
 --- 
 title: "*Statistical rethinking* with brms, ggplot2, and the tidyverse: Second edition"
-subtitle: "version 0.0.3.1"
+subtitle: "version 0.1.0"
 author: ["A Solomon Kurz"]
 date: "`r Sys.Date()`"
 site: bookdown::bookdown_site
@@ -46,6 +46,7 @@ I'd like to thank the following for their helpful contributions:
 * Louis Bliard ([\@lbiard](https://github.com/lbiard)),
 * Paul-Christian Bürkner ([\@paul-buerkner](https://github.com/paul-buerkner)),
 * Sebastian Lobentanzer ([\@slobentanzer](https://github.com/slobentanzer)),
+* Ed Merkle ([\@ecmerkle](https://github.com/ecmerkle)),
 * Gavin Simpson ([\@gavinsimpson](https://github.com/gavinsimpson)),
 * Richard Torkar ([\@torkar](https://github.com/torkar)), and
 * Donald R. Williams ([\@donaldRwilliams](https://github.com/donaldRwilliams)). 
