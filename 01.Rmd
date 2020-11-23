@@ -4,6 +4,7 @@ author: "A Solomon Kurz"
 date: "`r format(Sys.Date())`"
 output:
   github_document
+always_allow_html: true
 ---
 
 # The Golem of Prague
@@ -25,9 +26,11 @@ As he opened the chapter, McElreath told us that
 
 There are a lot of great points, themes, methods, and factoids in this text. For me, one of the most powerful themes interlaced throughout the pages is how we should be skeptical of our models. Yes, learn Bayes. Pore over this book. Fit models until late into the night. But please don't fall into blind love with their elegance and power. If we all knew what we were doing, there'd be no need for science. For more wise deflation along these lines, do check out [*A personal essay on Bayes factors*](https://djnavarro.net/post/a-personal-essay-on-bayes-factors/), [*Between the devil and the deep blue sea: Tensions between scientific judgement and statistical model selection*](https://link.springer.com/article/10.1007/s42113-018-0019-z) [@navarroDevilDeepBlue2019] and [*Science, statistics and the problem of "pretty good inference"*](https://www.youtube.com/watch?v=tNkmsAOn7aU), a blog, paper and talk by the inimitable [Danielle Navarro](https://twitter.com/djnavarro?lang=en).
 
-Anyway, McElreath left us no code or figures to translate in this chapter. But before you skip off to the next one, why not invest a little time soaking in this chapter's material by way of a lecture by McElreath, himself? He's an engaging speaker and the material in his online lectures does not entirely overlap with that in the text.
+Anyway, McElreath left us no code or figures to translate in this chapter. But before you skip off to the next one, why not invest a little time soaking in this chapter's material by way of a lecture by McElreath, himself? He's an engaging speaker and the material in his online lectures does not entirely overlap with that in the text. Here's the first lecture from his Winter 2019 course:
 
-```{r, echo = F}
+```{r, echo = F, message = F}
+library(magrittr)
+
 vembedr::embed_url("https://www.youtube.com/watch?v=4WVelCswXo4&list=PLDcUM9US4XdNM4Edgs7weiyIguLSToZRI") %>%
   vembedr::use_align("center")
 ```
