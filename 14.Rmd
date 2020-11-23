@@ -504,7 +504,7 @@ If I'm following along correctly with the text, McElreath's `m14.2` uses the cen
 \begin{align*}
 \text{left_pull}_i & \sim \operatorname{Binomial}(n_i = 1, p_i) \\
 \operatorname{logit} (p_i) & = \gamma_{\text{treatment}[i]} + \alpha_{\text{actor}[i], \text{treatment}[i]} + \beta_{\text{block}[i], \text{treatment}[i]} \\
-\gamma_j & \sim \operatorname{Normal}(0, 1), \;\;\; \text{for } j = 1..4 \\
+\gamma_j & \sim \operatorname{Normal}(0, 1), \;\;\; \text{for } j = 1, \dots, 4 \\
 \begin{bmatrix} \alpha_{j, 1} \\ \alpha_{j, 2} \\ \alpha_{j, 3} \\ \alpha_{j, 4} \end{bmatrix} & \sim \operatorname{MVNormal} \begin{pmatrix} \begin{bmatrix} 0 \\ 0 \\ 0 \\ 0 \end{bmatrix}, \mathbf \Sigma_\text{actor} \end{pmatrix} \\
 \begin{bmatrix} \beta_{j, 1} \\ \beta_{j, 2} \\ \beta_{j, 3} \\ \beta_{j, 4} \end{bmatrix} & \sim \operatorname{MVNormal} \begin{pmatrix} \begin{bmatrix} 0 \\ 0 \\ 0 \\ 0 \end{bmatrix}, \mathbf \Sigma_\text{block} \end{pmatrix} \\
 \mathbf \Sigma_\text{actor} & = \mathbf{S_\alpha R_\alpha S_\alpha} \\
