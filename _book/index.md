@@ -1,8 +1,8 @@
 --- 
 title: "*Statistical rethinking* with brms, ggplot2, and the tidyverse: Second edition"
-subtitle: "version 0.0.3.1"
+subtitle: "version 0.1.0"
 author: ["A Solomon Kurz"]
-date: "2020-10-11"
+date: "2020-11-23"
 site: bookdown::bookdown_site
 output: 
   bookdown::gitbook:
@@ -30,9 +30,14 @@ This ebook is based on the second edition of [Richard McElreath](https://twitter
 
 ## Caution: Work in progress {-}
 
-The inaugural 0.0.1 release contained first drafts of Chapters 1 through 9. The 0.0.2 update added drafts of Chapters 10 through 12. The 0.0.3 update added drafts of Chapters 13 and 14. This 0.0.3.1 update corrects a few typos and adds $\color{blue}{\text{color}}$ to some of the $\LaTeX$ formulas.
+After chipping away at mini releases of partial drafts, welcome to version 0.1.0! This is the first "full length" draft of this book. I say "full length" in quotes because although we have chapters corresponding to all the 17 chapters in McElreath's source material, some areas could use a little fleshing out. The sections I'm particularly anxious to improve are
 
-There is no timetable for this project, but I'll update it periodically with new chapters and so on. To keep up with the latest changes, check in at the GitHub repository, [https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed](https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed), or follow my announcements on twitter at [https://twitter.com/SolomonKurz](https://twitter.com/SolomonKurz).
+* [4.6][~~Summary~~ B-splines with **brms**], which introduces the **brms** approach to b-splines;
+* [15.3][Categorical errors and discrete absences], which may someday include a **brms** workflow for categorical missing data;
+* [16.2.3][Coding the statistical model.], which contains a mixture model that McElreath fit directly in Stan and I suspect may be possible in **brms** with a custom likelihood; and
+* [16.4.2][The statistical model.], which contains an ordinary differential equation model that McElreath fit directly in Stan and I suspect may be possible in **brms**, but is beyond my current skill set.
+
+If you have insights on how to improve any of these sections, please share your thoughts on GitHub at [https://github.com/ASKurz/Doing-Bayesian-Data-Analysis-in-brms-and-the-tidyverse/issues](https://github.com/ASKurz/Doing-Bayesian-Data-Analysis-in-brms-and-the-tidyverse/issues).
 
 ## Thank-you's are in order {-}
 
@@ -46,11 +51,28 @@ I'd like to thank the following for their helpful contributions:
 * Louis Bliard ([\@lbiard](https://github.com/lbiard)),
 * Paul-Christian Bürkner ([\@paul-buerkner](https://github.com/paul-buerkner)),
 * Sebastian Lobentanzer ([\@slobentanzer](https://github.com/slobentanzer)),
+* Ed Merkle ([\@ecmerkle](https://github.com/ecmerkle)),
 * Gavin Simpson ([\@gavinsimpson](https://github.com/gavinsimpson)),
 * Richard Torkar ([\@torkar](https://github.com/torkar)), and
 * Donald R. Williams ([\@donaldRwilliams](https://github.com/donaldRwilliams)). 
 
 Science is better when we work together.
+
+## License and citation {-}
+
+This book is licensed under the Creative Commons Zero v1.0 Universal license. You can learn the details, [here](https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed/blob/master/LICENSE). In short, you can use my work. Just make sure you give me the appropriate credit the same way you would for any other scholarly resource. Here's the citation information:
+
+
+```r
+@book{kurzStatisticalRethinkingSecondEd2020,
+  title = {Statistical rethinking with brms, ggplot2, and the tidyverse: {{Second}} edition},
+  author = {Kurz, A. Solomon},
+  year = {2020},
+  month = nov,
+  edition = {version 0.1.0},
+  url = {https://bookdown.org/content/4857/}
+}
+```
 
 
 
