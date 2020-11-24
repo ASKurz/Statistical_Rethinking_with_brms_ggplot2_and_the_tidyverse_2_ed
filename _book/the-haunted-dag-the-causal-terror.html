@@ -24,7 +24,7 @@
 <meta name="author" content="A Solomon Kurz" />
 
 
-<meta name="date" content="2020-11-23" />
+<meta name="date" content="2020-11-24" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -1435,7 +1435,7 @@ h_{1i}  &amp; \sim \operatorname{Normal}(\mu_i, \sigma) \\
 ##     d &lt;- data.frame(age = A, married = M, happiness = H)
 ##     return(d)
 ## }
-## &lt;bytecode: 0x7fcb79a4f398&gt;
+## &lt;bytecode: 0x7ff9c78d2200&gt;
 ## &lt;environment: namespace:rethinking&gt;</code></pre>
 <p>Quite frankly, I can’t make sense of it. So we’ll just have to move forward and use the convenience function rather than practicing a <strong>tidyverse</strong> alternative. If you have a handle on what’s going on and have a <strong>tidyverse</strong> alternative, <a href="https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed/issues">please share your code</a>.</p>
 <div class="sourceCode" id="cb705"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb705-1"><a href="the-haunted-dag-the-causal-terror.html#cb705-1"></a>d &lt;-<span class="st"> </span>rethinking<span class="op">::</span><span class="kw">sim_happiness</span>(<span class="dt">seed =</span> <span class="dv">1977</span>, <span class="dt">N_years =</span> <span class="dv">1000</span>)</span>

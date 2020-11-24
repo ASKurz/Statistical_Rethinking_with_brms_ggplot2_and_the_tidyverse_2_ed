@@ -24,7 +24,7 @@
 <meta name="author" content="A Solomon Kurz" />
 
 
-<meta name="date" content="2020-11-23" />
+<meta name="date" content="2020-11-24" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -824,7 +824,7 @@ Also, don’t miss the statement on <span class="math inline">\(p\)</span>-value
 ##     model_name &lt;- deparse(match.call()[[2]])
 ##     mtext(model_name, adj = 0)
 ## }
-## &lt;bytecode: 0x7fa7ad384c48&gt;
+## &lt;bytecode: 0x7fea21b06710&gt;
 ## &lt;environment: namespace:rethinking&gt;</code></pre>
 <p>Though we’ll be taking a slightly different route than the one outlined in McElreath’s <code>brain_loo_plot()</code> function, we can glean some great insights. For example, here’s a tricky way to update a <code>quap()</code> model.</p>
 <div class="sourceCode" id="cb774"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb774-1"><a href="ulysses-compass.html#cb774-1"></a>m7.<span class="fl">1.1</span> &lt;-<span class="st"> </span><span class="kw">quap</span>(m7<span class="fl">.1</span><span class="op">@</span>formula,</span>

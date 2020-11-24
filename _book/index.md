@@ -2,7 +2,7 @@
 title: "*Statistical rethinking* with brms, ggplot2, and the tidyverse: Second edition"
 subtitle: "version 0.1.0"
 author: ["A Solomon Kurz"]
-date: "2020-11-23"
+date: "2020-11-24"
 site: bookdown::bookdown_site
 output: 
   bookdown::gitbook:
@@ -37,7 +37,7 @@ After chipping away at mini releases of partial drafts, welcome to version 0.1.0
 * [16.2.3][Coding the statistical model.], which contains a mixture model that McElreath fit directly in Stan and I suspect may be possible in **brms** with a custom likelihood; and
 * [16.4.2][The statistical model.], which contains an ordinary differential equation model that McElreath fit directly in Stan and I suspect may be possible in **brms**, but is beyond my current skill set.
 
-If you have insights on how to improve any of these sections, please share your thoughts on GitHub at [https://github.com/ASKurz/Doing-Bayesian-Data-Analysis-in-brms-and-the-tidyverse/issues](https://github.com/ASKurz/Doing-Bayesian-Data-Analysis-in-brms-and-the-tidyverse/issues).
+If you have insights on how to improve any of these sections, please share your thoughts on GitHub at [https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed/issues](https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed/issues).
 
 ## Thank-you's are in order {-}
 
