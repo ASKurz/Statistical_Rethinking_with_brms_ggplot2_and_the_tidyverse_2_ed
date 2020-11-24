@@ -173,11 +173,11 @@ So, when I'm working on a project, I fit one or a few simplified models before f
 
 ## Look at your data
 
-Relatedly, and perhaps even a precursor, you should always plot your data before fitting a model. There were plenty examples of this in the text, but it's worth it making explicit. Simple summary statistics are great, but they're not enough. For an entertaining exposition, check out Matejka and Fitzmaurice's [-@matejkaSameStats2017] [Same stats, different graphs: Generating datasets with varied appearance and identical statistics through simulated annealing*](https://www.autodeskresearch.com/publications/samestats). Though it might make for a great cocktail party story, I'd hate to pollute the scientific literature with a linear model based on a set of dinosaur-shaped data.
+Relatedly, and perhaps even a precursor, you should always plot your data before fitting a model. There were plenty examples of this in the text, but it's worth it making explicit. Simple summary statistics are great, but they're not enough. For an entertaining exposition, check out Matejka and Fitzmaurice's [-@matejkaSameStats2017] [*Same stats, different graphs: Generating datasets with varied appearance and identical statistics through simulated annealing*](https://www.autodeskresearch.com/publications/samestats). Though it might make for a great cocktail party story, I'd hate to pollute the scientific literature with a linear model based on a set of dinosaur-shaped data.
 
 ## Consider using the `0 + Intercept` syntax
 
-We covered this a little in the last couple chapters (e.g., [Section 15.4.7][Fit the Bayesian muiltilevel alternative.], [Section 16.4.3][~~Lynx lessons~~ Bonus: Practice with the autoregressive model.]), but it's easy to miss. If your real-world model has predictors (i.e., isn't an intercept-only model), it's important to keep track of how you have centered those predictors. When you specify a prior for a **brms** `Intercept` (i.e., an intercept resulting from the `y ~ x` or `y ~ 1 + x` style of syntax), that prior is applied under the presumption all the predictors are mean centered. In the *Population-level ('fixed') effects* subsection of the *`set_prior`* section of the [**brms** reference manual](https://cran.r-project.org/package=brms/brms.pdf) [@brms2020RM], we read:
+We covered this a little in the last couple chapters (e.g., [Section 15.4.7][Fit the Bayesian muiltilevel alternative.], [Section 16.4.3][~~Lynx lessons~~ Bonus: Practice with the autoregressive model.]), but it's easy to miss. If your real-world model has predictors (i.e., isn't an intercept-only model), it's important to keep track of how you have centered those predictors. When you specify a prior for a **brms** `Intercept` (i.e., an intercept resulting from the `y ~ x` or `y ~ 1 + x` style of syntax), <u>that prior is applied under the presumption all the predictors are mean centered</u>. In the *Population-level ('fixed') effects* subsection of the *`set_prior`* section of the [**brms** reference manual](https://cran.r-project.org/package=brms/brms.pdf) [@brms2020RM], we read:
 
 > Note that technically, this prior is set on an intercept that results when internally centering all population-level predictors around zero to improve sampling efficiency. On this centered intercept, specifying a prior is actually much easier and intuitive than on the original intercept, since the former represents the expected response value when all predictors are at their means. To treat the intercept as an ordinary population-level effect and avoid the centering parameterization, use `0 + intercept` on the right-hand side of the model formula
 
@@ -185,7 +185,7 @@ We get a little more information from the *Parameterization of the population-le
 
 > This behavior can be avoided by using the reserved (and internally generated) variable Intercept. Instead of `y ~ x`, you may write `y ~ 0 + Intercept + x`. This way, priors can be defined on the real intercept, directly. In addition, the intercept is just treated as an ordinary population-level effect and thus priors defined on `b` will also apply to it. Note that this parameterization may be less efficient than the default parameterization discussed above.
 
-We didn't bother with this for most of our models because McElreath chose to emphasize mean-centered and standardized predictors in the second edition of his text. But this will not always be the case. Sometimes you might have a good reason not to center your predictors. Regardless, do set your `Intercept` priors with care.
+We didn't bother using the `0 + Intercept` syntax for most of our models because McElreath chose to emphasize mean-centered and standardized predictors in the second edition of his text. But this will not always be the case. Sometimes you might have a good reason not to center your predictors. In those cases, the `0 + Intercept` syntax can make a difference. Regardless, do set your `Intercept` priors with care.
 
 ## Annotate your workflow
 
@@ -214,7 +214,9 @@ I've also learned to break up my projects into multiple R Notebook files. If you
 
 Putting all that information in one R Notebook file would be overwhelming. Your workflow might well look different, but hopefully you get the idea. You don't want working files with thousands of lines of code.
 
-And mainly to keep Jenny Bryan from [setting my computer on fire](https://www.tidyverse.org/articles/2017/12/workflow-vs-script/), I'm also getting into the habit of organizing all these interconnected files with help from [RStudio Projects](https://support.rstudio.com/hc/en-us/articles/200526207-Using-Projects), which you can learn even more about from [Chapter 8](https://r4ds.had.co.nz/workflow-projects.html) in *R4DS* [@grolemundDataScience2017].
+To get a sense of what this can look like in practice, you might follow this link, [https://osf.io/vekpf/](https://osf.io/vekpf/), to the OSF project site for one of my recent conference presentations [@kurzEvenTreatmentFunctional2019]. In the [wiki](https://osf.io/vekpf/wiki/home/), I explained the contents of 10 files supporting the analyses we presented at the conference. Each of those 10 `.html` files has its origin in its own `.Rmd` file.
+
+Mainly to keep Jenny Bryan from [setting my computer on fire](https://www.tidyverse.org/articles/2017/12/workflow-vs-script/), I'm also in the habit of organizing interconnected project files with help from [RStudio Projects](https://support.rstudio.com/hc/en-us/articles/200526207-Using-Projects). You can learn more about these from [Chapter 8](https://r4ds.had.co.nz/workflow-projects.html) in *R4DS* [@grolemundDataScience2017]. They might seem trivial, at first, but I've come to value the simple ways in RStudio Projects help streamline my workflow.
 
 ## Code in public
 
@@ -260,7 +262,7 @@ If you're not on it, consider joining academic (see the related blog posts by [S
 
 [I'm on twitter](https://twitter.com/SolomonKurz?lang=en), too.
 
-There are also some great blogs out there. Of primary interest, McElreath blogs once in a blue moon at [https://elevanth.org/blog/](https://elevanth.org/blog/). Andrew Gelman regularly blogs at [https://statmodeling.stat.columbia.edu/books/](https://statmodeling.stat.columbia.edu/books/). Many of Gelman's posts are great, but don't miss the action in the comments sections.
+There are also some great blogs out there. Of primary interest, McElreath blogs once in a blue moon at [https://elevanth.org/blog/](https://elevanth.org/blog/). Andrew Gelman regularly blogs at [https://statmodeling.stat.columbia.edu/](https://statmodeling.stat.columbia.edu/). Many of Gelman's posts are great, but don't miss the action in the comments sections.
 
 Also, do check out the [Stan Forums](https://discourse.mc-stan.org). They have a special [**brms** tag](https://discourse.mc-stan.org/c/interfaces/brms) there, under which you can find all kinds of hot **brms** talk.
 
