@@ -216,7 +216,7 @@ Putting all that information in one R Notebook file would be overwhelming. Your 
 
 To get a sense of what this can look like in practice, you might follow this link, [https://osf.io/vekpf/](https://osf.io/vekpf/), to the OSF project site for one of my recent conference presentations [@kurzEvenTreatmentFunctional2019]. In the [wiki](https://osf.io/vekpf/wiki/home/), I explained the contents of 10 files supporting the analyses we presented at the conference. Each of those 10 `.html` files has its origin in its own `.Rmd` file.
 
-Mainly to keep Jenny Bryan from [setting my computer on fire](https://www.tidyverse.org/articles/2017/12/workflow-vs-script/), I'm also in the habit of organizing interconnected project files with help from [RStudio Projects](https://support.rstudio.com/hc/en-us/articles/200526207-Using-Projects). You can learn more about these from [Chapter 8](https://r4ds.had.co.nz/workflow-projects.html) in *R4DS* [@grolemundDataScience2017]. They might seem trivial, at first, but I've come to value the simple ways in RStudio Projects help streamline my workflow.
+Mainly to keep Jenny Bryan from [setting my computer on fire](https://www.tidyverse.org/articles/2017/12/workflow-vs-script/), I'm also in the habit of organizing interconnected project files with help from [RStudio Projects](https://support.rstudio.com/hc/en-us/articles/200526207-Using-Projects). You can learn more about these from [Chapter 8](https://r4ds.had.co.nz/workflow-projects.html) in *R4DS* [@grolemundDataScience2017]. They might seem trivial, at first, but I've come to value the simple ways in which RStudio Projects help streamline my workflow.
 
 ## Code in public
 
