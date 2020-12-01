@@ -174,8 +174,9 @@ theme_set(
           panel.grid = element_blank())
   )
 
-# to reset the default ggplot2 theme to its default parameters,
-# execute `ggplot2::theme_set(theme_gray())` and `ggdark::invert_geom_defaults()`
+# to reset the default ggplot2 theme to its default parameters, execute both:
+# ggplot2::theme_set(theme_gray())
+# ggdark::invert_geom_defaults()
 ```
 
 For the rest of our color palette, we'll use colors from the [**viridis** package](https://github.com/sjmgarnier/viridis) [@R-viridis], which provides a variety of colorblind-safe color palettes [see @rudisViridisColorPalettes2018].
@@ -299,7 +300,6 @@ d %>%
 
 Our model will follow the form
 
-$$
 \begin{align*}
 \color{#5D01A6FF}{\text{Divorce}_{\text{OBS}, i}} & \color{#5D01A6FF}\sim \color{#5D01A6FF}{\operatorname{Normal}(\text{Divorce}_{\text{TRUE}, i}, \text{Divorce}_{\text{SE}, i})} \\
 \color{#5D01A6FF}{\text{Divorce}_{\text{TRUE}, i}} & \sim \operatorname{Normal}(\mu_i, \sigma) \\
@@ -309,7 +309,6 @@ $$
 \beta_2 & \sim \operatorname{Normal}(0, 0.5) \\
 \sigma  & \sim \operatorname{Exponential}(1).
 \end{align*}
-$$
 
 Fire up **brms**.
 
@@ -347,13 +346,12 @@ Check the model summary.
 print(b15.1)
 ```
 
-To return the summaries for the `D_true[i]` parameters, you might execute `posterior_summary(b15.1)` or `b15.1$fit`. Here we'll use the `broom::tidy()` method, instead. 
+To return the summaries for the `D_true[i]` parameters, you might execute `posterior_summary(b15.1)` or `b15.1$fit`.
 
 ```{r}
-library(broom)
-
-tidy(b15.1, prob = .89) %>%
-  mutate_if(is.numeric, round, digits = 2)
+posterior_summary(b15.1) %>% 
+  round(digits = 2) %>% 
+  data.frame()
 ```
 
 Our rows `Yl[1]` through `Yl[50]` correspond to what **rethinking** named `D_true[1]` through `D_true[50]`. Here's the code for our Figure 15.2.a.
@@ -364,8 +362,10 @@ library(ggrepel)
 states <- c("AL", "AR", "ME", "NH", "RI", "DC", "VT", "AK", "SD", "UT", "ID", "ND", "WY")
 
 d_est <-
-  tidy(b15.1) %>% 
-  mutate(D_est = estimate) %>% 
+  posterior_summary(b15.1) %>% 
+  data.frame() %>% 
+  rownames_to_column("term") %>% 
+  mutate(D_est = Estimate) %>% 
   select(term, D_est) %>% 
   filter(str_detect(term, "Yl")) %>% 
   bind_cols(d)
@@ -458,7 +458,6 @@ dagify(M    ~ A,
 
 We will express this DAG in an augmented statistical model following the form
 
-$$
 \begin{align*}
 \text{Divorce}_{\text{OBS}, i}  & \sim \operatorname{Normal}(\text{Divorce}_{\text{TRUE}, i}, \text{Divorce}_{\text{SE}, i}) \\
 \text{Divorce}_{\text{TRUE}, i} & \sim \operatorname{Normal}(\mu_i, \sigma) \\
@@ -470,7 +469,6 @@ $$
 \beta_2 & \sim \operatorname{Normal}(0, 0.5) \\
 \sigma  & \sim \operatorname{Exponential}(1).
 \end{align*}
-$$
 
 The current version **brms** allows users to specify error on predictors with an `me()` statement in the form of `me(predictor, sd_predictor)` where `sd_predictor` is a vector in the data denoting the size of the measurement error, presumed to be in a standard-deviation metric.
       
@@ -517,14 +515,13 @@ sigma ~ dexp( 1 )
 
 # summary
 precis(m15.2, depth = 2)
-tidy(b15.2, prob = .89) %>% mutate_if(is.double, round, digits = 2) %>% filter(str_detect(term, "Xme_"))
 ```
 
-We'll use `broom::tidy()`, again, to get a sense of `depth=2` summaries.
+We'll use `posterior_smmary()`, again, to get a sense of those `depth=2` summaries.
 
 ```{r, results = 'hide'}
-tidy(b15.2) %>%
-  mutate_if(is.numeric, round, digits = 2)
+posterior_summary(b15.2) %>%
+ round(digits = 2)
 ```
 
 Due to space concerns, I'm not going to show the results, here. You can do that on your own. Basically, now in addition to the posterior summaries for the `Yl[i]` parameters (what McElreath called $D_{\text{TRUE}, i}$), we now get posterior summaries for `Xme_meM_obs[i]` (what McElreath called $M_{\text{TRUE}, i}$). Note that you'll need to specify `save_mevars = TRUE` in the `brm()` function in order to save the posterior samples of error-adjusted variables obtained by using the `me()` argument. Without doing so, functions like `predict()` may give you trouble. Here's our version of Figure 15.3.
@@ -535,15 +532,24 @@ color_p <- viridis_pal(option = "C")(7)[2]
 
 # wrangle
 full_join(
+  # D
   tibble(Loc   = d %>% pull(Loc),
          D_obs = d %>% pull(D_obs),
-         D_est = tidy(b15.2) %>% filter(str_detect(term, "Yl")) %>% pull(estimate)) %>% 
+         D_est = posterior_summary(b15.2) %>% 
+           data.frame() %>% 
+           rownames_to_column("term") %>% 
+           filter(str_detect(term, "Yl")) %>% 
+           pull(Estimate)) %>% 
     pivot_longer(-Loc, values_to = "d") %>% 
     mutate(name = if_else(name == "D_obs", "observed", "posterior")),
-  
+  # M
   tibble(Loc   = d %>% pull(Loc),
          M_obs = d %>% pull(M_obs),
-         M_est = tidy(b15.2) %>% filter(str_detect(term, "Xme_")) %>% pull(estimate)) %>% 
+         M_est = posterior_summary(b15.2) %>% 
+           data.frame() %>% 
+           rownames_to_column("term") %>% 
+           filter(str_detect(term, "Xme_")) %>% 
+           pull(Estimate)) %>% 
     pivot_longer(-Loc, values_to = "m") %>% 
     mutate(name = if_else(name == "M_obs", "observed", "posterior")),
   by = c("Loc", "name")
@@ -711,20 +717,20 @@ print(b15.2c)
 text <-
   tibble(fit      = "b15.2b",
          term     = "beta[0]",
-         estimate = fixef(b15.2b, probs = .99)["Intercept", 3],
+         Estimate = fixef(b15.2b, probs = .99)["Intercept", 3],
          label    = "In this plot, we like the yellow posteriors.")
 
 # wrangle
-bind_rows(
-  tidy(b15.2b) %>% filter(term != "lp__") %>% mutate(term = c(str_c("beta[", 0:2, "]"), "sigma")),
-  tidy(b15.2c) %>% filter(term != "lp__") %>% mutate(term = c(str_c("beta[", 0:2, "]"), "sigma"))
-  ) %>% 
-  mutate(fit = rep(c("b15.2b", "b15.2c"), each = n() / 2)) %>% 
+bind_rows(posterior_summary(b15.2b) %>% data.frame() %>% rownames_to_column("term"),
+          posterior_summary(b15.2c) %>% data.frame() %>% rownames_to_column("term")) %>% 
+  filter(term != "lp__") %>% 
+  mutate(term = rep(c(str_c("beta[", 0:2, "]"), "sigma"), times = 2),
+         fit  = rep(c("b15.2b", "b15.2c"), each = n() / 2)) %>% 
   
   # plot!
-  ggplot(aes(x = estimate, y = fit)) +
+  ggplot(aes(x = Estimate, y = fit)) +
   geom_vline(xintercept = 0, linetype = 3, alpha = 1/2) +
-  geom_pointrange(aes(xmin = lower, xmax = upper, color = fit)) +
+  geom_pointrange(aes(xmin = Q2.5, xmax = Q97.5, color = fit)) +
   geom_text(data = text,
             aes(label = label),
             hjust = 0, color = color_y) +
@@ -762,7 +768,7 @@ dag_coords <-
          y    = c(2, 2, 1, 1))
 
 p1 <-
-  dagify(H ~ S,
+  dagify(H  ~ S,
          Hs ~ H + D,
          coords = dag_coords) %>%
   tidy_dagitty() %>% 
@@ -776,9 +782,9 @@ p1 <-
 
 # panel b
 p2 <-
-  dagify(H ~ S,
+  dagify(H  ~ S,
          Hs ~ H + D,
-         D ~ S,
+         D  ~ S,
          coords = dag_coords) %>%
   tidy_dagitty() %>% 
   mutate(color = ifelse(name == "H", "a", "b")) %>% 
@@ -791,9 +797,9 @@ p2 <-
 
 # panel d
 p4 <-
-  dagify(H ~ S,
+  dagify(H  ~ S,
          Hs ~ H + D,
-         D ~ H,
+         D  ~ H,
          coords = dag_coords) %>%
   tidy_dagitty() %>% 
   mutate(color = ifelse(name == "H", "a", "b")) %>% 
@@ -814,9 +820,9 @@ dag_coords <-
          y    = c(2, 2, 1, 1, 1.5))
 
 p3 <-
-  dagify(H ~ S + X,
+  dagify(H  ~ S + X,
          Hs ~ H + D,
-         D ~ X,
+         D  ~ X,
          coords = dag_coords) %>%
   tidy_dagitty() %>% 
   mutate(color = ifelse(name %in% c("H", "X"), "a", "b")) %>% 
@@ -850,7 +856,7 @@ set.seed(15)
 
 d <-
   tibble(s = rnorm(n, mean = 0, sd = 1)) %>% 
-  mutate(h = rbinom(n, size = 10, inv_logit_scaled(s)),
+  mutate(h   = rbinom(n, size = 10, inv_logit_scaled(s)),
          d_a = rbinom(n, size = 1, prob = .5),
          d_b = ifelse(s > 0, 1, 0)) %>%
   mutate(hm_a = ifelse(d_a == 1, NA, h),
@@ -1081,9 +1087,9 @@ dag_coords <-
 
 # left
 p1 <-
-  dagify(M ~ U,
-         B ~ U,
-         K ~ M + B,
+  dagify(M  ~ U,
+         B  ~ U,
+         K  ~ M + B,
          Bs ~ RB + B,
          coords = dag_coords) %>%
   tidy_dagitty() %>% 
@@ -1097,9 +1103,9 @@ p1 <-
 
 # middle
 p2 <-
-  dagify(M ~ U,
-         B ~ U,
-         K ~ M + B,
+  dagify(M  ~ U,
+         B  ~ U,
+         K  ~ M + B,
          Bs ~ RB + B,
          RB ~ M,
          coords = dag_coords) %>%
@@ -1114,9 +1120,9 @@ p2 <-
 
 # right
 p3 <-
-  dagify(M ~ U,
-         B ~ U,
-         K ~ M + B,
+  dagify(M  ~ U,
+         B  ~ U,
+         K  ~ M + B,
          Bs ~ RB + B,
          RB ~ B,
          coords = dag_coords) %>%
@@ -1146,9 +1152,9 @@ dag_coords <-
          x    = c(1, 2, 2, 3, 4, 4, 3.4),
          y    = c(2, 2, 1, 2, 2, 1, 1.45))
 
-dagify(M ~ U,
-       B ~ U + V,
-       K ~ M + B,
+dagify(M  ~ U,
+       B  ~ U + V,
+       K  ~ M + B,
        Bs ~ RB + B,
        RB ~ V,
        coords = dag_coords) %>%
@@ -1166,7 +1172,6 @@ dagify(M ~ U,
 
 However, our statistical model will follow the form
 
-$$
 \begin{align*}
 K_i     & \sim \operatorname{Normal}(\mu_i, \sigma) \\
 \mu_i   & = \alpha + \beta_1 \color{#5D01A6FF}{B_i} + \beta_2 \log M_i \\
@@ -1178,7 +1183,6 @@ K_i     & \sim \operatorname{Normal}(\mu_i, \sigma) \\
 \color{#5D01A6FF}\nu & \color{#5D01A6FF}\sim \color{#5D01A6FF}{\operatorname{Normal}(0, 0.5)} \\
 \color{#5D01A6FF}{\sigma_B} & \color{#5D01A6FF}\sim \color{#5D01A6FF}{\operatorname{Exponential}(1)},
 \end{align*}
-$$
 
 where we simply presume the missing values in $B_i$, which was $B^*$ in our DAGs, are unrelated to any of the other variables in the model. But those missing values in $B_i$ values do get their own prior distribution, $\operatorname{Normal}(\nu, \sigma_B)$. If you look closely, you'll discover the prior McElreath reported for $\nu$ $[\operatorname{Normal}(0.5, 1)]$ does not match up with his `rethinking::ulam()` code in his **R** code block 15.17, $\operatorname{Normal}(0, 0.5)$. Here we use the latter.
 
@@ -1225,11 +1229,11 @@ With a model like this, `print()` only gives up part of the picture.
 print(b15.5)
 ```
 
-Note that for the parameters summarized in the 'Population-Level Effects:' section, the criterion is indexed in the prefix. The parameters in the 'Family Specific Parameters:', however, have the criteria indexed in the suffix. I don't know why. Anyway, we can get a summary of the imputed values with `tidy()`.
+Note that for the parameters summarized in the 'Population-Level Effects:' section, the criterion is indexed in the prefix. The parameters in the 'Family Specific Parameters:', however, have the criteria indexed in the suffix. I don't know why. Anyway, we can get a summary of the imputed values with `posterior_summary()`.
 
 ```{r}
-tidy(b15.5) %>%
-  mutate_if(is.numeric, round, digits = 2)
+posterior_summary(b15.5) %>%
+  round(digits = 2)
 ```
 
 The imputed `b` values are indexed by occasion number from the original data. This is in contrast with McElreath's `precis()` output, which simply serially indexes the missing values as `B_impute[1]`, `B_impute[2]`, and so on.
@@ -1268,7 +1272,7 @@ b15.6 <-
       file = "fits/b15.06")
 ```
 
-If you run this on your computer, you'll notice the following message at the top: "Rows containing NAs were excluded from the model." This time `print()` gives us the same basic summary information as `tidy()`.
+If you run this on your computer, you'll notice the following message at the top: "Rows containing NAs were excluded from the model." This time `print()` gives us the same basic summary information as `posterior_summary()`.
 
 ```{r}
 print(b15.6)
@@ -1278,16 +1282,16 @@ We can't use McElreath's `plot(coeftab())` trick with our **brms** output, but w
 
 ```{r, fig.width = 6, fig.height = 1.75}
 # wrangle
-bind_rows(
-  tidy(b15.5) %>% slice(3:4) %>% mutate(term = str_c("beta[", 2:1, "]")),
-  tidy(b15.6) %>% slice(2:3) %>% mutate(term = str_c("beta[", 1:2, "]"))
-  ) %>% 
-  mutate(fit = rep(c("b15.5", "b15.6"), each = n() / 2)) %>% 
+bind_rows(fixef(b15.5) %>% data.frame() %>% rownames_to_column("term"),
+          fixef(b15.6) %>% data.frame() %>% rownames_to_column("term")) %>% 
+  slice(c(4:3, 6:7)) %>% 
+  mutate(term = str_c("beta[", c(1:2, 1:2), "]"),
+         fit  = rep(c("b15.5", "b15.6"), each = n() / 2)) %>% 
   
   # plot!
-  ggplot(aes(x = estimate, y = fit)) +
+  ggplot(aes(x = Estimate, y = fit)) +
   geom_vline(xintercept = 0, linetype = 3, alpha = 1/2) +
-  geom_pointrange(aes(xmin = lower, xmax = upper)) +
+  geom_pointrange(aes(xmin = Q2.5, xmax = Q97.5)) +
   labs(x = "marginal posterior",
        y = NULL) +
   theme(axis.ticks.y = element_blank(),
@@ -1304,14 +1308,16 @@ d <-
   d %>% 
   mutate(row = 1:n()) %>% 
   left_join(
-    tidy(b15.5) %>%
+    posterior_summary(b15.5) %>% 
+      data.frame() %>% 
+      rownames_to_column("term") %>% 
       filter(str_detect(term, "Ymi")) %>% 
       mutate(row = str_extract(term, "(\\d)+") %>% as.integer()),
     by = "row"
   ) 
 
 d %>% 
-  select(species, k:upper) %>% 
+  select(species, k:Q97.5) %>% 
   glimpse()
 ```
 
@@ -1326,7 +1332,7 @@ p1 <-
   ggplot(aes(y = k)) +
   geom_point(aes(x = b),
              color = color) +
-  geom_pointrange(aes(x = estimate, xmin = lower, xmax = upper),
+  geom_pointrange(aes(x = Estimate, xmin = Q2.5, xmax = Q97.5),
                   shape = 1, size = 1/4, fatten = 8, stroke = 1/4) +
   labs(x = "neocortex percent (std)",
        y = "kcal milk (std)") +
@@ -1338,7 +1344,7 @@ p2 <-
   ggplot(aes(x = m)) +
   geom_point(aes(y = b),
              color = color) +
-  geom_pointrange(aes(y = estimate, ymin = lower, ymax = upper),
+  geom_pointrange(aes(y = Estimate, ymin = Q2.5, ymax = Q97.5),
                   shape = 1, size = 1/4, fatten = 8, stroke = 1/4) +
   labs(x = "log body mass (std)",
        y = "neocortex percent (std)") +
@@ -1350,7 +1356,6 @@ p1 + p2
 
 "We can improve this model by changing the imputation model to estimate the relationship between the two predictors" (p. 509). In the text, McElreath accomplished this with the model
 
-$$
 \begin{align*}
 K_i   & \sim \operatorname{Normal}(\mu_i, \sigma) \\
 \mu_i & = \alpha + \beta_1 \color{#5D01A6FF}{B_i} + \beta_2 \log M_i \\
@@ -1371,7 +1376,6 @@ K_i   & \sim \operatorname{Normal}(\mu_i, \sigma) \\
 \color{#5D01A6FF}{\sigma_B}  & \color{#5D01A6FF} \sim \color{#5D01A6FF}{\operatorname{Exponential}(1)} \\
 \color{#5D01A6FF} \rho       & \color{#5D01A6FF} \sim \color{#5D01A6FF}{\operatorname{LKJ}(2)},
 \end{align*}
-$$
 
 which expresses the relationship between the two predictors with a residual correlation matrix, $\mathbf \Sigma$. Importantly, though $\mathbf \Sigma$ involves the variables $B_i$ and $M_i$, it does not directly involve the criterion, $K_i$. As it turns out, the current version of **brms** cannot handle a model of this form. When you fit multivariate models with residual correlations, you have to set them for either all variables or none of them. For a little more on this topic, you can skim through the [*Brms and heterogeneous residual covariance - equivalent of "at.level" function*](https://discourse.mc-stan.org/t/brms-and-heterogeneous-residual-covariance-equivalent-of-at-level-function/6637) thread on the Stan Forums. Bürkner's response to the initial question indicated this kind of model will be available in **brms** version 3.0+, which I suspect will entail a substantial reworking of the multivariate syntax. Until then, we can fit the alternative model
 
@@ -1466,16 +1470,18 @@ Our workflow for Figure 15.6 is largely the same as for Figure 15.5. The biggest
 ```{r}
 d <-
   d %>% 
-  select(-(term:upper)) %>% 
+  select(-(term:Q97.5)) %>% 
   left_join(
-    tidy(b15.7) %>%
+    posterior_summary(b15.7) %>% 
+      data.frame() %>% 
+      rownames_to_column("term") %>% 
       filter(str_detect(term, "Ymi")) %>% 
       mutate(row = str_extract(term, "(\\d)+") %>% as.integer()),
     by = "row"
   ) 
 
 d %>% 
-  select(species, k:upper) %>% 
+  select(species, k:Q97.5) %>% 
   glimpse()
 ```
 
@@ -1489,7 +1495,7 @@ p1 <-
   ggplot(aes(y = k)) +
   geom_point(aes(x = b),
              color = color) +
-  geom_pointrange(aes(x = estimate, xmin = lower, xmax = upper),
+  geom_pointrange(aes(x = Estimate, xmin = Q2.5, xmax = Q97.5),
                   shape = 1, size = 1/4, fatten = 8, stroke = 1/4) +
   labs(x = "neocortex percent (std)",
        y = "kcal milk (std)") +
@@ -1500,7 +1506,7 @@ p2 <-
   ggplot(aes(x = m)) +
   geom_point(aes(y = b),
              color = color) +
-  geom_pointrange(aes(y = estimate, ymin = lower, ymax = upper),
+  geom_pointrange(aes(y = Estimate, ymin = Q2.5, ymax = Q97.5),
                   shape = 1, size = 1/4, fatten = 8, stroke = 1/4) +
   labs(x = "log body mass (std)",
        y = "neocortex percent (std)") +
@@ -1579,8 +1585,8 @@ dag_coords <-
          x    = c(1, 2.33, 4, 5.67, 7),
          y    = c(2, 1, 2, 1, 2))
 
-dagify(P ~ G,
-       W ~ P,
+dagify(P  ~ G,
+       W  ~ P,
        RG ~ W,
        Gs ~ G + RG,
        coords = dag_coords) %>%
@@ -1816,7 +1822,9 @@ where $y_j$ is the point estimate in the $j$th study still in the log-odds scale
 
 Our `d` data from the Klein et al replication study includes the un-aggregated data from all of the study locations combined. Before we compute our meta-analysis, we'll need to compute the study-specific effect sizes and standard errors. Here we do so within a nested tibble.
 
-```{r glms}
+```{r glms, warning = F, message = F}
+library(broom)
+
 glms <-
   d %>% 
   select(loc, y, factor) %>% 
@@ -2151,7 +2159,7 @@ sessionInfo()
 rm()
 ```
 
-```{r, echo = F, message = F, warning = F, results = "hide"}
+```{r, echo = F, message = F, warning = F, results = "hide", eval = F}
 pacman::p_unload(pacman::p_loaded(), character.only = TRUE)
 ggplot2::theme_set(ggplot2::theme_grey())
 ggdark::invert_geom_defaults()
