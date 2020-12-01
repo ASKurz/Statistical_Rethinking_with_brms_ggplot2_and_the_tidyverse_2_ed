@@ -2143,6 +2143,90 @@ post %>%
 
 Both panels show 1,000 draws, each of which is depicted by a single dot. If we were to run this experiment 1,000 times and compute the effect size separately for each one, this is what we'd expect those distributions of effect sizes to look like. Seems like there's a lot of variation in there, eh? The next time you observe your fellow scientists debating over whether a study replicated or not, keep these distributions in mind. Once you start thinking about distributions, replication becomes a tricky notion.
 
+### Relative to the muiltilevel model, meta-analyses have limitations.
+
+Although the Bayesian meta-analysis and multilevel models produced very similar results for the effect size, the two are not equivalent. Because the meta-analysis was based on summary information from the effect sizes along, it does not offer all of the insights available from the multilevel model. Other than the random effects, the only population parameters offered by the meta-analysis are the effect size, $\mu$, and the standard deviation around that effect size, $\tau$. These parameters are equivalent to our multilevel model parameters $\beta$ and $\sigma_\beta$, respectively. In addition, the multilevel model added group-level parameter for the average performance in the control condition, $\alpha$, the population-level standard deviation around that mean, $\sigma_\alpha$, and the correlation between the group-specific $\alpha_j$'s and $\beta_j$'s, which we called $\rho_{\alpha \beta}$.
+
+To build a sense of why we might to want these parameters, too, we'll extract the posterior samples for the multilevel model `b15.11`.
+
+```{r}
+post <- posterior_samples(b15.11)
+```
+
+Here we'll make a scatter plot the posterior means of the random intercepts, $\alpha_j$'s, and the random slopes, $\beta_j$'s.
+
+```{r, fig.width = 3.25, fig.height = 3, message = F}
+color <- viridis_pal(option = "C")(7)[7]
+
+c <-
+  full_join(
+  # intercepts
+  post %>% 
+    select(`r_loc[1,Intercept]`:`r_loc[59,Intercept]`) %>% 
+    set_names(1:59) %>% 
+    mutate(iter = 1:n()) %>% 
+    pivot_longer(-iter, values_to = "intercepts"),
+  # slopes
+  post %>% 
+    select(`r_loc[1,factorSideEffect]`:`r_loc[59,factorSideEffect]`) %>% 
+    set_names(1:59) %>% 
+    mutate(iter = 1:n()) %>% 
+    pivot_longer(-iter, values_to = "slopes"),
+  by = c("iter", "name")
+) 
+
+# summarize by the means
+c %>% 
+  group_by(name) %>% 
+  summarise(intercepts = mean(intercepts),
+            slopes = mean(slopes)) %>% 
+  
+  # plot!
+  ggplot(aes(x = intercepts, y = slopes)) +
+  geom_point(color = color) +
+  labs(x = expression(alpha[italic(j)]),
+       y = expression(beta[italic(j)]))
+```
+
+This provides some information, which we wouldn't get from a meta-analysis. However, the plot is a little deceiving. First, it doesn't provide an expression of the uncertainty on the effects. Second, it doesn't give full justice to the correlation between the two effects, $\rho_{\alpha \beta}$. If you look back up at the `print()` output from [Section 15.5.7][Fit the Bayesian muiltilevel alternative.], you'll see that correlation was about `r round(VarCorr(b15.11)$loc$cor[2, 1, "Intercept"], digits = 2)`. We can take some cues from [Section 14.4][Social relations as correlated varying effects] and express the bivariate posteriors as ellipses, rather than simple mean-level points.
+
+```{r, fig.width = 3.25, fig.height = 3}
+c %>% 
+  ggplot(aes(x = intercepts, y = slopes)) +
+  stat_ellipse(aes(group = name),
+               geom = "polygon", level = .05, size = 0, 
+               fill = color, alpha = 1/2) +
+  stat_ellipse(level = .95, color = color) +
+  labs(x = expression(alpha[italic(j)]),
+       y = expression(beta[italic(j)]))
+```
+
+The small semitransparent ellipses depict the inner-most 5% of each of the $j$-level bivariate posteriors. The larger ellipse is the 95% boundary, collapsing across all levels of $j$. Both kinds of summaries help depict the negative correlation between the $\alpha_j$'s and $\beta_j$'s. What that negative correlation means is that, the studies which had larger effect sizes for the control condition tended to have smaller effect sizes for the experimental condition. There's no way you would know that from the meta-analysis approach.
+
+Another way to explore the relation between the model intercepts and slopes is to plot their implications on the probability scale. The way we parameterized the model, the greater-good condition is expressed the $\alpha_j$ and the side-effect condition is expressed as $\alpha_j + \beta_j$. If we were working directly with the `posteior_samples()`, we'd have to do fancy conversions with the `inv_logit_scaled()` function. An easier way is to just use `fitted()`.
+
+```{r, fig.width = 3, fig.height = 2.75}
+breaks <- c(0, inv_logit_scaled(c(fixef(b15.11)[1, 1], fixef(b15.11)[1, 1] + fixef(b15.11)[2, 1])), 1)
+
+nd <- d %>% distinct(loc, factor)
+
+fitted(b15.11,
+       newdata = nd) %>% 
+  data.frame() %>% 
+  bind_cols(nd) %>% 
+  mutate(factor = if_else(factor == "SideEffect", "Side effect", "Greater good")) %>% 
+  
+  ggplot(aes(x = factor, y = Estimate, group = loc)) +
+  geom_line(alpha = 1/2, color = color) +
+  scale_y_continuous("probability", limits = 0:1,
+                     breaks = breaks, labels = round(breaks, digits = 2)) +
+  xlab(NULL) +
+  theme(axis.text.y = element_text(hjust = 0),
+        axis.ticks.x = element_blank())
+```
+
+Each of the 59 levels of our grouping variable `loc` is depicted in one of those 59 lines. Sadly, this approach doesn't do a good job expressing the uncertainty in those lines. Each one is based on the posterior mean. Regardless, this plot offers more insights that were not available from the meta-analysis.
+
 ### Parting thoughts.
 
 There are other things you might do with these data. For example, you might inspect how much the effect size varies between those from WEIRD and non-WEIRD countries. You might also model the data as clustered by `Language` rather than by `Location`. But I think we've gone far enough to get you started.
