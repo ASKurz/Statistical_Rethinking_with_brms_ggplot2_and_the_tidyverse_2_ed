@@ -1354,7 +1354,7 @@ b14.8 <-
   brm(data = d, 
       family = poisson(link = "identity"),
       bf(total_tools ~ exp(a) * population^b / g,
-         a  ~ 1 + gp(lat_adj, lon2_adj, scale = FALSE),
+         a ~ 1 + gp(lat_adj, lon2_adj, scale = FALSE),
          b + g ~ 1,
          nl = TRUE),
       prior = c(prior(normal(0, 1), nlpar = a),
@@ -1878,9 +1878,9 @@ There are also many potential confounds, which we'll call $U$. Also imagine ther
 
 ```{r, fig.width = 3, fig.height = 2, message = F, warning = F}
 dag_coords <-
-  tibble(name  = c("G1", "B1", "U1", "G2", "B2", "U2"),
-         x     = rep(1:2, each = 3),
-         y     = rep(3:1, times = 2))
+  tibble(name = c("G1", "B1", "U1", "G2", "B2", "U2"),
+         x    = rep(1:2, each = 3),
+         y    = rep(3:1, times = 2))
 
 dagify(G2 ~ G1 + U1,
        B2 ~ G1 + B1 + U1,
@@ -2640,7 +2640,7 @@ With respect to $\rho_{31}$, participant 115 showed both a higher intercept and 
 ### Time to go multivariate.
 
 For our final stage in this progression, we will fit what @williamsBayesianMultivariateMixedeffects2019a called a M-MELSM, a multivariate mixed-effects location scale model. Recall these data have measures of both negative and positive affect. The standardized values for PA are waiting for us in the `P_A.std` column. Within the **brms** framework, this is a combination of sensibilities from Bürkner's vignettes on distributional models [@Bürkner2020Distributional] and multivariate models [@Bürkner2020Multivariate]. We might express the statistical model as
-$$
+
 \begin{align*}
 \color{#A65141}{\begin{bmatrix} \text{NA}_{ij} \\ \text{PA}_{ij} \end{bmatrix}} & \color{#A65141}\sim \color{#A65141}{\operatorname{MVNormal}\begin{pmatrix} \begin{bmatrix} 
 \mu_{ij}^\text{NA} \\ \mu_{ij}^\text{PA} \end{bmatrix}, \mathbf \Sigma \end{pmatrix}} \\
@@ -2671,7 +2671,7 @@ $$
 \sigma_0^\text{NA},\dots, \sigma_1^\text{PA} & \sim \operatorname{Exponential}(1) \\
 \mathbf R & \sim \operatorname{LKJ}(2),
 \end{align*}
-$$
+
 where the $\text{NA}$ and $\text{PA}$ superscripts indicate which variable is connected with which parameter. This is a straight multivariate generalization from the previous model, `b14.14`. Now we have eight parameters varying across participants, resulting in an $8 \times 8$ $\mathbf S$ matrix and an $8 \times 8$ $\mathbf R$ matrix. Here's the `brms::brm()` code.
 
 ```{r, eval = F, echo = F}
