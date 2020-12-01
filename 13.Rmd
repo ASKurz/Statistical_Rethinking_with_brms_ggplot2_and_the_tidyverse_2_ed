@@ -274,7 +274,7 @@ Both plots show different ways in expressing the model uncertainty in terms of b
 
 #### Rethinking: Varying intercepts as over-dispersion. 
 
-> In the previous chapter ([page 369][Over-dispersed counts]), the beta- binomial and gamma-Poisson models were presented as ways for coping with **over-dispersion** of count data. Varying intercepts accomplish the same thing, allowing count outcomes to be over-dispersed. They accomplish this, because when each observed count gets its own unique intercept, but these intercepts are pooled through a common distribution, the predictions expect over-dispersion just like a beta-binomial or gamma-Poisson model would. Multilevel models are also mixtures. Compared to a beta-binomial or gamma-Poisson model, a binomial or Poisson model with a varying intercept on every observed outcome will often be easier to estimate and easier to extend. (p. 407, **emphasis** in the original)
+> In the previous chapter ([page 369][Over-dispersed counts]), the beta-binomial and gamma-Poisson models were presented as ways for coping with **over-dispersion** of count data. Varying intercepts accomplish the same thing, allowing count outcomes to be over-dispersed. They accomplish this, because when each observed count gets its own unique intercept, but these intercepts are pooled through a common distribution, the predictions expect over-dispersion just like a beta-binomial or gamma-Poisson model would. Multilevel models are also mixtures. Compared to a beta-binomial or gamma-Poisson model, a binomial or Poisson model with a varying intercept on every observed outcome will often be easier to estimate and easier to extend. (p. 407, **emphasis** in the original)
 
 #### Overthinking: Prior for variance components.
 
@@ -1008,7 +1008,7 @@ posterior_samples(b13.4) %>%
 
 Note how the last three columns are the `rhat`, the `ess_bulk`, and the `ess_tail`. Here we summarize those two effective sample size columns in a scatter plot similar to Figure 13.6, but based only on our `b13.4`, which used the non-centered parameterization.
 
-```{r, fig.width = 3, fig.height = 2.75, warning = F}
+```{r, fig.width = 3.25, fig.height = 3, warning = F}
 posterior_samples(b13.4) %>% 
   summarise_draws() %>% 
 
@@ -1018,7 +1018,9 @@ posterior_samples(b13.4) %>%
   xlim(0, 4700) +
   ylim(0, 4700) +
   ggtitle("Effective sample size summaries for b13.4",
-          subtitle = "ess_bulk is on the x and ess_tail is on the y")
+          subtitle = "ess_bulk is on the x and ess_tail is on the y") +
+  theme(plot.title = element_text(size = 12),
+        plot.subtitle = element_text(size = 10))
 ```
 
 Both measures of effective sample size are fine.
@@ -1434,7 +1436,7 @@ glimpse(d)
 glimpse(cell_counts)
 ```
 
-Our main primary data file, which contains the survey responses to whether women changed their names after marriage, is `d`. Our criterion variable will be `kept_name`, which is dummy coded 0 = "no" 1 = "yes." We have four grouping variables:
+Our primary data file, which contains the survey responses to whether women changed their names after marriage, is `d`. Our criterion variable will be `kept_name`, which is dummy coded 0 = "no" 1 = "yes." We have four grouping variables:
 
 * `age_group`, which ranges from 25 to 75 and is discretized such that 25 = [25, 30), 30 = [30, 35), and so on;
 * `decade_married`, which ranges from 1979 to 2019 and is discretized such that 1979 = [1979, 1989), 1989 = [1989, 1999), and so on; 
@@ -1635,7 +1637,7 @@ Both multilevel and MRP estimates tended to be a little lower than the raw propo
 
 #### Estimates by US state.
 
-Now we turn out attention to variation across states. The workflow, here, will only deviate slightly from what we just did. This time, of course, we will be grouping the estimates by `state_name` instead of by `age_group`. The other notable difference is since we're plotting US state, it might be fun to show the results in a map format. Alexander used the `gemo_statebins()` function from the [**statebins** package](https://CRAN.R-project.org/package=statebins) [@R-statebins]. I thought the results were pretty cool, we we'll do the same. To give you a sense of what we're building, here's the plot of the empirical proportions.
+Now we turn out attention to variation across states. The workflow, here, will only deviate slightly from what we just did. This time, of course, we will be grouping the estimates by `state_name` instead of by `age_group`. The other notable difference is since we're plotting US state, it might be fun to show the results in a map format. Alexander used the `geom_statebins()` function from the [**statebins** package](https://CRAN.R-project.org/package=statebins) [@R-statebins]. I thought the results were pretty cool, we will do the same. To give you a sense of what we're building, here's the plot of the empirical proportions.
 
 ```{r, fig.width = 3, fig.height = 2.75, warning = F, message = F}
 library(statebins)
@@ -1729,7 +1731,7 @@ We're finally ready to combine our three panels into one grand plot.
 
 ```{r, fig.width = 9, fig.height = 4, warning = F}
 (p1 | p2 | p3) +
-  plot_annotation(title = "Proportion of women keeping name after marriage, by state",
+  plot_annotation(title = "Proportion off women keeping name after marriage, by state",
                   theme = theme(plot.margin = margin(0.2, 0, 0.01, 0, "cm")))
 ```
 
