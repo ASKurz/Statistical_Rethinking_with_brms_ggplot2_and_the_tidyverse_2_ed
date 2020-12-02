@@ -632,7 +632,7 @@ n <- 1e4
 at <- 0:6 / 4
 
 # how many prior draws would you like?
-sample_n <- 50
+n_samples <- 50
 
 # simulate
 set.seed(16)
@@ -642,7 +642,7 @@ prior <-
          phi   = rlnorm(n, meanlog = log(1), sdlog = 0.1),
          k     = rlnorm(n, meanlog = log(2), sdlog = 0.25),
          theta = rlnorm(n, meanlog = log(5), sdlog = 0.25)) %>% 
-  sample_n(size = sample_n) %>% 
+  slice_sample(n = n_samples) %>% 
   expand(nesting(index, phi, k, theta),
          age = seq(from = 0, to = 1.5, length.out = 1e2)) %>% 
   mutate(bm = 1 - exp(-k * age),
@@ -717,7 +717,7 @@ No we might get a sense of what this posterior means by plotting nuts per second
 ```{r, fig.width = 4, fig.height = 3.2}
 posterior_samples(b16.4) %>% 
   mutate(iter = 1:n()) %>% 
-  sample_n(sample_n) %>% 
+  slice_sample(n = n_samples) %>% 
   expand(nesting(iter, b_phi_Intercept, b_k_Intercept, b_theta_Intercept),
          age = seq(from = 0, to = 1.5, length.out = 1e2)) %>% 
   mutate(ns = b_phi_Intercept * (1 - exp(-b_k_Intercept * age))^b_theta_Intercept) %>% 
