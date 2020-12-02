@@ -340,7 +340,7 @@ d %>%
 
 We might make the histograms like this.
 
-```{r, fig.width = 5.5, fig.height = 4.25, message = F}
+```{r, fig.width = 4.5, fig.height = 4.25, message = F}
 d %>%
   pivot_longer(everything()) %>% 
   mutate(name = factor(name, levels = c("height", "weight", "age", "male"))) %>% 
@@ -402,7 +402,7 @@ d2 %>%
 
 #### Overthinking: Data frames and indexes.
 
-For more on indexing, check out [Chapter 9](https://bookdown.org/rdpeng/rprogdatascience/subsetting-r-objects.html) of Peng's [-@pengProgrammingDataScience2019] *R programming for data science* or even the [Subsetting](http://r4ds.had.co.nz/vectors.html#subsetting-1) subsection in *R4DS*.
+For more on indexing, check out [Chapter 9](https://bookdown.org/rdpeng/rprogdatascience/subsetting-r-objects.html) of Peng's [-@pengProgrammingDataScience2019] *R programming for data science*, or even the [Subsetting](http://r4ds.had.co.nz/vectors.html#subsetting-1) subsection in *R4DS*.
 
 This probably reflects my training history, but the structure of a data frame seems natural and inherently appealing. If you're in the other camp, do check out either of these two data wrangling talks ([here](https://www.youtube.com/watch?v=4MfUCX_KpdE&t=23s&frags=pl%2Cwn) and [here](https://www.youtube.com/watch?v=GapSskrtUzU&t=1249s&frags=pl%2Cwn)) by the ineffable [Jenny Bryan](https://twitter.com/JennyBryan).
 
