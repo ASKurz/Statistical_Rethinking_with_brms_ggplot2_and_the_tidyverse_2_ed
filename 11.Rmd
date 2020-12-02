@@ -2541,6 +2541,6 @@ rm(d, b11.1, b11.1b, b11.2, b11.3, prior, b11.4, post, tx, p1, nd, p2, b11.5, d_
 ```{r, echo = F, message = F, warning = F, results = "hide"}
 ggplot2::theme_set(ggplot2::theme_grey())
 bayesplot::color_scheme_set("blue")
-pacman::p_unload(pacman::p_loaded(), character.only = TRUE)
+# pacman::p_unload(pacman::p_loaded(), character.only = TRUE)
 ```
 
