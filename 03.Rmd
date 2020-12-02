@@ -64,7 +64,7 @@ n_trials  <- 9
 )
 ```
 
-Our `d` data contains all the components in McElreath's **R** code 3.2 block. Do note we've renamed his `prob_p` and `prob_data` as `prior` and `likelihood`, respectively. Now we'll use the `dplyr::sample_n()` function to sample rows from `d`, saving them as `sample`.
+Our `d` data contains all the components in McElreath's **R** code 3.2 block. Do note we've renamed his `prob_p` and `prob_data` as `prior` and `likelihood`, respectively. Now we'll use the `dplyr::slice_sample()` function to sample rows from `d`, saving them as `sample`.
 
 ```{r}
 # how many samples would you like?
@@ -75,7 +75,7 @@ set.seed(3)
 
 samples <-
   d %>% 
-  sample_n(size = n_samples, weight = posterior, replace = T)
+  slice_sample(n = n_samples, weight_by = posterior, replace = T)
 
 glimpse(samples)
 ```
@@ -107,7 +107,7 @@ That was based on `1e4` samples. On page 53, McElreath said the density would co
 set.seed(3)
 
 d %>% 
-  sample_n(size = 1e6, weight = posterior, replace = T) %>% 
+  slice_sample(n = 1e6, weight_by = posterior, replace = T) %>% 
   ggplot(aes(x = p_grid)) +
   geom_density(fill = "black") +
   scale_x_continuous("proportion of water (p)", limits = c(0, 1))
@@ -304,7 +304,7 @@ set.seed(3)
 (
   samples <-
     d %>% 
-    sample_n(size = n_samples, weight = posterior, replace = T)
+    slice_sample(n = n_samples, weight_by = posterior, replace = T)
 )
 ```
 
@@ -405,7 +405,7 @@ set.seed(3)
 
 new_samples <-
   new_d %>% 
-  sample_n(size = n_samples, weight = posterior, replace = T)
+  slice_sample(n = n_samples, weight_by = posterior, replace = T)
 ```
 
 Here are the intervals by `.width` and type of `.interval`.
@@ -829,7 +829,7 @@ set.seed(3)
 
 samples <-
   d %>% 
-  sample_n(size = n_samples, weight = posterior, replace = T) %>% 
+  slice_sample(n = n_samples, weight_by = posterior, replace = T) %>% 
   mutate(w = purrr::map_dbl(p_grid, rbinom, n = 1, size = 9))
 
 glimpse(samples)
