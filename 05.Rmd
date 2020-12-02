@@ -173,13 +173,13 @@ prior <- prior_samples(b5.1)
 prior %>% glimpse()
 ```
 
-We ended up with 4,000 draws from the prior predictive distribution, much like `posterior_samples()` would return 4,000 draws from the posterior. Next we'll use `sample_n()` to take a ransom sample from our `prior` object. After just a little more wrangling, we’ll be in good shape to plot our version of Figure 5.3.
+We ended up with 4,000 draws from the prior predictive distribution, much like `posterior_samples()` would return 4,000 draws from the posterior. Next we'll use `slice_sample()` to take a random sample from our `prior` object. After just a little more wrangling, we'll be in good shape to plot our version of Figure 5.3.
 
 ```{r, fig.width = 3, fig.height = 3}
 set.seed(5)
 
 prior %>% 
-  sample_n(size = 50) %>% 
+  slice_sample(n = 50) %>% 
   rownames_to_column("draw") %>% 
   expand(nesting(draw, Intercept, b),
          a = c(-2, 2)) %>% 
@@ -1192,7 +1192,7 @@ b5.5_draft <-
 set.seed(5)
 
 prior_samples(b5.5_draft) %>% 
-  sample_n(size = 50) %>% 
+  slice_sample(n = 50) %>% 
   rownames_to_column() %>% 
   expand(nesting(rowname, Intercept, b),
          neocortex.perc_s = c(-2, 2)) %>% 
@@ -1236,7 +1236,7 @@ Now make our version of Figure 5.8.b.
 ```{r, fig.width = 3, fig.height = 3.25}
 set.seed(5)
 prior_samples(b5.5) %>% 
-  sample_n(size = 50) %>% 
+  slice_sample(n = 50) %>% 
   rownames_to_column() %>% 
   expand(nesting(rowname, Intercept, b),
          neocortex.perc_s = c(-2, 2)) %>% 
