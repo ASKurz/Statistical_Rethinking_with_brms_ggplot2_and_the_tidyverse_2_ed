@@ -1045,6 +1045,6 @@ rm(n, n_success, n_trials, d, n_samples, samples, p1, p2, q_80, q_10_and_90, new
 ```
 
 ```{r, echo = F, message = F, warning = F, results = "hide"}
-pacman::p_unload(pacman::p_loaded(), character.only = TRUE)
+# pacman::p_unload(pacman::p_loaded(), character.only = TRUE)
 ```
 

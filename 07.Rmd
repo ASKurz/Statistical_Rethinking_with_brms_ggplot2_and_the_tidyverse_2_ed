@@ -1836,6 +1836,6 @@ rm(d, m7.1, R2_is_bad, m7.2, m7.3, m7.4, m7.5, m7.6, mass_seq, make_figure7.3, p
 ```{r, echo = F, message = F, warning = F, results = "hide"}
 ggplot2::theme_set(ggplot2::theme_grey())
 bayesplot::color_scheme_set("blue")
-pacman::p_unload(pacman::p_loaded(), character.only = TRUE)
+# pacman::p_unload(pacman::p_loaded(), character.only = TRUE)
 ```
 
