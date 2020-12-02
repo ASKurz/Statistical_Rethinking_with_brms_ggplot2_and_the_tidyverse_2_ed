@@ -791,7 +791,7 @@ b12.3 <-
 print(b12.3)
 ```
 
-If you look at the [*Zero-inflated and hurdle models* section](https://cran.r-project.org/package=brms/vignettes/brms_families.html#zero-inflated-and-hurdle-models) of Bürkner's [-@Bürkner2020Parameterization] [*Parameterization of response distributions in brms*](https://cran.r-project.org/package=brms/vignettes/brms_families.html) document, you'll see the zero-inflated Poisson is set up a little differently in **brms** than it is in **rethinking**. The difference did not influence the estimate for the intercept, $\lambda$. In both here and in the text, $\lambda$ was about zero. However, it did influence the summary of `zi`. Note how McElreath's `mean( inv_logit( post$ap ) )` returned 0.2241255 Seems rather close to our `zi` estimate of `r round(posterior_summary(b12.3)[2, 1], 3)`. Hopefully it's clear that `zi` in **brms** is already in the probability metric. There's no need to convert it. You can further confirm this by looking at the second line from the `print()` output, `Links: mu = log; zi = identity`. When there are no predictors for `zi`, the **brms** default is to use the identity link. In the text, however, McElreath used the logit link for `p`.
+If you look at the [*Zero-inflated and hurdle models* section](https://cran.r-project.org/package=brms/vignettes/brms_families.html#zero-inflated-and-hurdle-models) of Bürkner's [-@Bürkner2020Parameterization] [*Parameterization of response distributions in brms*](https://cran.r-project.org/package=brms/vignettes/brms_families.html) document, you'll see the zero-inflated Poisson is set up a little differently in **brms** than it is in **rethinking**. The difference did not influence the estimate for the intercept, $\lambda$. In both here and in the text, $\lambda$ was about zero. However, it did influence the summary of `zi`. Note how McElreath's `mean( inv_logit( post$ap ) )` returned 0.2241255, which seems rather close to our `zi` estimate of `r round(posterior_summary(b12.3)[2, 1], 3)`. Hopefully it's clear that `zi` in **brms** is already in the probability metric. There's no need to convert it. You can further confirm this by looking at the second line from the `print()` output, `Links: mu = log; zi = identity`. When there are no predictors for `zi`, the **brms** default is to use the identity link. In the text, however, McElreath used the logit link for `p`.
 
 In the `prior` argument, we used `beta(2, 6)` for `zi` and also mentioned in the margin that the **brms** default is `beta(1, 1)`. The beta distribution ranges from 0 to 1, making it a natural distribution to use for priors on probabilities when using the identity link. To give you a sense of what those two versions of the beta look like, let's plot. 
 
@@ -1823,6 +1823,5 @@ rm(pbar, theta, betaABfromMeanKappa, d, beta_binomial2, stan_funs, stanvars, b12
 
 ```{r, echo = F, message = F, warning = F, results = "hide"}
 ggplot2::theme_set(ggplot2::theme_grey())
-pacman::p_unload(pacman::p_loaded(), character.only = TRUE)
 ```
 
