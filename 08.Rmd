@@ -223,7 +223,7 @@ set.seed(8)
 
 p1 <-
   prior %>% 
-  sample_n(size = 50) %>% 
+  slice_sample(n = 50) %>% 
   rownames_to_column() %>% 
   expand(nesting(rowname, Intercept, b),
          rugged_std_c = c(-2, 2)) %>% 
@@ -284,7 +284,7 @@ set.seed(8)
 
 p2 <-
   prior_samples(b8.1b) %>% 
-  sample_n(size = 50) %>% 
+  slice_sample(n = 50) %>% 
   rownames_to_column() %>% 
   expand(nesting(rowname, Intercept, b),
          rugged_std_c = c(-2, 2)) %>% 
@@ -852,7 +852,7 @@ for(s in -1:1) {
            summary = F) %>%
     data.frame() %>%
     set_names("-1", "1") %>% 
-    sample_n(20) %>% 
+    slice_sample(n = 20) %>% 
     mutate(row = 1:n()) %>% 
     pivot_longer(-row,
                  names_to = "water_cent",
