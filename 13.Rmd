@@ -1008,7 +1008,7 @@ posterior_samples(b13.4) %>%
 
 Note how the last three columns are the `rhat`, the `ess_bulk`, and the `ess_tail`. Here we summarize those two effective sample size columns in a scatter plot similar to Figure 13.6, but based only on our `b13.4`, which used the non-centered parameterization.
 
-```{r, fig.width = 3.25, fig.height = 3.25, warning = F}
+```{r, fig.width = 3.5, fig.height = 3.5, warning = F}
 posterior_samples(b13.4) %>% 
   summarise_draws() %>% 
 
@@ -1019,7 +1019,7 @@ posterior_samples(b13.4) %>%
   ylim(0, 4700) +
   ggtitle("Effective sample size summaries for b13.4",
           subtitle = "ess_bulk is on the x and ess_tail is on the y") +
-  theme(plot.title = element_text(size = 12),
+  theme(plot.title = element_text(size = 11.5),
         plot.title.position = "plot",
         plot.subtitle = element_text(size = 10))
 ```
@@ -1746,7 +1746,7 @@ Interested readers should practice exploring the MRP estimates by the other two 
 * [Rohan Alexander](https://twitter.com/RohanAlexander) showed how to fit political poling data with both **lme4** and **brms** in his post, [*Getting started with MRP*](https://rohanalexander.com/posts/2019-12-04-getting_started_with_mrp/). 
 * [Lauren Kennedy](https://twitter.com/jazzystats) and Andrew Gelman have a [-@kennedyKnowYourPopulation2020] preprint called [*Know your population and know your model: Using model-based regression and post-stratification to generalize findings beyond the observed sample*](https://arxiv.org/pdf/1906.11323.pdf), which shows how to use **brms** to apply MRP to Big Five personality data.
 
-For a more advanced application, check out the paper by [Kolczynska](https://twitter.com/MartaKolcz), Bürkner, [Kennedy](https://twitter.com/jazzystats), and Vehtari [-@kolczynskaTrustStateInstitutions2020], which combines MRP with a model with ordinal outcomes (recall [Section 12.3][Ordered categorical outcomes]). There supplemental material, which includes their **R** code, lives at [https://osf.io/dz4y7/](https://osf.io/dz4y7/). With all this good stuff, it seems we have an embarrassment of riches when it comes to **brms** and MRP! To wrap this section up, we'll give Monica Alexander the last words:
+For a more advanced application, check out the paper by [Kolczynska](https://twitter.com/MartaKolcz), Bürkner, [Kennedy](https://twitter.com/jazzystats), and Vehtari [-@kolczynskaTrustStateInstitutions2020], which combines MRP with a model with ordinal outcomes (recall [Section 12.3][Ordered categorical outcomes]). Their supplemental material, which includes their **R** code, lives at [https://osf.io/dz4y7/](https://osf.io/dz4y7/). With all this good stuff, it seems we have an embarrassment of riches when it comes to **brms** and MRP! To wrap this section up, we'll give Monica Alexander the last words:
 
 > MRP is probably most commonly used in political analysis to reweight polling [data](https://www.monicaalexander.com/posts/2019-08-07-mrp/#fn5), but it is a useful technique for many different survey responses. Many modeling extensions are possible. For example, the multilevel regression need not be limited to just using random effects, as was used here, and other model set ups could be [investigated](https://www.monicaalexander.com/posts/2019-08-07-mrp/#fn6). MRP is a relatively easy and quick way of trying to get more representative estimates out of non-representative data, while giving you a sense of the uncertainty around the estimates (unlike traditional post-stratification).
 
