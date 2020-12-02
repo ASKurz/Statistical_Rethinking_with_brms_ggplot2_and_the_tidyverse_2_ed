@@ -235,20 +235,20 @@ I've found that just the possibility that others might look at my code makes it 
 
 ## Check out social media
 
-If you're not on it, consider joining academic (see the related blog posts by [Sarah Mojarad](https://medium.com/@smojarad/a-beginners-guide-to-academic-twitter-f483dae86597) and [Dan Quintana](https://www.dsquintana.blog/twitter-for-scientists/)). The word on the street is correct. Twitter can be rage-fueled [dumpster fire](https://media.giphy.com/media/l0IynvPneUpb7SnBe/giphy.gif). But if you're selective about who you follow, it's a great place to lean from and connect with your academic heroes. If you're a fan of this project, here's a list of some of the people you might want to follow:
+If you're not on it, consider joining academic Twitter (see the related blog posts by [Sarah Mojarad](https://medium.com/@smojarad/a-beginners-guide-to-academic-twitter-f483dae86597) and [Dan Quintana](https://www.dsquintana.blog/twitter-for-scientists/)). The word on the street is correct. Twitter can be rage-fueled [dumpster fire](https://media.giphy.com/media/l0IynvPneUpb7SnBe/giphy.gif). But if you're selective about who you follow, it's a great place to lean from and connect with your academic heroes. If you're a fan of this project, here's a list of some of the people you might want to follow:
 
 * [Mara Averick](https://twitter.com/dataandme?lang=en)
 * [Michael Bentacourt](https://twitter.com/betanalpha?lang=en)
-* [Paul Bürkner](https://twitter.com/paulbuerkner?lang=en)
 * [Jenny Bryan](https://twitter.com/JennyBryan?lang=en)
+* [Paul Bürkner](https://twitter.com/paulbuerkner?lang=en)
 * [Nathaniel Haines](https://twitter.com/Nate__Haines)
 * [Frank Harrell](https://twitter.com/f2harrell)
 * [Alison Presmanes Hill](https://twitter.com/apreshill)
 * [Matthew Kay](https://twitter.com/mjskay?lang=en)
 * [Tristan Mahr](https://twitter.com/tjmahr)
 * [Richard McElreath](https://twitter.com/rlmcelreath?lang=en)
-* [Chelsea Parlett-Pelleriti](https://twitter.com/ChelseaParlett)
 * [Danielle Navarro](https://twitter.com/djnavarro)
+* [Chelsea Parlett-Pelleriti](https://twitter.com/ChelseaParlett)
 * [Roger Peng](https://twitter.com/rdpeng?lang=en)
 * [David Robinson](https://twitter.com/drob)
 * [Julia Silge](https://twitter.com/juliasilge)
