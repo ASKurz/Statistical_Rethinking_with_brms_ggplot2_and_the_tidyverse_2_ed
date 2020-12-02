@@ -1361,7 +1361,7 @@ The only focal variable we did not standardize was `South`, which is binary. Tec
 
 ```{r, fig.width = 5.5, fig.height = 5, message = F}
 ggpairs(data = d, columns = c(14:16, 18, 17),
-        upper = list(continuous = wrap("cor", family = "sans", color = "black")),
+        upper = list(continuous = wrap("cor", family = "sans", color = "black", size = 3)),
         diag = list(continuous = my_diag),
         lower = list(continuous = my_lower),
         mapping = aes(color = s)) +
@@ -1453,7 +1453,7 @@ tibble(fit = str_c("b6.1", 3:7)) %>%
         legend.position = "none")
 ```
 
-The two $\beta_w$ posteriors corresponding to those endorsed by our DAG are in green. Frustratingly, the results from a real-world data analysis aren't as conclusive as we may have naïvely supposed. Why? Well, McElreath left us with some words of wisdom back a few pages back:
+The two $\beta_w$ posteriors corresponding to those endorsed by our DAG are in green. Frustratingly, the results from a real-world data analysis aren't as conclusive as we may have naïvely supposed. Why? Well, McElreath left us with some words of wisdom a few pages back:
 
 > This DAG is obviously not satisfactory--it assumes there are no unobserved confounds,
 which is very unlikely for this sort of data. But we can still learn something by analyzing it. While the data cannot tell us whether a graph is correct, it can sometimes suggest how a graph is wrong. (p. 187)
