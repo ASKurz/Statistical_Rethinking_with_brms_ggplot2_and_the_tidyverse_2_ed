@@ -473,7 +473,7 @@ glimpse(post)
 
 Another nice way to customize your pairs plot is with the [**GGally** package](https://cran.r-project.org/package=GGally). For this approach, you feed the `post` data into the `ggpairs()` function.
 
-```{r, fig.width = 6.5, fig.height = 6, message = F, warning = F}
+```{r, fig.width = 6, fig.height = 5.5, message = F, warning = F}
 library(GGally)
 
 post %>%
@@ -483,7 +483,7 @@ post %>%
 
 Now we get the pairs plot on the lower triangle and the Pearson's correlation coefficients in the upper. Since `GGally::ggpairs()` returns a **ggplot2** object, you can customize it as you please.
 
-```{r, fig.width = 6.5, fig.height = 6, message = F, warning = F}
+```{r, fig.width = 6, fig.height = 5.5, message = F, warning = F}
 my_diag <- function(data, mapping, ...) {
   ggplot(data = data, mapping = mapping) + 
     geom_density(fill = pomological_palette[7],
@@ -512,7 +512,7 @@ For more ideas on customizing a `ggpairs()` plot, go [here](https://ggobi.github
 
 Using `plot()` for a `brm()` fit returns both density and trace lots for the parameters.
 
-```{r, fig.width = 8, fig.height = 6}
+```{r, fig.width = 7, fig.height = 6}
 plot(b9.1b)
 ```
 
