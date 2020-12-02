@@ -228,13 +228,13 @@ post_mdn %>%
 Here is the code for our version of Figure 13.2.a, where we visualize the model-implied population distribution of log-odds survival (i.e., the population distribution yielding all the `tank`-level intercepts). 
 
 ```{r}
-# this makes the output of `sample_n()` reproducible
+# this makes the output of `slice_sample()` reproducible
 set.seed(13)
 
 p1 <-
   post %>% 
   mutate(iter = 1:n()) %>% 
-  sample_n(100) %>% 
+  slice_sample(n = 100) %>% 
   expand(nesting(iter, b_Intercept, sd_tank__Intercept),
          x = seq(from = -4, to = 5, length.out = 100)) %>%
   mutate(density = dnorm(x, mean = b_Intercept, sd = sd_tank__Intercept)) %>% 
@@ -254,7 +254,7 @@ set.seed(13)
 
 p2 <-
   post %>% 
-  sample_n(8000, replace = T) %>% 
+  slice_sample(n = 8000, replace = T) %>% 
   mutate(sim_tanks = rnorm(n(), mean = b_Intercept, sd = sd_tank__Intercept)) %>% 
   
   ggplot(aes(x = inv_logit_scaled(sim_tanks))) +
@@ -1249,7 +1249,7 @@ p2 <-
 p2
 ```
 
-The big difference between this workflow and the last is now we start of by marking off the rows in `post` with an `iter` index and then use `sample_n()` to randomly sample 100 posterior rows. We also omit the `group_by()` and `mean_qi()` lines at the end.
+The big difference between this workflow and the last is now we start of by marking off the rows in `post` with an `iter` index and then use `slice_sample()` to randomly sample 100 posterior rows. We also omit the `group_by()` and `mean_qi()` lines at the end.
 
 ```{r}
 # how many simulated chimps would you like?
@@ -1260,7 +1260,7 @@ set.seed(13)
 f <-
   post %>% 
   mutate(iter = 1:n()) %>% 
-  sample_n(size = n_chimps) %>% 
+  slice_sample(n = n_chimps) %>% 
   # simulated chimpanzees
   mutate(a_sim = rnorm(n(), mean = b_a_Intercept, sd = sd_actor__a_Intercept)) %>% 
   pivot_longer(b_b_treatment1:b_b_treatment4) %>% 
