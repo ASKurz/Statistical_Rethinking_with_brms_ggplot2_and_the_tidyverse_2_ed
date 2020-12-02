@@ -2172,7 +2172,7 @@ b %>%
   theme_bw() +
   theme(panel.background = element_rect(fill = "#4f455c"),
         panel.grid = element_blank(),
-        strip.background = element_rect(fill = alpha("#ffb7c5", .25), color = "transparent"),
+        strip.background = element_rect(fill = scales::alpha("#ffb7c5", .25), color = "transparent"),
         strip.text = element_text(size = 8, margin = margin(0.1, 0, 0.1, 0, "cm"))) +
   facet_wrap(~bias_function, ncol = 1)
 ```
@@ -2490,7 +2490,7 @@ B, b, m4.7, m4.8, b4.8, b4.8_bs)
 
 ```{r, echo = F, message = F, warning = F, results = "hide"}
 ggplot2::theme_set(ggplot2::theme_grey())
-pacman::p_unload(pacman::p_loaded(), character.only = TRUE)
+# pacman::p_unload(pacman::p_loaded(), character.only = TRUE)
 ```
 
 [^1]: In the first edition of his text, McElreath [-@mcelreathStatisticalRethinkingBayesian2015] started out with the uniform prior for $\sigma$ and transitioned to the half Cauchy when he introduced HMC in Chapter 8. In this edition, he largely replaced the half Cauchy with the exponential distribution. Both are fine. If you'd like to learn more about the half Cauchy, you might check out [Section 8.4.3.1](https://bookdown.org/content/3890/markov-chain-monte-carlo.html#taming-a-wild-chain.) of my [-@kurzStatisticalRethinkingBrms2020] translation of his first edition. We'll learn about the exponential distribution just a little later in this chapter.
