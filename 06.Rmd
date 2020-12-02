@@ -1250,6 +1250,7 @@ library(patchwork)
   theme(plot.subtitle = element_text(hjust = 0.5)) &
   plot_annotation(title = "The four elemental confounds") 
 ```
+
 > No matter how complicated a causal DAG appears, it is always built out of these four types of relations. And since you know how to open and close each, you (or your computer) can figure out which variables you need to include or not include. Here’s the recipe:
 >
 > * 1 List all of the paths connecting $X$ (the potential cause of interest) and $Y$ (the outcome).
@@ -1311,6 +1312,7 @@ dagify(A ~ S,
        coords = dag_coords) %>%
   gg_simple_dag()
 ```
+
 > In this graph, $S$ is whether or not a State is in the southern United States, $A$ is median age at marriage, $M$ is marriage rate, $W$ is number of Waffle Houses, and $D$ is divorce rate. This graph assumes that southern States have lower ages of marriage ($S \rightarrow A$), higher rates of marriage both directly ($S \rightarrow M$) and mediated through age of marriage ($S \rightarrow A \rightarrow M$), as well as more waffles ($S \rightarrow W$). Age of marriage and marriage rate both influence divorce.
 >
 > There are three open backdoor paths between $W$ and $D$. (p. 187)
@@ -1473,6 +1475,6 @@ rm(n, p, d, text, b6.1, sim_and_fit, sim, post, b6.2, b6.3, b6.4, b6.5, my_diag,
 ```{r, echo = F, message = F, warning = F, results = "hide"}
 ggplot2::theme_set(ggplot2::theme_grey())
 bayesplot::color_scheme_set("blue")
-pacman::p_unload(pacman::p_loaded(), character.only = TRUE)
+# pacman::p_unload(pacman::p_loaded(), character.only = TRUE)
 ```
 

@@ -328,7 +328,7 @@ p1 <-
 p1
 ```
 
-We could have left out the `coords` argument and let the `dagify()` function set the layout of the nodes on its own. But since we were picky and wanted to ape McElreath, we first specified our coordinates in a tibble and then included that tibble in the `coords` argument. For more on the topic, check out the Barrett's [-@barrettAnIntroduction2020] vignette, [*An Introduction to ggdag*](https://CRAN.R-project.org/package=ggdag/vignettes/intro-to-ggdag.html).
+We could have left out the `coords` argument and let the `dagify()` function set the layout of the nodes on its own. But since we were picky and wanted to ape McElreath, we first specified our coordinates in a tibble and then included that tibble in the `coords` argument. For more on the topic, check out the Barrett's [-@barrettAnIntroduction2020] vignette, [*An introduction to ggdag*](https://CRAN.R-project.org/package=ggdag/vignettes/intro-to-ggdag.html).
 
 Buy anyway, our DAG
 
@@ -525,7 +525,7 @@ dagitty('dag{divorce <- age -> marriage}') %>%
 
 Here are the quick `pairs()` plots.
 
-```{r, fig.width = 4, fig.height = 3.5}
+```{r, fig.width = 4.5, fig.height = 4.5}
 pairs(sim_d, col = "firebrick4")
 ```
 
@@ -2292,6 +2292,6 @@ rm(d, b5.1, prior, nd, b5.2, dag_coords, p1, p2, b5.3, n, sim_d, b5.1_sim, b5.2_
 ```{r, echo = F, message = F, warning = F, results = "hide"}
 ggplot2::theme_set(ggplot2::theme_grey())
 bayesplot::color_scheme_set("blue")
-pacman::p_unload(pacman::p_loaded(), character.only = TRUE)
+# pacman::p_unload(pacman::p_loaded(), character.only = TRUE)
 ```
 
