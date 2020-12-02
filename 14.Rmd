@@ -1496,7 +1496,7 @@ tibble(lscale = seq(from = 0, to = 9, by = 0.01)) %>%
 Anyways, let's make the subplots for our version of Figure 14.11 to get a sense of what this all means. Start with the left panel, the prior predictive distribution for the covariance.
 
 ```{r}
-# for `sample_n()`
+# for `slice_sample()`
 set.seed(14)
 
 # wrangle
@@ -1505,7 +1505,7 @@ p1 <-
   mutate(iter  = 1:n(),
          etasq = sdgp_a_gplat_adjlon2_adj^2,
          rhosq = 1 / (2 * lscale_a_1_gplat_adjlon2_adj^2)) %>% 
-  sample_n(100) %>%
+  slice_sample(n = 100) %>%
   tidyr::expand(nesting(iter, etasq, rhosq),
          x = seq(from = 0, to = 10, by = .05)) %>% 
   mutate(covariance = etasq * exp(-rhosq * x^2)) %>% 
@@ -1524,7 +1524,7 @@ p1 <-
 Now make the right panel, the posterior distribution.
 
 ```{r}
-# for `sample_n()`
+# for `slice_sample()`
 set.seed(14)
 
 # wrangle
@@ -1533,7 +1533,7 @@ p2 <-
   transmute(iter  = 1:n(),
             etasq = sdgp_a_gplat_adjlon2_adj^2,
          rhosq = 1 / (2 * lscale_a_gplat_adjlon2_adj^2)) %>% 
-  sample_n(50) %>% 
+  slice_sample(n = 50) %>% 
   tidyr::expand(nesting(iter, etasq, rhosq),
          x = seq(from = 0, to = 10, by = .05)) %>% 
   mutate(covariance = etasq * exp(-rhosq * x^2)) %>% 
@@ -2160,7 +2160,7 @@ left_join(
   # posterior
   post %>% 
     data.frame() %>% 
-    sample_n(size = 30) %>% 
+    slice_sample(n = 30) %>% 
     mutate(iter = 1:n()) %>% 
     tidyr::expand(nesting(iter, etasq, rhosq),
                   d_seq = seq(from = 0, to = 1, length.out = 50)),
@@ -2250,7 +2250,7 @@ set.seed(14)
 
 dat %>% 
   nest(data = c(X1, P_A.std, day, P_A.lag, N_A.lag, steps.pm, steps.pmd, N_A.std, day01)) %>% 
-  sample_n(size = 16) %>% 
+  slice_sample(n = 16) %>% 
   unnest(data) %>% 
   
   ggplot(aes(x = day, y = N_A.lag)) +
@@ -2807,7 +2807,7 @@ levels <- c("beta[0]^'NA'", "beta[1]^'NA'", "eta[0]^'NA'", "eta[1]^'NA'",
 rho <-
   posterior_samples(b14.15) %>% 
   select(starts_with("cor_")) %>% 
-  sample_n(size = 50 * 50) %>% 
+  slice_sample(n = 50 * 50) %>% 
   bind_cols(crossing(x = 1:50, y = 1:50)) %>% 
   pivot_longer(-c(x:y)) %>% 
   mutate(name = str_remove(name, "cor_record_id__")) %>% 
