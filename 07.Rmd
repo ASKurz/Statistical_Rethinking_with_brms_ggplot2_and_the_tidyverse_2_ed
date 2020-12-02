@@ -540,7 +540,7 @@ bind_rows(weatherperson,
 
 Within the context of information theory [@shannonMathematicalTheoryCommunication1948; also @cover2006elements], information is "the reduction in uncertainty when we learn an outcome" (p. 205). **Information entropy** is a way of measuring that uncertainty in a way that is (a) continuous, (b) increases as the number of possible events increases, and (c) is additive. The formula for information entropy is:
 
-$$H(p) = - \text E \log (p_i) = - \sum_{i = 1}^n p_i \log (p_i)$$
+$$H(p) = - \text E \log (p_i) = - \sum_{i = 1}^n p_i \log (p_i).$$
 
 McElreath put it in words as: "The uncertainty contained in a probability distribution is the average log-probability of an event." (p. 206). We'll compute the information entropy for weather at the first unnamed location, which we'll call `McElreath's house`, and `Abu Dhabi` at once.
 
@@ -1090,7 +1090,7 @@ Behold the posterior summary.
 print(b7.m)
 ```
 
-Now use the `brms::log_lik()` function to return the log-likelihood for each observation $i$ at each posterior draw $s$, where $S = 4,000$.
+Now use the `brms::log_lik()` function to return the log-likelihood for each observation $i$ at each posterior draw $s$, where $S = 4{,}000$.
 
 ```{r, results = "hide"}
 n_cases <- nrow(cars)
@@ -1103,7 +1103,7 @@ ll <-
 dim(ll)
 ```
 
-We have a $4,000 \times 50$ (i.e., $S \times N$) data frame with posterior draws in rows and cases in columns. Computing the $\text{lppd}$, the "Bayesian deviance", takes a bit of leg work. Recall the formula for $\text{lppd}$,
+We have a $4{,}000 \times 50$ (i.e., $S \times N$) data frame with posterior draws in rows and cases in columns. Computing the $\text{lppd}$, the "Bayesian deviance", takes a bit of leg work. Recall the formula for $\text{lppd}$,
 
 $$\text{lppd}(y, \Theta) = \sum_i \log \frac{1}{S} \sum_s p (y_i | \Theta_s),$$
 
