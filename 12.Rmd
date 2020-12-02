@@ -240,7 +240,7 @@ post %>%
 
 Much like in the text, the difference between genders on admission rates is near zero with wide uncertainty intervals spanning in either direction.
 
-To stay within the **tidyverse** while making the many thin lines in Figure 12.1.a, we're going to need to do a bit of data processing. First, we'll want a variable to index the rows in `post` (i.e., to index the posterior draws). And we'll want to convert the `b_gid2` to the $\bar p$ metric with the `inv_logit_scaled()` function. Then we'll use `sample_n()` to randomly draw a subset of the posterior draws. Then with the `expand()` function, we'll insert a dense sequence of `x` values ranging between 0 and 1--the parameter space of beta distribution. Finally, we'll use `pmap_dbl()` to compute the density values for the `rethinking::dbeta2` distribution corresponding to the unique combination of `x`, `p_bar`, and `phi` values in each row.
+To stay within the **tidyverse** while making the many thin lines in Figure 12.1.a, we're going to need to do a bit of data processing. First, we'll want a variable to index the rows in `post` (i.e., to index the posterior draws). And we'll want to convert the `b_gid2` to the $\bar p$ metric with the `inv_logit_scaled()` function. Then we'll use `slice_sample()` to randomly draw a subset of the posterior draws. Then with the `expand()` function, we'll insert a dense sequence of `x` values ranging between 0 and 1--the parameter space of beta distribution. Finally, we'll use `pmap_dbl()` to compute the density values for the `rethinking::dbeta2` distribution corresponding to the unique combination of `x`, `p_bar`, and `phi` values in each row.
 
 ```{r}
 set.seed(12)
@@ -249,7 +249,7 @@ lines <-
   post %>% 
   mutate(iter  = 1:n(),
          p_bar = inv_logit_scaled(b_gid2)) %>% 
-  sample_n(size = 100) %>% 
+  slice_sample(n = 100) %>% 
   expand(nesting(iter, p_bar, phi),
          x = seq(from = 0, to = 1, by = .005)) %>% 
   mutate(density = pmap_dbl(list(x, p_bar, phi), rethinking::dbeta2))
@@ -515,7 +515,7 @@ post %>%
   mutate(iter  = 1:n(),
          alpha = shape,
          theta = exp(b_Intercept) / shape) %>%
-  sample_n(size = 200) %>% 
+  slice_sample(n = 200) %>% 
   expand(nesting(iter, alpha, theta),
          x = 0:250) %>% 
   mutate(density = dgamma(x, shape = alpha, scale = theta)) %>% 
@@ -1318,7 +1318,7 @@ p1 <-
   ungroup() %>% 
   # these next three lines are how we randomly selected 50 posterior draws
   nest(data = -iter) %>% 
-  sample_n(size = 50) %>%
+  slice_sample(n = 50) %>%
   unnest(data) %>% 
   
   # plot!
@@ -1393,7 +1393,7 @@ p1 <-
   summarise(mean_response = sum(pk * response)) %>% 
   ungroup() %>% 
   nest(data = -iter) %>% 
-  sample_n(size = 50) %>%
+  slice_sample(n = 50) %>%
   unnest(data) %>%
 
   ggplot(aes(x = intention, y = mean_response)) +
