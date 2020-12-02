@@ -1250,7 +1250,7 @@ posterior_samples(b15.5) %>%
   ggplot(aes(x = value, 
              y = reorder(species, value))) +
   stat_slab(fill = viridis_pal(option = "C")(7)[4], 
-            alpha = 3/4, height = 1.5, slab_color = "black") +
+            alpha = 3/4, height = 1.5, slab_color = "black", slab_size = 1/4) +
   labs(x = "imputed values for b",
        y = NULL) +
   theme(axis.text.y = element_text(hjust = 0),
@@ -2201,7 +2201,7 @@ c %>%
        y = expression(beta[italic(j)]))
 ```
 
-The small semitransparent ellipses depict the inner-most 5% of each of the $j$-level bivariate posteriors. The larger ellipse is the 95% boundary, collapsing across all levels of $j$. Both kinds of summaries help depict the negative correlation between the $\alpha_j$'s and $\beta_j$'s. What that negative correlation means is that, the studies which had larger effect sizes for the control condition tended to have smaller effect sizes for the experimental condition. There's no way you would know that from the meta-analysis approach.
+The small semitransparent ellipses depict the inner-most 5% of each of the $j$-level bivariate posteriors. The larger ellipse is the 95% boundary, collapsing across all levels of $j$. Both kinds of summaries help depict the negative correlation between the $\alpha_j$'s and $\beta_j$'s. That negative correlation means suggests the studies which had larger effect sizes for the control condition tended to have smaller effect sizes for the experimental condition. There's no way you would know that from the meta-analysis approach.
 
 Another way to explore the relation between the model intercepts and slopes is to plot their implications on the probability scale. The way we parameterized the model, the greater-good condition is expressed the $\alpha_j$ and the side-effect condition is expressed as $\alpha_j + \beta_j$. If we were working directly with the `posteior_samples()`, we'd have to do fancy conversions with the `inv_logit_scaled()` function. An easier way is to just use `fitted()`.
 
@@ -2244,9 +2244,9 @@ rm()
 ```
 
 ```{r, echo = F, message = F, warning = F, results = "hide", eval = F}
-pacman::p_unload(pacman::p_loaded(), character.only = TRUE)
 ggplot2::theme_set(ggplot2::theme_grey())
 ggdark::invert_geom_defaults()
 bayesplot::color_scheme_set("blue")
+# pacman::p_unload(pacman::p_loaded(), character.only = TRUE)
 ```
 
