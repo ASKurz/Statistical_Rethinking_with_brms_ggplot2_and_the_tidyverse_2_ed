@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <title>4 Geocentric Models | Statistical rethinking with brms, ggplot2, and the tidyverse: Second edition</title>
   <meta name="description" content="This book is an attempt to re-express the code in the second edition of McElreath’s textbook, ‘Statistical rethinking.’ His models are re-fit in brms, plots are redone with ggplot2, and the general data wrangling code predominantly follows the tidyverse style." />
-  <meta name="generator" content="bookdown 0.18 and GitBook 2.6.7" />
+  <meta name="generator" content="bookdown 0.21 and GitBook 2.6.7" />
 
   <meta property="og:title" content="4 Geocentric Models | Statistical rethinking with brms, ggplot2, and the tidyverse: Second edition" />
   <meta property="og:type" content="book" />
@@ -24,7 +24,7 @@
 <meta name="author" content="A Solomon Kurz" />
 
 
-<meta name="date" content="2020-11-24" />
+<meta name="date" content="2020-12-02" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -134,7 +134,11 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 <ul class="summary">
 <li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>What and why</a><ul>
-<li class="chapter" data-level="" data-path="index.html"><a href="index.html#caution-work-in-progress"><i class="fa fa-check"></i>Caution: Work in progress</a></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#we-have-updates"><i class="fa fa-check"></i>We have updates</a><ul>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#version-0.1.0."><i class="fa fa-check"></i>Version 0.1.0.</a></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#version-0.1.1."><i class="fa fa-check"></i>Version 0.1.1.</a></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#were-not-done-yet-and-i-could-use-your-help."><i class="fa fa-check"></i>We’re not done yet and I could use your help.</a></li>
+</ul></li>
 <li class="chapter" data-level="" data-path="index.html"><a href="index.html#thank-yous-are-in-order"><i class="fa fa-check"></i>Thank-you’s are in order</a></li>
 <li class="chapter" data-level="" data-path="index.html"><a href="index.html#license-and-citation"><i class="fa fa-check"></i>License and citation</a></li>
 </ul></li>
@@ -454,7 +458,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="15.5.5" data-path="missing-data-and-other-opportunities.html"><a href="missing-data-and-other-opportunities.html#compute-the-study-specific-effect-sizes."><i class="fa fa-check"></i><b>15.5.5</b> Compute the study-specific effect sizes.</a></li>
 <li class="chapter" data-level="15.5.6" data-path="missing-data-and-other-opportunities.html"><a href="missing-data-and-other-opportunities.html#fit-the-bayesian-meta-analysis."><i class="fa fa-check"></i><b>15.5.6</b> Fit the Bayesian meta-analysis.</a></li>
 <li class="chapter" data-level="15.5.7" data-path="missing-data-and-other-opportunities.html"><a href="missing-data-and-other-opportunities.html#fit-the-bayesian-muiltilevel-alternative."><i class="fa fa-check"></i><b>15.5.7</b> Fit the Bayesian muiltilevel alternative.</a></li>
-<li class="chapter" data-level="15.5.8" data-path="missing-data-and-other-opportunities.html"><a href="missing-data-and-other-opportunities.html#parting-thoughts."><i class="fa fa-check"></i><b>15.5.8</b> Parting thoughts.</a></li>
+<li class="chapter" data-level="15.5.8" data-path="missing-data-and-other-opportunities.html"><a href="missing-data-and-other-opportunities.html#relative-to-the-muiltilevel-model-meta-analyses-have-limitations."><i class="fa fa-check"></i><b>15.5.8</b> Relative to the muiltilevel model, meta-analyses have limitations.</a></li>
+<li class="chapter" data-level="15.5.9" data-path="missing-data-and-other-opportunities.html"><a href="missing-data-and-other-opportunities.html#parting-thoughts."><i class="fa fa-check"></i><b>15.5.9</b> Parting thoughts.</a></li>
 </ul></li>
 <li class="chapter" data-level="" data-path="missing-data-and-other-opportunities.html"><a href="missing-data-and-other-opportunities.html#session-info-14"><i class="fa fa-check"></i>Session info</a></li>
 </ul></li>
@@ -698,7 +703,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div id="overthinking-gaussian-distribution." class="section level4">
 <h4><span class="header-section-number">4.1.4.4</span> Overthinking: Gaussian distribution.</h4>
 <p>In this section McElreath gave the formula for the Gaussian probability density function. Let <span class="math inline">\(y\)</span> be the criterion, <span class="math inline">\(\mu\)</span> be the mean, and <span class="math inline">\(\sigma\)</span> be the standard deviation. Then the probability density of some Gaussian value <span class="math inline">\(y\)</span> is</p>
-<p><span class="math display">\[p(y|\mu, \sigma) = \frac{1}{\sqrt{2 \pi \sigma^2}} \exp \left (- \frac{(y - \mu)^2}{2 \sigma^2} \right)\]</span></p>
+<p><span class="math display">\[p(y|\mu, \sigma) = \frac{1}{\sqrt{2 \pi \sigma^2}} \exp \left (- \frac{(y - \mu)^2}{2 \sigma^2} \right).\]</span></p>
 <p>McElreath’s right. “This looks monstrous” (p. 76). Why not demystify that monster with a little <strong>R</strong> code? For simplicity, we’ll compute <span class="math inline">\(p(y|\mu, \sigma)\)</span> for a series of <span class="math inline">\(y\)</span>-values ranging from -1 to 1, holding <span class="math inline">\(\mu = 0\)</span> and <span class="math inline">\(\sigma = 0.1\)</span>. Then we’ll plot.</p>
 <div class="sourceCode" id="cb224"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb224-1"><a href="geocentric-models.html#cb224-1"></a><span class="kw">tibble</span>(<span class="dt">y     =</span> <span class="kw">seq</span>(<span class="dt">from =</span> <span class="dv">-1</span>, <span class="dt">to =</span> <span class="dv">1</span>, <span class="dt">by =</span> <span class="fl">.01</span>),</span>
 <span id="cb224-2"><a href="geocentric-models.html#cb224-2"></a>       <span class="dt">mu    =</span> <span class="dv">0</span>,</span>
@@ -820,7 +825,7 @@ p &amp; \sim \operatorname{Uniform}(0, 1),
 <span id="cb236-5"><a href="geocentric-models.html#cb236-5"></a><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> value)) <span class="op">+</span></span>
 <span id="cb236-6"><a href="geocentric-models.html#cb236-6"></a><span class="st">  </span><span class="kw">geom_histogram</span>(<span class="dt">bins =</span> <span class="dv">10</span>) <span class="op">+</span></span>
 <span id="cb236-7"><a href="geocentric-models.html#cb236-7"></a><span class="st">  </span><span class="kw">facet_wrap</span>(<span class="op">~</span>name, <span class="dt">scales =</span> <span class="st">&quot;free&quot;</span>, <span class="dt">ncol =</span> <span class="dv">1</span>)</span></code></pre></div>
-<p><img src="04_files/figure-gfm/unnamed-chunk-19-1.png" width="528" style="display: block; margin: auto;" /></p>
+<p><img src="04_files/figure-gfm/unnamed-chunk-19-1.png" width="432" style="display: block; margin: auto;" /></p>
 <p>If you’re curious, McElreath made those tiny histograms with help from Wickham’s <a href="https://github.com/hadley/precis/blob/master/R/histospark.R"><code>histospark()</code> function</a>. Here’s the code.</p>
 <div class="sourceCode" id="cb237"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb237-1"><a href="geocentric-models.html#cb237-1"></a>sparks &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;\u2581&quot;</span>, <span class="st">&quot;\u2582&quot;</span>, <span class="st">&quot;\u2583&quot;</span>, <span class="st">&quot;\u2585&quot;</span>, <span class="st">&quot;\u2587&quot;</span>)</span>
 <span id="cb237-2"><a href="geocentric-models.html#cb237-2"></a></span>
@@ -858,13 +863,13 @@ p &amp; \sim \operatorname{Uniform}(0, 1),
 ## 1 352</code></pre>
 <div id="overthinking-data-frames-and-indexes." class="section level4">
 <h4><span class="header-section-number">4.3.1.1</span> Overthinking: Data frames and indexes.</h4>
-<p>For more on indexing, check out <a href="https://bookdown.org/rdpeng/rprogdatascience/subsetting-r-objects.html">Chapter 9</a> of Peng’s <span class="citation">(<a href="#ref-pengProgrammingDataScience2019" role="doc-biblioref">2019</a>)</span> <em>R programming for data science</em> or even the <a href="http://r4ds.had.co.nz/vectors.html#subsetting-1">Subsetting</a> subsection in <em>R4DS</em>.</p>
+<p>For more on indexing, check out <a href="https://bookdown.org/rdpeng/rprogdatascience/subsetting-r-objects.html">Chapter 9</a> of Peng’s <span class="citation">(<a href="#ref-pengProgrammingDataScience2019" role="doc-biblioref">2019</a>)</span> <em>R programming for data science</em>, or even the <a href="http://r4ds.had.co.nz/vectors.html#subsetting-1">Subsetting</a> subsection in <em>R4DS</em>.</p>
 <p>This probably reflects my training history, but the structure of a data frame seems natural and inherently appealing. If you’re in the other camp, do check out either of these two data wrangling talks (<a href="https://www.youtube.com/watch?v=4MfUCX_KpdE&amp;t=23s&amp;frags=pl%2Cwn">here</a> and <a href="https://www.youtube.com/watch?v=GapSskrtUzU&amp;t=1249s&amp;frags=pl%2Cwn">here</a>) by the ineffable <a href="https://twitter.com/JennyBryan">Jenny Bryan</a>.</p>
 </div>
 </div>
 <div id="the-model." class="section level3">
 <h3><span class="header-section-number">4.3.2</span> The model.</h3>
-<p>Please head McElreath’s warnings to</p>
+<p>Please heed McElreath’s warnings to</p>
 <blockquote>
 <p>be careful about choosing the Gaussian distribution only when the plotted outcome variable looks Gaussian to you. Gawking at the raw data, to try to decide how to model them, is usually not a good idea. The data could be a mixture of different Gaussian distributions, for example, and in that case you won’t be able to detect the underlying normality just by eyeballing the outcome distribution. Furthermore, as mentioned earlier in this chapter, the empirical distribution needn’t be actually Gaussian in order to justify using a Gaussian probability distribution. (p. 81)</p>
 </blockquote>
@@ -1255,7 +1260,7 @@ h_i &amp; = \mu + \epsilon_i \\
 ## Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
 ## and Tail_ESS are effective sample size measures, and Rhat is the potential
 ## scale reduction factor on split chains (at convergence, Rhat = 1).</code></pre>
-<p>Anyways, here’s the <code>brms::brm()</code> code for the model with the very-narrow-<span class="math inline">\(\mu\)</span>-prior corresponding to the <code>rethinking::quap()</code> code in McElreath’s R code 4.31.</p>
+<p>Anyways, here’s the <code>brms::brm()</code> code for the model with the very-narrow-<span class="math inline">\(\mu\)</span>-prior corresponding to the <code>rethinking::quap()</code> code in McElreath’s <strong>R</strong> code 4.31.</p>
 <div class="sourceCode" id="cb283"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb283-1"><a href="geocentric-models.html#cb283-1"></a>b4<span class="fl">.2</span> &lt;-<span class="st"> </span></span>
 <span id="cb283-2"><a href="geocentric-models.html#cb283-2"></a><span class="st">  </span><span class="kw">brm</span>(<span class="dt">data =</span> d2, </span>
 <span id="cb283-3"><a href="geocentric-models.html#cb283-3"></a>      <span class="dt">family =</span> gaussian,</span>
@@ -2434,7 +2439,7 @@ h_i &amp; = \mu + \epsilon_i \\
 <span id="cb408-8"><a href="geocentric-models.html#cb408-8"></a><span class="st">  </span><span class="kw">theme_bw</span>() <span class="op">+</span></span>
 <span id="cb408-9"><a href="geocentric-models.html#cb408-9"></a><span class="st">  </span><span class="kw">theme</span>(<span class="dt">panel.background =</span> <span class="kw">element_rect</span>(<span class="dt">fill =</span> <span class="st">&quot;#4f455c&quot;</span>),</span>
 <span id="cb408-10"><a href="geocentric-models.html#cb408-10"></a>        <span class="dt">panel.grid =</span> <span class="kw">element_blank</span>(),</span>
-<span id="cb408-11"><a href="geocentric-models.html#cb408-11"></a>        <span class="dt">strip.background =</span> <span class="kw">element_rect</span>(<span class="dt">fill =</span> <span class="kw">alpha</span>(<span class="st">&quot;#ffb7c5&quot;</span>, <span class="fl">.25</span>), <span class="dt">color =</span> <span class="st">&quot;transparent&quot;</span>),</span>
+<span id="cb408-11"><a href="geocentric-models.html#cb408-11"></a>        <span class="dt">strip.background =</span> <span class="kw">element_rect</span>(<span class="dt">fill =</span> scales<span class="op">::</span><span class="kw">alpha</span>(<span class="st">&quot;#ffb7c5&quot;</span>, <span class="fl">.25</span>), <span class="dt">color =</span> <span class="st">&quot;transparent&quot;</span>),</span>
 <span id="cb408-12"><a href="geocentric-models.html#cb408-12"></a>        <span class="dt">strip.text =</span> <span class="kw">element_text</span>(<span class="dt">size =</span> <span class="dv">8</span>, <span class="dt">margin =</span> <span class="kw">margin</span>(<span class="fl">0.1</span>, <span class="dv">0</span>, <span class="fl">0.1</span>, <span class="dv">0</span>, <span class="st">&quot;cm&quot;</span>))) <span class="op">+</span></span>
 <span id="cb408-13"><a href="geocentric-models.html#cb408-13"></a><span class="st">  </span><span class="kw">facet_wrap</span>(<span class="op">~</span>bias_function, <span class="dt">ncol =</span> <span class="dv">1</span>)</span></code></pre></div>
 <p><img src="04_files/figure-gfm/unnamed-chunk-129-1.png" width="576" style="display: block; margin: auto;" /></p>
@@ -2704,7 +2709,7 @@ h_i &amp; = \mu + \epsilon_i \\
 <span id="cb429-12"><a href="geocentric-models.html#cb429-12"></a><span class="st">  </span><span class="kw">theme</span>(<span class="dt">panel.grid =</span> <span class="kw">element_blank</span>(),</span>
 <span id="cb429-13"><a href="geocentric-models.html#cb429-13"></a>        <span class="dt">panel.background =</span> <span class="kw">element_rect</span>(<span class="dt">fill =</span> <span class="st">&quot;#4f455c&quot;</span>))</span></code></pre></div>
 <p><img src="04_files/figure-gfm/unnamed-chunk-142-1.png" width="576" style="display: block; margin: auto;" /></p>
-<p>The smooth isn’t quite the same as the one from <strong>rethinking</strong>. Hopefully this isn’t terribly surprising. We used different packages and a different underlying statistical model. One of the reasons is we didn’t even use a B-spline. The default for <code>s()</code> is to use what’s called a thin plate regression spline. If we’d like to fit a B-spline, we have to set <code>bs = bs</code>. Here’s an example.</p>
+<p>The smooth isn’t quite the same as the one from <strong>rethinking</strong>. Hopefully this isn’t terribly surprising. We used different packages and a different underlying statistical model. One of the reasons is we didn’t even use a B-spline. The default for <code>s()</code> is to use what’s called a <em>thin plate</em> regression spline. If we’d like to fit a B-spline, we have to set <code>bs = "bs"</code>. Here’s an example.</p>
 <div class="sourceCode" id="cb430"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb430-1"><a href="geocentric-models.html#cb430-1"></a>b4<span class="fl">.8</span>_bs &lt;-</span>
 <span id="cb430-2"><a href="geocentric-models.html#cb430-2"></a><span class="st">  </span><span class="kw">brm</span>(<span class="dt">data =</span> d2,</span>
 <span id="cb430-3"><a href="geocentric-models.html#cb430-3"></a>      <span class="dt">family =</span> gaussian,</span>
@@ -2761,13 +2766,13 @@ h_i &amp; = \mu + \epsilon_i \\
 <div id="session-info-3" class="section level2 unnumbered">
 <h2>Session info</h2>
 <div class="sourceCode" id="cb434"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb434-1"><a href="geocentric-models.html#cb434-1"></a><span class="kw">sessionInfo</span>()</span></code></pre></div>
-<pre><code>## R version 3.6.3 (2020-02-29)
-## Platform: x86_64-apple-darwin15.6.0 (64-bit)
+<pre><code>## R version 4.0.3 (2020-10-10)
+## Platform: x86_64-apple-darwin17.0 (64-bit)
 ## Running under: macOS Catalina 10.15.3
 ## 
 ## Matrix products: default
-## BLAS:   /Library/Frameworks/R.framework/Versions/3.6/Resources/lib/libRblas.0.dylib
-## LAPACK: /Library/Frameworks/R.framework/Versions/3.6/Resources/lib/libRlapack.dylib
+## BLAS:   /Library/Frameworks/R.framework/Versions/4.0/Resources/lib/libRblas.dylib
+## LAPACK: /Library/Frameworks/R.framework/Versions/4.0/Resources/lib/libRlapack.dylib
 ## 
 ## locale:
 ## [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
@@ -2776,44 +2781,43 @@ h_i &amp; = \mu + \epsilon_i \\
 ## [1] splines   parallel  stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-##  [1] brms_2.14.4          tidybayes_2.1.1      Rcpp_1.0.5           dagitty_0.2-2       
-##  [5] rstan_2.21.2         StanHeaders_2.21.0-6 patchwork_1.0.1.9000 forcats_0.5.0       
-##  [9] stringr_1.4.0        dplyr_1.0.2          purrr_0.3.4          readr_1.3.1         
-## [13] tidyr_1.1.1          tibble_3.0.4         ggplot2_3.3.2        tidyverse_1.3.0     
+##  [1] brms_2.14.4          tidybayes_2.3.1      Rcpp_1.0.5           rstan_2.21.2        
+##  [5] StanHeaders_2.21.0-6 patchwork_1.1.0      forcats_0.5.0        stringr_1.4.0       
+##  [9] dplyr_1.0.2          purrr_0.3.4          readr_1.4.0          tidyr_1.1.2         
+## [13] tibble_3.0.4         ggplot2_3.3.2        tidyverse_1.3.0     
 ## 
 ## loaded via a namespace (and not attached):
-##   [1] readxl_1.3.1         backports_1.2.0      plyr_1.8.6           igraph_1.2.5        
-##   [5] svUnit_1.0.3         crosstalk_1.1.0.1    TH.data_1.0-10       rstantools_2.1.1    
-##   [9] inline_0.3.16        digest_0.6.27        htmltools_0.5.0      rsconnect_0.8.16    
-##  [13] fansi_0.4.1          magrittr_1.5         modelr_0.1.6         RcppParallel_5.0.2  
-##  [17] matrixStats_0.57.0   xts_0.12.1           sandwich_2.5-1       prettyunits_1.1.1   
-##  [21] colorspace_1.4-1     rvest_0.3.5          ggdist_2.1.1         haven_2.2.0         
-##  [25] xfun_0.19            callr_3.5.1          crayon_1.3.4         jsonlite_1.7.1      
-##  [29] lme4_1.1-23          survival_3.1-12      zoo_1.8-8            glue_1.4.2          
-##  [33] gtable_0.3.0         emmeans_1.4.5        V8_3.4.0             pkgbuild_1.1.0      
-##  [37] shape_1.4.4          abind_1.4-5          scales_1.1.1         mvtnorm_1.1-1       
-##  [41] emo_0.0.0.9000       DBI_1.1.0            miniUI_0.1.1.1       isoband_0.2.2       
-##  [45] viridisLite_0.3.0    xtable_1.8-4         HDInterval_0.2.0     stats4_3.6.3        
-##  [49] DT_0.13              htmlwidgets_1.5.1    httr_1.4.1           threejs_0.3.3       
-##  [53] arrayhelpers_1.1-0   ellipsis_0.3.1       pkgconfig_2.0.3      loo_2.3.1           
-##  [57] farver_2.0.3         dbplyr_1.4.2         utf8_1.1.4           tidyselect_1.1.0    
-##  [61] labeling_0.4.2       rlang_0.4.8          reshape2_1.4.4       later_1.1.0.1       
-##  [65] munsell_0.5.0        cellranger_1.1.0     tools_3.6.3          cli_2.1.0           
-##  [69] generics_0.1.0       broom_0.5.5          ggridges_0.5.2       evaluate_0.14       
-##  [73] fastmap_1.0.1        yaml_2.2.1           processx_3.4.4       knitr_1.30          
-##  [77] fs_1.4.1             nlme_3.1-144         mime_0.9             projpred_2.0.2      
-##  [81] xml2_1.3.1           compiler_3.6.3       bayesplot_1.7.2      shinythemes_1.1.2   
-##  [85] rstudioapi_0.11      curl_4.3             gamm4_0.2-6          reprex_0.3.0        
-##  [89] statmod_1.4.34       stringi_1.5.3        ps_1.4.0             Brobdingnag_1.2-6   
-##  [93] lattice_0.20-38      Matrix_1.2-18        nloptr_1.2.2.1       markdown_1.1        
-##  [97] shinyjs_1.1          vctrs_0.3.4          pillar_1.4.6         lifecycle_0.2.0     
-## [101] bridgesampling_1.0-0 estimability_1.3     httpuv_1.5.4         R6_2.5.0            
-## [105] bookdown_0.18        promises_1.1.1       gridExtra_2.3        codetools_0.2-16    
-## [109] boot_1.3-24          colourpicker_1.0     MASS_7.3-51.5        gtools_3.8.2        
-## [113] assertthat_0.2.1     withr_2.3.0          shinystan_2.5.0      multcomp_1.4-13     
-## [117] mgcv_1.8-31          hms_0.5.3            grid_3.6.3           coda_0.19-4         
-## [121] minqa_1.2.4          rmarkdown_2.5        shiny_1.5.0          lubridate_1.7.8     
-## [125] base64enc_0.1-3      dygraphs_1.1.1.6</code></pre>
+##   [1] readxl_1.3.1         backports_1.2.0      plyr_1.8.6           igraph_1.2.6        
+##   [5] svUnit_1.0.3         crosstalk_1.1.0.1    rstantools_2.1.1     inline_0.3.17       
+##   [9] digest_0.6.27        htmltools_0.5.0      rsconnect_0.8.16     fansi_0.4.1         
+##  [13] magrittr_2.0.1       modelr_0.1.8         RcppParallel_5.0.2   matrixStats_0.57.0  
+##  [17] xts_0.12.1           prettyunits_1.1.1    colorspace_2.0-0     rvest_0.3.6         
+##  [21] ggdist_2.3.0         haven_2.3.1          xfun_0.19            callr_3.5.1         
+##  [25] crayon_1.3.4         jsonlite_1.7.1       lme4_1.1-25          zoo_1.8-8           
+##  [29] glue_1.4.2           gtable_0.3.0         emmeans_1.5.2-1      V8_3.4.0            
+##  [33] distributional_0.2.1 pkgbuild_1.1.0       shape_1.4.5          abind_1.4-5         
+##  [37] scales_1.1.1         mvtnorm_1.1-1        emo_0.0.0.9000       DBI_1.1.0           
+##  [41] miniUI_0.1.1.1       isoband_0.2.3        viridisLite_0.3.0    xtable_1.8-4        
+##  [45] HDInterval_0.2.2     stats4_4.0.3         DT_0.16              htmlwidgets_1.5.2   
+##  [49] httr_1.4.2           threejs_0.3.3        arrayhelpers_1.1-0   ellipsis_0.3.1      
+##  [53] pkgconfig_2.0.3      loo_2.3.1            farver_2.0.3         dbplyr_2.0.0        
+##  [57] utf8_1.1.4           tidyselect_1.1.0     labeling_0.4.2       rlang_0.4.9         
+##  [61] reshape2_1.4.4       later_1.1.0.1        munsell_0.5.0        cellranger_1.1.0    
+##  [65] tools_4.0.3          cli_2.2.0            generics_0.1.0       broom_0.7.2         
+##  [69] ggridges_0.5.2       evaluate_0.14        fastmap_1.0.1        yaml_2.2.1          
+##  [73] processx_3.4.5       knitr_1.30           fs_1.5.0             nlme_3.1-149        
+##  [77] mime_0.9             projpred_2.0.2       xml2_1.3.2           compiler_4.0.3      
+##  [81] bayesplot_1.7.2      shinythemes_1.1.2    rstudioapi_0.13      curl_4.3            
+##  [85] gamm4_0.2-6          reprex_0.3.0         statmod_1.4.35       stringi_1.5.3       
+##  [89] ps_1.4.0             Brobdingnag_1.2-6    lattice_0.20-41      Matrix_1.2-18       
+##  [93] nloptr_1.2.2.2       markdown_1.1         shinyjs_2.0.0        vctrs_0.3.5         
+##  [97] pillar_1.4.7         lifecycle_0.2.0      bridgesampling_1.0-0 estimability_1.3    
+## [101] httpuv_1.5.4         R6_2.5.0             bookdown_0.21        promises_1.1.1      
+## [105] gridExtra_2.3        codetools_0.2-16     boot_1.3-25          colourpicker_1.1.0  
+## [109] MASS_7.3-53          gtools_3.8.2         assertthat_0.2.1     withr_2.3.0         
+## [113] shinystan_2.5.0      mgcv_1.8-33          hms_0.5.3            grid_4.0.3          
+## [117] coda_0.19-4          minqa_1.2.4          rmarkdown_2.5        shiny_1.5.0         
+## [121] lubridate_1.7.9.2    base64enc_0.1-3      dygraphs_1.1.1.6</code></pre>
 
 </div>
 </div>

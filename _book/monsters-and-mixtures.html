@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <title>12 Monsters and Mixtures | Statistical rethinking with brms, ggplot2, and the tidyverse: Second edition</title>
   <meta name="description" content="This book is an attempt to re-express the code in the second edition of McElreath’s textbook, ‘Statistical rethinking.’ His models are re-fit in brms, plots are redone with ggplot2, and the general data wrangling code predominantly follows the tidyverse style." />
-  <meta name="generator" content="bookdown 0.18 and GitBook 2.6.7" />
+  <meta name="generator" content="bookdown 0.21 and GitBook 2.6.7" />
 
   <meta property="og:title" content="12 Monsters and Mixtures | Statistical rethinking with brms, ggplot2, and the tidyverse: Second edition" />
   <meta property="og:type" content="book" />
@@ -24,7 +24,7 @@
 <meta name="author" content="A Solomon Kurz" />
 
 
-<meta name="date" content="2020-11-24" />
+<meta name="date" content="2020-12-02" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -134,7 +134,11 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 <ul class="summary">
 <li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>What and why</a><ul>
-<li class="chapter" data-level="" data-path="index.html"><a href="index.html#caution-work-in-progress"><i class="fa fa-check"></i>Caution: Work in progress</a></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#we-have-updates"><i class="fa fa-check"></i>We have updates</a><ul>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#version-0.1.0."><i class="fa fa-check"></i>Version 0.1.0.</a></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#version-0.1.1."><i class="fa fa-check"></i>Version 0.1.1.</a></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#were-not-done-yet-and-i-could-use-your-help."><i class="fa fa-check"></i>We’re not done yet and I could use your help.</a></li>
+</ul></li>
 <li class="chapter" data-level="" data-path="index.html"><a href="index.html#thank-yous-are-in-order"><i class="fa fa-check"></i>Thank-you’s are in order</a></li>
 <li class="chapter" data-level="" data-path="index.html"><a href="index.html#license-and-citation"><i class="fa fa-check"></i>License and citation</a></li>
 </ul></li>
@@ -454,7 +458,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="15.5.5" data-path="missing-data-and-other-opportunities.html"><a href="missing-data-and-other-opportunities.html#compute-the-study-specific-effect-sizes."><i class="fa fa-check"></i><b>15.5.5</b> Compute the study-specific effect sizes.</a></li>
 <li class="chapter" data-level="15.5.6" data-path="missing-data-and-other-opportunities.html"><a href="missing-data-and-other-opportunities.html#fit-the-bayesian-meta-analysis."><i class="fa fa-check"></i><b>15.5.6</b> Fit the Bayesian meta-analysis.</a></li>
 <li class="chapter" data-level="15.5.7" data-path="missing-data-and-other-opportunities.html"><a href="missing-data-and-other-opportunities.html#fit-the-bayesian-muiltilevel-alternative."><i class="fa fa-check"></i><b>15.5.7</b> Fit the Bayesian muiltilevel alternative.</a></li>
-<li class="chapter" data-level="15.5.8" data-path="missing-data-and-other-opportunities.html"><a href="missing-data-and-other-opportunities.html#parting-thoughts."><i class="fa fa-check"></i><b>15.5.8</b> Parting thoughts.</a></li>
+<li class="chapter" data-level="15.5.8" data-path="missing-data-and-other-opportunities.html"><a href="missing-data-and-other-opportunities.html#relative-to-the-muiltilevel-model-meta-analyses-have-limitations."><i class="fa fa-check"></i><b>15.5.8</b> Relative to the muiltilevel model, meta-analyses have limitations.</a></li>
+<li class="chapter" data-level="15.5.9" data-path="missing-data-and-other-opportunities.html"><a href="missing-data-and-other-opportunities.html#parting-thoughts."><i class="fa fa-check"></i><b>15.5.9</b> Parting thoughts.</a></li>
 </ul></li>
 <li class="chapter" data-level="" data-path="missing-data-and-other-opportunities.html"><a href="missing-data-and-other-opportunities.html#session-info-14"><i class="fa fa-check"></i>Session info</a></li>
 </ul></li>
@@ -710,14 +715,14 @@ Here the size, <span class="math inline">\(n\)</span>, is defined in the <code>a
 <pre><code>##       da .lower .upper .width .point .interval
 ## 1 -0.105 -1.001  0.814   0.89   mean        qi</code></pre>
 <p>Much like in the text, the difference between genders on admission rates is near zero with wide uncertainty intervals spanning in either direction.</p>
-<p>To stay within the <strong>tidyverse</strong> while making the many thin lines in Figure 12.1.a, we’re going to need to do a bit of data processing. First, we’ll want a variable to index the rows in <code>post</code> (i.e., to index the posterior draws). And we’ll want to convert the <code>b_gid2</code> to the <span class="math inline">\(\bar p\)</span> metric with the <code>inv_logit_scaled()</code> function. Then we’ll use <code>sample_n()</code> to randomly draw a subset of the posterior draws. Then with the <code>expand()</code> function, we’ll insert a dense sequence of <code>x</code> values ranging between 0 and 1–the parameter space of beta distribution. Finally, we’ll use <code>pmap_dbl()</code> to compute the density values for the <code>rethinking::dbeta2</code> distribution corresponding to the unique combination of <code>x</code>, <code>p_bar</code>, and <code>phi</code> values in each row.</p>
+<p>To stay within the <strong>tidyverse</strong> while making the many thin lines in Figure 12.1.a, we’re going to need to do a bit of data processing. First, we’ll want a variable to index the rows in <code>post</code> (i.e., to index the posterior draws). And we’ll want to convert the <code>b_gid2</code> to the <span class="math inline">\(\bar p\)</span> metric with the <code>inv_logit_scaled()</code> function. Then we’ll use <code>slice_sample()</code> to randomly draw a subset of the posterior draws. Then with the <code>expand()</code> function, we’ll insert a dense sequence of <code>x</code> values ranging between 0 and 1–the parameter space of beta distribution. Finally, we’ll use <code>pmap_dbl()</code> to compute the density values for the <code>rethinking::dbeta2</code> distribution corresponding to the unique combination of <code>x</code>, <code>p_bar</code>, and <code>phi</code> values in each row.</p>
 <div class="sourceCode" id="cb1428"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1428-1"><a href="monsters-and-mixtures.html#cb1428-1"></a><span class="kw">set.seed</span>(<span class="dv">12</span>)</span>
 <span id="cb1428-2"><a href="monsters-and-mixtures.html#cb1428-2"></a></span>
 <span id="cb1428-3"><a href="monsters-and-mixtures.html#cb1428-3"></a>lines &lt;-</span>
 <span id="cb1428-4"><a href="monsters-and-mixtures.html#cb1428-4"></a><span class="st">  </span>post <span class="op">%&gt;%</span><span class="st"> </span></span>
 <span id="cb1428-5"><a href="monsters-and-mixtures.html#cb1428-5"></a><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">iter  =</span> <span class="dv">1</span><span class="op">:</span><span class="kw">n</span>(),</span>
 <span id="cb1428-6"><a href="monsters-and-mixtures.html#cb1428-6"></a>         <span class="dt">p_bar =</span> <span class="kw">inv_logit_scaled</span>(b_gid2)) <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb1428-7"><a href="monsters-and-mixtures.html#cb1428-7"></a><span class="st">  </span><span class="kw">sample_n</span>(<span class="dt">size =</span> <span class="dv">100</span>) <span class="op">%&gt;%</span><span class="st"> </span></span>
+<span id="cb1428-7"><a href="monsters-and-mixtures.html#cb1428-7"></a><span class="st">  </span><span class="kw">slice_sample</span>(<span class="dt">n =</span> <span class="dv">100</span>) <span class="op">%&gt;%</span><span class="st"> </span></span>
 <span id="cb1428-8"><a href="monsters-and-mixtures.html#cb1428-8"></a><span class="st">  </span><span class="kw">expand</span>(<span class="kw">nesting</span>(iter, p_bar, phi),</span>
 <span id="cb1428-9"><a href="monsters-and-mixtures.html#cb1428-9"></a>         <span class="dt">x =</span> <span class="kw">seq</span>(<span class="dt">from =</span> <span class="dv">0</span>, <span class="dt">to =</span> <span class="dv">1</span>, <span class="dt">by =</span> <span class="fl">.005</span>)) <span class="op">%&gt;%</span><span class="st"> </span></span>
 <span id="cb1428-10"><a href="monsters-and-mixtures.html#cb1428-10"></a><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">density =</span> <span class="kw">pmap_dbl</span>(<span class="kw">list</span>(x, p_bar, phi), rethinking<span class="op">::</span>dbeta2))</span>
@@ -964,7 +969,7 @@ Here the size, <span class="math inline">\(n\)</span>, is defined in the <code>a
 <span id="cb1446-5"><a href="monsters-and-mixtures.html#cb1446-5"></a><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">iter  =</span> <span class="dv">1</span><span class="op">:</span><span class="kw">n</span>(),</span>
 <span id="cb1446-6"><a href="monsters-and-mixtures.html#cb1446-6"></a>         <span class="dt">alpha =</span> shape,</span>
 <span id="cb1446-7"><a href="monsters-and-mixtures.html#cb1446-7"></a>         <span class="dt">theta =</span> <span class="kw">exp</span>(b_Intercept) <span class="op">/</span><span class="st"> </span>shape) <span class="op">%&gt;%</span></span>
-<span id="cb1446-8"><a href="monsters-and-mixtures.html#cb1446-8"></a><span class="st">  </span><span class="kw">sample_n</span>(<span class="dt">size =</span> <span class="dv">200</span>) <span class="op">%&gt;%</span><span class="st"> </span></span>
+<span id="cb1446-8"><a href="monsters-and-mixtures.html#cb1446-8"></a><span class="st">  </span><span class="kw">slice_sample</span>(<span class="dt">n =</span> <span class="dv">200</span>) <span class="op">%&gt;%</span><span class="st"> </span></span>
 <span id="cb1446-9"><a href="monsters-and-mixtures.html#cb1446-9"></a><span class="st">  </span><span class="kw">expand</span>(<span class="kw">nesting</span>(iter, alpha, theta),</span>
 <span id="cb1446-10"><a href="monsters-and-mixtures.html#cb1446-10"></a>         <span class="dt">x =</span> <span class="dv">0</span><span class="op">:</span><span class="dv">250</span>) <span class="op">%&gt;%</span><span class="st"> </span></span>
 <span id="cb1446-11"><a href="monsters-and-mixtures.html#cb1446-11"></a><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">density =</span> <span class="kw">dgamma</span>(x, <span class="dt">shape =</span> alpha, <span class="dt">scale =</span> theta)) <span class="op">%&gt;%</span><span class="st"> </span></span>
@@ -1249,7 +1254,7 @@ where both parameters in the likelihood, <span class="math inline">\(p_i\)</span
 ## Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
 ## and Tail_ESS are effective sample size measures, and Rhat is the potential
 ## scale reduction factor on split chains (at convergence, Rhat = 1).</code></pre>
-<p>If you look at the <a href="https://cran.r-project.org/package=brms/vignettes/brms_families.html#zero-inflated-and-hurdle-models"><em>Zero-inflated and hurdle models</em> section</a> of Bürkner’s <span class="citation">(<a href="#ref-Bürkner2020Parameterization" role="doc-biblioref">2020</a><a href="#ref-Bürkner2020Parameterization" role="doc-biblioref">d</a>)</span> <a href="https://cran.r-project.org/package=brms/vignettes/brms_families.html"><em>Parameterization of response distributions in brms</em></a> document, you’ll see the zero-inflated Poisson is set up a little differently in <strong>brms</strong> than it is in <strong>rethinking</strong>. The difference did not influence the estimate for the intercept, <span class="math inline">\(\lambda\)</span>. In both here and in the text, <span class="math inline">\(\lambda\)</span> was about zero. However, it did influence the summary of <code>zi</code>. Note how McElreath’s <code>mean( inv_logit( post$ap ) )</code> returned 0.2241255 Seems rather close to our <code>zi</code> estimate of 0.23. Hopefully it’s clear that <code>zi</code> in <strong>brms</strong> is already in the probability metric. There’s no need to convert it. You can further confirm this by looking at the second line from the <code>print()</code> output, <code>Links: mu = log; zi = identity</code>. When there are no predictors for <code>zi</code>, the <strong>brms</strong> default is to use the identity link. In the text, however, McElreath used the logit link for <code>p</code>.</p>
+<p>If you look at the <a href="https://cran.r-project.org/package=brms/vignettes/brms_families.html#zero-inflated-and-hurdle-models"><em>Zero-inflated and hurdle models</em> section</a> of Bürkner’s <span class="citation">(<a href="#ref-Bürkner2020Parameterization" role="doc-biblioref">2020</a><a href="#ref-Bürkner2020Parameterization" role="doc-biblioref">d</a>)</span> <a href="https://cran.r-project.org/package=brms/vignettes/brms_families.html"><em>Parameterization of response distributions in brms</em></a> document, you’ll see the zero-inflated Poisson is set up a little differently in <strong>brms</strong> than it is in <strong>rethinking</strong>. The difference did not influence the estimate for the intercept, <span class="math inline">\(\lambda\)</span>. In both here and in the text, <span class="math inline">\(\lambda\)</span> was about zero. However, it did influence the summary of <code>zi</code>. Note how McElreath’s <code>mean( inv_logit( post$ap ) )</code> returned 0.2241255, which seems rather close to our <code>zi</code> estimate of 0.23. Hopefully it’s clear that <code>zi</code> in <strong>brms</strong> is already in the probability metric. There’s no need to convert it. You can further confirm this by looking at the second line from the <code>print()</code> output, <code>Links: mu = log; zi = identity</code>. When there are no predictors for <code>zi</code>, the <strong>brms</strong> default is to use the identity link. In the text, however, McElreath used the logit link for <code>p</code>.</p>
 <p>In the <code>prior</code> argument, we used <code>beta(2, 6)</code> for <code>zi</code> and also mentioned in the margin that the <strong>brms</strong> default is <code>beta(1, 1)</code>. The beta distribution ranges from 0 to 1, making it a natural distribution to use for priors on probabilities when using the identity link. To give you a sense of what those two versions of the beta look like, let’s plot.</p>
 <p>A typical way to plot a beta distribution would be to use the base <strong>R</strong> <code>dbeta()</code> function. Let’s try a different approach, instead. The <strong>tidybayes</strong> package includes a <code>parse_dist()</code> function which takes the kind of string specifications you would usually include in the <code>brms::prior()</code> function and converts them into a format one can plot with. For example, here’s what the preparatory work would be in our case.</p>
 <div class="sourceCode" id="cb1464"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1464-1"><a href="monsters-and-mixtures.html#cb1464-1"></a>priors &lt;-</span>
@@ -1897,7 +1902,7 @@ p              &amp; = \alpha_p \\
 <span id="cb1514-15"><a href="monsters-and-mixtures.html#cb1514-15"></a><span class="st">  </span><span class="kw">ungroup</span>() <span class="op">%&gt;%</span><span class="st"> </span></span>
 <span id="cb1514-16"><a href="monsters-and-mixtures.html#cb1514-16"></a><span class="st">  </span><span class="co"># these next three lines are how we randomly selected 50 posterior draws</span></span>
 <span id="cb1514-17"><a href="monsters-and-mixtures.html#cb1514-17"></a><span class="st">  </span><span class="kw">nest</span>(<span class="dt">data =</span> <span class="op">-</span>iter) <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb1514-18"><a href="monsters-and-mixtures.html#cb1514-18"></a><span class="st">  </span><span class="kw">sample_n</span>(<span class="dt">size =</span> <span class="dv">50</span>) <span class="op">%&gt;%</span></span>
+<span id="cb1514-18"><a href="monsters-and-mixtures.html#cb1514-18"></a><span class="st">  </span><span class="kw">slice_sample</span>(<span class="dt">n =</span> <span class="dv">50</span>) <span class="op">%&gt;%</span></span>
 <span id="cb1514-19"><a href="monsters-and-mixtures.html#cb1514-19"></a><span class="st">  </span><span class="kw">unnest</span>(data) <span class="op">%&gt;%</span><span class="st"> </span></span>
 <span id="cb1514-20"><a href="monsters-and-mixtures.html#cb1514-20"></a><span class="st">  </span></span>
 <span id="cb1514-21"><a href="monsters-and-mixtures.html#cb1514-21"></a><span class="st">  </span><span class="co"># plot!</span></span>
@@ -1962,7 +1967,7 @@ p              &amp; = \alpha_p \\
 <span id="cb1519-6"><a href="monsters-and-mixtures.html#cb1519-6"></a><span class="st">  </span><span class="kw">summarise</span>(<span class="dt">mean_response =</span> <span class="kw">sum</span>(pk <span class="op">*</span><span class="st"> </span>response)) <span class="op">%&gt;%</span><span class="st"> </span></span>
 <span id="cb1519-7"><a href="monsters-and-mixtures.html#cb1519-7"></a><span class="st">  </span><span class="kw">ungroup</span>() <span class="op">%&gt;%</span><span class="st"> </span></span>
 <span id="cb1519-8"><a href="monsters-and-mixtures.html#cb1519-8"></a><span class="st">  </span><span class="kw">nest</span>(<span class="dt">data =</span> <span class="op">-</span>iter) <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb1519-9"><a href="monsters-and-mixtures.html#cb1519-9"></a><span class="st">  </span><span class="kw">sample_n</span>(<span class="dt">size =</span> <span class="dv">50</span>) <span class="op">%&gt;%</span></span>
+<span id="cb1519-9"><a href="monsters-and-mixtures.html#cb1519-9"></a><span class="st">  </span><span class="kw">slice_sample</span>(<span class="dt">n =</span> <span class="dv">50</span>) <span class="op">%&gt;%</span></span>
 <span id="cb1519-10"><a href="monsters-and-mixtures.html#cb1519-10"></a><span class="st">  </span><span class="kw">unnest</span>(data) <span class="op">%&gt;%</span></span>
 <span id="cb1519-11"><a href="monsters-and-mixtures.html#cb1519-11"></a></span>
 <span id="cb1519-12"><a href="monsters-and-mixtures.html#cb1519-12"></a><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> intention, <span class="dt">y =</span> mean_response)) <span class="op">+</span></span>
@@ -2391,13 +2396,13 @@ longitudinal substance use data</em></a>. If you’d like to learn more about us
 <div id="session-info-11" class="section level2 unnumbered">
 <h2>Session info</h2>
 <div class="sourceCode" id="cb1553"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1553-1"><a href="monsters-and-mixtures.html#cb1553-1"></a><span class="kw">sessionInfo</span>()</span></code></pre></div>
-<pre><code>## R version 3.6.3 (2020-02-29)
-## Platform: x86_64-apple-darwin15.6.0 (64-bit)
+<pre><code>## R version 4.0.3 (2020-10-10)
+## Platform: x86_64-apple-darwin17.0 (64-bit)
 ## Running under: macOS Catalina 10.15.3
 ## 
 ## Matrix products: default
-## BLAS:   /Library/Frameworks/R.framework/Versions/3.6/Resources/lib/libRblas.0.dylib
-## LAPACK: /Library/Frameworks/R.framework/Versions/3.6/Resources/lib/libRlapack.dylib
+## BLAS:   /Library/Frameworks/R.framework/Versions/4.0/Resources/lib/libRblas.dylib
+## LAPACK: /Library/Frameworks/R.framework/Versions/4.0/Resources/lib/libRlapack.dylib
 ## 
 ## locale:
 ## [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
@@ -2406,39 +2411,37 @@ longitudinal substance use data</em></a>. If you’d like to learn more about us
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-##  [1] GGally_2.0.0         gtools_3.8.2         patchwork_1.0.1.9000 tidybayes_2.1.1      brms_2.14.4         
-##  [6] Rcpp_1.0.5           forcats_0.5.0        stringr_1.4.0        dplyr_1.0.2          purrr_0.3.4         
-## [11] readr_1.3.1          tidyr_1.1.1          tibble_3.0.4         ggplot2_3.3.2        tidyverse_1.3.0     
-## [16] ggthemes_4.2.0      
+##  [1] GGally_2.0.0    gtools_3.8.2    patchwork_1.1.0 tidybayes_2.3.1 brms_2.14.4     Rcpp_1.0.5     
+##  [7] forcats_0.5.0   stringr_1.4.0   dplyr_1.0.2     purrr_0.3.4     readr_1.4.0     tidyr_1.1.2    
+## [13] tibble_3.0.4    ggplot2_3.3.2   tidyverse_1.3.0 ggthemes_4.2.0 
 ## 
 ## loaded via a namespace (and not attached):
-##   [1] readxl_1.3.1         backports_1.2.0      RcppEigen_0.3.3.7.0  plyr_1.8.6           igraph_1.2.5        
-##   [6] splines_3.6.3        svUnit_1.0.3         crosstalk_1.1.0.1    TH.data_1.0-10       rstantools_2.1.1    
-##  [11] inline_0.3.16        digest_0.6.27        htmltools_0.5.0      rethinking_2.01      rsconnect_0.8.16    
-##  [16] fansi_0.4.1          magrittr_1.5         BH_1.72.0-3.1        modelr_0.1.6         RcppParallel_5.0.2  
-##  [21] matrixStats_0.57.0   xts_0.12.1           sandwich_2.5-1       prettyunits_1.1.1    colorspace_1.4-1    
-##  [26] rvest_0.3.5          ggdist_2.1.1         haven_2.2.0          xfun_0.19            hexbin_1.28.1       
-##  [31] callr_3.5.1          crayon_1.3.4         jsonlite_1.7.1       lme4_1.1-23          survival_3.1-12     
-##  [36] zoo_1.8-8            glue_1.4.2           gtable_0.3.0         emmeans_1.4.5        V8_3.4.0            
-##  [41] pkgbuild_1.1.0       rstan_2.21.2         shape_1.4.4          abind_1.4-5          scales_1.1.1        
-##  [46] mvtnorm_1.1-1        emo_0.0.0.9000       DBI_1.1.0            miniUI_0.1.1.1       xtable_1.8-4        
-##  [51] stats4_3.6.3         StanHeaders_2.21.0-6 DT_0.13              htmlwidgets_1.5.1    httr_1.4.1          
-##  [56] threejs_0.3.3        RColorBrewer_1.1-2   arrayhelpers_1.1-0   ellipsis_0.3.1       reshape_0.8.8       
-##  [61] pkgconfig_2.0.3      loo_2.3.1            farver_2.0.3         dbplyr_1.4.2         utf8_1.1.4          
-##  [66] tidyselect_1.1.0     labeling_0.4.2       rlang_0.4.8          reshape2_1.4.4       later_1.1.0.1       
-##  [71] munsell_0.5.0        cellranger_1.1.0     tools_3.6.3          cli_2.1.0            generics_0.1.0      
-##  [76] broom_0.5.5          ggridges_0.5.2       evaluate_0.14        fastmap_1.0.1        yaml_2.2.1          
-##  [81] processx_3.4.4       knitr_1.30           fs_1.4.1             nlme_3.1-144         mime_0.9            
-##  [86] projpred_2.0.2       xml2_1.3.1           compiler_3.6.3       bayesplot_1.7.2      shinythemes_1.1.2   
-##  [91] rstudioapi_0.11      curl_4.3             gamm4_0.2-6          reprex_0.3.0         statmod_1.4.34      
-##  [96] stringi_1.5.3        ps_1.4.0             Brobdingnag_1.2-6    lattice_0.20-38      Matrix_1.2-18       
-## [101] nloptr_1.2.2.1       markdown_1.1         shinyjs_1.1          vctrs_0.3.4          pillar_1.4.6        
-## [106] lifecycle_0.2.0      bridgesampling_1.0-0 estimability_1.3     httpuv_1.5.4         R6_2.5.0            
-## [111] bookdown_0.18        promises_1.1.1       gridExtra_2.3        codetools_0.2-16     boot_1.3-24         
-## [116] colourpicker_1.0     MASS_7.3-51.5        assertthat_0.2.1     withr_2.3.0          shinystan_2.5.0     
-## [121] multcomp_1.4-13      mgcv_1.8-31          parallel_3.6.3       hms_0.5.3            grid_3.6.3          
-## [126] coda_0.19-4          minqa_1.2.4          rmarkdown_2.5        shiny_1.5.0          lubridate_1.7.8     
-## [131] base64enc_0.1-3      dygraphs_1.1.1.6</code></pre>
+##   [1] readxl_1.3.1         backports_1.2.0      RcppEigen_0.3.3.7.0  plyr_1.8.6           igraph_1.2.6        
+##   [6] splines_4.0.3        svUnit_1.0.3         crosstalk_1.1.0.1    rstantools_2.1.1     inline_0.3.17       
+##  [11] digest_0.6.27        htmltools_0.5.0      rethinking_2.13      rsconnect_0.8.16     fansi_0.4.1         
+##  [16] magrittr_2.0.1       BH_1.72.0-3          modelr_0.1.8         RcppParallel_5.0.2   matrixStats_0.57.0  
+##  [21] xts_0.12.1           prettyunits_1.1.1    colorspace_2.0-0     rvest_0.3.6          ggdist_2.3.0        
+##  [26] haven_2.3.1          xfun_0.19            hexbin_1.28.1        callr_3.5.1          crayon_1.3.4        
+##  [31] jsonlite_1.7.1       lme4_1.1-25          zoo_1.8-8            glue_1.4.2           gtable_0.3.0        
+##  [36] emmeans_1.5.2-1      V8_3.4.0             distributional_0.2.1 pkgbuild_1.1.0       rstan_2.21.2        
+##  [41] shape_1.4.5          abind_1.4-5          scales_1.1.1         mvtnorm_1.1-1        emo_0.0.0.9000      
+##  [46] DBI_1.1.0            miniUI_0.1.1.1       xtable_1.8-4         stats4_4.0.3         StanHeaders_2.21.0-6
+##  [51] DT_0.16              htmlwidgets_1.5.2    httr_1.4.2           threejs_0.3.3        arrayhelpers_1.1-0  
+##  [56] RColorBrewer_1.1-2   ellipsis_0.3.1       reshape_0.8.8        pkgconfig_2.0.3      loo_2.3.1           
+##  [61] farver_2.0.3         dbplyr_2.0.0         utf8_1.1.4           tidyselect_1.1.0     labeling_0.4.2      
+##  [66] rlang_0.4.9          reshape2_1.4.4       later_1.1.0.1        munsell_0.5.0        cellranger_1.1.0    
+##  [71] tools_4.0.3          cli_2.2.0            generics_0.1.0       broom_0.7.2          ggridges_0.5.2      
+##  [76] evaluate_0.14        fastmap_1.0.1        yaml_2.2.1           processx_3.4.5       knitr_1.30          
+##  [81] fs_1.5.0             nlme_3.1-149         mime_0.9             projpred_2.0.2       xml2_1.3.2          
+##  [86] compiler_4.0.3       bayesplot_1.7.2      shinythemes_1.1.2    rstudioapi_0.13      curl_4.3            
+##  [91] gamm4_0.2-6          reprex_0.3.0         statmod_1.4.35       stringi_1.5.3        ps_1.4.0            
+##  [96] Brobdingnag_1.2-6    lattice_0.20-41      Matrix_1.2-18        nloptr_1.2.2.2       markdown_1.1        
+## [101] shinyjs_2.0.0        vctrs_0.3.5          pillar_1.4.7         lifecycle_0.2.0      bridgesampling_1.0-0
+## [106] estimability_1.3     httpuv_1.5.4         R6_2.5.0             bookdown_0.21        promises_1.1.1      
+## [111] gridExtra_2.3        codetools_0.2-16     boot_1.3-25          colourpicker_1.1.0   MASS_7.3-53         
+## [116] assertthat_0.2.1     withr_2.3.0          shinystan_2.5.0      mgcv_1.8-33          parallel_4.0.3      
+## [121] hms_0.5.3            grid_4.0.3           coda_0.19-4          minqa_1.2.4          rmarkdown_2.5       
+## [126] shiny_1.5.0          lubridate_1.7.9.2    base64enc_0.1-3      dygraphs_1.1.1.6</code></pre>
 
 </div>
 </div>

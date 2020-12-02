@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <title>13 Models With Memory | Statistical rethinking with brms, ggplot2, and the tidyverse: Second edition</title>
   <meta name="description" content="This book is an attempt to re-express the code in the second edition of McElreath’s textbook, ‘Statistical rethinking.’ His models are re-fit in brms, plots are redone with ggplot2, and the general data wrangling code predominantly follows the tidyverse style." />
-  <meta name="generator" content="bookdown 0.18 and GitBook 2.6.7" />
+  <meta name="generator" content="bookdown 0.21 and GitBook 2.6.7" />
 
   <meta property="og:title" content="13 Models With Memory | Statistical rethinking with brms, ggplot2, and the tidyverse: Second edition" />
   <meta property="og:type" content="book" />
@@ -24,7 +24,7 @@
 <meta name="author" content="A Solomon Kurz" />
 
 
-<meta name="date" content="2020-11-24" />
+<meta name="date" content="2020-12-02" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -134,7 +134,11 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 <ul class="summary">
 <li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>What and why</a><ul>
-<li class="chapter" data-level="" data-path="index.html"><a href="index.html#caution-work-in-progress"><i class="fa fa-check"></i>Caution: Work in progress</a></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#we-have-updates"><i class="fa fa-check"></i>We have updates</a><ul>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#version-0.1.0."><i class="fa fa-check"></i>Version 0.1.0.</a></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#version-0.1.1."><i class="fa fa-check"></i>Version 0.1.1.</a></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#were-not-done-yet-and-i-could-use-your-help."><i class="fa fa-check"></i>We’re not done yet and I could use your help.</a></li>
+</ul></li>
 <li class="chapter" data-level="" data-path="index.html"><a href="index.html#thank-yous-are-in-order"><i class="fa fa-check"></i>Thank-you’s are in order</a></li>
 <li class="chapter" data-level="" data-path="index.html"><a href="index.html#license-and-citation"><i class="fa fa-check"></i>License and citation</a></li>
 </ul></li>
@@ -454,7 +458,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="15.5.5" data-path="missing-data-and-other-opportunities.html"><a href="missing-data-and-other-opportunities.html#compute-the-study-specific-effect-sizes."><i class="fa fa-check"></i><b>15.5.5</b> Compute the study-specific effect sizes.</a></li>
 <li class="chapter" data-level="15.5.6" data-path="missing-data-and-other-opportunities.html"><a href="missing-data-and-other-opportunities.html#fit-the-bayesian-meta-analysis."><i class="fa fa-check"></i><b>15.5.6</b> Fit the Bayesian meta-analysis.</a></li>
 <li class="chapter" data-level="15.5.7" data-path="missing-data-and-other-opportunities.html"><a href="missing-data-and-other-opportunities.html#fit-the-bayesian-muiltilevel-alternative."><i class="fa fa-check"></i><b>15.5.7</b> Fit the Bayesian muiltilevel alternative.</a></li>
-<li class="chapter" data-level="15.5.8" data-path="missing-data-and-other-opportunities.html"><a href="missing-data-and-other-opportunities.html#parting-thoughts."><i class="fa fa-check"></i><b>15.5.8</b> Parting thoughts.</a></li>
+<li class="chapter" data-level="15.5.8" data-path="missing-data-and-other-opportunities.html"><a href="missing-data-and-other-opportunities.html#relative-to-the-muiltilevel-model-meta-analyses-have-limitations."><i class="fa fa-check"></i><b>15.5.8</b> Relative to the muiltilevel model, meta-analyses have limitations.</a></li>
+<li class="chapter" data-level="15.5.9" data-path="missing-data-and-other-opportunities.html"><a href="missing-data-and-other-opportunities.html#parting-thoughts."><i class="fa fa-check"></i><b>15.5.9</b> Parting thoughts.</a></li>
 </ul></li>
 <li class="chapter" data-level="" data-path="missing-data-and-other-opportunities.html"><a href="missing-data-and-other-opportunities.html#session-info-14"><i class="fa fa-check"></i>Session info</a></li>
 </ul></li>
@@ -765,13 +770,13 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb1578-13"><a href="models-with-memory.html#cb1578-13"></a><span class="st">  </span><span class="kw">theme</span>(<span class="dt">panel.grid.major =</span> <span class="kw">element_blank</span>())</span></code></pre></div>
 <p><img src="13_files/figure-gfm/unnamed-chunk-15-1.png" width="480" style="display: block; margin: auto;" /></p>
 <p>Here is the code for our version of Figure 13.2.a, where we visualize the model-implied population distribution of log-odds survival (i.e., the population distribution yielding all the <code>tank</code>-level intercepts).</p>
-<div class="sourceCode" id="cb1579"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1579-1"><a href="models-with-memory.html#cb1579-1"></a><span class="co"># this makes the output of `sample_n()` reproducible</span></span>
+<div class="sourceCode" id="cb1579"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1579-1"><a href="models-with-memory.html#cb1579-1"></a><span class="co"># this makes the output of `slice_sample()` reproducible</span></span>
 <span id="cb1579-2"><a href="models-with-memory.html#cb1579-2"></a><span class="kw">set.seed</span>(<span class="dv">13</span>)</span>
 <span id="cb1579-3"><a href="models-with-memory.html#cb1579-3"></a></span>
 <span id="cb1579-4"><a href="models-with-memory.html#cb1579-4"></a>p1 &lt;-</span>
 <span id="cb1579-5"><a href="models-with-memory.html#cb1579-5"></a><span class="st">  </span>post <span class="op">%&gt;%</span><span class="st"> </span></span>
 <span id="cb1579-6"><a href="models-with-memory.html#cb1579-6"></a><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">iter =</span> <span class="dv">1</span><span class="op">:</span><span class="kw">n</span>()) <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb1579-7"><a href="models-with-memory.html#cb1579-7"></a><span class="st">  </span><span class="kw">sample_n</span>(<span class="dv">100</span>) <span class="op">%&gt;%</span><span class="st"> </span></span>
+<span id="cb1579-7"><a href="models-with-memory.html#cb1579-7"></a><span class="st">  </span><span class="kw">slice_sample</span>(<span class="dt">n =</span> <span class="dv">100</span>) <span class="op">%&gt;%</span><span class="st"> </span></span>
 <span id="cb1579-8"><a href="models-with-memory.html#cb1579-8"></a><span class="st">  </span><span class="kw">expand</span>(<span class="kw">nesting</span>(iter, b_Intercept, sd_tank__Intercept),</span>
 <span id="cb1579-9"><a href="models-with-memory.html#cb1579-9"></a>         <span class="dt">x =</span> <span class="kw">seq</span>(<span class="dt">from =</span> <span class="dv">-4</span>, <span class="dt">to =</span> <span class="dv">5</span>, <span class="dt">length.out =</span> <span class="dv">100</span>)) <span class="op">%&gt;%</span></span>
 <span id="cb1579-10"><a href="models-with-memory.html#cb1579-10"></a><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">density =</span> <span class="kw">dnorm</span>(x, <span class="dt">mean =</span> b_Intercept, <span class="dt">sd =</span> sd_tank__Intercept)) <span class="op">%&gt;%</span><span class="st"> </span></span>
@@ -787,7 +792,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb1580-2"><a href="models-with-memory.html#cb1580-2"></a></span>
 <span id="cb1580-3"><a href="models-with-memory.html#cb1580-3"></a>p2 &lt;-</span>
 <span id="cb1580-4"><a href="models-with-memory.html#cb1580-4"></a><span class="st">  </span>post <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb1580-5"><a href="models-with-memory.html#cb1580-5"></a><span class="st">  </span><span class="kw">sample_n</span>(<span class="dv">8000</span>, <span class="dt">replace =</span> T) <span class="op">%&gt;%</span><span class="st"> </span></span>
+<span id="cb1580-5"><a href="models-with-memory.html#cb1580-5"></a><span class="st">  </span><span class="kw">slice_sample</span>(<span class="dt">n =</span> <span class="dv">8000</span>, <span class="dt">replace =</span> T) <span class="op">%&gt;%</span><span class="st"> </span></span>
 <span id="cb1580-6"><a href="models-with-memory.html#cb1580-6"></a><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">sim_tanks =</span> <span class="kw">rnorm</span>(<span class="kw">n</span>(), <span class="dt">mean =</span> b_Intercept, <span class="dt">sd =</span> sd_tank__Intercept)) <span class="op">%&gt;%</span><span class="st"> </span></span>
 <span id="cb1580-7"><a href="models-with-memory.html#cb1580-7"></a><span class="st">  </span></span>
 <span id="cb1580-8"><a href="models-with-memory.html#cb1580-8"></a><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> <span class="kw">inv_logit_scaled</span>(sim_tanks))) <span class="op">+</span></span>
@@ -806,7 +811,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div id="rethinking-varying-intercepts-as-over-dispersion." class="section level4">
 <h4><span class="header-section-number">13.1.0.1</span> Rethinking: Varying intercepts as over-dispersion.</h4>
 <blockquote>
-<p>In the previous chapter (<a href="monsters-and-mixtures.html#over-dispersed-counts">page 369</a>), the beta- binomial and gamma-Poisson models were presented as ways for coping with <strong>over-dispersion</strong> of count data. Varying intercepts accomplish the same thing, allowing count outcomes to be over-dispersed. They accomplish this, because when each observed count gets its own unique intercept, but these intercepts are pooled through a common distribution, the predictions expect over-dispersion just like a beta-binomial or gamma-Poisson model would. Multilevel models are also mixtures. Compared to a beta-binomial or gamma-Poisson model, a binomial or Poisson model with a varying intercept on every observed outcome will often be easier to estimate and easier to extend. (p. 407, <strong>emphasis</strong> in the original)</p>
+<p>In the previous chapter (<a href="monsters-and-mixtures.html#over-dispersed-counts">page 369</a>), the beta-binomial and gamma-Poisson models were presented as ways for coping with <strong>over-dispersion</strong> of count data. Varying intercepts accomplish the same thing, allowing count outcomes to be over-dispersed. They accomplish this, because when each observed count gets its own unique intercept, but these intercepts are pooled through a common distribution, the predictions expect over-dispersion just like a beta-binomial or gamma-Poisson model would. Multilevel models are also mixtures. Compared to a beta-binomial or gamma-Poisson model, a binomial or Poisson model with a varying intercept on every observed outcome will often be easier to estimate and easier to extend. (p. 407, <strong>emphasis</strong> in the original)</p>
 </blockquote>
 </div>
 <div id="overthinking-prior-for-variance-components." class="section level4">
@@ -1321,7 +1326,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 \color{#CD8500}{\sigma_\gamma} &amp; \color{#CD8500} \sim \color{#CD8500}{\operatorname{Exponential}(1)}.
 \end{align*}\]</span></p>
 <p>⚠️ WARNING ⚠️</p>
-<p>I am so sorry, but we are about to head straight into a load of confusion. If you follow along linearly in the book, we won’t have the language to parse this all out until <a href="models-with-memory.html#divergent-transitions-and-non-centered-priors">Section 13.4</a>. In short, our difficulties will have to do with what are called the centered and the non-centered parameterizations for multilevel models. For the next several models in the text, McElreath used the <strong>centered parameterization</strong>. As we’ll learn in Section 13.4, this often causes problems when you use Stan to fit your multilevel models. Happily, the solution to those problems is often the <strong>non-centered parameterization</strong>, which is well known among the Stan team. This issue is so well known, in fact, that Bürkner only supports the non-centered parameterization with <strong>brms</strong> (see <a href="https://discourse.mc-stan.org/t/disable-non-centered-parameterization-in-brms/7184/7?u=solomon">here</a>). To my knowledge, there is no easy way around this. In the long run, this is a good thing. Your <strong>brms</strong> models will likely avoid some of the problems McElreath highlighted in this part of the text. In the short term, this also means that our results will not completely match up with those in the text. If you really want to reproduce McElreath’s models <code>m13.4</code> through <code>m13.6</code>, you’ll have to fit them with the <strong>rethinking</strong> package or directly in Stan. Our models <code>b13.4</code> through <code>b13.6</code> will be the non-centered <strong>brms</strong> alternatives. Either way, the models make the same predictions, but the nuts and bolts and gears we’ll use to construct our multilevel golems will look a little different. With all that in mind, here’s how we might express our statistical model using the non-centered parameterization more faithful to the way it will be expressed with <code>brms::brm()</code>:</p>
+<p>I am so sorry, but we are about to head straight into a load of confusion. If you follow along linearly in the text, we won’t have the language to parse this all out until <a href="models-with-memory.html#divergent-transitions-and-non-centered-priors">Section 13.4</a>. In short, our difficulties will have to do with what are called the centered and the non-centered parameterizations for multilevel models. For the next several models in the text, McElreath used the <strong>centered parameterization</strong>. As we’ll learn in Section 13.4, this often causes problems when you use Stan to fit your multilevel models. Happily, the solution to those problems is often the <strong>non-centered parameterization</strong>, which is well known among the Stan team. This issue is so well known, in fact, that Bürkner only supports the non-centered parameterization with <strong>brms</strong> (see <a href="https://discourse.mc-stan.org/t/disable-non-centered-parameterization-in-brms/7184/7?u=solomon">here</a>). To my knowledge, there is no easy way around this. In the long run, this is a good thing. Your <strong>brms</strong> models will likely avoid some of the problems McElreath highlighted in this part of the text. In the short term, this also means that our results will not completely match up with those in the text. If you really want to reproduce McElreath’s models <code>m13.4</code> through <code>m13.6</code>, you’ll have to fit them with the <strong>rethinking</strong> package or directly in Stan. Our models <code>b13.4</code> through <code>b13.6</code> will be the non-centered <strong>brms</strong> alternatives. Either way, the models make the same predictions, but the nuts and bolts and gears we’ll use to construct our multilevel golems will look a little different. With all that in mind, here’s how we might express our statistical model using the non-centered parameterization more faithful to the way it will be expressed with <code>brms::brm()</code>:</p>
 <p><span class="math display">\[\begin{align*}
 \text{left_pull}_i         &amp; \sim \operatorname{Binomial}(n_i = 1, p_i) \\
 \operatorname{logit} (p_i) &amp; = \bar \alpha + \beta_{\text{treatment}[i]} + \color{#CD8500}{z_{\text{actor}[i]} \sigma_\alpha + x_{\text{block}[i]} \sigma_\gamma} \\
@@ -1496,7 +1501,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb1621-10"><a href="models-with-memory.html#cb1621-10"></a><span class="st">  </span><span class="kw">ggtitle</span>(<span class="kw">expression</span>(sigma[<span class="st">&quot;&lt;group&gt;&quot;</span>])) <span class="op">+</span></span>
 <span id="cb1621-11"><a href="models-with-memory.html#cb1621-11"></a><span class="st">  </span><span class="kw">coord_cartesian</span>(<span class="dt">xlim =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">4</span>))</span></code></pre></div>
 <p><img src="13_files/figure-gfm/unnamed-chunk-40-1.png" width="288" style="display: block; margin: auto;" /></p>
-<p>Since both the coefficient plots and the density plots indicate there is much more variability among the <code>actor</code> parameters than in the <code>block</code> parameters, we might fit a model that ignores the variation among the levels of <code>block.</code></p>
+<p>Since both the coefficient plots and the density plots indicate there is much more variability among the <code>actor</code> parameters than in the <code>block</code> parameters, we might fit a model that ignores the variation among the levels of <code>block</code>.</p>
 <div class="sourceCode" id="cb1622"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1622-1"><a href="models-with-memory.html#cb1622-1"></a>b13<span class="fl">.5</span> &lt;-<span class="st"> </span></span>
 <span id="cb1622-2"><a href="models-with-memory.html#cb1622-2"></a><span class="st">  </span><span class="kw">brm</span>(<span class="dt">data =</span> d, </span>
 <span id="cb1622-3"><a href="models-with-memory.html#cb1622-3"></a>      <span class="dt">family =</span> binomial,</span>
@@ -1744,8 +1749,11 @@ x &amp; = z \exp(v),
 <span id="cb1644-7"><a href="models-with-memory.html#cb1644-7"></a><span class="st">  </span><span class="kw">xlim</span>(<span class="dv">0</span>, <span class="dv">4700</span>) <span class="op">+</span></span>
 <span id="cb1644-8"><a href="models-with-memory.html#cb1644-8"></a><span class="st">  </span><span class="kw">ylim</span>(<span class="dv">0</span>, <span class="dv">4700</span>) <span class="op">+</span></span>
 <span id="cb1644-9"><a href="models-with-memory.html#cb1644-9"></a><span class="st">  </span><span class="kw">ggtitle</span>(<span class="st">&quot;Effective sample size summaries for b13.4&quot;</span>,</span>
-<span id="cb1644-10"><a href="models-with-memory.html#cb1644-10"></a>          <span class="dt">subtitle =</span> <span class="st">&quot;ess_bulk is on the x and ess_tail is on the y&quot;</span>)</span></code></pre></div>
-<p><img src="13_files/figure-gfm/unnamed-chunk-52-1.png" width="288" style="display: block; margin: auto;" /></p>
+<span id="cb1644-10"><a href="models-with-memory.html#cb1644-10"></a>          <span class="dt">subtitle =</span> <span class="st">&quot;ess_bulk is on the x and ess_tail is on the y&quot;</span>) <span class="op">+</span></span>
+<span id="cb1644-11"><a href="models-with-memory.html#cb1644-11"></a><span class="st">  </span><span class="kw">theme</span>(<span class="dt">plot.title =</span> <span class="kw">element_text</span>(<span class="dt">size =</span> <span class="fl">11.5</span>),</span>
+<span id="cb1644-12"><a href="models-with-memory.html#cb1644-12"></a>        <span class="dt">plot.title.position =</span> <span class="st">&quot;plot&quot;</span>,</span>
+<span id="cb1644-13"><a href="models-with-memory.html#cb1644-13"></a>        <span class="dt">plot.subtitle =</span> <span class="kw">element_text</span>(<span class="dt">size =</span> <span class="dv">10</span>))</span></code></pre></div>
+<p><img src="13_files/figure-gfm/unnamed-chunk-52-1.png" width="336" style="display: block; margin: auto;" /></p>
 <p>Both measures of effective sample size are fine.</p>
 <blockquote>
 <p>So should we always use the non-centered parameterization? No. Sometimes the centered form is better. It could even be true that the centered form is better for one cluster in a model while the non-centered form is better for another cluster in the same model. It all depends upon the details. Typically, a cluster with low variation, like the blocks in <code>m13.4</code>, will sample better with a non-centered prior. And if you have a large number of units inside a cluster, but not much data for each unit, then the non-centered is also usually better. But being able to switch back and forth as needed is very useful. (p. 425)</p>
@@ -2000,7 +2008,7 @@ x &amp; = z \exp(v),
 <span id="cb1665-9"><a href="models-with-memory.html#cb1665-9"></a></span>
 <span id="cb1665-10"><a href="models-with-memory.html#cb1665-10"></a>p2</span></code></pre></div>
 <p><img src="13_files/figure-gfm/unnamed-chunk-64-1.png" width="240" style="display: block; margin: auto;" /></p>
-<p>The big difference between this workflow and the last is now we start of by marking off the rows in <code>post</code> with an <code>iter</code> index and then use <code>sample_n()</code> to randomly sample 100 posterior rows. We also omit the <code>group_by()</code> and <code>mean_qi()</code> lines at the end.</p>
+<p>The big difference between this workflow and the last is now we start of by marking off the rows in <code>post</code> with an <code>iter</code> index and then use <code>slice_sample()</code> to randomly sample 100 posterior rows. We also omit the <code>group_by()</code> and <code>mean_qi()</code> lines at the end.</p>
 <div class="sourceCode" id="cb1666"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1666-1"><a href="models-with-memory.html#cb1666-1"></a><span class="co"># how many simulated chimps would you like?</span></span>
 <span id="cb1666-2"><a href="models-with-memory.html#cb1666-2"></a>n_chimps &lt;-<span class="st"> </span><span class="dv">100</span></span>
 <span id="cb1666-3"><a href="models-with-memory.html#cb1666-3"></a></span>
@@ -2009,7 +2017,7 @@ x &amp; = z \exp(v),
 <span id="cb1666-6"><a href="models-with-memory.html#cb1666-6"></a>f &lt;-</span>
 <span id="cb1666-7"><a href="models-with-memory.html#cb1666-7"></a><span class="st">  </span>post <span class="op">%&gt;%</span><span class="st"> </span></span>
 <span id="cb1666-8"><a href="models-with-memory.html#cb1666-8"></a><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">iter =</span> <span class="dv">1</span><span class="op">:</span><span class="kw">n</span>()) <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb1666-9"><a href="models-with-memory.html#cb1666-9"></a><span class="st">  </span><span class="kw">sample_n</span>(<span class="dt">size =</span> n_chimps) <span class="op">%&gt;%</span><span class="st"> </span></span>
+<span id="cb1666-9"><a href="models-with-memory.html#cb1666-9"></a><span class="st">  </span><span class="kw">slice_sample</span>(<span class="dt">n =</span> n_chimps) <span class="op">%&gt;%</span><span class="st"> </span></span>
 <span id="cb1666-10"><a href="models-with-memory.html#cb1666-10"></a><span class="st">  </span><span class="co"># simulated chimpanzees</span></span>
 <span id="cb1666-11"><a href="models-with-memory.html#cb1666-11"></a><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">a_sim =</span> <span class="kw">rnorm</span>(<span class="kw">n</span>(), <span class="dt">mean =</span> b_a_Intercept, <span class="dt">sd =</span> sd_actor__a_Intercept)) <span class="op">%&gt;%</span><span class="st"> </span></span>
 <span id="cb1666-12"><a href="models-with-memory.html#cb1666-12"></a><span class="st">  </span><span class="kw">pivot_longer</span>(b_b_treatment1<span class="op">:</span>b_b_treatment4) <span class="op">%&gt;%</span><span class="st"> </span></span>
@@ -2200,7 +2208,7 @@ x &amp; = z \exp(v),
 ## $ decade_married &lt;chr&gt; &quot;1999&quot;, &quot;2009&quot;, &quot;1999&quot;, &quot;2009&quot;, &quot;1999&quot;, &quot;2009&quot;, &quot;1999&quot;, &quot;2009&quot;, &quot;1999&quot;, &quot;2009&quot;, &quot;199…
 ## $ educ_group     &lt;chr&gt; &quot;&lt;BA&quot;, &quot;&lt;BA&quot;, &quot;&gt;BA&quot;, &quot;&gt;BA&quot;, &quot;BA&quot;, &quot;BA&quot;, &quot;&lt;BA&quot;, &quot;&lt;BA&quot;, &quot;&gt;BA&quot;, &quot;&gt;BA&quot;, &quot;BA&quot;, &quot;BA&quot;, &quot;&lt;BA…
 ## $ n              &lt;dbl&gt; 19012, 37488, 959, 5319, 2986, 14261, 3320, 7001, 159, 435, 341, 2660, 23279, 45477,…</code></pre>
-<p>Our main primary data file, which contains the survey responses to whether women changed their names after marriage, is <code>d</code>. Our criterion variable will be <code>kept_name</code>, which is dummy coded 0 = “no” 1 = “yes.” We have four grouping variables:</p>
+<p>Our primary data file, which contains the survey responses to whether women changed their names after marriage, is <code>d</code>. Our criterion variable will be <code>kept_name</code>, which is dummy coded 0 = “no” 1 = “yes.” We have four grouping variables:</p>
 <ul>
 <li><code>age_group</code>, which ranges from 25 to 75 and is discretized such that 25 = [25, 30), 30 = [30, 35), and so on;</li>
 <li><code>decade_married</code>, which ranges from 1979 to 2019 and is discretized such that 1979 = [1979, 1989), 1989 = [1989, 1999), and so on;</li>
@@ -2431,7 +2439,7 @@ x &amp; = z \exp(v),
 </div>
 <div id="estimates-by-us-state." class="section level4">
 <h4><span class="header-section-number">13.6.3.2</span> Estimates by US state.</h4>
-<p>Now we turn out attention to variation across states. The workflow, here, will only deviate slightly from what we just did. This time, of course, we will be grouping the estimates by <code>state_name</code> instead of by <code>age_group</code>. The other notable difference is since we’re plotting US state, it might be fun to show the results in a map format. Alexander used the <code>gemo_statebins()</code> function from the <a href="https://CRAN.R-project.org/package=statebins"><strong>statebins</strong> package</a> <span class="citation">(Rudis, <a href="#ref-R-statebins" role="doc-biblioref">2020</a>)</span>. I thought the results were pretty cool, we we’ll do the same. To give you a sense of what we’re building, here’s the plot of the empirical proportions.</p>
+<p>Now we turn out attention to variation across states. The workflow, here, will only deviate slightly from what we just did. This time, of course, we will be grouping the estimates by <code>state_name</code> instead of by <code>age_group</code>. The other notable difference is since we’re plotting US state, it might be fun to show the results in a map format. Alexander used the <code>geom_statebins()</code> function from the <a href="https://CRAN.R-project.org/package=statebins"><strong>statebins</strong> package</a> <span class="citation">(Rudis, <a href="#ref-R-statebins" role="doc-biblioref">2020</a>)</span>. I thought the results were pretty cool, we will do the same. To give you a sense of what we’re building, here’s the plot of the empirical proportions.</p>
 <div class="sourceCode" id="cb1701"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1701-1"><a href="models-with-memory.html#cb1701-1"></a><span class="kw">library</span>(statebins)</span>
 <span id="cb1701-2"><a href="models-with-memory.html#cb1701-2"></a></span>
 <span id="cb1701-3"><a href="models-with-memory.html#cb1701-3"></a>p1 &lt;-</span>
@@ -2522,7 +2530,7 @@ x &amp; = z \exp(v),
 <span id="cb1705-22"><a href="models-with-memory.html#cb1705-22"></a><span class="st">  </span><span class="kw">facet_wrap</span>(<span class="op">~</span>type)</span></code></pre></div>
 <p>We’re finally ready to combine our three panels into one grand plot.</p>
 <div class="sourceCode" id="cb1706"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1706-1"><a href="models-with-memory.html#cb1706-1"></a>(p1 <span class="op">|</span><span class="st"> </span>p2 <span class="op">|</span><span class="st"> </span>p3) <span class="op">+</span></span>
-<span id="cb1706-2"><a href="models-with-memory.html#cb1706-2"></a><span class="st">  </span><span class="kw">plot_annotation</span>(<span class="dt">title =</span> <span class="st">&quot;Proportion of women keeping name after marriage, by state&quot;</span>,</span>
+<span id="cb1706-2"><a href="models-with-memory.html#cb1706-2"></a><span class="st">  </span><span class="kw">plot_annotation</span>(<span class="dt">title =</span> <span class="st">&quot;Proportion off women keeping name after marriage, by state&quot;</span>,</span>
 <span id="cb1706-3"><a href="models-with-memory.html#cb1706-3"></a>                  <span class="dt">theme =</span> <span class="kw">theme</span>(<span class="dt">plot.margin =</span> <span class="kw">margin</span>(<span class="fl">0.2</span>, <span class="dv">0</span>, <span class="fl">0.01</span>, <span class="dv">0</span>, <span class="st">&quot;cm&quot;</span>)))</span></code></pre></div>
 <p><img src="13_files/figure-gfm/unnamed-chunk-91-1.png" width="864" style="display: block; margin: auto;" /></p>
 <p>Remember how small the posterior for <span class="math inline">\(\sigma_\text{state}\)</span> was relative to the other <span class="math inline">\(\sigma_\text{&lt;group&gt;}\)</span> posteriors? We said that would imply more aggressive regularization across states. You can really see that regularization in the panels showing the multilevel and MRP estimates. They are much more uniform than the proportions from the raw data, which are all over the place. This is why you use multilevel models and/or stratify. When you divide the responses up at the state level, the proportions get jerked all around due to small and unrepresentative samples. Even with the regularization from the multilevel partial pooling, you can still see some interesting differences in the multilevel and MRP panels. Both suggest women keep their maiden names in relatively low proportions in Utah and relatively high proportions in New York. For those acquainted with American culture, this shouldn’t be a great surprise.</p>
@@ -2536,7 +2544,7 @@ x &amp; = z \exp(v),
 <li><a href="https://twitter.com/RohanAlexander">Rohan Alexander</a> showed how to fit political poling data with both <strong>lme4</strong> and <strong>brms</strong> in his post, <a href="https://rohanalexander.com/posts/2019-12-04-getting_started_with_mrp/"><em>Getting started with MRP</em></a>.</li>
 <li><a href="https://twitter.com/jazzystats">Lauren Kennedy</a> and Andrew Gelman have a <span class="citation">(<a href="#ref-kennedyKnowYourPopulation2020" role="doc-biblioref">2020</a>)</span> preprint called <a href="https://arxiv.org/pdf/1906.11323.pdf"><em>Know your population and know your model: Using model-based regression and post-stratification to generalize findings beyond the observed sample</em></a>, which shows how to use <strong>brms</strong> to apply MRP to Big Five personality data.</li>
 </ul>
-<p>If anything, it seems we have an embarrassment of riches when it comes to <strong>brms</strong> and MRP! To wrap this section up, we’ll give Monica Alexander the last words:</p>
+<p>For a more advanced application, check out the paper by <a href="https://twitter.com/MartaKolcz">Kolczynska</a>, Bürkner, <a href="https://twitter.com/jazzystats">Kennedy</a>, and Vehtari <span class="citation">(<a href="#ref-kolczynskaTrustStateInstitutions2020" role="doc-biblioref">2020</a>)</span>, which combines MRP with a model with ordinal outcomes (recall <a href="monsters-and-mixtures.html#ordered-categorical-outcomes">Section 12.3</a>). Their supplemental material, which includes their <strong>R</strong> code, lives at <a href="https://osf.io/dz4y7/">https://osf.io/dz4y7/</a>. With all this good stuff, it seems we have an embarrassment of riches when it comes to <strong>brms</strong> and MRP! To wrap this section up, we’ll give Monica Alexander the last words:</p>
 <blockquote>
 <p>MRP is probably most commonly used in political analysis to reweight polling <a href="https://www.monicaalexander.com/posts/2019-08-07-mrp/#fn5">data</a>, but it is a useful technique for many different survey responses. Many modeling extensions are possible. For example, the multilevel regression need not be limited to just using random effects, as was used here, and other model set ups could be <a href="https://www.monicaalexander.com/posts/2019-08-07-mrp/#fn6">investigated</a>. MRP is a relatively easy and quick way of trying to get more representative estimates out of non-representative data, while giving you a sense of the uncertainty around the estimates (unlike traditional post-stratification).</p>
 </blockquote>
@@ -2545,13 +2553,13 @@ x &amp; = z \exp(v),
 <div id="session-info-12" class="section level2 unnumbered">
 <h2>Session info</h2>
 <div class="sourceCode" id="cb1707"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1707-1"><a href="models-with-memory.html#cb1707-1"></a><span class="kw">sessionInfo</span>()</span></code></pre></div>
-<pre><code>## R version 3.6.3 (2020-02-29)
-## Platform: x86_64-apple-darwin15.6.0 (64-bit)
+<pre><code>## R version 4.0.3 (2020-10-10)
+## Platform: x86_64-apple-darwin17.0 (64-bit)
 ## Running under: macOS Catalina 10.15.3
 ## 
 ## Matrix products: default
-## BLAS:   /Library/Frameworks/R.framework/Versions/3.6/Resources/lib/libRblas.0.dylib
-## LAPACK: /Library/Frameworks/R.framework/Versions/3.6/Resources/lib/libRlapack.dylib
+## BLAS:   /Library/Frameworks/R.framework/Versions/4.0/Resources/lib/libRblas.dylib
+## LAPACK: /Library/Frameworks/R.framework/Versions/4.0/Resources/lib/libRlapack.dylib
 ## 
 ## locale:
 ## [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
@@ -2560,38 +2568,36 @@ x &amp; = z \exp(v),
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-##  [1] statebins_1.4.0      posterior_0.1.0      bayesplot_1.7.2      patchwork_1.0.1.9000 tidybayes_2.1.1     
-##  [6] ggthemes_4.2.0       forcats_0.5.0        stringr_1.4.0        dplyr_1.0.2          purrr_0.3.4         
-## [11] readr_1.3.1          tidyr_1.1.1          tibble_3.0.4         ggplot2_3.3.2        tidyverse_1.3.0     
-## [16] brms_2.14.4          Rcpp_1.0.5          
+##  [1] statebins_1.4.0 posterior_0.1.3 bayesplot_1.7.2 patchwork_1.1.0 tidybayes_2.3.1 ggthemes_4.2.0 
+##  [7] forcats_0.5.0   stringr_1.4.0   dplyr_1.0.2     purrr_0.3.4     readr_1.4.0     tidyr_1.1.2    
+## [13] tibble_3.0.4    ggplot2_3.3.2   tidyverse_1.3.0 brms_2.14.4     Rcpp_1.0.5     
 ## 
 ## loaded via a namespace (and not attached):
-##   [1] readxl_1.3.1         backports_1.2.0      plyr_1.8.6           igraph_1.2.5         svUnit_1.0.3        
-##   [6] splines_3.6.3        crosstalk_1.1.0.1    TH.data_1.0-10       rstantools_2.1.1     inline_0.3.16       
-##  [11] digest_0.6.27        htmltools_0.5.0      rsconnect_0.8.16     fansi_0.4.1          checkmate_2.0.0     
-##  [16] magrittr_1.5         modelr_0.1.6         RcppParallel_5.0.2   matrixStats_0.57.0   xts_0.12.1          
-##  [21] sandwich_2.5-1       prettyunits_1.1.1    colorspace_1.4-1     rvest_0.3.5          ggdist_2.1.1        
-##  [26] haven_2.2.0          xfun_0.19            callr_3.5.1          crayon_1.3.4         jsonlite_1.7.1      
-##  [31] lme4_1.1-23          survival_3.1-12      zoo_1.8-8            glue_1.4.2           gtable_0.3.0        
-##  [36] emmeans_1.4.5        V8_3.4.0             pkgbuild_1.1.0       rstan_2.21.2         abind_1.4-5         
-##  [41] scales_1.1.1         mvtnorm_1.1-1        emo_0.0.0.9000       DBI_1.1.0            miniUI_0.1.1.1      
-##  [46] viridisLite_0.3.0    xtable_1.8-4         stats4_3.6.3         StanHeaders_2.21.0-6 DT_0.13             
-##  [51] htmlwidgets_1.5.1    httr_1.4.1           threejs_0.3.3        arrayhelpers_1.1-0   ellipsis_0.3.1      
-##  [56] farver_2.0.3         pkgconfig_2.0.3      loo_2.3.1            dbplyr_1.4.2         utf8_1.1.4          
-##  [61] labeling_0.4.2       tidyselect_1.1.0     rlang_0.4.8          reshape2_1.4.4       later_1.1.0.1       
-##  [66] munsell_0.5.0        cellranger_1.1.0     tools_3.6.3          cli_2.1.0            generics_0.1.0      
-##  [71] broom_0.5.5          ggridges_0.5.2       evaluate_0.14        fastmap_1.0.1        yaml_2.2.1          
-##  [76] processx_3.4.4       knitr_1.30           fs_1.4.1             nlme_3.1-144         mime_0.9            
-##  [81] projpred_2.0.2       xml2_1.3.1           compiler_3.6.3       shinythemes_1.1.2    rstudioapi_0.11     
-##  [86] curl_4.3             gamm4_0.2-6          reprex_0.3.0         statmod_1.4.34       stringi_1.5.3       
-##  [91] ps_1.4.0             Brobdingnag_1.2-6    lattice_0.20-38      Matrix_1.2-18        nloptr_1.2.2.1      
-##  [96] markdown_1.1         shinyjs_1.1          vctrs_0.3.4          pillar_1.4.6         lifecycle_0.2.0     
-## [101] bridgesampling_1.0-0 estimability_1.3     httpuv_1.5.4         R6_2.5.0             bookdown_0.18       
-## [106] promises_1.1.1       gridExtra_2.3        codetools_0.2-16     boot_1.3-24          colourpicker_1.0    
-## [111] MASS_7.3-51.5        gtools_3.8.2         assertthat_0.2.1     withr_2.3.0          shinystan_2.5.0     
-## [116] multcomp_1.4-13      mgcv_1.8-31          parallel_3.6.3       hms_0.5.3            grid_3.6.3          
-## [121] coda_0.19-4          minqa_1.2.4          rmarkdown_2.5        shiny_1.5.0          lubridate_1.7.8     
-## [126] base64enc_0.1-3      dygraphs_1.1.1.6</code></pre>
+##   [1] readxl_1.3.1         backports_1.2.0      plyr_1.8.6           igraph_1.2.6         splines_4.0.3       
+##   [6] svUnit_1.0.3         crosstalk_1.1.0.1    rstantools_2.1.1     inline_0.3.17        digest_0.6.27       
+##  [11] htmltools_0.5.0      rsconnect_0.8.16     fansi_0.4.1          checkmate_2.0.0      magrittr_2.0.1      
+##  [16] modelr_0.1.8         RcppParallel_5.0.2   matrixStats_0.57.0   xts_0.12.1           prettyunits_1.1.1   
+##  [21] colorspace_2.0-0     rvest_0.3.6          ggdist_2.3.0         haven_2.3.1          xfun_0.19           
+##  [26] callr_3.5.1          crayon_1.3.4         jsonlite_1.7.1       lme4_1.1-25          zoo_1.8-8           
+##  [31] glue_1.4.2           gtable_0.3.0         emmeans_1.5.2-1      V8_3.4.0             distributional_0.2.1
+##  [36] pkgbuild_1.1.0       rstan_2.21.2         abind_1.4-5          scales_1.1.1         mvtnorm_1.1-1       
+##  [41] emo_0.0.0.9000       DBI_1.1.0            miniUI_0.1.1.1       viridisLite_0.3.0    xtable_1.8-4        
+##  [46] stats4_4.0.3         StanHeaders_2.21.0-6 DT_0.16              htmlwidgets_1.5.2    httr_1.4.2          
+##  [51] threejs_0.3.3        arrayhelpers_1.1-0   ellipsis_0.3.1       pkgconfig_2.0.3      loo_2.3.1           
+##  [56] farver_2.0.3         dbplyr_2.0.0         utf8_1.1.4           tidyselect_1.1.0     labeling_0.4.2      
+##  [61] rlang_0.4.9          reshape2_1.4.4       later_1.1.0.1        munsell_0.5.0        cellranger_1.1.0    
+##  [66] tools_4.0.3          cli_2.2.0            generics_0.1.0       broom_0.7.2          ggridges_0.5.2      
+##  [71] evaluate_0.14        fastmap_1.0.1        yaml_2.2.1           processx_3.4.5       knitr_1.30          
+##  [76] fs_1.5.0             nlme_3.1-149         mime_0.9             projpred_2.0.2       xml2_1.3.2          
+##  [81] compiler_4.0.3       shinythemes_1.1.2    rstudioapi_0.13      curl_4.3             gamm4_0.2-6         
+##  [86] reprex_0.3.0         statmod_1.4.35       stringi_1.5.3        ps_1.4.0             Brobdingnag_1.2-6   
+##  [91] lattice_0.20-41      Matrix_1.2-18        nloptr_1.2.2.2       markdown_1.1         shinyjs_2.0.0       
+##  [96] vctrs_0.3.5          pillar_1.4.7         lifecycle_0.2.0      bridgesampling_1.0-0 estimability_1.3    
+## [101] httpuv_1.5.4         R6_2.5.0             bookdown_0.21        promises_1.1.1       gridExtra_2.3       
+## [106] codetools_0.2-16     boot_1.3-25          colourpicker_1.1.0   MASS_7.3-53          gtools_3.8.2        
+## [111] assertthat_0.2.1     withr_2.3.0          shinystan_2.5.0      mgcv_1.8-33          parallel_4.0.3      
+## [116] hms_0.5.3            grid_4.0.3           coda_0.19-4          minqa_1.2.4          rmarkdown_2.5       
+## [121] shiny_1.5.0          lubridate_1.7.9.2    base64enc_0.1-3      dygraphs_1.1.1.6</code></pre>
 
 </div>
 </div>
@@ -2611,6 +2617,9 @@ x &amp; = z \exp(v),
 </div>
 <div id="ref-kennedyKnowYourPopulation2020">
 <p>Kennedy, L., &amp; Gelman, A. (2020). Know your population and know your model: Using model-based regression and poststratification to generalize findings beyond the observed sample. <em>arXiv:1906.11323 [Stat]</em>. <a href="http://arxiv.org/abs/1906.11323">http://arxiv.org/abs/1906.11323</a></p>
+</div>
+<div id="ref-kolczynskaTrustStateInstitutions2020">
+<p>Kolczynska, M., Bürkner, P.-C., Kennedy, L., &amp; Vehtari, A. (2020). <em>Trust in state institutions in Europe, 1989-2019</em>. SocArXiv. <a href="https://doi.org/10.31235/osf.io/3v5g7">https://doi.org/10.31235/osf.io/3v5g7</a></p>
 </div>
 <div id="ref-mcelreathStatisticalRethinkingBayesian2020">
 <p>McElreath, R. (2020b). <em>Statistical rethinking: A Bayesian course with examples in R and Stan</em> (Second Edition). CRC Press. <a href="https://xcelab.net/rm/statistical-rethinking/">https://xcelab.net/rm/statistical-rethinking/</a></p>

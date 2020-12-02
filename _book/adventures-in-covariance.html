@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <title>14 Adventures in Covariance | Statistical rethinking with brms, ggplot2, and the tidyverse: Second edition</title>
   <meta name="description" content="This book is an attempt to re-express the code in the second edition of McElreath’s textbook, ‘Statistical rethinking.’ His models are re-fit in brms, plots are redone with ggplot2, and the general data wrangling code predominantly follows the tidyverse style." />
-  <meta name="generator" content="bookdown 0.18 and GitBook 2.6.7" />
+  <meta name="generator" content="bookdown 0.21 and GitBook 2.6.7" />
 
   <meta property="og:title" content="14 Adventures in Covariance | Statistical rethinking with brms, ggplot2, and the tidyverse: Second edition" />
   <meta property="og:type" content="book" />
@@ -24,7 +24,7 @@
 <meta name="author" content="A Solomon Kurz" />
 
 
-<meta name="date" content="2020-11-24" />
+<meta name="date" content="2020-12-02" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -134,7 +134,11 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 <ul class="summary">
 <li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>What and why</a><ul>
-<li class="chapter" data-level="" data-path="index.html"><a href="index.html#caution-work-in-progress"><i class="fa fa-check"></i>Caution: Work in progress</a></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#we-have-updates"><i class="fa fa-check"></i>We have updates</a><ul>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#version-0.1.0."><i class="fa fa-check"></i>Version 0.1.0.</a></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#version-0.1.1."><i class="fa fa-check"></i>Version 0.1.1.</a></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#were-not-done-yet-and-i-could-use-your-help."><i class="fa fa-check"></i>We’re not done yet and I could use your help.</a></li>
+</ul></li>
 <li class="chapter" data-level="" data-path="index.html"><a href="index.html#thank-yous-are-in-order"><i class="fa fa-check"></i>Thank-you’s are in order</a></li>
 <li class="chapter" data-level="" data-path="index.html"><a href="index.html#license-and-citation"><i class="fa fa-check"></i>License and citation</a></li>
 </ul></li>
@@ -454,7 +458,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="15.5.5" data-path="missing-data-and-other-opportunities.html"><a href="missing-data-and-other-opportunities.html#compute-the-study-specific-effect-sizes."><i class="fa fa-check"></i><b>15.5.5</b> Compute the study-specific effect sizes.</a></li>
 <li class="chapter" data-level="15.5.6" data-path="missing-data-and-other-opportunities.html"><a href="missing-data-and-other-opportunities.html#fit-the-bayesian-meta-analysis."><i class="fa fa-check"></i><b>15.5.6</b> Fit the Bayesian meta-analysis.</a></li>
 <li class="chapter" data-level="15.5.7" data-path="missing-data-and-other-opportunities.html"><a href="missing-data-and-other-opportunities.html#fit-the-bayesian-muiltilevel-alternative."><i class="fa fa-check"></i><b>15.5.7</b> Fit the Bayesian muiltilevel alternative.</a></li>
-<li class="chapter" data-level="15.5.8" data-path="missing-data-and-other-opportunities.html"><a href="missing-data-and-other-opportunities.html#parting-thoughts."><i class="fa fa-check"></i><b>15.5.8</b> Parting thoughts.</a></li>
+<li class="chapter" data-level="15.5.8" data-path="missing-data-and-other-opportunities.html"><a href="missing-data-and-other-opportunities.html#relative-to-the-muiltilevel-model-meta-analyses-have-limitations."><i class="fa fa-check"></i><b>15.5.8</b> Relative to the muiltilevel model, meta-analyses have limitations.</a></li>
+<li class="chapter" data-level="15.5.9" data-path="missing-data-and-other-opportunities.html"><a href="missing-data-and-other-opportunities.html#parting-thoughts."><i class="fa fa-check"></i><b>15.5.9</b> Parting thoughts.</a></li>
 </ul></li>
 <li class="chapter" data-level="" data-path="missing-data-and-other-opportunities.html"><a href="missing-data-and-other-opportunities.html#session-info-14"><i class="fa fa-check"></i>Session info</a></li>
 </ul></li>
@@ -727,7 +732,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div class="sourceCode" id="cb1726"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1726-1"><a href="adventures-in-covariance.html#cb1726-1"></a><span class="co"># for annotation</span></span>
 <span id="cb1726-2"><a href="adventures-in-covariance.html#cb1726-2"></a>text &lt;-</span>
 <span id="cb1726-3"><a href="adventures-in-covariance.html#cb1726-3"></a><span class="st">  </span><span class="kw">tibble</span>(<span class="dt">x     =</span> <span class="kw">c</span>(.<span class="dv">83</span>, <span class="fl">.625</span>, <span class="fl">.45</span>),</span>
-<span id="cb1726-4"><a href="adventures-in-covariance.html#cb1726-4"></a>         <span class="dt">y     =</span> <span class="kw">c</span>(.<span class="dv">56</span>, <span class="fl">.75</span>, <span class="fl">1.05</span>),</span>
+<span id="cb1726-4"><a href="adventures-in-covariance.html#cb1726-4"></a>         <span class="dt">y     =</span> <span class="kw">c</span>(.<span class="dv">56</span>, <span class="fl">.75</span>, <span class="fl">1.07</span>),</span>
 <span id="cb1726-5"><a href="adventures-in-covariance.html#cb1726-5"></a>         <span class="dt">label =</span> <span class="kw">c</span>(<span class="st">&quot;eta = 1&quot;</span>, <span class="st">&quot;eta = 2&quot;</span>, <span class="st">&quot;eta = 4&quot;</span>))</span>
 <span id="cb1726-6"><a href="adventures-in-covariance.html#cb1726-6"></a></span>
 <span id="cb1726-7"><a href="adventures-in-covariance.html#cb1726-7"></a><span class="co"># plot</span></span>
@@ -789,7 +794,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb1730-6"><a href="adventures-in-covariance.html#cb1730-6"></a>               <span class="dt">color =</span> <span class="st">&quot;transparent&quot;</span>, <span class="dt">fill =</span> <span class="st">&quot;#EEDA9D&quot;</span>, <span class="dt">alpha =</span> <span class="dv">3</span><span class="op">/</span><span class="dv">4</span>) <span class="op">+</span></span>
 <span id="cb1730-7"><a href="adventures-in-covariance.html#cb1730-7"></a><span class="st">  </span><span class="kw">geom_density</span>(<span class="kw">aes</span>(<span class="dt">x =</span> cor_cafe__Intercept__afternoon),</span>
 <span id="cb1730-8"><a href="adventures-in-covariance.html#cb1730-8"></a>               <span class="dt">color =</span> <span class="st">&quot;transparent&quot;</span>, <span class="dt">fill =</span> <span class="st">&quot;#A65141&quot;</span>, <span class="dt">alpha =</span> <span class="dv">9</span><span class="op">/</span><span class="dv">10</span>) <span class="op">+</span></span>
-<span id="cb1730-9"><a href="adventures-in-covariance.html#cb1730-9"></a><span class="st">  </span><span class="kw">annotate</span>(<span class="dt">geom =</span> <span class="st">&quot;text&quot;</span>, <span class="dt">x =</span> <span class="fl">-0.15</span>, <span class="dt">y =</span> <span class="fl">2.275</span>, </span>
+<span id="cb1730-9"><a href="adventures-in-covariance.html#cb1730-9"></a><span class="st">  </span><span class="kw">annotate</span>(<span class="dt">geom =</span> <span class="st">&quot;text&quot;</span>, <span class="dt">x =</span> <span class="fl">-0.15</span>, <span class="dt">y =</span> <span class="fl">2.21</span>, </span>
 <span id="cb1730-10"><a href="adventures-in-covariance.html#cb1730-10"></a>           <span class="dt">label =</span> <span class="st">&quot;posterior&quot;</span>, <span class="dt">color =</span> <span class="st">&quot;#A65141&quot;</span>, <span class="dt">family =</span> <span class="st">&quot;Courier&quot;</span>) <span class="op">+</span></span>
 <span id="cb1730-11"><a href="adventures-in-covariance.html#cb1730-11"></a><span class="st">  </span><span class="kw">annotate</span>(<span class="dt">geom =</span> <span class="st">&quot;text&quot;</span>, <span class="dt">x =</span> <span class="dv">0</span>, <span class="dt">y =</span> <span class="fl">0.85</span>, </span>
 <span id="cb1730-12"><a href="adventures-in-covariance.html#cb1730-12"></a>           <span class="dt">label =</span> <span class="st">&quot;prior&quot;</span>, <span class="dt">color =</span> <span class="st">&quot;#EEDA9D&quot;</span>, <span class="dt">alpha =</span> <span class="dv">2</span><span class="op">/</span><span class="dv">3</span>, <span class="dt">family =</span> <span class="st">&quot;Courier&quot;</span>) <span class="op">+</span></span>
@@ -914,7 +919,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb1736-17"><a href="adventures-in-covariance.html#cb1736-17"></a><span class="st">  </span><span class="kw">coord_cartesian</span>(<span class="dt">xlim =</span> <span class="kw">range</span>(params<span class="op">$</span>Intercept),</span>
 <span id="cb1736-18"><a href="adventures-in-covariance.html#cb1736-18"></a>                  <span class="dt">ylim =</span> <span class="kw">range</span>(params<span class="op">$</span>Slope))</span>
 <span id="cb1736-19"><a href="adventures-in-covariance.html#cb1736-19"></a>p1</span></code></pre></div>
-<p><img src="14_files/figure-gfm/unnamed-chunk-20-1.png" width="480" style="display: block; margin: auto;" /></p>
+<p><img src="14_files/figure-gfm/unnamed-chunk-20-1.png" width="432" style="display: block; margin: auto;" /></p>
 <p>Learn more about <code>stat_ellipse()</code>, <a href="https://ggplot2.tidyverse.org/reference/stat_ellipse.html">here</a>. Let’s prep for Figure 14.5.b.</p>
 <div class="sourceCode" id="cb1737"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1737-1"><a href="adventures-in-covariance.html#cb1737-1"></a><span class="co"># retrieve the partially-pooled estimates with `coef()`</span></span>
 <span id="cb1737-2"><a href="adventures-in-covariance.html#cb1737-2"></a>partially_pooled_estimates &lt;-</span>
@@ -1475,7 +1480,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <p>Just for kicks, let’s examine the results with a coefficient plot.</p>
 <div class="sourceCode" id="cb1767"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1767-1"><a href="adventures-in-covariance.html#cb1767-1"></a>text &lt;-</span>
 <span id="cb1767-2"><a href="adventures-in-covariance.html#cb1767-2"></a><span class="st">  </span><span class="kw">tibble</span>(<span class="dt">Estimate =</span> <span class="kw">c</span>(<span class="kw">fixef</span>(b14<span class="fl">.4</span>x)[<span class="dv">2</span>, <span class="dv">3</span>], <span class="kw">fixef</span>(b14<span class="fl">.6</span>x)[<span class="dv">4</span>, <span class="dv">4</span>]),</span>
-<span id="cb1767-3"><a href="adventures-in-covariance.html#cb1767-3"></a>         <span class="dt">y        =</span> <span class="kw">c</span>(<span class="fl">4.3</span>, <span class="fl">3.7</span>),</span>
+<span id="cb1767-3"><a href="adventures-in-covariance.html#cb1767-3"></a>         <span class="dt">y        =</span> <span class="kw">c</span>(<span class="fl">4.35</span>, <span class="fl">3.65</span>),</span>
 <span id="cb1767-4"><a href="adventures-in-covariance.html#cb1767-4"></a>         <span class="dt">hjust    =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">1</span>),</span>
 <span id="cb1767-5"><a href="adventures-in-covariance.html#cb1767-5"></a>         <span class="dt">fit      =</span> <span class="kw">c</span>(<span class="st">&quot;b14.4x&quot;</span>, <span class="st">&quot;b14.6x&quot;</span>))</span>
 <span id="cb1767-6"><a href="adventures-in-covariance.html#cb1767-6"></a></span>
@@ -1908,7 +1913,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb1801-2"><a href="adventures-in-covariance.html#cb1801-2"></a><span class="st">  </span><span class="kw">brm</span>(<span class="dt">data =</span> d, </span>
 <span id="cb1801-3"><a href="adventures-in-covariance.html#cb1801-3"></a>      <span class="dt">family =</span> <span class="kw">poisson</span>(<span class="dt">link =</span> <span class="st">&quot;identity&quot;</span>),</span>
 <span id="cb1801-4"><a href="adventures-in-covariance.html#cb1801-4"></a>      <span class="kw">bf</span>(total_tools <span class="op">~</span><span class="st"> </span><span class="kw">exp</span>(a) <span class="op">*</span><span class="st"> </span>population<span class="op">^</span>b <span class="op">/</span><span class="st"> </span>g,</span>
-<span id="cb1801-5"><a href="adventures-in-covariance.html#cb1801-5"></a>         a  <span class="op">~</span><span class="st"> </span><span class="dv">1</span> <span class="op">+</span><span class="st"> </span><span class="kw">gp</span>(lat_adj, lon2_adj, <span class="dt">scale =</span> <span class="ot">FALSE</span>),</span>
+<span id="cb1801-5"><a href="adventures-in-covariance.html#cb1801-5"></a>         a <span class="op">~</span><span class="st"> </span><span class="dv">1</span> <span class="op">+</span><span class="st"> </span><span class="kw">gp</span>(lat_adj, lon2_adj, <span class="dt">scale =</span> <span class="ot">FALSE</span>),</span>
 <span id="cb1801-6"><a href="adventures-in-covariance.html#cb1801-6"></a>         b <span class="op">+</span><span class="st"> </span>g <span class="op">~</span><span class="st"> </span><span class="dv">1</span>,</span>
 <span id="cb1801-7"><a href="adventures-in-covariance.html#cb1801-7"></a>         <span class="dt">nl =</span> <span class="ot">TRUE</span>),</span>
 <span id="cb1801-8"><a href="adventures-in-covariance.html#cb1801-8"></a>      <span class="dt">prior =</span> <span class="kw">c</span>(<span class="kw">prior</span>(<span class="kw">normal</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="dt">nlpar =</span> a),</span>
@@ -2062,7 +2067,7 @@ lscale &amp; = \sqrt{1 / (2 \cdot \rho^2)}.
 <span id="cb1815-10"><a href="adventures-in-covariance.html#cb1815-10"></a><span class="st">  </span><span class="kw">coord_cartesian</span>(<span class="dt">xlim =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">8</span>))</span></code></pre></div>
 <p><img src="14_files/figure-gfm/unnamed-chunk-70-1.png" width="384" style="display: block; margin: auto;" /></p>
 <p>Anyways, let’s make the subplots for our version of Figure 14.11 to get a sense of what this all means. Start with the left panel, the prior predictive distribution for the covariance.</p>
-<div class="sourceCode" id="cb1816"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1816-1"><a href="adventures-in-covariance.html#cb1816-1"></a><span class="co"># for `sample_n()`</span></span>
+<div class="sourceCode" id="cb1816"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1816-1"><a href="adventures-in-covariance.html#cb1816-1"></a><span class="co"># for `slice_sample()`</span></span>
 <span id="cb1816-2"><a href="adventures-in-covariance.html#cb1816-2"></a><span class="kw">set.seed</span>(<span class="dv">14</span>)</span>
 <span id="cb1816-3"><a href="adventures-in-covariance.html#cb1816-3"></a></span>
 <span id="cb1816-4"><a href="adventures-in-covariance.html#cb1816-4"></a><span class="co"># wrangle</span></span>
@@ -2071,7 +2076,7 @@ lscale &amp; = \sqrt{1 / (2 \cdot \rho^2)}.
 <span id="cb1816-7"><a href="adventures-in-covariance.html#cb1816-7"></a><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">iter  =</span> <span class="dv">1</span><span class="op">:</span><span class="kw">n</span>(),</span>
 <span id="cb1816-8"><a href="adventures-in-covariance.html#cb1816-8"></a>         <span class="dt">etasq =</span> sdgp_a_gplat_adjlon2_adj<span class="op">^</span><span class="dv">2</span>,</span>
 <span id="cb1816-9"><a href="adventures-in-covariance.html#cb1816-9"></a>         <span class="dt">rhosq =</span> <span class="dv">1</span> <span class="op">/</span><span class="st"> </span>(<span class="dv">2</span> <span class="op">*</span><span class="st"> </span>lscale_a_<span class="dv">1</span>_gplat_adjlon2_adj<span class="op">^</span><span class="dv">2</span>)) <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb1816-10"><a href="adventures-in-covariance.html#cb1816-10"></a><span class="st">  </span><span class="kw">sample_n</span>(<span class="dv">100</span>) <span class="op">%&gt;%</span></span>
+<span id="cb1816-10"><a href="adventures-in-covariance.html#cb1816-10"></a><span class="st">  </span><span class="kw">slice_sample</span>(<span class="dt">n =</span> <span class="dv">100</span>) <span class="op">%&gt;%</span></span>
 <span id="cb1816-11"><a href="adventures-in-covariance.html#cb1816-11"></a><span class="st">  </span>tidyr<span class="op">::</span><span class="kw">expand</span>(<span class="kw">nesting</span>(iter, etasq, rhosq),</span>
 <span id="cb1816-12"><a href="adventures-in-covariance.html#cb1816-12"></a>         <span class="dt">x =</span> <span class="kw">seq</span>(<span class="dt">from =</span> <span class="dv">0</span>, <span class="dt">to =</span> <span class="dv">10</span>, <span class="dt">by =</span> <span class="fl">.05</span>)) <span class="op">%&gt;%</span><span class="st"> </span></span>
 <span id="cb1816-13"><a href="adventures-in-covariance.html#cb1816-13"></a><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">covariance =</span> etasq <span class="op">*</span><span class="st"> </span><span class="kw">exp</span>(<span class="op">-</span>rhosq <span class="op">*</span><span class="st"> </span>x<span class="op">^</span><span class="dv">2</span>)) <span class="op">%&gt;%</span><span class="st"> </span></span>
@@ -2086,7 +2091,7 @@ lscale &amp; = \sqrt{1 / (2 \cdot \rho^2)}.
 <span id="cb1816-22"><a href="adventures-in-covariance.html#cb1816-22"></a>                  <span class="dt">ylim =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">2</span>)) <span class="op">+</span></span>
 <span id="cb1816-23"><a href="adventures-in-covariance.html#cb1816-23"></a><span class="st">  </span><span class="kw">labs</span>(<span class="dt">subtitle =</span> <span class="st">&quot;Gaussian process prior&quot;</span>)</span></code></pre></div>
 <p>Now make the right panel, the posterior distribution.</p>
-<div class="sourceCode" id="cb1817"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1817-1"><a href="adventures-in-covariance.html#cb1817-1"></a><span class="co"># for `sample_n()`</span></span>
+<div class="sourceCode" id="cb1817"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1817-1"><a href="adventures-in-covariance.html#cb1817-1"></a><span class="co"># for `slice_sample()`</span></span>
 <span id="cb1817-2"><a href="adventures-in-covariance.html#cb1817-2"></a><span class="kw">set.seed</span>(<span class="dv">14</span>)</span>
 <span id="cb1817-3"><a href="adventures-in-covariance.html#cb1817-3"></a></span>
 <span id="cb1817-4"><a href="adventures-in-covariance.html#cb1817-4"></a><span class="co"># wrangle</span></span>
@@ -2095,7 +2100,7 @@ lscale &amp; = \sqrt{1 / (2 \cdot \rho^2)}.
 <span id="cb1817-7"><a href="adventures-in-covariance.html#cb1817-7"></a><span class="st">  </span><span class="kw">transmute</span>(<span class="dt">iter  =</span> <span class="dv">1</span><span class="op">:</span><span class="kw">n</span>(),</span>
 <span id="cb1817-8"><a href="adventures-in-covariance.html#cb1817-8"></a>            <span class="dt">etasq =</span> sdgp_a_gplat_adjlon2_adj<span class="op">^</span><span class="dv">2</span>,</span>
 <span id="cb1817-9"><a href="adventures-in-covariance.html#cb1817-9"></a>         <span class="dt">rhosq =</span> <span class="dv">1</span> <span class="op">/</span><span class="st"> </span>(<span class="dv">2</span> <span class="op">*</span><span class="st"> </span>lscale_a_gplat_adjlon2_adj<span class="op">^</span><span class="dv">2</span>)) <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb1817-10"><a href="adventures-in-covariance.html#cb1817-10"></a><span class="st">  </span><span class="kw">sample_n</span>(<span class="dv">50</span>) <span class="op">%&gt;%</span><span class="st"> </span></span>
+<span id="cb1817-10"><a href="adventures-in-covariance.html#cb1817-10"></a><span class="st">  </span><span class="kw">slice_sample</span>(<span class="dt">n =</span> <span class="dv">50</span>) <span class="op">%&gt;%</span><span class="st"> </span></span>
 <span id="cb1817-11"><a href="adventures-in-covariance.html#cb1817-11"></a><span class="st">  </span>tidyr<span class="op">::</span><span class="kw">expand</span>(<span class="kw">nesting</span>(iter, etasq, rhosq),</span>
 <span id="cb1817-12"><a href="adventures-in-covariance.html#cb1817-12"></a>         <span class="dt">x =</span> <span class="kw">seq</span>(<span class="dt">from =</span> <span class="dv">0</span>, <span class="dt">to =</span> <span class="dv">10</span>, <span class="dt">by =</span> <span class="fl">.05</span>)) <span class="op">%&gt;%</span><span class="st"> </span></span>
 <span id="cb1817-13"><a href="adventures-in-covariance.html#cb1817-13"></a><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">covariance =</span> etasq <span class="op">*</span><span class="st"> </span><span class="kw">exp</span>(<span class="op">-</span>rhosq <span class="op">*</span><span class="st"> </span>x<span class="op">^</span><span class="dv">2</span>)) <span class="op">%&gt;%</span><span class="st"> </span></span>
@@ -2465,9 +2470,9 @@ lscale &amp; = \sqrt{1 / (2 \cdot \rho^2)}.
 </blockquote>
 <p>There are also many potential confounds, which we’ll call <span class="math inline">\(U\)</span>. Also imagine there are two time points, indicated by subscripts 1 and 2. Here is the basic DAG.</p>
 <div class="sourceCode" id="cb1840"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1840-1"><a href="adventures-in-covariance.html#cb1840-1"></a>dag_coords &lt;-</span>
-<span id="cb1840-2"><a href="adventures-in-covariance.html#cb1840-2"></a><span class="st">  </span><span class="kw">tibble</span>(<span class="dt">name  =</span> <span class="kw">c</span>(<span class="st">&quot;G1&quot;</span>, <span class="st">&quot;B1&quot;</span>, <span class="st">&quot;U1&quot;</span>, <span class="st">&quot;G2&quot;</span>, <span class="st">&quot;B2&quot;</span>, <span class="st">&quot;U2&quot;</span>),</span>
-<span id="cb1840-3"><a href="adventures-in-covariance.html#cb1840-3"></a>         <span class="dt">x     =</span> <span class="kw">rep</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>, <span class="dt">each =</span> <span class="dv">3</span>),</span>
-<span id="cb1840-4"><a href="adventures-in-covariance.html#cb1840-4"></a>         <span class="dt">y     =</span> <span class="kw">rep</span>(<span class="dv">3</span><span class="op">:</span><span class="dv">1</span>, <span class="dt">times =</span> <span class="dv">2</span>))</span>
+<span id="cb1840-2"><a href="adventures-in-covariance.html#cb1840-2"></a><span class="st">  </span><span class="kw">tibble</span>(<span class="dt">name =</span> <span class="kw">c</span>(<span class="st">&quot;G1&quot;</span>, <span class="st">&quot;B1&quot;</span>, <span class="st">&quot;U1&quot;</span>, <span class="st">&quot;G2&quot;</span>, <span class="st">&quot;B2&quot;</span>, <span class="st">&quot;U2&quot;</span>),</span>
+<span id="cb1840-3"><a href="adventures-in-covariance.html#cb1840-3"></a>         <span class="dt">x    =</span> <span class="kw">rep</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>, <span class="dt">each =</span> <span class="dv">3</span>),</span>
+<span id="cb1840-4"><a href="adventures-in-covariance.html#cb1840-4"></a>         <span class="dt">y    =</span> <span class="kw">rep</span>(<span class="dv">3</span><span class="op">:</span><span class="dv">1</span>, <span class="dt">times =</span> <span class="dv">2</span>))</span>
 <span id="cb1840-5"><a href="adventures-in-covariance.html#cb1840-5"></a></span>
 <span id="cb1840-6"><a href="adventures-in-covariance.html#cb1840-6"></a><span class="kw">dagify</span>(G2 <span class="op">~</span><span class="st"> </span>G1 <span class="op">+</span><span class="st"> </span>U1,</span>
 <span id="cb1840-7"><a href="adventures-in-covariance.html#cb1840-7"></a>       B2 <span class="op">~</span><span class="st"> </span>G1 <span class="op">+</span><span class="st"> </span>B1 <span class="op">+</span><span class="st"> </span>U1,</span>
@@ -2748,7 +2753,7 @@ lscale &amp; = \sqrt{1 / (2 \cdot \rho^2)}.
 <span id="cb1863-6"><a href="adventures-in-covariance.html#cb1863-6"></a>  <span class="co"># posterior</span></span>
 <span id="cb1863-7"><a href="adventures-in-covariance.html#cb1863-7"></a>  post <span class="op">%&gt;%</span><span class="st"> </span></span>
 <span id="cb1863-8"><a href="adventures-in-covariance.html#cb1863-8"></a><span class="st">    </span><span class="kw">data.frame</span>() <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb1863-9"><a href="adventures-in-covariance.html#cb1863-9"></a><span class="st">    </span><span class="kw">sample_n</span>(<span class="dt">size =</span> <span class="dv">30</span>) <span class="op">%&gt;%</span><span class="st"> </span></span>
+<span id="cb1863-9"><a href="adventures-in-covariance.html#cb1863-9"></a><span class="st">    </span><span class="kw">slice_sample</span>(<span class="dt">n =</span> <span class="dv">30</span>) <span class="op">%&gt;%</span><span class="st"> </span></span>
 <span id="cb1863-10"><a href="adventures-in-covariance.html#cb1863-10"></a><span class="st">    </span><span class="kw">mutate</span>(<span class="dt">iter =</span> <span class="dv">1</span><span class="op">:</span><span class="kw">n</span>()) <span class="op">%&gt;%</span><span class="st"> </span></span>
 <span id="cb1863-11"><a href="adventures-in-covariance.html#cb1863-11"></a><span class="st">    </span>tidyr<span class="op">::</span><span class="kw">expand</span>(<span class="kw">nesting</span>(iter, etasq, rhosq),</span>
 <span id="cb1863-12"><a href="adventures-in-covariance.html#cb1863-12"></a>                  <span class="dt">d_seq =</span> <span class="kw">seq</span>(<span class="dt">from =</span> <span class="dv">0</span>, <span class="dt">to =</span> <span class="dv">1</span>, <span class="dt">length.out =</span> <span class="dv">50</span>)),</span>
@@ -2840,7 +2845,7 @@ lscale &amp; = \sqrt{1 / (2 \cdot \rho^2)}.
 <span id="cb1871-2"><a href="adventures-in-covariance.html#cb1871-2"></a></span>
 <span id="cb1871-3"><a href="adventures-in-covariance.html#cb1871-3"></a>dat <span class="op">%&gt;%</span><span class="st"> </span></span>
 <span id="cb1871-4"><a href="adventures-in-covariance.html#cb1871-4"></a><span class="st">  </span><span class="kw">nest</span>(<span class="dt">data =</span> <span class="kw">c</span>(X1, P_A.std, day, P_A.lag, N_A.lag, steps.pm, steps.pmd, N_A.std, day01)) <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb1871-5"><a href="adventures-in-covariance.html#cb1871-5"></a><span class="st">  </span><span class="kw">sample_n</span>(<span class="dt">size =</span> <span class="dv">16</span>) <span class="op">%&gt;%</span><span class="st"> </span></span>
+<span id="cb1871-5"><a href="adventures-in-covariance.html#cb1871-5"></a><span class="st">  </span><span class="kw">slice_sample</span>(<span class="dt">n =</span> <span class="dv">16</span>) <span class="op">%&gt;%</span><span class="st"> </span></span>
 <span id="cb1871-6"><a href="adventures-in-covariance.html#cb1871-6"></a><span class="st">  </span><span class="kw">unnest</span>(data) <span class="op">%&gt;%</span><span class="st"> </span></span>
 <span id="cb1871-7"><a href="adventures-in-covariance.html#cb1871-7"></a><span class="st">  </span></span>
 <span id="cb1871-8"><a href="adventures-in-covariance.html#cb1871-8"></a><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> day, <span class="dt">y =</span> N_A.lag)) <span class="op">+</span></span>
@@ -3243,9 +3248,8 @@ lscale &amp; = \sqrt{1 / (2 \cdot \rho^2)}.
 </div>
 <div id="time-to-go-multivariate." class="section level3">
 <h3><span class="header-section-number">14.6.4</span> Time to go multivariate.</h3>
-<p>For our final stage in this progression, we will fit what <span class="citation">D. R. Williams, Liu, et al. (<a href="#ref-williamsBayesianMultivariateMixedeffects2019a" role="doc-biblioref">2019</a>)</span> called a M-MELSM, a multivariate mixed-effects location scale model. Recall these data have measures of both negative and positive affect. The standardized values for PA are waiting for us in the <code>P_A.std</code> column. Within the <strong>brms</strong> framework, this is a combination of sensibilities from Bürkner’s vignettes on distributional models <span class="citation">(Bürkner, <a href="#ref-Bürkner2020Distributional" role="doc-biblioref">2020</a><a href="#ref-Bürkner2020Distributional" role="doc-biblioref">f</a>)</span> and multivariate models <span class="citation">(Bürkner, <a href="#ref-Bürkner2020Multivariate" role="doc-biblioref">2020</a><a href="#ref-Bürkner2020Multivariate" role="doc-biblioref">g</a>)</span>. We might express the statistical model as
-$$
-<span class="math display">\[\begin{align*}
+<p>For our final stage in this progression, we will fit what <span class="citation">D. R. Williams, Liu, et al. (<a href="#ref-williamsBayesianMultivariateMixedeffects2019a" role="doc-biblioref">2019</a>)</span> called a M-MELSM, a multivariate mixed-effects location scale model. Recall these data have measures of both negative and positive affect. The standardized values for PA are waiting for us in the <code>P_A.std</code> column. Within the <strong>brms</strong> framework, this is a combination of sensibilities from Bürkner’s vignettes on distributional models <span class="citation">(Bürkner, <a href="#ref-Bürkner2020Distributional" role="doc-biblioref">2020</a><a href="#ref-Bürkner2020Distributional" role="doc-biblioref">f</a>)</span> and multivariate models <span class="citation">(Bürkner, <a href="#ref-Bürkner2020Multivariate" role="doc-biblioref">2020</a><a href="#ref-Bürkner2020Multivariate" role="doc-biblioref">g</a>)</span>. We might express the statistical model as</p>
+<p><span class="math display">\[\begin{align*}
 \color{#A65141}{\begin{bmatrix} \text{NA}_{ij} \\ \text{PA}_{ij} \end{bmatrix}} &amp; \color{#A65141}\sim \color{#A65141}{\operatorname{MVNormal}\begin{pmatrix} \begin{bmatrix} 
 \mu_{ij}^\text{NA} \\ \mu_{ij}^\text{PA} \end{bmatrix}, \mathbf \Sigma \end{pmatrix}} \\
 
@@ -3274,9 +3278,8 @@ $$
 \eta_0^\text{NA},\dots, \eta_1^\text{PA} &amp; \sim \operatorname{Normal}(0, 1) \\
 \sigma_0^\text{NA},\dots, \sigma_1^\text{PA} &amp; \sim \operatorname{Exponential}(1) \\
 \mathbf R &amp; \sim \operatorname{LKJ}(2),
-\end{align*}\]</span>
-$$
-where the <span class="math inline">\(\text{NA}\)</span> and <span class="math inline">\(\text{PA}\)</span> superscripts indicate which variable is connected with which parameter. This is a straight multivariate generalization from the previous model, <code>b14.14</code>. Now we have eight parameters varying across participants, resulting in an <span class="math inline">\(8 \times 8\)</span> <span class="math inline">\(\mathbf S\)</span> matrix and an <span class="math inline">\(8 \times 8\)</span> <span class="math inline">\(\mathbf R\)</span> matrix. Here’s the <code>brms::brm()</code> code.</p>
+\end{align*}\]</span></p>
+<p>where the <span class="math inline">\(\text{NA}\)</span> and <span class="math inline">\(\text{PA}\)</span> superscripts indicate which variable is connected with which parameter. This is a straight multivariate generalization from the previous model, <code>b14.14</code>. Now we have eight parameters varying across participants, resulting in an <span class="math inline">\(8 \times 8\)</span> <span class="math inline">\(\mathbf S\)</span> matrix and an <span class="math inline">\(8 \times 8\)</span> <span class="math inline">\(\mathbf R\)</span> matrix. Here’s the <code>brms::brm()</code> code.</p>
 <div class="sourceCode" id="cb1892"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1892-1"><a href="adventures-in-covariance.html#cb1892-1"></a>b14<span class="fl">.15</span> &lt;-</span>
 <span id="cb1892-2"><a href="adventures-in-covariance.html#cb1892-2"></a><span class="st">  </span><span class="kw">brm</span>(<span class="dt">data =</span> dat,</span>
 <span id="cb1892-3"><a href="adventures-in-covariance.html#cb1892-3"></a>      <span class="dt">family =</span> gaussian,</span>
@@ -3386,7 +3389,7 @@ where the <span class="math inline">\(\text{NA}\)</span> and <span class="math i
 <span id="cb1896-4"><a href="adventures-in-covariance.html#cb1896-4"></a>rho &lt;-</span>
 <span id="cb1896-5"><a href="adventures-in-covariance.html#cb1896-5"></a><span class="st">  </span><span class="kw">posterior_samples</span>(b14<span class="fl">.15</span>) <span class="op">%&gt;%</span><span class="st"> </span></span>
 <span id="cb1896-6"><a href="adventures-in-covariance.html#cb1896-6"></a><span class="st">  </span><span class="kw">select</span>(<span class="kw">starts_with</span>(<span class="st">&quot;cor_&quot;</span>)) <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb1896-7"><a href="adventures-in-covariance.html#cb1896-7"></a><span class="st">  </span><span class="kw">sample_n</span>(<span class="dt">size =</span> <span class="dv">50</span> <span class="op">*</span><span class="st"> </span><span class="dv">50</span>) <span class="op">%&gt;%</span><span class="st"> </span></span>
+<span id="cb1896-7"><a href="adventures-in-covariance.html#cb1896-7"></a><span class="st">  </span><span class="kw">slice_sample</span>(<span class="dt">n =</span> <span class="dv">50</span> <span class="op">*</span><span class="st"> </span><span class="dv">50</span>) <span class="op">%&gt;%</span><span class="st"> </span></span>
 <span id="cb1896-8"><a href="adventures-in-covariance.html#cb1896-8"></a><span class="st">  </span><span class="kw">bind_cols</span>(<span class="kw">crossing</span>(<span class="dt">x =</span> <span class="dv">1</span><span class="op">:</span><span class="dv">50</span>, <span class="dt">y =</span> <span class="dv">1</span><span class="op">:</span><span class="dv">50</span>)) <span class="op">%&gt;%</span><span class="st"> </span></span>
 <span id="cb1896-9"><a href="adventures-in-covariance.html#cb1896-9"></a><span class="st">  </span><span class="kw">pivot_longer</span>(<span class="op">-</span><span class="kw">c</span>(x<span class="op">:</span>y)) <span class="op">%&gt;%</span><span class="st"> </span></span>
 <span id="cb1896-10"><a href="adventures-in-covariance.html#cb1896-10"></a><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">name =</span> <span class="kw">str_remove</span>(name, <span class="st">&quot;cor_record_id__&quot;</span>)) <span class="op">%&gt;%</span><span class="st"> </span></span>
@@ -3460,13 +3463,13 @@ where the <span class="math inline">\(\text{NA}\)</span> and <span class="math i
 <div id="session-info-13" class="section level2 unnumbered">
 <h2>Session info</h2>
 <div class="sourceCode" id="cb1897"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1897-1"><a href="adventures-in-covariance.html#cb1897-1"></a><span class="kw">sessionInfo</span>()</span></code></pre></div>
-<pre><code>## R version 3.6.3 (2020-02-29)
-## Platform: x86_64-apple-darwin15.6.0 (64-bit)
+<pre><code>## R version 4.0.3 (2020-10-10)
+## Platform: x86_64-apple-darwin17.0 (64-bit)
 ## Running under: macOS Catalina 10.15.3
 ## 
 ## Matrix products: default
-## BLAS:   /Library/Frameworks/R.framework/Versions/3.6/Resources/lib/libRblas.0.dylib
-## LAPACK: /Library/Frameworks/R.framework/Versions/3.6/Resources/lib/libRlapack.dylib
+## BLAS:   /Library/Frameworks/R.framework/Versions/4.0/Resources/lib/libRblas.dylib
+## LAPACK: /Library/Frameworks/R.framework/Versions/4.0/Resources/lib/libRlapack.dylib
 ## 
 ## locale:
 ## [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
@@ -3475,42 +3478,41 @@ where the <span class="math inline">\(\text{NA}\)</span> and <span class="math i
 ## [1] parallel  stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-##  [1] ape_5.4              ggtree_2.3.3.993     ggrepel_0.8.2        rethinking_2.01      ggdag_0.2.2         
-##  [6] posterior_0.1.0      bayesplot_1.7.2      patchwork_1.0.1.9000 brms_2.14.4          Rcpp_1.0.5          
-## [11] tidybayes_2.1.1      dagitty_0.2-2        rstan_2.21.2         StanHeaders_2.21.0-6 dutchmasters_0.1.0  
-## [16] forcats_0.5.0        stringr_1.4.0        dplyr_1.0.2          purrr_0.3.4          readr_1.3.1         
-## [21] tidyr_1.1.1          tibble_3.0.4         ggplot2_3.3.2        tidyverse_1.3.0     
+##  [1] ape_5.4-1            ggtree_2.5.0.992     ggrepel_0.8.2        rethinking_2.13      dagitty_0.3-0       
+##  [6] ggdag_0.2.2          posterior_0.1.3      bayesplot_1.7.2      patchwork_1.1.0      brms_2.14.4         
+## [11] Rcpp_1.0.5           tidybayes_2.3.1      rstan_2.21.2         StanHeaders_2.21.0-6 dutchmasters_0.1.0  
+## [16] forcats_0.5.0        stringr_1.4.0        dplyr_1.0.2          purrr_0.3.4          readr_1.4.0         
+## [21] tidyr_1.1.2          tibble_3.0.4         ggplot2_3.3.2        tidyverse_1.3.0     
 ## 
 ## loaded via a namespace (and not attached):
-##   [1] readxl_1.3.1         backports_1.2.0      plyr_1.8.6           igraph_1.2.5         lazyeval_0.2.2      
-##   [6] splines_3.6.3        svUnit_1.0.3         crosstalk_1.1.0.1    TH.data_1.0-10       rstantools_2.1.1    
-##  [11] inline_0.3.16        digest_0.6.27        invgamma_1.1         htmltools_0.5.0      viridis_0.5.1       
-##  [16] rsconnect_0.8.16     fansi_0.4.1          checkmate_2.0.0      magrittr_1.5         graphlayouts_0.7.0  
-##  [21] modelr_0.1.6         RcppParallel_5.0.2   matrixStats_0.57.0   xts_0.12.1           sandwich_2.5-1      
-##  [26] prettyunits_1.1.1    colorspace_1.4-1     rvest_0.3.5          ggdist_2.1.1         haven_2.2.0         
-##  [31] xfun_0.19            hexbin_1.28.1        callr_3.5.1          crayon_1.3.4         jsonlite_1.7.1      
-##  [36] lme4_1.1-23          survival_3.1-12      zoo_1.8-8            glue_1.4.2           polyclip_1.10-0     
-##  [41] gtable_0.3.0         emmeans_1.4.5        V8_3.4.0             pkgbuild_1.1.0       shape_1.4.4         
-##  [46] abind_1.4-5          scales_1.1.1         mvtnorm_1.1-1        emo_0.0.0.9000       DBI_1.1.0           
-##  [51] miniUI_0.1.1.1       viridisLite_0.3.0    xtable_1.8-4         HDInterval_0.2.0     tidytree_0.3.3      
-##  [56] stats4_3.6.3         DT_0.13              htmlwidgets_1.5.1    httr_1.4.1           threejs_0.3.3       
-##  [61] arrayhelpers_1.1-0   ellipsis_0.3.1       pkgconfig_2.0.3      loo_2.3.1            farver_2.0.3        
-##  [66] dbplyr_1.4.2         utf8_1.1.4           tidyselect_1.1.0     labeling_0.4.2       rlang_0.4.8         
-##  [71] reshape2_1.4.4       later_1.1.0.1        munsell_0.5.0        cellranger_1.1.0     tools_3.6.3         
-##  [76] cli_2.1.0            generics_0.1.0       broom_0.5.5          ggridges_0.5.2       evaluate_0.14       
-##  [81] fastmap_1.0.1        yaml_2.2.1           processx_3.4.4       knitr_1.30           fs_1.4.1            
-##  [86] tidygraph_1.2.0      ggraph_2.0.3         nlme_3.1-144         mime_0.9             projpred_2.0.2      
-##  [91] aplot_0.0.5          xml2_1.3.1           compiler_3.6.3       shinythemes_1.1.2    rstudioapi_0.11     
-##  [96] curl_4.3             gamm4_0.2-6          treeio_1.13.1        reprex_0.3.0         tweenr_1.0.1        
-## [101] statmod_1.4.34       stringi_1.5.3        ps_1.4.0             Brobdingnag_1.2-6    lattice_0.20-38     
-## [106] Matrix_1.2-18        nloptr_1.2.2.1       markdown_1.1         shinyjs_1.1          vctrs_0.3.4         
-## [111] pillar_1.4.6         lifecycle_0.2.0      BiocManager_1.30.10  bridgesampling_1.0-0 estimability_1.3    
-## [116] httpuv_1.5.4         R6_2.5.0             bookdown_0.18        promises_1.1.1       gridExtra_2.3       
-## [121] nleqslv_3.3.2        codetools_0.2-16     boot_1.3-24          colourpicker_1.0     MASS_7.3-51.5       
-## [126] gtools_3.8.2         assertthat_0.2.1     withr_2.3.0          shinystan_2.5.0      multcomp_1.4-13     
-## [131] mgcv_1.8-31          hms_0.5.3            grid_3.6.3           coda_0.19-4          minqa_1.2.4         
-## [136] rvcheck_0.1.8        rmarkdown_2.5        ggforce_0.3.1        shiny_1.5.0          lubridate_1.7.8     
-## [141] base64enc_0.1-3      dygraphs_1.1.1.6</code></pre>
+##   [1] readxl_1.3.1         backports_1.2.0      plyr_1.8.6           igraph_1.2.6         lazyeval_0.2.2      
+##   [6] splines_4.0.3        svUnit_1.0.3         crosstalk_1.1.0.1    rstantools_2.1.1     inline_0.3.17       
+##  [11] digest_0.6.27        invgamma_1.1         htmltools_0.5.0      viridis_0.5.1        rsconnect_0.8.16    
+##  [16] fansi_0.4.1          checkmate_2.0.0      magrittr_2.0.1       graphlayouts_0.7.1   modelr_0.1.8        
+##  [21] RcppParallel_5.0.2   matrixStats_0.57.0   xts_0.12.1           prettyunits_1.1.1    colorspace_2.0-0    
+##  [26] rvest_0.3.6          ggdist_2.3.0         haven_2.3.1          xfun_0.19            hexbin_1.28.1       
+##  [31] callr_3.5.1          crayon_1.3.4         jsonlite_1.7.1       lme4_1.1-25          zoo_1.8-8           
+##  [36] glue_1.4.2           polyclip_1.10-0      gtable_0.3.0         emmeans_1.5.2-1      V8_3.4.0            
+##  [41] distributional_0.2.1 pkgbuild_1.1.0       shape_1.4.5          abind_1.4-5          scales_1.1.1        
+##  [46] mvtnorm_1.1-1        emo_0.0.0.9000       DBI_1.1.0            miniUI_0.1.1.1       viridisLite_0.3.0   
+##  [51] xtable_1.8-4         HDInterval_0.2.2     tidytree_0.3.3       stats4_4.0.3         DT_0.16             
+##  [56] htmlwidgets_1.5.2    httr_1.4.2           threejs_0.3.3        arrayhelpers_1.1-0   ellipsis_0.3.1      
+##  [61] pkgconfig_2.0.3      loo_2.3.1            farver_2.0.3         dbplyr_2.0.0         utf8_1.1.4          
+##  [66] tidyselect_1.1.0     labeling_0.4.2       rlang_0.4.9          reshape2_1.4.4       later_1.1.0.1       
+##  [71] munsell_0.5.0        cellranger_1.1.0     tools_4.0.3          cli_2.2.0            generics_0.1.0      
+##  [76] broom_0.7.2          ggridges_0.5.2       evaluate_0.14        fastmap_1.0.1        yaml_2.2.1          
+##  [81] processx_3.4.5       knitr_1.30           fs_1.5.0             tidygraph_1.2.0      ggraph_2.0.4        
+##  [86] nlme_3.1-149         mime_0.9             projpred_2.0.2       aplot_0.0.6          xml2_1.3.2          
+##  [91] compiler_4.0.3       shinythemes_1.1.2    rstudioapi_0.13      curl_4.3             gamm4_0.2-6         
+##  [96] treeio_1.15.2        reprex_0.3.0         tweenr_1.0.1         statmod_1.4.35       stringi_1.5.3       
+## [101] ps_1.4.0             Brobdingnag_1.2-6    lattice_0.20-41      Matrix_1.2-18        nloptr_1.2.2.2      
+## [106] markdown_1.1         shinyjs_2.0.0        vctrs_0.3.5          pillar_1.4.7         lifecycle_0.2.0     
+## [111] BiocManager_1.30.10  bridgesampling_1.0-0 estimability_1.3     httpuv_1.5.4         R6_2.5.0            
+## [116] bookdown_0.21        promises_1.1.1       gridExtra_2.3        nleqslv_3.3.2        codetools_0.2-16    
+## [121] boot_1.3-25          colourpicker_1.1.0   MASS_7.3-53          gtools_3.8.2         assertthat_0.2.1    
+## [126] withr_2.3.0          shinystan_2.5.0      mgcv_1.8-33          hms_0.5.3            grid_4.0.3          
+## [131] coda_0.19-4          minqa_1.2.4          rvcheck_0.1.8        rmarkdown_2.5        ggforce_0.3.2       
+## [136] shiny_1.5.0          lubridate_1.7.9.2    base64enc_0.1-3      dygraphs_1.1.1.6</code></pre>
 
 </div>
 </div>
