@@ -638,7 +638,7 @@ dd %>%
 
 > We use these Greek symbols $\alpha$ and $\beta$ because it is conventional. They don't have special meanings. If you prefer some other Greek symbol like $\omega$--why should $\alpha$ get all the attention?--feel free to use that instead. It is conventional to use Greek letters for unobserved variables (parameters) and Roman letters for observed variables (data). That convention does have some value, because it helps others read your models. But breaking the convention is not an error, and sometimes it is better to use a familiar Roman symbol than an unfamiliar Greek one like $\xi$ or $\zeta$. If your readers cannot say the symbol's name, it could make understanding the model harder. (p. 249)
 
-This topic is near and dear my heart. In certain areas of psychology, people presume letters symbols like $\beta$ and $b$ have universal meanings. This presumption is a mistake and will not serve one well beyond a narrow section of the scientific literature. My recommendation is whatever notation you fancy in a given publication, clearly define your terms, especially if there could be any confusion over whether your results are standardized or not.
+This topic is near and dear my heart. In certain areas of psychology, people presume symbols like $\beta$ and $b$ have universal meanings. This presumption is a mistake and will not serve one well beyond a narrow section of the scientific literature. My recommendation is whatever notation you fancy in a given publication, clearly define your terms, especially if there could be any confusion over whether your results are standardized or not.
 
 ## Symmetry of interactions
 
@@ -757,10 +757,10 @@ Putting the same $\operatorname{Normal}(0, 0.25)$ prior on each would indicate a
 \alpha  & \sim \operatorname{Normal}(0.5, 0.25) \\
 \beta_1 & \sim \operatorname{Normal}(0, 0.25) \\
 \beta_2 & \sim \operatorname{Normal}(0, 0.25) \\
-\sigma  & \sim \operatorname{Exponential}(1),
+\sigma  & \sim \operatorname{Exponential}(1).
 \end{align*}
 
-Now fit the model.
+Fit the model.
 
 ```{r b8.4}
 b8.4 <-
@@ -1117,6 +1117,6 @@ rm(d, dag_coords, dd, p1, p2, b8.1, prior, b8.1b, b8.2, post, nd, f, b8.3, b8.3t
 ```{r, echo = F, message = F, warning = F, results = "hide"}
 ggplot2::theme_set(ggplot2::theme_grey())
 bayesplot::color_scheme_set("blue")
-pacman::p_unload(pacman::p_loaded(), character.only = TRUE)
+# pacman::p_unload(pacman::p_loaded(), character.only = TRUE)
 ```
 
