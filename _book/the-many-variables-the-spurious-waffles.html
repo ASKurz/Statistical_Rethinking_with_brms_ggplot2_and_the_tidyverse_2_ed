@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <title>5 The Many Variables &amp; The Spurious Waffles | Statistical rethinking with brms, ggplot2, and the tidyverse: Second edition</title>
   <meta name="description" content="This book is an attempt to re-express the code in the second edition of McElreath’s textbook, ‘Statistical rethinking.’ His models are re-fit in brms, plots are redone with ggplot2, and the general data wrangling code predominantly follows the tidyverse style." />
-  <meta name="generator" content="bookdown 0.18 and GitBook 2.6.7" />
+  <meta name="generator" content="bookdown 0.21 and GitBook 2.6.7" />
 
   <meta property="og:title" content="5 The Many Variables &amp; The Spurious Waffles | Statistical rethinking with brms, ggplot2, and the tidyverse: Second edition" />
   <meta property="og:type" content="book" />
@@ -24,7 +24,7 @@
 <meta name="author" content="A Solomon Kurz" />
 
 
-<meta name="date" content="2020-11-24" />
+<meta name="date" content="2020-12-02" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -134,7 +134,11 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 <ul class="summary">
 <li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>What and why</a><ul>
-<li class="chapter" data-level="" data-path="index.html"><a href="index.html#caution-work-in-progress"><i class="fa fa-check"></i>Caution: Work in progress</a></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#we-have-updates"><i class="fa fa-check"></i>We have updates</a><ul>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#version-0.1.0."><i class="fa fa-check"></i>Version 0.1.0.</a></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#version-0.1.1."><i class="fa fa-check"></i>Version 0.1.1.</a></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#were-not-done-yet-and-i-could-use-your-help."><i class="fa fa-check"></i>We’re not done yet and I could use your help.</a></li>
+</ul></li>
 <li class="chapter" data-level="" data-path="index.html"><a href="index.html#thank-yous-are-in-order"><i class="fa fa-check"></i>Thank-you’s are in order</a></li>
 <li class="chapter" data-level="" data-path="index.html"><a href="index.html#license-and-citation"><i class="fa fa-check"></i>License and citation</a></li>
 </ul></li>
@@ -454,7 +458,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="15.5.5" data-path="missing-data-and-other-opportunities.html"><a href="missing-data-and-other-opportunities.html#compute-the-study-specific-effect-sizes."><i class="fa fa-check"></i><b>15.5.5</b> Compute the study-specific effect sizes.</a></li>
 <li class="chapter" data-level="15.5.6" data-path="missing-data-and-other-opportunities.html"><a href="missing-data-and-other-opportunities.html#fit-the-bayesian-meta-analysis."><i class="fa fa-check"></i><b>15.5.6</b> Fit the Bayesian meta-analysis.</a></li>
 <li class="chapter" data-level="15.5.7" data-path="missing-data-and-other-opportunities.html"><a href="missing-data-and-other-opportunities.html#fit-the-bayesian-muiltilevel-alternative."><i class="fa fa-check"></i><b>15.5.7</b> Fit the Bayesian muiltilevel alternative.</a></li>
-<li class="chapter" data-level="15.5.8" data-path="missing-data-and-other-opportunities.html"><a href="missing-data-and-other-opportunities.html#parting-thoughts."><i class="fa fa-check"></i><b>15.5.8</b> Parting thoughts.</a></li>
+<li class="chapter" data-level="15.5.8" data-path="missing-data-and-other-opportunities.html"><a href="missing-data-and-other-opportunities.html#relative-to-the-muiltilevel-model-meta-analyses-have-limitations."><i class="fa fa-check"></i><b>15.5.8</b> Relative to the muiltilevel model, meta-analyses have limitations.</a></li>
+<li class="chapter" data-level="15.5.9" data-path="missing-data-and-other-opportunities.html"><a href="missing-data-and-other-opportunities.html#parting-thoughts."><i class="fa fa-check"></i><b>15.5.9</b> Parting thoughts.</a></li>
 </ul></li>
 <li class="chapter" data-level="" data-path="missing-data-and-other-opportunities.html"><a href="missing-data-and-other-opportunities.html#session-info-14"><i class="fa fa-check"></i>Session info</a></li>
 </ul></li>
@@ -627,11 +632,11 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 ## $ Intercept &lt;dbl&gt; 0.262235852, 0.435592131, -0.294742095, -0.007232040, 0.058308258, 0.050358902,…
 ## $ b         &lt;dbl&gt; 0.01116464, -0.18996254, 0.43071360, -0.60435682, -0.31401810, 0.22439532, -0.0…
 ## $ sigma     &lt;dbl&gt; 2.20380842, 0.57847121, 1.00816092, 2.94427170, 0.30736807, 0.94694471, 0.66062…</code></pre>
-<p>We ended up with 4,000 draws from the prior predictive distribution, much like <code>posterior_samples()</code> would return 4,000 draws from the posterior. Next we’ll use <code>sample_n()</code> to take a ransom sample from our <code>prior</code> object. After just a little more wrangling, we’ll be in good shape to plot our version of Figure 5.3.</p>
+<p>We ended up with 4,000 draws from the prior predictive distribution, much like <code>posterior_samples()</code> would return 4,000 draws from the posterior. Next we’ll use <code>slice_sample()</code> to take a random sample from our <code>prior</code> object. After just a little more wrangling, we’ll be in good shape to plot our version of Figure 5.3.</p>
 <div class="sourceCode" id="cb447"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb447-1"><a href="the-many-variables-the-spurious-waffles.html#cb447-1"></a><span class="kw">set.seed</span>(<span class="dv">5</span>)</span>
 <span id="cb447-2"><a href="the-many-variables-the-spurious-waffles.html#cb447-2"></a></span>
 <span id="cb447-3"><a href="the-many-variables-the-spurious-waffles.html#cb447-3"></a>prior <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb447-4"><a href="the-many-variables-the-spurious-waffles.html#cb447-4"></a><span class="st">  </span><span class="kw">sample_n</span>(<span class="dt">size =</span> <span class="dv">50</span>) <span class="op">%&gt;%</span><span class="st"> </span></span>
+<span id="cb447-4"><a href="the-many-variables-the-spurious-waffles.html#cb447-4"></a><span class="st">  </span><span class="kw">slice_sample</span>(<span class="dt">n =</span> <span class="dv">50</span>) <span class="op">%&gt;%</span><span class="st"> </span></span>
 <span id="cb447-5"><a href="the-many-variables-the-spurious-waffles.html#cb447-5"></a><span class="st">  </span><span class="kw">rownames_to_column</span>(<span class="st">&quot;draw&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span></span>
 <span id="cb447-6"><a href="the-many-variables-the-spurious-waffles.html#cb447-6"></a><span class="st">  </span><span class="kw">expand</span>(<span class="kw">nesting</span>(draw, Intercept, b),</span>
 <span id="cb447-7"><a href="the-many-variables-the-spurious-waffles.html#cb447-7"></a>         <span class="dt">a =</span> <span class="kw">c</span>(<span class="op">-</span><span class="dv">2</span>, <span class="dv">2</span>)) <span class="op">%&gt;%</span><span class="st"> </span></span>
@@ -789,7 +794,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb457-19"><a href="the-many-variables-the-spurious-waffles.html#cb457-19"></a></span>
 <span id="cb457-20"><a href="the-many-variables-the-spurious-waffles.html#cb457-20"></a>p1</span></code></pre></div>
 <p><img src="05_files/figure-gfm/unnamed-chunk-18-1.png" width="288" style="display: block; margin: auto;" /></p>
-<p>We could have left out the <code>coords</code> argument and let the <code>dagify()</code> function set the layout of the nodes on its own. But since we were picky and wanted to ape McElreath, we first specified our coordinates in a tibble and then included that tibble in the <code>coords</code> argument. For more on the topic, check out the Barrett’s <span class="citation">(<a href="#ref-barrettAnIntroduction2020" role="doc-biblioref">2020</a><a href="#ref-barrettAnIntroduction2020" role="doc-biblioref">b</a>)</span> vignette, <a href="https://CRAN.R-project.org/package=ggdag/vignettes/intro-to-ggdag.html"><em>An Introduction to ggdag</em></a>.</p>
+<p>We could have left out the <code>coords</code> argument and let the <code>dagify()</code> function set the layout of the nodes on its own. But since we were picky and wanted to ape McElreath, we first specified our coordinates in a tibble and then included that tibble in the <code>coords</code> argument. For more on the topic, check out the Barrett’s <span class="citation">(<a href="#ref-barrettAnIntroduction2020" role="doc-biblioref">2020</a><a href="#ref-barrettAnIntroduction2020" role="doc-biblioref">b</a>)</span> vignette, <a href="https://CRAN.R-project.org/package=ggdag/vignettes/intro-to-ggdag.html"><em>An introduction to ggdag</em></a>.</p>
 <p>Buy anyway, our DAG</p>
 <blockquote>
 <p>represents a heuristic causal model. Like other models, it is an analytical assumption. The symbols <span class="math inline">\(A\)</span>, <span class="math inline">\(M\)</span>, and <span class="math inline">\(D\)</span> are our observed variables. The arrows show directions of influence. What this DAG says is:</p>
@@ -979,10 +984,10 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <p>We simulated those data based on this formulation.</p>
 <div class="sourceCode" id="cb475"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb475-1"><a href="the-many-variables-the-spurious-waffles.html#cb475-1"></a><span class="kw">dagitty</span>(<span class="st">&#39;dag{divorce &lt;- age -&gt; marriage}&#39;</span>) <span class="op">%&gt;%</span><span class="st"> </span></span>
 <span id="cb475-2"><a href="the-many-variables-the-spurious-waffles.html#cb475-2"></a><span class="st">  </span><span class="kw">impliedConditionalIndependencies</span>()</span></code></pre></div>
-<pre><code>## divorce _||_ marriage | age</code></pre>
+<pre><code>## dvrc _||_ mrrg | age</code></pre>
 <p>Here are the quick <code>pairs()</code> plots.</p>
 <div class="sourceCode" id="cb477"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb477-1"><a href="the-many-variables-the-spurious-waffles.html#cb477-1"></a><span class="kw">pairs</span>(sim_d, <span class="dt">col =</span> <span class="st">&quot;firebrick4&quot;</span>)</span></code></pre></div>
-<p><img src="05_files/figure-gfm/unnamed-chunk-30-1.png" width="384" style="display: block; margin: auto;" /></p>
+<p><img src="05_files/figure-gfm/unnamed-chunk-30-1.png" width="432" style="display: block; margin: auto;" /></p>
 <p>If we use the <code>update()</code> function, we can refit the last models in haste.</p>
 <div class="sourceCode" id="cb478"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb478-1"><a href="the-many-variables-the-spurious-waffles.html#cb478-1"></a>b5<span class="fl">.1</span>_sim &lt;-<span class="st"> </span></span>
 <span id="cb478-2"><a href="the-many-variables-the-spurious-waffles.html#cb478-2"></a><span class="st">  </span><span class="kw">update</span>(b5<span class="fl">.1</span>, </span>
@@ -1469,7 +1474,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb507-19"><a href="the-many-variables-the-spurious-waffles.html#cb507-19"></a></span>
 <span id="cb507-20"><a href="the-many-variables-the-spurious-waffles.html#cb507-20"></a>p1 <span class="op">+</span><span class="st"> </span>p2 <span class="op">+</span><span class="st"> </span><span class="kw">plot_annotation</span>(<span class="dt">title =</span> <span class="st">&quot;Counterfactual plots for the multivariate divorce model&quot;</span>)</span></code></pre></div>
 <p><img src="05_files/figure-gfm/unnamed-chunk-50-1.png" width="576" style="display: block; margin: auto;" /></p>
-<p>With our <strong>brms</strong>**tidyverse** paradigm, we might compute “the expected causal effect of increasing median age at marriage from 20 to 30” (p. 142) like this.</p>
+<p>With our <strong>brms</strong> + <strong>tidyverse</strong> paradigm, we might compute “the expected causal effect of increasing median age at marriage from 20 to 30” (p. 142) like this.</p>
 <div class="sourceCode" id="cb508"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb508-1"><a href="the-many-variables-the-spurious-waffles.html#cb508-1"></a><span class="co"># new data frame, standardized to mean 26.1 and std dev 1.24 </span></span>
 <span id="cb508-2"><a href="the-many-variables-the-spurious-waffles.html#cb508-2"></a>nd &lt;-<span class="st"> </span><span class="kw">tibble</span>(<span class="dt">a =</span> (<span class="kw">c</span>(<span class="dv">20</span>, <span class="dv">30</span>) <span class="op">-</span><span class="st"> </span><span class="fl">26.1</span>) <span class="op">/</span><span class="st"> </span><span class="fl">1.24</span>,</span>
 <span id="cb508-3"><a href="the-many-variables-the-spurious-waffles.html#cb508-3"></a>             <span class="dt">m =</span> <span class="dv">0</span>)</span>
@@ -1485,7 +1490,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <pre><code>##        mean
 ## 1 -4.860737</code></pre>
 <blockquote>
-<p>The trick with simulating counterfactuals is to realize that when we manipulate some variable <span class="math inline">\(X\)</span>, we break the causal influence of other variables on <span class="math inline">\(X\)</span>. This is the same as saying we modify the DAG so that no arrows enter <span class="math inline">\(X\)</span>. Suppose for example that we now simulate the effect of manipulating <span class="math inline">\(M\)</span>. (p. 143)</p>
+<p>The trick with simulating counterfactuals is to realize that when we manipulate some variable <span class="math inline">\(X\)</span>, we break the causal influence of other variables on <span class="math inline">\(X\)</span>. This is the same as saying we modify the DAG so that no arrows enter <span class="math inline">\(X\)</span>. Suppose for example that we now simulate the effect of manipulating <span class="math inline">\(M.\)</span> (p. 143)</p>
 </blockquote>
 <p>Here’s how to plot that DAG.</p>
 <div class="sourceCode" id="cb510"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb510-1"><a href="the-many-variables-the-spurious-waffles.html#cb510-1"></a>dag_coords &lt;-</span>
@@ -1639,7 +1644,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div class="sourceCode" id="cb524"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb524-1"><a href="the-many-variables-the-spurious-waffles.html#cb524-1"></a><span class="kw">set.seed</span>(<span class="dv">5</span>)</span>
 <span id="cb524-2"><a href="the-many-variables-the-spurious-waffles.html#cb524-2"></a></span>
 <span id="cb524-3"><a href="the-many-variables-the-spurious-waffles.html#cb524-3"></a><span class="kw">prior_samples</span>(b5<span class="fl">.5</span>_draft) <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb524-4"><a href="the-many-variables-the-spurious-waffles.html#cb524-4"></a><span class="st">  </span><span class="kw">sample_n</span>(<span class="dt">size =</span> <span class="dv">50</span>) <span class="op">%&gt;%</span><span class="st"> </span></span>
+<span id="cb524-4"><a href="the-many-variables-the-spurious-waffles.html#cb524-4"></a><span class="st">  </span><span class="kw">slice_sample</span>(<span class="dt">n =</span> <span class="dv">50</span>) <span class="op">%&gt;%</span><span class="st"> </span></span>
 <span id="cb524-5"><a href="the-many-variables-the-spurious-waffles.html#cb524-5"></a><span class="st">  </span><span class="kw">rownames_to_column</span>() <span class="op">%&gt;%</span><span class="st"> </span></span>
 <span id="cb524-6"><a href="the-many-variables-the-spurious-waffles.html#cb524-6"></a><span class="st">  </span><span class="kw">expand</span>(<span class="kw">nesting</span>(rowname, Intercept, b),</span>
 <span id="cb524-7"><a href="the-many-variables-the-spurious-waffles.html#cb524-7"></a>         <span class="dt">neocortex.perc_s =</span> <span class="kw">c</span>(<span class="op">-</span><span class="dv">2</span>, <span class="dv">2</span>)) <span class="op">%&gt;%</span><span class="st"> </span></span>
@@ -1691,7 +1696,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <p>Now make our version of Figure 5.8.b.</p>
 <div class="sourceCode" id="cb528"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb528-1"><a href="the-many-variables-the-spurious-waffles.html#cb528-1"></a><span class="kw">set.seed</span>(<span class="dv">5</span>)</span>
 <span id="cb528-2"><a href="the-many-variables-the-spurious-waffles.html#cb528-2"></a><span class="kw">prior_samples</span>(b5<span class="fl">.5</span>) <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb528-3"><a href="the-many-variables-the-spurious-waffles.html#cb528-3"></a><span class="st">  </span><span class="kw">sample_n</span>(<span class="dt">size =</span> <span class="dv">50</span>) <span class="op">%&gt;%</span><span class="st"> </span></span>
+<span id="cb528-3"><a href="the-many-variables-the-spurious-waffles.html#cb528-3"></a><span class="st">  </span><span class="kw">slice_sample</span>(<span class="dt">n =</span> <span class="dv">50</span>) <span class="op">%&gt;%</span><span class="st"> </span></span>
 <span id="cb528-4"><a href="the-many-variables-the-spurious-waffles.html#cb528-4"></a><span class="st">  </span><span class="kw">rownames_to_column</span>() <span class="op">%&gt;%</span><span class="st"> </span></span>
 <span id="cb528-5"><a href="the-many-variables-the-spurious-waffles.html#cb528-5"></a><span class="st">  </span><span class="kw">expand</span>(<span class="kw">nesting</span>(rowname, Intercept, b),</span>
 <span id="cb528-6"><a href="the-many-variables-the-spurious-waffles.html#cb528-6"></a>         <span class="dt">neocortex.perc_s =</span> <span class="kw">c</span>(<span class="op">-</span><span class="dv">2</span>, <span class="dv">2</span>)) <span class="op">%&gt;%</span><span class="st"> </span></span>
@@ -2198,14 +2203,14 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div class="sourceCode" id="cb567"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb567-1"><a href="the-many-variables-the-spurious-waffles.html#cb567-1"></a>prior <span class="op">%&gt;%</span><span class="st"> </span></span>
 <span id="cb567-2"><a href="the-many-variables-the-spurious-waffles.html#cb567-2"></a><span class="st">  </span><span class="kw">pivot_longer</span>(<span class="kw">everything</span>()) <span class="op">%&gt;%</span><span class="st"> </span></span>
 <span id="cb567-3"><a href="the-many-variables-the-spurious-waffles.html#cb567-3"></a><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> value, <span class="dt">fill =</span> name, <span class="dt">color =</span> name)) <span class="op">+</span></span>
-<span id="cb567-4"><a href="the-many-variables-the-spurious-waffles.html#cb567-4"></a><span class="st">  </span><span class="kw">geom_density</span>(<span class="dt">size =</span> <span class="dv">3</span><span class="op">/</span><span class="dv">4</span>, <span class="dt">alpha =</span> <span class="dv">2</span><span class="op">/</span><span class="dv">3</span>) <span class="op">+</span></span>
+<span id="cb567-4"><a href="the-many-variables-the-spurious-waffles.html#cb567-4"></a><span class="st">  </span><span class="kw">geom_density</span>(<span class="dt">size =</span> <span class="dv">2</span><span class="op">/</span><span class="dv">3</span>, <span class="dt">alpha =</span> <span class="dv">2</span><span class="op">/</span><span class="dv">3</span>) <span class="op">+</span></span>
 <span id="cb567-5"><a href="the-many-variables-the-spurious-waffles.html#cb567-5"></a><span class="st">  </span><span class="kw">scale_fill_manual</span>(<span class="ot">NULL</span>, <span class="dt">values =</span> <span class="kw">c</span>(<span class="st">&quot;firebrick4&quot;</span>, <span class="st">&quot;black&quot;</span>)) <span class="op">+</span></span>
 <span id="cb567-6"><a href="the-many-variables-the-spurious-waffles.html#cb567-6"></a><span class="st">  </span><span class="kw">scale_color_manual</span>(<span class="ot">NULL</span>, <span class="dt">values =</span> <span class="kw">c</span>(<span class="st">&quot;firebrick4&quot;</span>, <span class="st">&quot;black&quot;</span>)) <span class="op">+</span></span>
 <span id="cb567-7"><a href="the-many-variables-the-spurious-waffles.html#cb567-7"></a><span class="st">  </span><span class="kw">scale_y_continuous</span>(<span class="ot">NULL</span>, <span class="dt">breaks =</span> <span class="ot">NULL</span>) <span class="op">+</span></span>
 <span id="cb567-8"><a href="the-many-variables-the-spurious-waffles.html#cb567-8"></a><span class="st">  </span><span class="kw">xlab</span>(<span class="st">&quot;prior predictive distribution for our dummy groups&quot;</span>) <span class="op">+</span></span>
 <span id="cb567-9"><a href="the-many-variables-the-spurious-waffles.html#cb567-9"></a><span class="st">  </span><span class="kw">theme_bw</span>() <span class="op">+</span></span>
 <span id="cb567-10"><a href="the-many-variables-the-spurious-waffles.html#cb567-10"></a><span class="st">  </span><span class="kw">theme</span>(<span class="dt">panel.grid =</span> <span class="kw">element_blank</span>(),</span>
-<span id="cb567-11"><a href="the-many-variables-the-spurious-waffles.html#cb567-11"></a>        <span class="dt">legend.position =</span> <span class="kw">c</span>(.<span class="dv">84</span>, <span class="fl">.84</span>))</span></code></pre></div>
+<span id="cb567-11"><a href="the-many-variables-the-spurious-waffles.html#cb567-11"></a>        <span class="dt">legend.position =</span> <span class="kw">c</span>(.<span class="dv">82</span>, <span class="fl">.83</span>))</span></code></pre></div>
 <p><img src="05_files/figure-gfm/unnamed-chunk-89-1.png" width="336" style="display: block; margin: auto;" /></p>
 <p>Yep, this parameterization makes <span class="math inline">\(\alpha + \beta_1\)</span> more uncertain than <span class="math inline">\(\alpha\)</span>. A nice alternative is to make an index variable. We’ll call it <code>sex</code>, for which 1 = <em>female</em> and 2 = <em>male.</em> “No order is implied. These are just labels” (p. 155).</p>
 <div class="sourceCode" id="cb568"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb568-1"><a href="the-many-variables-the-spurious-waffles.html#cb568-1"></a>d &lt;-</span>
@@ -2704,7 +2709,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 \color{#8B1A1A}{u_j} &amp; \color{#8B1A1A}\sim \color{#8B1A1A}{\operatorname{Normal}(0, \sigma_\text{clade})}, &amp; \color{#8B1A1A}{\text{for } j = 1, \dots, 4}  \\
 \color{#8B1A1A}{\sigma_\text{clade}} &amp; \color{#8B1A1A}\sim \color{#8B1A1A}{\operatorname{Exponential}(1)},
 \end{align*}\]</span></p>
-<p>where <span class="math inline">\(\alpha\)</span> is the overall intercept (mean) and the four <code>clade</code>-specific deviations from that mean are captures by the four levels of <span class="math inline">\(u_j\)</span>, which are themselves modeled as normally distributed with a mean of zero (because they are deviations, after all) and a standard deviation <span class="math inline">\(\sigma_\text{clade}\)</span>. Here’s how to fit such a model with <strong>brms</strong>.</p>
+<p>where <span class="math inline">\(\alpha\)</span> is the overall intercept (mean) and the four <code>clade</code>-specific deviations from that mean are captured by the four levels of <span class="math inline">\(u_j\)</span>, which are themselves modeled as normally distributed with a mean of zero (because they are deviations, after all) and a standard deviation <span class="math inline">\(\sigma_\text{clade}\)</span>. Here’s how to fit such a model with <strong>brms</strong>.</p>
 <div class="sourceCode" id="cb615"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb615-1"><a href="the-many-variables-the-spurious-waffles.html#cb615-1"></a>b5<span class="fl">.9</span>b &lt;-<span class="st"> </span></span>
 <span id="cb615-2"><a href="the-many-variables-the-spurious-waffles.html#cb615-2"></a><span class="st">  </span><span class="kw">brm</span>(<span class="dt">data =</span> d, </span>
 <span id="cb615-3"><a href="the-many-variables-the-spurious-waffles.html#cb615-3"></a>      <span class="dt">family =</span> gaussian,</span>
@@ -2764,7 +2769,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 <div id="would-you-like-to-learn-more" class="section level3">
 <h3><span class="header-section-number">5.4.4</span> Would you like to learn more?</h3>
-<p>To learn more about the dummy coding approach, McElreath covered it in Chapter 5 of his first <span class="citation">(<a href="#ref-mcelreathStatisticalRethinkingBayesian2015" role="doc-biblioref">2015</a>)</span>, Hayes covered it in Chapter 2 of his <span class="citation">(<a href="#ref-hayes2017introduction" role="doc-biblioref">2017</a>)</span> text, and it’s been covered in many other texts, such as the modern classic by <span class="citation">Cohen et al. (<a href="#ref-cohenAppliedMultipleRegression2013" role="doc-biblioref">2013</a>)</span>. I have ebook translations for the first of those two (<span class="citation">Kurz (<a href="#ref-kurzStatisticalRethinkingBrms2020" role="doc-biblioref">2020</a><a href="#ref-kurzStatisticalRethinkingBrms2020" role="doc-biblioref">a</a>)</span>; <span class="citation">Kurz (<a href="#ref-kurzRecodingIntroductionMediation2019" role="doc-biblioref">2019</a>)</span>). If you like learning by video, the great <a href="https://twitter.com/aggieerin">Erin Buchanan</a> has a video or two (e.g., <a href="https://www.youtube.com/watch?v=Zv19sslm-S4">here</a>) on her <a href="https://www.youtube.com/channel/UCMdihazndR0f9XBoSXWqnYg">Statistics of DOOM chanel</a>.</p>
+<p>To learn more about the dummy coding approach, McElreath covered it in Chapter 5 of his first <span class="citation">(<a href="#ref-mcelreathStatisticalRethinkingBayesian2015" role="doc-biblioref">2015</a>)</span> edition, Hayes covered it in Chapter 2 of his <span class="citation">(<a href="#ref-hayes2017introduction" role="doc-biblioref">2017</a>)</span> text, and it’s been covered in many other texts, such as the modern classic by <span class="citation">Cohen et al. (<a href="#ref-cohenAppliedMultipleRegression2013" role="doc-biblioref">2013</a>)</span>. I have ebook translations for the first of those two <span class="citation">(Kurz, <a href="#ref-kurzStatisticalRethinkingBrms2020" role="doc-biblioref">2020</a><a href="#ref-kurzStatisticalRethinkingBrms2020" role="doc-biblioref">a</a>, <a href="#ref-kurzRecodingIntroductionMediation2019" role="doc-biblioref">2019</a>)</span>. If you like learning by video, the great <a href="https://twitter.com/aggieerin">Erin Buchanan</a> has a video or two (e.g., <a href="https://www.youtube.com/watch?v=Zv19sslm-S4">here</a>) on her <a href="https://www.youtube.com/channel/UCMdihazndR0f9XBoSXWqnYg">Statistics of DOOM chanel</a>.</p>
 <p>The specific type of contrast coding we used is part of a more general approach. You can learn more about that in Cohen et al <span class="citation">(<a href="#ref-cohenAppliedMultipleRegression2013" role="doc-biblioref">2013</a>, Chapter 8)</span> or from <a href="https://stats.idre.ucla.edu/r/library/r-library-contrast-coding-systems-for-categorical-variables/">this vignette</a> by the good folks at the UCLA Institute for Digital Research and Education <span class="citation">(“R Library Contrast Coding Systems for Categorical Variables,” <a href="#ref-LibraryContrastCoding" role="doc-biblioref">n.d.</a>)</span>.</p>
 <p>In addition to waiting for <a href="models-with-memory.html#models-with-memory">Chapter 13</a> in this ebook, you can learn more about the multilevel ANOVA approach in Chapters 19 and 24 of Kruschke’s <span class="citation">(<a href="#ref-kruschkeDoingBayesianData2015" role="doc-biblioref">2015</a>)</span>, in the corresponding chapters in my <span class="citation">(<a href="#ref-kurzDoingBayesianData2020" role="doc-biblioref">2020</a><a href="#ref-kurzDoingBayesianData2020" role="doc-biblioref">c</a>)</span> ebook translation of the same, and in some of Gelman’s peer-reviewed work <span class="citation">(Gelman, <a href="#ref-gelmanAnalysisVarianceWhy2005" role="doc-biblioref">2005</a>, <a href="#ref-gelmanPriorDistributionsVariance2006" role="doc-biblioref">2006</a>)</span>.</p>
 </div>
@@ -2772,13 +2777,13 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div id="session-info-4" class="section level2 unnumbered">
 <h2>Session info</h2>
 <div class="sourceCode" id="cb619"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb619-1"><a href="the-many-variables-the-spurious-waffles.html#cb619-1"></a><span class="kw">sessionInfo</span>()</span></code></pre></div>
-<pre><code>## R version 3.6.3 (2020-02-29)
-## Platform: x86_64-apple-darwin15.6.0 (64-bit)
+<pre><code>## R version 4.0.3 (2020-10-10)
+## Platform: x86_64-apple-darwin17.0 (64-bit)
 ## Running under: macOS Catalina 10.15.3
 ## 
 ## Matrix products: default
-## BLAS:   /Library/Frameworks/R.framework/Versions/3.6/Resources/lib/libRblas.0.dylib
-## LAPACK: /Library/Frameworks/R.framework/Versions/3.6/Resources/lib/libRlapack.dylib
+## BLAS:   /Library/Frameworks/R.framework/Versions/4.0/Resources/lib/libRblas.dylib
+## LAPACK: /Library/Frameworks/R.framework/Versions/4.0/Resources/lib/libRlapack.dylib
 ## 
 ## locale:
 ## [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
@@ -2787,50 +2792,49 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-##  [1] bayesplot_1.7.2      tidybayes_2.1.1      GGally_2.0.0         dagitty_0.2-2       
-##  [5] psych_2.0.9          patchwork_1.0.1.9000 ggdag_0.2.2          urbnmapr_0.0.0.9002 
-##  [9] ggrepel_0.8.2        brms_2.14.4          Rcpp_1.0.5           forcats_0.5.0       
-## [13] stringr_1.4.0        dplyr_1.0.2          purrr_0.3.4          readr_1.3.1         
-## [17] tidyr_1.1.1          tibble_3.0.4         ggplot2_3.3.2        tidyverse_1.3.0     
+##  [1] bayesplot_1.7.2     tidybayes_2.3.1     GGally_2.0.0        dagitty_0.3-0      
+##  [5] psych_2.0.9         patchwork_1.1.0     ggdag_0.2.2         urbnmapr_0.0.0.9002
+##  [9] ggrepel_0.8.2       brms_2.14.4         Rcpp_1.0.5          forcats_0.5.0      
+## [13] stringr_1.4.0       dplyr_1.0.2         purrr_0.3.4         readr_1.4.0        
+## [17] tidyr_1.1.2         tibble_3.0.4        ggplot2_3.3.2       tidyverse_1.3.0    
 ## 
 ## loaded via a namespace (and not attached):
-##   [1] readxl_1.3.1         backports_1.2.0      plyr_1.8.6           igraph_1.2.5        
-##   [5] svUnit_1.0.3         splines_3.6.3        crosstalk_1.1.0.1    TH.data_1.0-10      
-##   [9] rstantools_2.1.1     inline_0.3.16        digest_0.6.27        htmltools_0.5.0     
-##  [13] viridis_0.5.1        rethinking_2.01      rsconnect_0.8.16     fansi_0.4.1         
-##  [17] magrittr_1.5         graphlayouts_0.7.0   modelr_0.1.6         RcppParallel_5.0.2  
-##  [21] matrixStats_0.57.0   xts_0.12.1           sandwich_2.5-1       prettyunits_1.1.1   
-##  [25] colorspace_1.4-1     rvest_0.3.5          ggdist_2.1.1         haven_2.2.0         
-##  [29] xfun_0.19            callr_3.5.1          crayon_1.3.4         jsonlite_1.7.1      
-##  [33] lme4_1.1-23          survival_3.1-12      zoo_1.8-8            glue_1.4.2          
-##  [37] polyclip_1.10-0      gtable_0.3.0         emmeans_1.4.5        V8_3.4.0            
-##  [41] pkgbuild_1.1.0       rstan_2.21.2         shape_1.4.4          abind_1.4-5         
-##  [45] scales_1.1.1         mvtnorm_1.1-1        emo_0.0.0.9000       DBI_1.1.0           
-##  [49] miniUI_0.1.1.1       viridisLite_0.3.0    xtable_1.8-4         HDInterval_0.2.0    
-##  [53] units_0.6-6          stats4_3.6.3         StanHeaders_2.21.0-6 DT_0.13             
-##  [57] htmlwidgets_1.5.1    httr_1.4.1           threejs_0.3.3        arrayhelpers_1.1-0  
-##  [61] RColorBrewer_1.1-2   ellipsis_0.3.1       reshape_0.8.8        pkgconfig_2.0.3     
-##  [65] loo_2.3.1            farver_2.0.3         dbplyr_1.4.2         utf8_1.1.4          
-##  [69] tidyselect_1.1.0     labeling_0.4.2       rlang_0.4.8          reshape2_1.4.4      
-##  [73] later_1.1.0.1        munsell_0.5.0        cellranger_1.1.0     tools_3.6.3         
-##  [77] cli_2.1.0            generics_0.1.0       broom_0.5.5          ggridges_0.5.2      
-##  [81] evaluate_0.14        fastmap_1.0.1        yaml_2.2.1           processx_3.4.4      
-##  [85] knitr_1.30           fs_1.4.1             tidygraph_1.2.0      ggraph_2.0.3        
-##  [89] nlme_3.1-144         mime_0.9             projpred_2.0.2       xml2_1.3.1          
-##  [93] compiler_3.6.3       shinythemes_1.1.2    rstudioapi_0.11      curl_4.3            
-##  [97] gamm4_0.2-6          e1071_1.7-3          reprex_0.3.0         tweenr_1.0.1        
-## [101] statmod_1.4.34       stringi_1.5.3        ps_1.4.0             Brobdingnag_1.2-6   
-## [105] lattice_0.20-38      Matrix_1.2-18        classInt_0.4-3       nloptr_1.2.2.1      
-## [109] markdown_1.1         shinyjs_1.1          vctrs_0.3.4          pillar_1.4.6        
-## [113] lifecycle_0.2.0      bridgesampling_1.0-0 estimability_1.3     httpuv_1.5.4        
-## [117] R6_2.5.0             bookdown_0.18        promises_1.1.1       KernSmooth_2.23-16  
-## [121] gridExtra_2.3        codetools_0.2-16     boot_1.3-24          colourpicker_1.0    
-## [125] MASS_7.3-51.5        gtools_3.8.2         assertthat_0.2.1     withr_2.3.0         
-## [129] mnormt_1.5-6         shinystan_2.5.0      multcomp_1.4-13      mgcv_1.8-31         
-## [133] parallel_3.6.3       hms_0.5.3            grid_3.6.3           coda_0.19-4         
-## [137] class_7.3-15         minqa_1.2.4          rmarkdown_2.5        ggforce_0.3.1       
-## [141] sf_0.9-1             shiny_1.5.0          lubridate_1.7.8      base64enc_0.1-3     
-## [145] dygraphs_1.1.1.6</code></pre>
+##   [1] readxl_1.3.1         backports_1.2.0      plyr_1.8.6           igraph_1.2.6        
+##   [5] svUnit_1.0.3         splines_4.0.3        crosstalk_1.1.0.1    rstantools_2.1.1    
+##   [9] inline_0.3.17        digest_0.6.27        htmltools_0.5.0      viridis_0.5.1       
+##  [13] rethinking_2.13      rsconnect_0.8.16     fansi_0.4.1          magrittr_2.0.1      
+##  [17] graphlayouts_0.7.1   modelr_0.1.8         RcppParallel_5.0.2   matrixStats_0.57.0  
+##  [21] xts_0.12.1           prettyunits_1.1.1    colorspace_2.0-0     rvest_0.3.6         
+##  [25] ggdist_2.3.0         haven_2.3.1          xfun_0.19            callr_3.5.1         
+##  [29] crayon_1.3.4         jsonlite_1.7.1       lme4_1.1-25          zoo_1.8-8           
+##  [33] glue_1.4.2           polyclip_1.10-0      gtable_0.3.0         emmeans_1.5.2-1     
+##  [37] V8_3.4.0             distributional_0.2.1 pkgbuild_1.1.0       rstan_2.21.2        
+##  [41] shape_1.4.5          abind_1.4-5          scales_1.1.1         mvtnorm_1.1-1       
+##  [45] emo_0.0.0.9000       DBI_1.1.0            miniUI_0.1.1.1       viridisLite_0.3.0   
+##  [49] xtable_1.8-4         HDInterval_0.2.2     tmvnsim_1.0-2        units_0.6-7         
+##  [53] stats4_4.0.3         StanHeaders_2.21.0-6 DT_0.16              htmlwidgets_1.5.2   
+##  [57] httr_1.4.2           threejs_0.3.3        arrayhelpers_1.1-0   RColorBrewer_1.1-2  
+##  [61] ellipsis_0.3.1       reshape_0.8.8        pkgconfig_2.0.3      loo_2.3.1           
+##  [65] farver_2.0.3         dbplyr_2.0.0         utf8_1.1.4           tidyselect_1.1.0    
+##  [69] labeling_0.4.2       rlang_0.4.9          reshape2_1.4.4       later_1.1.0.1       
+##  [73] munsell_0.5.0        cellranger_1.1.0     tools_4.0.3          cli_2.2.0           
+##  [77] generics_0.1.0       broom_0.7.2          ggridges_0.5.2       evaluate_0.14       
+##  [81] fastmap_1.0.1        yaml_2.2.1           processx_3.4.5       knitr_1.30          
+##  [85] fs_1.5.0             tidygraph_1.2.0      ggraph_2.0.4         nlme_3.1-149        
+##  [89] mime_0.9             projpred_2.0.2       xml2_1.3.2           compiler_4.0.3      
+##  [93] shinythemes_1.1.2    rstudioapi_0.13      curl_4.3             gamm4_0.2-6         
+##  [97] e1071_1.7-4          reprex_0.3.0         tweenr_1.0.1         statmod_1.4.35      
+## [101] stringi_1.5.3        ps_1.4.0             Brobdingnag_1.2-6    lattice_0.20-41     
+## [105] Matrix_1.2-18        classInt_0.4-3       nloptr_1.2.2.2       markdown_1.1        
+## [109] shinyjs_2.0.0        vctrs_0.3.5          pillar_1.4.7         lifecycle_0.2.0     
+## [113] bridgesampling_1.0-0 estimability_1.3     httpuv_1.5.4         R6_2.5.0            
+## [117] bookdown_0.21        promises_1.1.1       KernSmooth_2.23-17   gridExtra_2.3       
+## [121] codetools_0.2-16     boot_1.3-25          colourpicker_1.1.0   MASS_7.3-53         
+## [125] gtools_3.8.2         assertthat_0.2.1     withr_2.3.0          mnormt_2.0.2        
+## [129] shinystan_2.5.0      mgcv_1.8-33          parallel_4.0.3       hms_0.5.3           
+## [133] grid_4.0.3           coda_0.19-4          class_7.3-17         minqa_1.2.4         
+## [137] rmarkdown_2.5        ggforce_0.3.2        sf_0.9-6             shiny_1.5.0         
+## [141] lubridate_1.7.9.2    base64enc_0.1-3      dygraphs_1.1.1.6</code></pre>
 
 </div>
 </div>

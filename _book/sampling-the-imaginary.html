@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <title>3 Sampling the Imaginary | Statistical rethinking with brms, ggplot2, and the tidyverse: Second edition</title>
   <meta name="description" content="This book is an attempt to re-express the code in the second edition of McElreath’s textbook, ‘Statistical rethinking.’ His models are re-fit in brms, plots are redone with ggplot2, and the general data wrangling code predominantly follows the tidyverse style." />
-  <meta name="generator" content="bookdown 0.18 and GitBook 2.6.7" />
+  <meta name="generator" content="bookdown 0.21 and GitBook 2.6.7" />
 
   <meta property="og:title" content="3 Sampling the Imaginary | Statistical rethinking with brms, ggplot2, and the tidyverse: Second edition" />
   <meta property="og:type" content="book" />
@@ -24,7 +24,7 @@
 <meta name="author" content="A Solomon Kurz" />
 
 
-<meta name="date" content="2020-11-24" />
+<meta name="date" content="2020-12-02" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -134,7 +134,11 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 <ul class="summary">
 <li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>What and why</a><ul>
-<li class="chapter" data-level="" data-path="index.html"><a href="index.html#caution-work-in-progress"><i class="fa fa-check"></i>Caution: Work in progress</a></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#we-have-updates"><i class="fa fa-check"></i>We have updates</a><ul>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#version-0.1.0."><i class="fa fa-check"></i>Version 0.1.0.</a></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#version-0.1.1."><i class="fa fa-check"></i>Version 0.1.1.</a></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#were-not-done-yet-and-i-could-use-your-help."><i class="fa fa-check"></i>We’re not done yet and I could use your help.</a></li>
+</ul></li>
 <li class="chapter" data-level="" data-path="index.html"><a href="index.html#thank-yous-are-in-order"><i class="fa fa-check"></i>Thank-you’s are in order</a></li>
 <li class="chapter" data-level="" data-path="index.html"><a href="index.html#license-and-citation"><i class="fa fa-check"></i>License and citation</a></li>
 </ul></li>
@@ -454,7 +458,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="15.5.5" data-path="missing-data-and-other-opportunities.html"><a href="missing-data-and-other-opportunities.html#compute-the-study-specific-effect-sizes."><i class="fa fa-check"></i><b>15.5.5</b> Compute the study-specific effect sizes.</a></li>
 <li class="chapter" data-level="15.5.6" data-path="missing-data-and-other-opportunities.html"><a href="missing-data-and-other-opportunities.html#fit-the-bayesian-meta-analysis."><i class="fa fa-check"></i><b>15.5.6</b> Fit the Bayesian meta-analysis.</a></li>
 <li class="chapter" data-level="15.5.7" data-path="missing-data-and-other-opportunities.html"><a href="missing-data-and-other-opportunities.html#fit-the-bayesian-muiltilevel-alternative."><i class="fa fa-check"></i><b>15.5.7</b> Fit the Bayesian muiltilevel alternative.</a></li>
-<li class="chapter" data-level="15.5.8" data-path="missing-data-and-other-opportunities.html"><a href="missing-data-and-other-opportunities.html#parting-thoughts."><i class="fa fa-check"></i><b>15.5.8</b> Parting thoughts.</a></li>
+<li class="chapter" data-level="15.5.8" data-path="missing-data-and-other-opportunities.html"><a href="missing-data-and-other-opportunities.html#relative-to-the-muiltilevel-model-meta-analyses-have-limitations."><i class="fa fa-check"></i><b>15.5.8</b> Relative to the muiltilevel model, meta-analyses have limitations.</a></li>
+<li class="chapter" data-level="15.5.9" data-path="missing-data-and-other-opportunities.html"><a href="missing-data-and-other-opportunities.html#parting-thoughts."><i class="fa fa-check"></i><b>15.5.9</b> Parting thoughts.</a></li>
 </ul></li>
 <li class="chapter" data-level="" data-path="missing-data-and-other-opportunities.html"><a href="missing-data-and-other-opportunities.html#session-info-14"><i class="fa fa-check"></i>Session info</a></li>
 </ul></li>
@@ -580,7 +585,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 ##  9 0.00801     1   2.16e-11  2.16e-13
 ## 10 0.00901     1   4.37e-11  4.38e-13
 ## # … with 990 more rows</code></pre>
-<p>Our <code>d</code> data contains all the components in McElreath’s <strong>R</strong> code 3.2 block. Do note we’ve renamed his <code>prob_p</code> and <code>prob_data</code> as <code>prior</code> and <code>likelihood</code>, respectively. Now we’ll use the <code>dplyr::sample_n()</code> function to sample rows from <code>d</code>, saving them as <code>sample</code>.</p>
+<p>Our <code>d</code> data contains all the components in McElreath’s <strong>R</strong> code 3.2 block. Do note we’ve renamed his <code>prob_p</code> and <code>prob_data</code> as <code>prior</code> and <code>likelihood</code>, respectively. Now we’ll use the <code>dplyr::slice_sample()</code> function to sample rows from <code>d</code>, saving them as <code>sample</code>.</p>
 <div class="sourceCode" id="cb85"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb85-1"><a href="sampling-the-imaginary.html#cb85-1"></a><span class="co"># how many samples would you like?</span></span>
 <span id="cb85-2"><a href="sampling-the-imaginary.html#cb85-2"></a>n_samples &lt;-<span class="st"> </span><span class="fl">1e4</span></span>
 <span id="cb85-3"><a href="sampling-the-imaginary.html#cb85-3"></a></span>
@@ -589,7 +594,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb85-6"><a href="sampling-the-imaginary.html#cb85-6"></a></span>
 <span id="cb85-7"><a href="sampling-the-imaginary.html#cb85-7"></a>samples &lt;-</span>
 <span id="cb85-8"><a href="sampling-the-imaginary.html#cb85-8"></a><span class="st">  </span>d <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb85-9"><a href="sampling-the-imaginary.html#cb85-9"></a><span class="st">  </span><span class="kw">sample_n</span>(<span class="dt">size =</span> n_samples, <span class="dt">weight =</span> posterior, <span class="dt">replace =</span> T)</span>
+<span id="cb85-9"><a href="sampling-the-imaginary.html#cb85-9"></a><span class="st">  </span><span class="kw">slice_sample</span>(<span class="dt">n =</span> n_samples, <span class="dt">weight_by =</span> posterior, <span class="dt">replace =</span> T)</span>
 <span id="cb85-10"><a href="sampling-the-imaginary.html#cb85-10"></a></span>
 <span id="cb85-11"><a href="sampling-the-imaginary.html#cb85-11"></a><span class="kw">glimpse</span>(samples)</span></code></pre></div>
 <pre><code>## Rows: 10,000
@@ -617,7 +622,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div class="sourceCode" id="cb89"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb89-1"><a href="sampling-the-imaginary.html#cb89-1"></a><span class="kw">set.seed</span>(<span class="dv">3</span>)</span>
 <span id="cb89-2"><a href="sampling-the-imaginary.html#cb89-2"></a></span>
 <span id="cb89-3"><a href="sampling-the-imaginary.html#cb89-3"></a>d <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb89-4"><a href="sampling-the-imaginary.html#cb89-4"></a><span class="st">  </span><span class="kw">sample_n</span>(<span class="dt">size =</span> <span class="fl">1e6</span>, <span class="dt">weight =</span> posterior, <span class="dt">replace =</span> T) <span class="op">%&gt;%</span><span class="st"> </span></span>
+<span id="cb89-4"><a href="sampling-the-imaginary.html#cb89-4"></a><span class="st">  </span><span class="kw">slice_sample</span>(<span class="dt">n =</span> <span class="fl">1e6</span>, <span class="dt">weight_by =</span> posterior, <span class="dt">replace =</span> T) <span class="op">%&gt;%</span><span class="st"> </span></span>
 <span id="cb89-5"><a href="sampling-the-imaginary.html#cb89-5"></a><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> p_grid)) <span class="op">+</span></span>
 <span id="cb89-6"><a href="sampling-the-imaginary.html#cb89-6"></a><span class="st">  </span><span class="kw">geom_density</span>(<span class="dt">fill =</span> <span class="st">&quot;black&quot;</span>) <span class="op">+</span></span>
 <span id="cb89-7"><a href="sampling-the-imaginary.html#cb89-7"></a><span class="st">  </span><span class="kw">scale_x_continuous</span>(<span class="st">&quot;proportion of water (p)&quot;</span>, <span class="dt">limits =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">1</span>))</span></code></pre></div>
@@ -797,7 +802,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb116-15"><a href="sampling-the-imaginary.html#cb116-15"></a>(</span>
 <span id="cb116-16"><a href="sampling-the-imaginary.html#cb116-16"></a>  samples &lt;-</span>
 <span id="cb116-17"><a href="sampling-the-imaginary.html#cb116-17"></a><span class="st">    </span>d <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb116-18"><a href="sampling-the-imaginary.html#cb116-18"></a><span class="st">    </span><span class="kw">sample_n</span>(<span class="dt">size =</span> n_samples, <span class="dt">weight =</span> posterior, <span class="dt">replace =</span> T)</span>
+<span id="cb116-18"><a href="sampling-the-imaginary.html#cb116-18"></a><span class="st">    </span><span class="kw">slice_sample</span>(<span class="dt">n =</span> n_samples, <span class="dt">weight_by =</span> posterior, <span class="dt">replace =</span> T)</span>
 <span id="cb116-19"><a href="sampling-the-imaginary.html#cb116-19"></a>)</span></code></pre></div>
 <pre><code>## # A tibble: 10,000 x 4
 ##    p_grid prior likelihood posterior
@@ -896,7 +901,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb135-10"><a href="sampling-the-imaginary.html#cb135-10"></a></span>
 <span id="cb135-11"><a href="sampling-the-imaginary.html#cb135-11"></a>new_samples &lt;-</span>
 <span id="cb135-12"><a href="sampling-the-imaginary.html#cb135-12"></a><span class="st">  </span>new_d <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb135-13"><a href="sampling-the-imaginary.html#cb135-13"></a><span class="st">  </span><span class="kw">sample_n</span>(<span class="dt">size =</span> n_samples, <span class="dt">weight =</span> posterior, <span class="dt">replace =</span> T)</span></code></pre></div>
+<span id="cb135-13"><a href="sampling-the-imaginary.html#cb135-13"></a><span class="st">  </span><span class="kw">slice_sample</span>(<span class="dt">n =</span> n_samples, <span class="dt">weight_by =</span> posterior, <span class="dt">replace =</span> T)</span></code></pre></div>
 <p>Here are the intervals by <code>.width</code> and type of <code>.interval</code>.</p>
 <div class="sourceCode" id="cb136"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb136-1"><a href="sampling-the-imaginary.html#cb136-1"></a><span class="kw">bind_rows</span>(<span class="kw">mean_hdi</span>(new_samples<span class="op">$</span>p_grid, <span class="dt">.width =</span> <span class="kw">c</span>(.<span class="dv">8</span>, <span class="fl">.95</span>)),</span>
 <span id="cb136-2"><a href="sampling-the-imaginary.html#cb136-2"></a>          <span class="kw">mean_qi</span>(new_samples<span class="op">$</span>p_grid,  <span class="dt">.width =</span> <span class="kw">c</span>(.<span class="dv">8</span>, <span class="fl">.95</span>))) <span class="op">%&gt;%</span><span class="st"> </span></span>
@@ -1224,7 +1229,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div id="did-the-software-work" class="section level4">
 <h4><span class="header-section-number">3.3.2.1</span> Did the software work?</h4>
 <p>Let this haunt your dreams: “There is no way to really be sure that software works correctly” (p. 64).</p>
-<p>If you’d like to dive deeper into these dark waters, check out one my favorite talks from StanCon 2018, <a href="https://youtu.be/pKZLJPrZLhU?t=26285"><em>Esther Williams in the Harold Holt Memorial Swimming Pool</em></a>, by the ineffable <a href="https://twitter.com/dan_p_simpson">Dan Simpson</a>. If Simpson doesn’t end up drowning you, see Gabry and Simpson’s talk at the Royal Statistical Society 2018, <a href="https://www.youtube.com/watch?v=E8vdXoJId8M"><em>Visualization in Bayesian workflow</em></a>, a follow-up blog <a href="https://statmodeling.stat.columbia.edu/2019/03/19/maybe-its-time-to-let-the-old-ways-die-or-we-broke-r-hat-so-now-we-have-to-fix-it/"><em>Maybe it’s time to let the old ways die; or We broke R-hat so now we have to fix it</em></a>, and that blog’s associated pre-print by <span class="citation">Vehtari, Gelman, et al. (<a href="#ref-vehtariRanknormalizationFoldingLocalization2019" role="doc-biblioref">2019</a>)</span>, <a href="https://arxiv.org/abs/1903.08008"><em>Rank-normalization, folding, and localization: An improved <span class="math inline">\(\widehat R\)</span> for assessing convergence of MCMC</em></a>.</p>
+<p>If you’d like to dive deeper into these dark waters, check out one my favorite talks from StanCon 2018, <a href="https://youtu.be/pKZLJPrZLhU?t=26285"><em>Esther Williams in the Harold Holt Memorial Swimming Pool</em></a>, by the ineffable <a href="https://twitter.com/dan_p_simpson">Dan Simpson</a>. If Simpson doesn’t end up drowning you, see Gabry and Simpson’s talk at the Royal Statistical Society 2018, <a href="https://www.youtube.com/watch?v=E8vdXoJId8M"><em>Visualization in Bayesian workflow</em></a>, a follow-up blog called <a href="https://statmodeling.stat.columbia.edu/2019/03/19/maybe-its-time-to-let-the-old-ways-die-or-we-broke-r-hat-so-now-we-have-to-fix-it/"><em>Maybe it’s time to let the old ways die; or We broke R-hat so now we have to fix it</em></a>, and that blog’s associated pre-print by <span class="citation">Vehtari, Gelman, et al. (<a href="#ref-vehtariRanknormalizationFoldingLocalization2019" role="doc-biblioref">2019</a>)</span>, <a href="https://arxiv.org/abs/1903.08008"><em>Rank-normalization, folding, and localization: An improved <span class="math inline">\(\widehat R\)</span> for assessing convergence of MCMC</em></a>.</p>
 </div>
 <div id="is-the-model-adequate" class="section level4">
 <h4><span class="header-section-number">3.3.2.2</span> Is the model adequate?</h4>
@@ -1328,7 +1333,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb182-6"><a href="sampling-the-imaginary.html#cb182-6"></a></span>
 <span id="cb182-7"><a href="sampling-the-imaginary.html#cb182-7"></a>samples &lt;-</span>
 <span id="cb182-8"><a href="sampling-the-imaginary.html#cb182-8"></a><span class="st">  </span>d <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb182-9"><a href="sampling-the-imaginary.html#cb182-9"></a><span class="st">  </span><span class="kw">sample_n</span>(<span class="dt">size =</span> n_samples, <span class="dt">weight =</span> posterior, <span class="dt">replace =</span> T) <span class="op">%&gt;%</span><span class="st"> </span></span>
+<span id="cb182-9"><a href="sampling-the-imaginary.html#cb182-9"></a><span class="st">  </span><span class="kw">slice_sample</span>(<span class="dt">n =</span> n_samples, <span class="dt">weight_by =</span> posterior, <span class="dt">replace =</span> T) <span class="op">%&gt;%</span><span class="st"> </span></span>
 <span id="cb182-10"><a href="sampling-the-imaginary.html#cb182-10"></a><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">w =</span> purrr<span class="op">::</span><span class="kw">map_dbl</span>(p_grid, rbinom, <span class="dt">n =</span> <span class="dv">1</span>, <span class="dt">size =</span> <span class="dv">9</span>))</span>
 <span id="cb182-11"><a href="sampling-the-imaginary.html#cb182-11"></a></span>
 <span id="cb182-12"><a href="sampling-the-imaginary.html#cb182-12"></a><span class="kw">glimpse</span>(samples)</span></code></pre></div>
@@ -1503,13 +1508,13 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div id="session-info-2" class="section level2 unnumbered">
 <h2>Session info</h2>
 <div class="sourceCode" id="cb210"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb210-1"><a href="sampling-the-imaginary.html#cb210-1"></a><span class="kw">sessionInfo</span>()</span></code></pre></div>
-<pre><code>## R version 3.6.3 (2020-02-29)
-## Platform: x86_64-apple-darwin15.6.0 (64-bit)
+<pre><code>## R version 4.0.3 (2020-10-10)
+## Platform: x86_64-apple-darwin17.0 (64-bit)
 ## Running under: macOS Catalina 10.15.3
 ## 
 ## Matrix products: default
-## BLAS:   /Library/Frameworks/R.framework/Versions/3.6/Resources/lib/libRblas.0.dylib
-## LAPACK: /Library/Frameworks/R.framework/Versions/3.6/Resources/lib/libRlapack.dylib
+## BLAS:   /Library/Frameworks/R.framework/Versions/4.0/Resources/lib/libRblas.dylib
+## LAPACK: /Library/Frameworks/R.framework/Versions/4.0/Resources/lib/libRlapack.dylib
 ## 
 ## locale:
 ## [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
@@ -1518,45 +1523,43 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-##  [1] brms_2.14.4          Rcpp_1.0.5           tidybayes_2.1.1      patchwork_1.0.1.9000
-##  [5] forcats_0.5.0        stringr_1.4.0        dplyr_1.0.2          purrr_0.3.4         
-##  [9] readr_1.3.1          tidyr_1.1.1          tibble_3.0.4         ggplot2_3.3.2       
-## [13] tidyverse_1.3.0     
+##  [1] brms_2.14.4     Rcpp_1.0.5      tidybayes_2.3.1 patchwork_1.1.0 forcats_0.5.0   stringr_1.4.0  
+##  [7] dplyr_1.0.2     purrr_0.3.4     readr_1.4.0     tidyr_1.1.2     tibble_3.0.4    ggplot2_3.3.2  
+## [13] tidyverse_1.3.0
 ## 
 ## loaded via a namespace (and not attached):
-##   [1] readxl_1.3.1         backports_1.2.0      plyr_1.8.6           igraph_1.2.5        
-##   [5] splines_3.6.3        svUnit_1.0.3         crosstalk_1.1.0.1    TH.data_1.0-10      
-##   [9] rstantools_2.1.1     inline_0.3.16        digest_0.6.27        htmltools_0.5.0     
-##  [13] rethinking_2.01      rsconnect_0.8.16     fansi_0.4.1          magrittr_1.5        
-##  [17] modelr_0.1.6         RcppParallel_5.0.2   matrixStats_0.57.0   sandwich_2.5-1      
-##  [21] xts_0.12.1           prettyunits_1.1.1    colorspace_1.4-1     rvest_0.3.5         
-##  [25] ggdist_2.1.1         haven_2.2.0          xfun_0.19            callr_3.5.1         
-##  [29] crayon_1.3.4         jsonlite_1.7.1       lme4_1.1-23          survival_3.1-12     
-##  [33] zoo_1.8-8            glue_1.4.2           gtable_0.3.0         emmeans_1.4.5       
-##  [37] V8_3.4.0             pkgbuild_1.1.0       rstan_2.21.2         shape_1.4.4         
-##  [41] abind_1.4-5          scales_1.1.1         mvtnorm_1.1-1        DBI_1.1.0           
-##  [45] miniUI_0.1.1.1       viridisLite_0.3.0    xtable_1.8-4         HDInterval_0.2.0    
-##  [49] stats4_3.6.3         StanHeaders_2.21.0-6 DT_0.13              htmlwidgets_1.5.1   
-##  [53] httr_1.4.1           threejs_0.3.3        arrayhelpers_1.1-0   ellipsis_0.3.1      
-##  [57] pkgconfig_2.0.3      loo_2.3.1            farver_2.0.3         dbplyr_1.4.2        
-##  [61] utf8_1.1.4           tidyselect_1.1.0     labeling_0.4.2       rlang_0.4.8         
-##  [65] reshape2_1.4.4       later_1.1.0.1        munsell_0.5.0        cellranger_1.1.0    
-##  [69] tools_3.6.3          cli_2.1.0            generics_0.1.0       broom_0.5.5         
-##  [73] ggridges_0.5.2       evaluate_0.14        fastmap_1.0.1        yaml_2.2.1          
-##  [77] processx_3.4.4       knitr_1.30           fs_1.4.1             nlme_3.1-144        
-##  [81] mime_0.9             projpred_2.0.2       xml2_1.3.1           compiler_3.6.3      
-##  [85] bayesplot_1.7.2      shinythemes_1.1.2    rstudioapi_0.11      curl_4.3            
-##  [89] gamm4_0.2-6          reprex_0.3.0         statmod_1.4.34       stringi_1.5.3       
-##  [93] ps_1.4.0             Brobdingnag_1.2-6    lattice_0.20-38      Matrix_1.2-18       
-##  [97] nloptr_1.2.2.1       markdown_1.1         shinyjs_1.1          vctrs_0.3.4         
-## [101] pillar_1.4.6         lifecycle_0.2.0      bridgesampling_1.0-0 estimability_1.3    
-## [105] httpuv_1.5.4         R6_2.5.0             bookdown_0.18        promises_1.1.1      
-## [109] gridExtra_2.3        codetools_0.2-16     boot_1.3-24          colourpicker_1.0    
-## [113] MASS_7.3-51.5        gtools_3.8.2         assertthat_0.2.1     withr_2.3.0         
-## [117] shinystan_2.5.0      multcomp_1.4-13      mgcv_1.8-31          parallel_3.6.3      
-## [121] hms_0.5.3            grid_3.6.3           coda_0.19-4          minqa_1.2.4         
-## [125] rmarkdown_2.5        shiny_1.5.0          lubridate_1.7.8      base64enc_0.1-3     
-## [129] dygraphs_1.1.1.6</code></pre>
+##   [1] readxl_1.3.1         backports_1.2.0      plyr_1.8.6           igraph_1.2.6        
+##   [5] splines_4.0.3        svUnit_1.0.3         crosstalk_1.1.0.1    rstantools_2.1.1    
+##   [9] inline_0.3.17        digest_0.6.27        htmltools_0.5.0      rethinking_2.13     
+##  [13] rsconnect_0.8.16     fansi_0.4.1          magrittr_2.0.1       modelr_0.1.8        
+##  [17] RcppParallel_5.0.2   matrixStats_0.57.0   xts_0.12.1           prettyunits_1.1.1   
+##  [21] colorspace_2.0-0     rvest_0.3.6          ggdist_2.3.0         haven_2.3.1         
+##  [25] xfun_0.19            callr_3.5.1          crayon_1.3.4         jsonlite_1.7.1      
+##  [29] lme4_1.1-25          zoo_1.8-8            glue_1.4.2           gtable_0.3.0        
+##  [33] emmeans_1.5.2-1      V8_3.4.0             distributional_0.2.1 pkgbuild_1.1.0      
+##  [37] rstan_2.21.2         shape_1.4.5          abind_1.4-5          scales_1.1.1        
+##  [41] mvtnorm_1.1-1        DBI_1.1.0            miniUI_0.1.1.1       viridisLite_0.3.0   
+##  [45] xtable_1.8-4         HDInterval_0.2.2     stats4_4.0.3         StanHeaders_2.21.0-6
+##  [49] DT_0.16              htmlwidgets_1.5.2    httr_1.4.2           threejs_0.3.3       
+##  [53] arrayhelpers_1.1-0   ellipsis_0.3.1       pkgconfig_2.0.3      loo_2.3.1           
+##  [57] farver_2.0.3         dbplyr_2.0.0         utf8_1.1.4           tidyselect_1.1.0    
+##  [61] labeling_0.4.2       rlang_0.4.9          reshape2_1.4.4       later_1.1.0.1       
+##  [65] munsell_0.5.0        cellranger_1.1.0     tools_4.0.3          cli_2.2.0           
+##  [69] generics_0.1.0       broom_0.7.2          ggridges_0.5.2       evaluate_0.14       
+##  [73] fastmap_1.0.1        yaml_2.2.1           processx_3.4.5       knitr_1.30          
+##  [77] fs_1.5.0             nlme_3.1-149         mime_0.9             projpred_2.0.2      
+##  [81] xml2_1.3.2           compiler_4.0.3       bayesplot_1.7.2      shinythemes_1.1.2   
+##  [85] rstudioapi_0.13      curl_4.3             gamm4_0.2-6          reprex_0.3.0        
+##  [89] statmod_1.4.35       stringi_1.5.3        ps_1.4.0             Brobdingnag_1.2-6   
+##  [93] lattice_0.20-41      Matrix_1.2-18        nloptr_1.2.2.2       markdown_1.1        
+##  [97] shinyjs_2.0.0        vctrs_0.3.5          pillar_1.4.7         lifecycle_0.2.0     
+## [101] bridgesampling_1.0-0 estimability_1.3     httpuv_1.5.4         R6_2.5.0            
+## [105] bookdown_0.21        promises_1.1.1       gridExtra_2.3        codetools_0.2-16    
+## [109] boot_1.3-25          colourpicker_1.1.0   MASS_7.3-53          gtools_3.8.2        
+## [113] assertthat_0.2.1     withr_2.3.0          shinystan_2.5.0      mgcv_1.8-33         
+## [117] parallel_4.0.3       hms_0.5.3            grid_4.0.3           coda_0.19-4         
+## [121] minqa_1.2.4          rmarkdown_2.5        shiny_1.5.0          lubridate_1.7.9.2   
+## [125] base64enc_0.1-3      dygraphs_1.1.1.6</code></pre>
 
 </div>
 </div>

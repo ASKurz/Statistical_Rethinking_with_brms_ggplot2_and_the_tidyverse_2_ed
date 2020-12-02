@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <title>6 The Haunted DAG &amp; The Causal Terror | Statistical rethinking with brms, ggplot2, and the tidyverse: Second edition</title>
   <meta name="description" content="This book is an attempt to re-express the code in the second edition of McElreath’s textbook, ‘Statistical rethinking.’ His models are re-fit in brms, plots are redone with ggplot2, and the general data wrangling code predominantly follows the tidyverse style." />
-  <meta name="generator" content="bookdown 0.18 and GitBook 2.6.7" />
+  <meta name="generator" content="bookdown 0.21 and GitBook 2.6.7" />
 
   <meta property="og:title" content="6 The Haunted DAG &amp; The Causal Terror | Statistical rethinking with brms, ggplot2, and the tidyverse: Second edition" />
   <meta property="og:type" content="book" />
@@ -24,7 +24,7 @@
 <meta name="author" content="A Solomon Kurz" />
 
 
-<meta name="date" content="2020-11-24" />
+<meta name="date" content="2020-12-02" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -134,7 +134,11 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 <ul class="summary">
 <li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>What and why</a><ul>
-<li class="chapter" data-level="" data-path="index.html"><a href="index.html#caution-work-in-progress"><i class="fa fa-check"></i>Caution: Work in progress</a></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#we-have-updates"><i class="fa fa-check"></i>We have updates</a><ul>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#version-0.1.0."><i class="fa fa-check"></i>Version 0.1.0.</a></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#version-0.1.1."><i class="fa fa-check"></i>Version 0.1.1.</a></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#were-not-done-yet-and-i-could-use-your-help."><i class="fa fa-check"></i>We’re not done yet and I could use your help.</a></li>
+</ul></li>
 <li class="chapter" data-level="" data-path="index.html"><a href="index.html#thank-yous-are-in-order"><i class="fa fa-check"></i>Thank-you’s are in order</a></li>
 <li class="chapter" data-level="" data-path="index.html"><a href="index.html#license-and-citation"><i class="fa fa-check"></i>License and citation</a></li>
 </ul></li>
@@ -454,7 +458,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="15.5.5" data-path="missing-data-and-other-opportunities.html"><a href="missing-data-and-other-opportunities.html#compute-the-study-specific-effect-sizes."><i class="fa fa-check"></i><b>15.5.5</b> Compute the study-specific effect sizes.</a></li>
 <li class="chapter" data-level="15.5.6" data-path="missing-data-and-other-opportunities.html"><a href="missing-data-and-other-opportunities.html#fit-the-bayesian-meta-analysis."><i class="fa fa-check"></i><b>15.5.6</b> Fit the Bayesian meta-analysis.</a></li>
 <li class="chapter" data-level="15.5.7" data-path="missing-data-and-other-opportunities.html"><a href="missing-data-and-other-opportunities.html#fit-the-bayesian-muiltilevel-alternative."><i class="fa fa-check"></i><b>15.5.7</b> Fit the Bayesian muiltilevel alternative.</a></li>
-<li class="chapter" data-level="15.5.8" data-path="missing-data-and-other-opportunities.html"><a href="missing-data-and-other-opportunities.html#parting-thoughts."><i class="fa fa-check"></i><b>15.5.8</b> Parting thoughts.</a></li>
+<li class="chapter" data-level="15.5.8" data-path="missing-data-and-other-opportunities.html"><a href="missing-data-and-other-opportunities.html#relative-to-the-muiltilevel-model-meta-analyses-have-limitations."><i class="fa fa-check"></i><b>15.5.8</b> Relative to the muiltilevel model, meta-analyses have limitations.</a></li>
+<li class="chapter" data-level="15.5.9" data-path="missing-data-and-other-opportunities.html"><a href="missing-data-and-other-opportunities.html#parting-thoughts."><i class="fa fa-check"></i><b>15.5.9</b> Parting thoughts.</a></li>
 </ul></li>
 <li class="chapter" data-level="" data-path="missing-data-and-other-opportunities.html"><a href="missing-data-and-other-opportunities.html#session-info-14"><i class="fa fa-check"></i>Session info</a></li>
 </ul></li>
@@ -1303,7 +1308,7 @@ h_{1i}  &amp; \sim \operatorname{Normal}(\mu_i, \sigma) \\
 <span id="cb692-22"><a href="the-haunted-dag-the-causal-terror.html#cb692-22"></a><span class="st">  </span><span class="kw">scale_color_manual</span>(<span class="dt">values =</span> <span class="kw">c</span>(<span class="st">&quot;steelblue&quot;</span>, <span class="st">&quot;orange&quot;</span>)) <span class="op">+</span></span>
 <span id="cb692-23"><a href="the-haunted-dag-the-causal-terror.html#cb692-23"></a><span class="st">  </span><span class="kw">theme_dag</span>()</span></code></pre></div>
 <p><img src="06_files/figure-gfm/unnamed-chunk-46-1.png" width="384" style="display: block; margin: auto;" /></p>
-<p>Our custom <code>gg_simple_dag()</code> was a little too brittle to accommodate DAGs that mark of unobserved variables. Since we’ll be making a few more DADs of this kind, we’ll make one more custom plotting function. We’ll call this one <code>gg_fancy_dag()</code>.</p>
+<p>Our custom <code>gg_simple_dag()</code> was a little too brittle to accommodate DAGs that mark of unobserved variables. Since we’ll be making a few more DAGs of this kind, we’ll make one more custom plotting function. We’ll call this one <code>gg_fancy_dag()</code>.</p>
 <div class="sourceCode" id="cb693"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb693-1"><a href="the-haunted-dag-the-causal-terror.html#cb693-1"></a>gg_fancy_dag &lt;-<span class="st"> </span><span class="cf">function</span>(d, <span class="dt">x =</span> <span class="dv">1</span>, <span class="dt">y =</span> <span class="dv">1</span>, <span class="dt">circle =</span> <span class="st">&quot;U&quot;</span>) {</span>
 <span id="cb693-2"><a href="the-haunted-dag-the-causal-terror.html#cb693-2"></a>  </span>
 <span id="cb693-3"><a href="the-haunted-dag-the-causal-terror.html#cb693-3"></a>  d <span class="op">%&gt;%</span><span class="st"> </span></span>
@@ -1323,7 +1328,7 @@ h_{1i}  &amp; \sim \operatorname{Normal}(\mu_i, \sigma) \\
 <span id="cb693-17"><a href="the-haunted-dag-the-causal-terror.html#cb693-17"></a>dag <span class="op">%&gt;%</span><span class="st"> </span></span>
 <span id="cb693-18"><a href="the-haunted-dag-the-causal-terror.html#cb693-18"></a><span class="st">  </span><span class="kw">gg_fancy_dag</span>(<span class="dt">x =</span> <span class="fl">2.5</span>, <span class="dt">y =</span> <span class="dv">1</span>, <span class="dt">circle =</span> <span class="st">&quot;M&quot;</span>)</span></code></pre></div>
 <p><img src="06_files/figure-gfm/unnamed-chunk-47-1.png" width="384" style="display: block; margin: auto;" /></p>
-<p>Based on McElreath’s R code 6.20, here we simulate some data based on the new DAG.</p>
+<p>Based on McElreath’s <strong>R</strong> code 6.20, here we simulate some data based on the new DAG.</p>
 <div class="sourceCode" id="cb694"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb694-1"><a href="the-haunted-dag-the-causal-terror.html#cb694-1"></a><span class="kw">set.seed</span>(<span class="dv">71</span>)</span>
 <span id="cb694-2"><a href="the-haunted-dag-the-causal-terror.html#cb694-2"></a>n &lt;-<span class="st"> </span><span class="dv">1000</span></span>
 <span id="cb694-3"><a href="the-haunted-dag-the-causal-terror.html#cb694-3"></a></span>
@@ -1435,7 +1440,7 @@ h_{1i}  &amp; \sim \operatorname{Normal}(\mu_i, \sigma) \\
 ##     d &lt;- data.frame(age = A, married = M, happiness = H)
 ##     return(d)
 ## }
-## &lt;bytecode: 0x7ff9c78d2200&gt;
+## &lt;bytecode: 0x11f80aeb8&gt;
 ## &lt;environment: namespace:rethinking&gt;</code></pre>
 <p>Quite frankly, I can’t make sense of it. So we’ll just have to move forward and use the convenience function rather than practicing a <strong>tidyverse</strong> alternative. If you have a handle on what’s going on and have a <strong>tidyverse</strong> alternative, <a href="https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed/issues">please share your code</a>.</p>
 <div class="sourceCode" id="cb705"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb705-1"><a href="the-haunted-dag-the-causal-terror.html#cb705-1"></a>d &lt;-<span class="st"> </span>rethinking<span class="op">::</span><span class="kw">sim_happiness</span>(<span class="dt">seed =</span> <span class="dv">1977</span>, <span class="dt">N_years =</span> <span class="dv">1000</span>)</span>
@@ -1716,7 +1721,7 @@ h_{1i}  &amp; \sim \operatorname{Normal}(\mu_i, \sigma) \\
 </div>
 <div id="confronting-confounding" class="section level2">
 <h2><span class="header-section-number">6.4</span> Confronting confounding</h2>
-<p>“Let’s define <strong>confounding</strong> as any context in which the association between an outcome <span class="math inline">\(Y\)</span> and a predictor of interest <span class="math inline">\(X\)</span> is not the same as it would be, if we had experimentally determined the values of <span class="math inline">\(X\)</span>” (p. 183, <strong>emphasis</strong> in the original)</p>
+<p>“Let’s define <strong>confounding</strong> as any context in which the association between an outcome <span class="math inline">\(Y\)</span> and a predictor of interest <span class="math inline">\(X\)</span> is not the same as it would be, if we had experimentally determined the values of <span class="math inline">\(X\)</span>” (p. 183, <strong>emphasis</strong> in the original).</p>
 <p>Here’s the <span class="math inline">\(E\)</span>-<span class="math inline">\(U\)</span>-<span class="math inline">\(W\)</span> DAG to help us sort this out.</p>
 <div class="sourceCode" id="cb733"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb733-1"><a href="the-haunted-dag-the-causal-terror.html#cb733-1"></a>dag_coords &lt;-</span>
 <span id="cb733-2"><a href="the-haunted-dag-the-causal-terror.html#cb733-2"></a><span class="st">  </span><span class="kw">tibble</span>(<span class="dt">name =</span> <span class="kw">c</span>(<span class="st">&quot;E&quot;</span>, <span class="st">&quot;U&quot;</span>, <span class="st">&quot;W&quot;</span>),</span>
@@ -1778,13 +1783,16 @@ h_{1i}  &amp; \sim \operatorname{Normal}(\mu_i, \sigma) \\
 <span id="cb736-3"><a href="the-haunted-dag-the-causal-terror.html#cb736-3"></a>(p1 <span class="op">|</span><span class="st"> </span>p2 <span class="op">|</span><span class="st"> </span>p3 <span class="op">|</span><span class="st"> </span>p4) <span class="op">&amp;</span></span>
 <span id="cb736-4"><a href="the-haunted-dag-the-causal-terror.html#cb736-4"></a><span class="st">  </span><span class="kw">theme</span>(<span class="dt">plot.subtitle =</span> <span class="kw">element_text</span>(<span class="dt">hjust =</span> <span class="fl">0.5</span>)) <span class="op">&amp;</span></span>
 <span id="cb736-5"><a href="the-haunted-dag-the-causal-terror.html#cb736-5"></a><span class="st">  </span><span class="kw">plot_annotation</span>(<span class="dt">title =</span> <span class="st">&quot;The four elemental confounds&quot;</span>) </span></code></pre></div>
-<p><img src="06_files/figure-gfm/unnamed-chunk-70-1.png" width="960" style="display: block; margin: auto;" />
-&gt; No matter how complicated a causal DAG appears, it is always built out of these four types of relations. And since you know how to open and close each, you (or your computer) can figure out which variables you need to include or not include. Here’s the recipe:
-&gt;
-&gt; * 1 List all of the paths connecting <span class="math inline">\(X\)</span> (the potential cause of interest) and <span class="math inline">\(Y\)</span> (the outcome).
-&gt; * 2 Classify each path by whether it is open or closed. A path is open unless it contains a collider.
-&gt; * 3 Classify each path by whether it is a backdoor path. A backdoor path has an arrow entering <span class="math inline">\(X\)</span>.
-&gt; * 4 If there are any open backdoor paths, decide which variable(s) to condition on to close it (if possible). (p. 185)</p>
+<p><img src="06_files/figure-gfm/unnamed-chunk-70-1.png" width="960" style="display: block; margin: auto;" /></p>
+<blockquote>
+<p>No matter how complicated a causal DAG appears, it is always built out of these four types of relations. And since you know how to open and close each, you (or your computer) can figure out which variables you need to include or not include. Here’s the recipe:</p>
+<ul>
+<li>1 List all of the paths connecting <span class="math inline">\(X\)</span> (the potential cause of interest) and <span class="math inline">\(Y\)</span> (the outcome).</li>
+<li>2 Classify each path by whether it is open or closed. A path is open unless it contains a collider.</li>
+<li>3 Classify each path by whether it is a backdoor path. A backdoor path has an arrow entering <span class="math inline">\(X\)</span>.</li>
+<li>4 If there are any open backdoor paths, decide which variable(s) to condition on to close it (if possible). (p. 185)</li>
+</ul>
+</blockquote>
 </div>
 <div id="two-roads." class="section level3">
 <h3><span class="header-section-number">6.4.2</span> Two roads.</h3>
@@ -1818,8 +1826,8 @@ h_{1i}  &amp; \sim \operatorname{Normal}(\mu_i, \sigma) \\
 <span id="cb738-8"><a href="the-haunted-dag-the-causal-terror.html#cb738-8"></a>  )</span>
 <span id="cb738-9"><a href="the-haunted-dag-the-causal-terror.html#cb738-9"></a></span>
 <span id="cb738-10"><a href="the-haunted-dag-the-causal-terror.html#cb738-10"></a><span class="kw">adjustmentSets</span>(dag_<span class="fl">6.1</span>, <span class="dt">exposure =</span> <span class="st">&quot;X&quot;</span>, <span class="dt">outcome =</span> <span class="st">&quot;Y&quot;</span>)</span></code></pre></div>
-<pre><code>##  { C }
-##  { A }</code></pre>
+<pre><code>## { C }
+## { A }</code></pre>
 </div>
 <div id="backdoor-waffles." class="section level3">
 <h3><span class="header-section-number">6.4.3</span> Backdoor waffles.</h3>
@@ -1834,10 +1842,11 @@ h_{1i}  &amp; \sim \operatorname{Normal}(\mu_i, \sigma) \\
 <span id="cb740-9"><a href="the-haunted-dag-the-causal-terror.html#cb740-9"></a>       W <span class="op">~</span><span class="st"> </span>S,</span>
 <span id="cb740-10"><a href="the-haunted-dag-the-causal-terror.html#cb740-10"></a>       <span class="dt">coords =</span> dag_coords) <span class="op">%&gt;%</span></span>
 <span id="cb740-11"><a href="the-haunted-dag-the-causal-terror.html#cb740-11"></a><span class="st">  </span><span class="kw">gg_simple_dag</span>()</span></code></pre></div>
-<p><img src="06_files/figure-gfm/unnamed-chunk-73-1.png" width="288" style="display: block; margin: auto;" />
-&gt; In this graph, <span class="math inline">\(S\)</span> is whether or not a State is in the southern United States, <span class="math inline">\(A\)</span> is median age at marriage, <span class="math inline">\(M\)</span> is marriage rate, <span class="math inline">\(W\)</span> is number of Waffle Houses, and <span class="math inline">\(D\)</span> is divorce rate. This graph assumes that southern States have lower ages of marriage (<span class="math inline">\(S \rightarrow A\)</span>), higher rates of marriage both directly (<span class="math inline">\(S \rightarrow M\)</span>) and mediated through age of marriage (<span class="math inline">\(S \rightarrow A \rightarrow M\)</span>), as well as more waffles (<span class="math inline">\(S \rightarrow W\)</span>). Age of marriage and marriage rate both influence divorce.
-&gt;
-&gt; There are three open backdoor paths between <span class="math inline">\(W\)</span> and <span class="math inline">\(D\)</span>. (p. 187)</p>
+<p><img src="06_files/figure-gfm/unnamed-chunk-73-1.png" width="288" style="display: block; margin: auto;" /></p>
+<blockquote>
+<p>In this graph, <span class="math inline">\(S\)</span> is whether or not a State is in the southern United States, <span class="math inline">\(A\)</span> is median age at marriage, <span class="math inline">\(M\)</span> is marriage rate, <span class="math inline">\(W\)</span> is number of Waffle Houses, and <span class="math inline">\(D\)</span> is divorce rate. This graph assumes that southern States have lower ages of marriage (<span class="math inline">\(S \rightarrow A\)</span>), higher rates of marriage both directly (<span class="math inline">\(S \rightarrow M\)</span>) and mediated through age of marriage (<span class="math inline">\(S \rightarrow A \rightarrow M\)</span>), as well as more waffles (<span class="math inline">\(S \rightarrow W\)</span>). Age of marriage and marriage rate both influence divorce.</p>
+<p>There are three open backdoor paths between <span class="math inline">\(W\)</span> and <span class="math inline">\(D\)</span>. (p. 187)</p>
+</blockquote>
 <div class="sourceCode" id="cb741"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb741-1"><a href="the-haunted-dag-the-causal-terror.html#cb741-1"></a>dag_<span class="fl">6.2</span> &lt;-<span class="st"> </span></span>
 <span id="cb741-2"><a href="the-haunted-dag-the-causal-terror.html#cb741-2"></a><span class="st">  </span><span class="kw">dagitty</span>(<span class="st">&quot;dag {</span></span>
 <span id="cb741-3"><a href="the-haunted-dag-the-causal-terror.html#cb741-3"></a><span class="st">  A -&gt; D</span></span>
@@ -1848,8 +1857,8 @@ h_{1i}  &amp; \sim \operatorname{Normal}(\mu_i, \sigma) \\
 <span id="cb741-8"><a href="the-haunted-dag-the-causal-terror.html#cb741-8"></a>  )</span>
 <span id="cb741-9"><a href="the-haunted-dag-the-causal-terror.html#cb741-9"></a></span>
 <span id="cb741-10"><a href="the-haunted-dag-the-causal-terror.html#cb741-10"></a><span class="kw">adjustmentSets</span>(dag_<span class="fl">6.2</span>, <span class="dt">exposure =</span> <span class="st">&quot;W&quot;</span>, <span class="dt">outcome =</span> <span class="st">&quot;D&quot;</span>)</span></code></pre></div>
-<pre><code>##  { A, M }
-##  { S }</code></pre>
+<pre><code>## { A, M }
+## { S }</code></pre>
 <p>The first line of output indicates we’d have to condition on <span class="math inline">\(A\)</span> and <span class="math inline">\(M\)</span> simultaneously. As an alternative, we could just condition on <span class="math inline">\(S\)</span>. Here are the conditional independencies implied in that DAG.</p>
 <div class="sourceCode" id="cb743"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb743-1"><a href="the-haunted-dag-the-causal-terror.html#cb743-1"></a><span class="kw">impliedConditionalIndependencies</span>(dag_<span class="fl">6.2</span>)</span></code></pre></div>
 <pre><code>## A _||_ W | S
@@ -1879,7 +1888,7 @@ h_{1i}  &amp; \sim \operatorname{Normal}(\mu_i, \sigma) \\
 <span id="cb745-14"><a href="the-haunted-dag-the-causal-terror.html#cb745-14"></a><span class="kw">rm</span>(WaffleDivorce)</span></code></pre></div>
 <p>The only focal variable we did not standardize was <code>South</code>, which is binary. Technically, you can standardize binary variables and not break the regression model. However, my preference it so leave them in their 0/1 metric. To do otherwise would complicate how you’d interpret the result of any model including them. Here is our <code>ggpairs()</code> plot of all five focal variables. Remember, the central issue is the causal relation between <code>w</code> and <code>d</code>.</p>
 <div class="sourceCode" id="cb746"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb746-1"><a href="the-haunted-dag-the-causal-terror.html#cb746-1"></a><span class="kw">ggpairs</span>(<span class="dt">data =</span> d, <span class="dt">columns =</span> <span class="kw">c</span>(<span class="dv">14</span><span class="op">:</span><span class="dv">16</span>, <span class="dv">18</span>, <span class="dv">17</span>),</span>
-<span id="cb746-2"><a href="the-haunted-dag-the-causal-terror.html#cb746-2"></a>        <span class="dt">upper =</span> <span class="kw">list</span>(<span class="dt">continuous =</span> <span class="kw">wrap</span>(<span class="st">&quot;cor&quot;</span>, <span class="dt">family =</span> <span class="st">&quot;sans&quot;</span>, <span class="dt">color =</span> <span class="st">&quot;black&quot;</span>)),</span>
+<span id="cb746-2"><a href="the-haunted-dag-the-causal-terror.html#cb746-2"></a>        <span class="dt">upper =</span> <span class="kw">list</span>(<span class="dt">continuous =</span> <span class="kw">wrap</span>(<span class="st">&quot;cor&quot;</span>, <span class="dt">family =</span> <span class="st">&quot;sans&quot;</span>, <span class="dt">color =</span> <span class="st">&quot;black&quot;</span>, <span class="dt">size =</span> <span class="dv">3</span>)),</span>
 <span id="cb746-3"><a href="the-haunted-dag-the-causal-terror.html#cb746-3"></a>        <span class="dt">diag =</span> <span class="kw">list</span>(<span class="dt">continuous =</span> my_diag),</span>
 <span id="cb746-4"><a href="the-haunted-dag-the-causal-terror.html#cb746-4"></a>        <span class="dt">lower =</span> <span class="kw">list</span>(<span class="dt">continuous =</span> my_lower),</span>
 <span id="cb746-5"><a href="the-haunted-dag-the-causal-terror.html#cb746-5"></a>        <span class="dt">mapping =</span> <span class="kw">aes</span>(<span class="dt">color =</span> s)) <span class="op">+</span></span>
@@ -1963,7 +1972,7 @@ h_{1i}  &amp; \sim \operatorname{Normal}(\mu_i, \sigma) \\
 <span id="cb748-20"><a href="the-haunted-dag-the-causal-terror.html#cb748-20"></a><span class="st">  </span><span class="kw">theme</span>(<span class="dt">axis.text.y =</span> <span class="kw">element_text</span>(<span class="dt">hjust =</span> <span class="dv">0</span>),</span>
 <span id="cb748-21"><a href="the-haunted-dag-the-causal-terror.html#cb748-21"></a>        <span class="dt">legend.position =</span> <span class="st">&quot;none&quot;</span>)</span></code></pre></div>
 <p><img src="06_files/figure-gfm/unnamed-chunk-78-1.png" width="576" style="display: block; margin: auto;" /></p>
-<p>The two <span class="math inline">\(\beta_w\)</span> posteriors corresponding to those endorsed by our DAG are in green. Frustratingly, the results from a real-world data analysis aren’t as conclusive as we may have naïvely supposed. Why? Well, McElreath left us with some words of wisdom back a few pages back:</p>
+<p>The two <span class="math inline">\(\beta_w\)</span> posteriors corresponding to those endorsed by our DAG are in green. Frustratingly, the results from a real-world data analysis aren’t as conclusive as we may have naïvely supposed. Why? Well, McElreath left us with some words of wisdom a few pages back:</p>
 <blockquote>
 <p>This DAG is obviously not satisfactory–it assumes there are no unobserved confounds,
 which is very unlikely for this sort of data. But we can still learn something by analyzing it. While the data cannot tell us whether a graph is correct, it can sometimes suggest how a graph is wrong. (p. 187)</p>
@@ -1973,13 +1982,13 @@ which is very unlikely for this sort of data. But we can still learn something b
 <div id="session-info-5" class="section level2 unnumbered">
 <h2>Session info</h2>
 <div class="sourceCode" id="cb749"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb749-1"><a href="the-haunted-dag-the-causal-terror.html#cb749-1"></a><span class="kw">sessionInfo</span>()</span></code></pre></div>
-<pre><code>## R version 3.6.3 (2020-02-29)
-## Platform: x86_64-apple-darwin15.6.0 (64-bit)
+<pre><code>## R version 4.0.3 (2020-10-10)
+## Platform: x86_64-apple-darwin17.0 (64-bit)
 ## Running under: macOS Catalina 10.15.3
 ## 
 ## Matrix products: default
-## BLAS:   /Library/Frameworks/R.framework/Versions/3.6/Resources/lib/libRblas.0.dylib
-## LAPACK: /Library/Frameworks/R.framework/Versions/3.6/Resources/lib/libRlapack.dylib
+## BLAS:   /Library/Frameworks/R.framework/Versions/4.0/Resources/lib/libRblas.dylib
+## LAPACK: /Library/Frameworks/R.framework/Versions/4.0/Resources/lib/libRlapack.dylib
 ## 
 ## locale:
 ## [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
@@ -1988,48 +1997,45 @@ which is very unlikely for this sort of data. But we can still learn something b
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-##  [1] patchwork_1.0.1.9000 dagitty_0.2-2        ggdag_0.2.2          GGally_2.0.0        
-##  [5] tidybayes_2.1.1      bayesplot_1.7.2      brms_2.14.4          Rcpp_1.0.5          
-##  [9] forcats_0.5.0        stringr_1.4.0        dplyr_1.0.2          purrr_0.3.4         
-## [13] readr_1.3.1          tidyr_1.1.1          tibble_3.0.4         ggplot2_3.3.2       
-## [17] tidyverse_1.3.0     
+##  [1] patchwork_1.1.0 dagitty_0.3-0   ggdag_0.2.2     GGally_2.0.0    tidybayes_2.3.1 bayesplot_1.7.2
+##  [7] brms_2.14.4     Rcpp_1.0.5      forcats_0.5.0   stringr_1.4.0   dplyr_1.0.2     purrr_0.3.4    
+## [13] readr_1.4.0     tidyr_1.1.2     tibble_3.0.4    ggplot2_3.3.2   tidyverse_1.3.0
 ## 
 ## loaded via a namespace (and not attached):
-##   [1] readxl_1.3.1         backports_1.2.0      plyr_1.8.6           igraph_1.2.5        
-##   [5] splines_3.6.3        svUnit_1.0.3         crosstalk_1.1.0.1    TH.data_1.0-10      
-##   [9] rstantools_2.1.1     inline_0.3.16        digest_0.6.27        htmltools_0.5.0     
-##  [13] viridis_0.5.1        rethinking_2.01      rsconnect_0.8.16     fansi_0.4.1         
-##  [17] magrittr_1.5         graphlayouts_0.7.0   modelr_0.1.6         RcppParallel_5.0.2  
-##  [21] matrixStats_0.57.0   xts_0.12.1           sandwich_2.5-1       prettyunits_1.1.1   
-##  [25] colorspace_1.4-1     ggrepel_0.8.2        rvest_0.3.5          ggdist_2.1.1        
-##  [29] haven_2.2.0          xfun_0.19            callr_3.5.1          crayon_1.3.4        
-##  [33] jsonlite_1.7.1       lme4_1.1-23          survival_3.1-12      zoo_1.8-8           
-##  [37] glue_1.4.2           polyclip_1.10-0      gtable_0.3.0         emmeans_1.4.5       
-##  [41] V8_3.4.0             pkgbuild_1.1.0       rstan_2.21.2         shape_1.4.4         
-##  [45] abind_1.4-5          scales_1.1.1         mvtnorm_1.1-1        DBI_1.1.0           
-##  [49] miniUI_0.1.1.1       viridisLite_0.3.0    xtable_1.8-4         stats4_3.6.3        
-##  [53] StanHeaders_2.21.0-6 DT_0.13              htmlwidgets_1.5.1    httr_1.4.1          
-##  [57] threejs_0.3.3        RColorBrewer_1.1-2   arrayhelpers_1.1-0   ellipsis_0.3.1      
-##  [61] reshape_0.8.8        pkgconfig_2.0.3      loo_2.3.1            farver_2.0.3        
-##  [65] dbplyr_1.4.2         utf8_1.1.4           tidyselect_1.1.0     labeling_0.4.2      
-##  [69] rlang_0.4.8          reshape2_1.4.4       later_1.1.0.1        munsell_0.5.0       
-##  [73] cellranger_1.1.0     tools_3.6.3          cli_2.1.0            generics_0.1.0      
-##  [77] broom_0.5.5          ggridges_0.5.2       evaluate_0.14        fastmap_1.0.1       
-##  [81] yaml_2.2.1           processx_3.4.4       knitr_1.30           fs_1.4.1            
-##  [85] tidygraph_1.2.0      ggraph_2.0.3         nlme_3.1-144         mime_0.9            
-##  [89] projpred_2.0.2       xml2_1.3.1           compiler_3.6.3       shinythemes_1.1.2   
-##  [93] rstudioapi_0.11      gamm4_0.2-6          curl_4.3             reprex_0.3.0        
-##  [97] tweenr_1.0.1         statmod_1.4.34       stringi_1.5.3        ps_1.4.0            
-## [101] Brobdingnag_1.2-6    lattice_0.20-38      Matrix_1.2-18        nloptr_1.2.2.1      
-## [105] markdown_1.1         shinyjs_1.1          vctrs_0.3.4          pillar_1.4.6        
-## [109] lifecycle_0.2.0      bridgesampling_1.0-0 estimability_1.3     httpuv_1.5.4        
-## [113] R6_2.5.0             bookdown_0.18        promises_1.1.1       gridExtra_2.3       
-## [117] codetools_0.2-16     boot_1.3-24          colourpicker_1.0     MASS_7.3-51.5       
-## [121] gtools_3.8.2         assertthat_0.2.1     withr_2.3.0          shinystan_2.5.0     
-## [125] multcomp_1.4-13      mgcv_1.8-31          parallel_3.6.3       hms_0.5.3           
-## [129] grid_3.6.3           coda_0.19-4          minqa_1.2.4          rmarkdown_2.5       
-## [133] ggforce_0.3.1        shiny_1.5.0          lubridate_1.7.8      base64enc_0.1-3     
-## [137] dygraphs_1.1.1.6</code></pre>
+##   [1] readxl_1.3.1         backports_1.2.0      plyr_1.8.6           igraph_1.2.6        
+##   [5] splines_4.0.3        svUnit_1.0.3         crosstalk_1.1.0.1    rstantools_2.1.1    
+##   [9] inline_0.3.17        digest_0.6.27        htmltools_0.5.0      viridis_0.5.1       
+##  [13] rethinking_2.13      rsconnect_0.8.16     fansi_0.4.1          magrittr_2.0.1      
+##  [17] graphlayouts_0.7.1   modelr_0.1.8         RcppParallel_5.0.2   matrixStats_0.57.0  
+##  [21] xts_0.12.1           prettyunits_1.1.1    colorspace_2.0-0     ggrepel_0.8.2       
+##  [25] rvest_0.3.6          ggdist_2.3.0         haven_2.3.1          xfun_0.19           
+##  [29] callr_3.5.1          crayon_1.3.4         jsonlite_1.7.1       lme4_1.1-25         
+##  [33] zoo_1.8-8            glue_1.4.2           polyclip_1.10-0      gtable_0.3.0        
+##  [37] emmeans_1.5.2-1      V8_3.4.0             distributional_0.2.1 pkgbuild_1.1.0      
+##  [41] rstan_2.21.2         shape_1.4.5          abind_1.4-5          scales_1.1.1        
+##  [45] mvtnorm_1.1-1        DBI_1.1.0            miniUI_0.1.1.1       viridisLite_0.3.0   
+##  [49] xtable_1.8-4         stats4_4.0.3         StanHeaders_2.21.0-6 DT_0.16             
+##  [53] htmlwidgets_1.5.2    httr_1.4.2           threejs_0.3.3        RColorBrewer_1.1-2  
+##  [57] arrayhelpers_1.1-0   ellipsis_0.3.1       reshape_0.8.8        pkgconfig_2.0.3     
+##  [61] loo_2.3.1            farver_2.0.3         dbplyr_2.0.0         utf8_1.1.4          
+##  [65] tidyselect_1.1.0     labeling_0.4.2       rlang_0.4.9          reshape2_1.4.4      
+##  [69] later_1.1.0.1        munsell_0.5.0        cellranger_1.1.0     tools_4.0.3         
+##  [73] cli_2.2.0            generics_0.1.0       broom_0.7.2          ggridges_0.5.2      
+##  [77] evaluate_0.14        fastmap_1.0.1        yaml_2.2.1           processx_3.4.5      
+##  [81] knitr_1.30           fs_1.5.0             tidygraph_1.2.0      ggraph_2.0.4        
+##  [85] nlme_3.1-149         mime_0.9             projpred_2.0.2       xml2_1.3.2          
+##  [89] compiler_4.0.3       shinythemes_1.1.2    rstudioapi_0.13      gamm4_0.2-6         
+##  [93] curl_4.3             reprex_0.3.0         tweenr_1.0.1         statmod_1.4.35      
+##  [97] stringi_1.5.3        ps_1.4.0             Brobdingnag_1.2-6    lattice_0.20-41     
+## [101] Matrix_1.2-18        nloptr_1.2.2.2       markdown_1.1         shinyjs_2.0.0       
+## [105] vctrs_0.3.5          pillar_1.4.7         lifecycle_0.2.0      bridgesampling_1.0-0
+## [109] estimability_1.3     httpuv_1.5.4         R6_2.5.0             bookdown_0.21       
+## [113] promises_1.1.1       gridExtra_2.3        codetools_0.2-16     boot_1.3-25         
+## [117] colourpicker_1.1.0   MASS_7.3-53          gtools_3.8.2         assertthat_0.2.1    
+## [121] withr_2.3.0          shinystan_2.5.0      mgcv_1.8-33          parallel_4.0.3      
+## [125] hms_0.5.3            grid_4.0.3           coda_0.19-4          minqa_1.2.4         
+## [129] rmarkdown_2.5        ggforce_0.3.2        shiny_1.5.0          lubridate_1.7.9.2   
+## [133] base64enc_0.1-3      dygraphs_1.1.1.6</code></pre>
 
 </div>
 </div>
