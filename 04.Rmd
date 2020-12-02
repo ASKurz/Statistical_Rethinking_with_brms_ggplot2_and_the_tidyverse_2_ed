@@ -216,7 +216,7 @@ You have no idea how excited I am that we'll be covering some of these heavy-tai
 
 In this section McElreath gave the formula for the Gaussian probability density function. Let $y$ be the criterion, $\mu$ be the mean, and $\sigma$ be the standard deviation. Then the probability density of some Gaussian value $y$ is
 
-$$p(y|\mu, \sigma) = \frac{1}{\sqrt{2 \pi \sigma^2}} \exp \left (- \frac{(y - \mu)^2}{2 \sigma^2} \right)$$
+$$p(y|\mu, \sigma) = \frac{1}{\sqrt{2 \pi \sigma^2}} \exp \left (- \frac{(y - \mu)^2}{2 \sigma^2} \right).$$
 
 McElreath's right. "This looks monstrous" (p. 76). Why not demystify that monster with a little **R** code? For simplicity, we'll compute $p(y|\mu, \sigma)$ for a series of $y$-values ranging from -1 to 1, holding $\mu = 0$ and $\sigma = 0.1$. Then we'll plot.
 
@@ -408,7 +408,7 @@ This probably reflects my training history, but the structure of a data frame se
 
 ### The model.
 
-Please head McElreath's warnings to
+Please heed McElreath's warnings to
 
 > be careful about choosing the Gaussian distribution only when the plotted outcome variable looks Gaussian to you. Gawking at the raw data, to try to decide how to model them, is usually not a good idea. The data could be a mixture of different Gaussian distributions, for example, and in that case you won't be able to detect the underlying normality just by eyeballing the outcome distribution. Furthermore, as mentioned earlier in this chapter, the empirical distribution needn't be actually Gaussian in order to justify using a Gaussian probability distribution. (p. 81)
 
@@ -825,7 +825,7 @@ Whereas **rethinking** defaults to 89% intervals, using `print()` or `summary()`
 summary(b4.1_hc, prob = .89)
 ```
 
-Anyways, here's the `brms::brm()` code for the model with the very-narrow-$\mu$-prior corresponding to the `rethinking::quap()` code in McElreath's R code 4.31.
+Anyways, here's the `brms::brm()` code for the model with the very-narrow-$\mu$-prior corresponding to the `rethinking::quap()` code in McElreath's **R** code 4.31.
 
 ```{r b4.2}
 b4.2 <- 
@@ -2436,7 +2436,7 @@ fitted(b4.8) %>%
         panel.background = element_rect(fill = "#4f455c"))
 ```
 
-The smooth isn't quite the same as the one from **rethinking**. Hopefully this isn't terribly surprising. We used different packages and a different underlying statistical model. One of the reasons is we didn't even use a B-spline. The default for `s()` is to use what's called a thin plate regression spline. If we'd like to fit a B-spline, we have to set `bs = bs`. Here's an example.
+The smooth isn't quite the same as the one from **rethinking**. Hopefully this isn't terribly surprising. We used different packages and a different underlying statistical model. One of the reasons is we didn't even use a B-spline. The default for `s()` is to use what's called a *thin plate* regression spline. If we'd like to fit a B-spline, we have to set `bs = "bs"`. Here's an example.
 
 ```{r b4.8_bs}
 b4.8_bs <-
