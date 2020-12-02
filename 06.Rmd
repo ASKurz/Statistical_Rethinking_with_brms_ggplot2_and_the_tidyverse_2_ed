@@ -836,7 +836,7 @@ dag %>%
   theme_dag()
 ```
 
-Our custom `gg_simple_dag()` was a little too brittle to accommodate DAGs that mark of unobserved variables. Since we'll be making a few more DADs of this kind, we'll make one more custom plotting function. We'll call this one `gg_fancy_dag()`.
+Our custom `gg_simple_dag()` was a little too brittle to accommodate DAGs that mark of unobserved variables. Since we'll be making a few more DAGs of this kind, we'll make one more custom plotting function. We'll call this one `gg_fancy_dag()`.
 
 ```{r, fig.width = 4, fig.height = 1.5, message = F, warning = F}
 gg_fancy_dag <- function(d, x = 1, y = 1, circle = "U") {
@@ -859,7 +859,7 @@ dag %>%
   gg_fancy_dag(x = 2.5, y = 1, circle = "M")
 ```
 
-Based on McElreath's R code 6.20, here we simulate some data based on the new DAG.
+Based on McElreath's **R** code 6.20, here we simulate some data based on the new DAG.
 
 ```{r}
 set.seed(71)
@@ -1173,7 +1173,7 @@ b_gc
 
 ## Confronting confounding
 
-"Let's define **confounding** as any context in which the association between an outcome $Y$ and a predictor of interest $X$ is not the same as it would be, if we had experimentally determined the values of $X$" (p. 183, **emphasis** in the original)
+"Let's define **confounding** as any context in which the association between an outcome $Y$ and a predictor of interest $X$ is not the same as it would be, if we had experimentally determined the values of $X$" (p. 183, **emphasis** in the original).
 
 Here's the $E$-$U$-$W$ DAG to help us sort this out.
 
