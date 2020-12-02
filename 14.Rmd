@@ -250,7 +250,7 @@ Here are the $\text{LKJcorr}$ distributions of Figure 14.3.
 # for annotation
 text <-
   tibble(x     = c(.83, .625, .45),
-         y     = c(.56, .75, 1.05),
+         y     = c(.56, .75, 1.06),
          label = c("eta = 1", "eta = 2", "eta = 4"))
 
 # plot
@@ -329,7 +329,7 @@ post %>%
                color = "transparent", fill = "#A65141", alpha = 9/10) +
   annotate(geom = "text", x = -0.15, y = 2.275, 
            label = "posterior", color = "#A65141", family = "Courier") +
-  annotate(geom = "text", x = 0, y = 0.85, 
+  annotate(geom = "text", x = 0, y = 0.83, 
            label = "prior", color = "#EEDA9D", alpha = 2/3, family = "Courier") +
   scale_y_continuous(NULL, breaks = NULL) +
   labs(subtitle = "Correlation between intercepts\nand slopes, prior and posterior",
@@ -2883,13 +2883,13 @@ sessionInfo()
 ```
 
 ```{r, warning = F, echo = F}
-rm(a, b, sigma_a, sigma_b, rho, mu, cov_ab, sigma, sigmas, n_cafes, vary_effects, theme_pearl_earring, n_visits, d, n_sim, r_1, r_2, r_4, text, b14.1, post, partially_pooled_params, un_pooled_params, params, p1, partially_pooled_estimates, un_pooled_estimates, estimates, p2, b14.3, names, nd, dag_coords, theme_pearl_dag, standardize, n, dat_sim, b14.4, b14.5, e_model, w_model, b14.6, b14.4x, b14.6x, dagIV, kl_dyads, kl_dyads, kl_data, m14.7, islandsDistMatrix, d_mat, b14.8, k, tidy_rho, f, b14.8_nb, Primates301, b14.9, spp_obs, tree_trimmed, Rbm, V, Dmat, R, b14.10, dat_list, m14.11, dat, b14.12, b14.13, b14.14, levels, rho, b14.15)
+rm(a, b, sigma_a, sigma_b, rho, mu, cov_ab, sigma, sigmas, n_cafes, vary_effects, theme_pearl_earring, n_visits, d, n_sim, r_1, r_2, r_4, text, b14.1, post, partially_pooled_params, un_pooled_params, params, p1, partially_pooled_estimates, un_pooled_estimates, estimates, p2, b14.3, names, nd, dag_coords, theme_pearl_dag, standardize, n, dat_sim, b14.4, b14.5, e_model, w_model, b14.6, b14.4x, b14.6x, dagIV, kl_dyads, kl_dyads, kl_households, kl_data, m14.7, g, r, islandsDistMatrix, d_mat, b14.8, k, tidy_rho, f, b14.8_nb, Primates301, Primates301_nex, b14.9, spp_obs, tree_trimmed, Rbm, V, Dmat, R, b14.10, dat_list, m14.11, dat, b14.12, b14.13, b14.14, levels, rho, b14.15)
 ```
 
 ```{r, echo = F, message = F, warning = F, results = "hide"}
 ggplot2::theme_set(ggplot2::theme_grey())
 bayesplot::color_scheme_set("blue")
-pacman::p_unload(pacman::p_loaded(), character.only = TRUE)
+# pacman::p_unload(pacman::p_loaded(), character.only = TRUE)
 ```
 
 [^2]: We'll briefly cover autoregressive models in [Section 16.4][Population dynamics].
