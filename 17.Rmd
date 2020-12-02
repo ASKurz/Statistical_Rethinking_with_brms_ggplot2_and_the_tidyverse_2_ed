@@ -289,6 +289,6 @@ rm(BTdata, b17.1, b17.2, b17.0)
 ```
 
 ```{r, echo = F, warning = F, message = F, results = "hide"}
-pacman::p_unload(pacman::p_loaded(), character.only = TRUE)
+# pacman::p_unload(pacman::p_loaded(), character.only = TRUE)
 ```
 
