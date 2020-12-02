@@ -980,7 +980,7 @@ Because the plot is based on a multivariate model, we used the `resp` argument w
 
 Let's do that all again, this time making the counterfactual for `d`. While we're at it, we'll combine this subplot with the last one to make the full version of Figure 5.6.
 
-```{r, fig.width = 6, fig.height = 3}
+```{r, fig.width = 6, fig.height = 3.5}
 nd <- tibble(a = seq(from = -2, to = 2, length.out = 30))
 
 p2 <-
@@ -1003,7 +1003,7 @@ p2 <-
 p1 + p2 + plot_annotation(title = "Counterfactual plots for the multivariate divorce model")
 ```
 
-With our **brms**\**tidyverse** paradigm, we might compute "the expected causal effect of increasing median age at marriage from 20 to 30" (p. 142) like this.
+With our **brms** + **tidyverse** paradigm, we might compute "the expected causal effect of increasing median age at marriage from 20 to 30" (p. 142) like this.
 
 ```{r}
 # new data frame, standardized to mean 26.1 and std dev 1.24 
@@ -1020,7 +1020,7 @@ predict(b5.3_A,
   summarise(mean = mean(difference))
 ```
 
-> The trick with simulating counterfactuals is to realize that when we manipulate some variable $X$, we break the causal influence of other variables on $X$. This is the same as saying we modify the DAG so that no arrows enter $X$. Suppose for example that we now simulate the effect of manipulating $M$. (p. 143)
+> The trick with simulating counterfactuals is to realize that when we manipulate some variable $X$, we break the causal influence of other variables on $X$. This is the same as saying we modify the DAG so that no arrows enter $X$. Suppose for example that we now simulate the effect of manipulating $M.$ (p. 143)
 
 Here's how to plot that DAG.
 
@@ -1097,7 +1097,7 @@ head(post)
 
 Now we plot.
 
-```{r, fig.width = 6, fig.height = 3}
+```{r, fig.width = 6, fig.height = 3.25}
 post %>% 
   mutate(dv = if_else(name == "d_sim", "predictions for D", "predictions for M")) %>% 
   
@@ -1766,7 +1766,7 @@ We might visualize the two prior predictive distributions as overlapping densiti
 prior %>% 
   pivot_longer(everything()) %>% 
   ggplot(aes(x = value, fill = name, color = name)) +
-  geom_density(size = 3/4, alpha = 2/3) +
+  geom_density(size = 2/3, alpha = 2/3) +
   scale_fill_manual(NULL, values = c("firebrick4", "black")) +
   scale_color_manual(NULL, values = c("firebrick4", "black")) +
   scale_y_continuous(NULL, breaks = NULL) +
