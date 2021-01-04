@@ -129,6 +129,8 @@ contour_plot <-
   geom_contour(aes(x = a1, y = a2, z = d), 
                size = 1/8, color = pomological_palette[4],
                breaks = 9^(-(10 * 1:25))) +
+  scale_x_continuous(expand = c(0, 0)) +
+  scale_y_continuous(expand = c(0, 0)) +
   theme_pomological_fancy(base_family = "Marck Script")
 
 contour_plot
@@ -226,8 +228,6 @@ p1 <-
        y = "a2") +
   scale_shape_manual(values = c(21, 19)) +
   scale_color_manual(values = pomological_palette[8:9]) +
-  scale_x_continuous(expand = c(0, 0)) +
-  scale_y_continuous(expand = c(0, 0)) +
   theme_pomological_fancy(base_family = "Marck Script")
 
 p1
@@ -251,7 +251,6 @@ p2 <-
        x = "a1") +
   scale_shape_manual(values = c(21, 19)) +
   scale_color_manual(values = pomological_palette[8:9]) +
-  scale_x_continuous(expand = c(0, 0)) +
   scale_y_continuous(NULL, breaks = NULL, expand = c(0, 0)) +
   theme_pomological_fancy(base_family = "Marck Script")
 
@@ -262,16 +261,16 @@ library(patchwork)
   plot_layout(guides = "collect")
 ```
 
-Our acceptance rates differ from McElreat's due to simulation variance. If you want to get a sense of stability in the acceptance rates, just simulate some more. For example, we might wrap `metropolis()` inside another function that takes a simulation seed value.
+Our acceptance rates differ from McElreath's due to simulation variance. If you want to get a sense of stability in the acceptance rates, just simulate some more. For example, we might wrap `metropolis()` inside another function that takes a simulation seed value.
 
 ```{r}
-metropolis_with_seed <- function(seed) {
+metropolis_with_seed <- function(seed, step_size = 0.1) {
   
   set.seed(seed)
   
   met <-
     metropolis(num_proposals = 50,
-               step_size = 0.1,
+               step_size = step_size,
                starting_point = c(-1,1))
   
   return(met$acceptance_rate)
@@ -296,8 +295,7 @@ ars %>%
   theme_pomological_fancy(base_family = "Marck Script")
 ```
 
-
-
+If you iterate with `step_size = 0.25`, instead, the resulting histogram will look very different.
 
 
 
