@@ -1,0 +1,240 @@
+---
+title: "Section 13.5.2.1: Bonus: Let's use `fitted()` this time."
+author: "A Solomon Kurz"
+date: "`r format(Sys.Date())`"
+output:
+  github_document
+bibliography: bib.bib
+biblio-style: apalike
+csl: apa.csl
+link-citations: yes
+---
+
+```{r, echo = F, cache = F}
+knitr::opts_chunk$set(fig.retina = 2.5)
+knitr::opts_chunk$set(fig.align = "center")
+options(width = 100)
+```
+
+```{r, message = F, warning = F}
+# load the packages that would have already been loaded
+library(brms)
+library(tidyverse)
+library(ggthemes) 
+library(tidybayes)
+library(bayesplot)
+library(posterior)
+library(patchwork)
+
+# change the default
+theme_set(theme_gray() + theme_fivethirtyeight())
+
+# load and wrangle the data
+data(chimpanzees, package = "rethinking")
+d <- chimpanzees
+rm(chimpanzees)
+
+d <-
+  d %>% 
+  mutate(actor     = factor(actor),
+         block     = factor(block),
+         treatment = factor(1 + prosoc_left + 2 * condition))
+
+# load the model
+b13.4 <- 
+  brm(data = d, 
+      family = binomial,
+      bf(pulled_left | trials(1) ~ a + b,
+         a ~ 1 + (1 | actor) + (1 | block), 
+         b ~ 0 + treatment,
+         nl = TRUE),
+      prior = c(prior(normal(0, 0.5), nlpar = b),
+                prior(normal(0, 1.5), class = b, coef = Intercept, nlpar = a),
+                prior(exponential(1), class = sd, group = actor, nlpar = a),
+                prior(exponential(1), class = sd, group = block, nlpar = a)),
+      iter = 2000, warmup = 1000, chains = 4, cores = 4,
+      seed = 13,
+      file = "/Users/solomonkurz/Dropbox/Recoding Statistical Rethinking 2nd ed/fits/b13.04")
+
+# define the labels
+labels <- c("R/N", "L/N", "R/P", "L/P")
+```
+
+# Models With Memory
+
+## Example: Multilevel tadpoles
+
+#### Overthinking: Prior for variance components.
+
+## Varying effects and the underfitting/overfitting trade-off
+
+### The model.
+
+### Sumulate survivors.
+
+### Compute the no-pooling estimates.
+
+### Compute the partial-pooling estimates.
+
+#### Overthinking: Repeating the pond simulation.
+
+## More than one type of cluster
+
+#### Rethinking: Cross-classification and hierarchy.
+
+### Multilevel chimpanzees.
+
+### Even more clusters.
+
+## Divergent transitions and non-centered priors
+
+### The Devil's Funnel.
+
+### Non-centered chimpanzees.
+
+## Multilevel posterior predictions
+
+### Posterior prediction for same clusters.
+
+### Posterior prediction for new clusters. 
+
+#### Bonus: Let's use `fitted()` this time.
+
+We just made those plots using various wrangled versions of `post`, the data frame returned by `posterior_samples(b.13.4)`. If you followed along closely, part of what made that a great exercise is that it forced you to consider what the various vectors in `post` meant with respect to the model formula. But it's also handy to see how to do that from a different perspective. So in this section, we'll repeat that process by relying on the `fitted()` function, instead. We'll go in the same order, starting with the average actor.
+
+```{r, warning = F, message = F}
+nd <- distinct(d, treatment)
+
+(
+  f <-
+  fitted(b13.4,
+         newdata = nd,
+         re_formula = NA,
+         probs = c(.1, .9)) %>% 
+  data.frame() %>% 
+  bind_cols(nd) %>% 
+  mutate(treatment = factor(treatment, labels = labels))
+)
+```
+
+You should notice a few things. Since `b13.4` is a cross-classified multilevel model, it had three predictors: `treatment`, `block`, and `actor`. However, our `nd` data only included the first of those three. The reason `fitted()` permitted that was because we set `re_formula = NA`. When you do that, you tell `fitted()` to ignore group-level effects (i.e., focus only on the fixed effects). This was our `fitted()` version of ignoring the `r_` vectors returned by `posterior_samples()`. Here's the plot.
+
+```{r, fig.width = 2.5, fig.height = 3.25}
+p4 <-
+  f %>%
+  ggplot(aes(x = treatment, y = Estimate, group = 1)) +
+  geom_ribbon(aes(ymin = Q10, ymax = Q90), fill = "blue") +
+  geom_line(color = "orange1") +
+  ggtitle("Average actor") +
+  coord_cartesian(ylim = 0:1) +
+  theme(plot.title = element_text(size = 14, hjust = .5))
+
+p4
+```
+
+For marginal of actor, we can continue using the same `nd` data. This time we'll be sticking with the default `re_formula` setting, which will accommodate the multilevel nature of the model. However, we'll also be adding `allow_new_levels = T` and `sample_new_levels = "gaussian"`. The former will allow us to marginalize across the specific actors and blocks in our data and the latter will instruct `fitted()` to use the multivariate normal distribution implied by the random effects. It'll make more sense why I say *multivariate* normal by the end of the [next chapter][Adventures in Covariance]. For now, just go with it.
+
+```{r, warning = F, message = F}
+(
+  f <-
+  fitted(b13.4,
+         newdata = nd,
+         probs = c(.1, .9),
+         allow_new_levels = T,
+         sample_new_levels = "gaussian") %>% 
+  data.frame() %>% 
+  bind_cols(nd) %>% 
+  mutate(treatment = factor(treatment, labels = labels))
+  )
+```
+
+Here's our `fitted()`-based marginal of `actor` plot.
+
+```{r, fig.width = 2.5, fig.height = 3.25}
+p5 <-
+  f %>%
+  ggplot(aes(x = treatment, y = Estimate, group = 1)) +
+  geom_ribbon(aes(ymin = Q10, ymax = Q90), fill = "blue") +
+  geom_line(color = "orange1") +
+  ggtitle("Marginal of actor") +
+  coord_cartesian(ylim = 0:1) +
+  theme(plot.title = element_text(size = 14, hjust = .5))
+
+p5
+```
+
+We'll have to amend our workflow a bit to make a `fitted()` version of the third panel. First we redefine our `nd` data and execute the `fitted()` code.
+
+```{r}
+# how many simulated chimps would you like?
+n_chimps <- 100
+
+nd <- 
+  distinct(d, treatment) %>% 
+  # define 100 new actors
+  expand(actor = str_c("new", 1:n_chimps),
+         treatment) %>% 
+  # this adds a row number, which will come in handy, later
+  mutate(row = 1:n())
+
+# fitted
+set.seed(13)
+
+f <-
+  fitted(b13.4,
+         newdata = nd,
+         allow_new_levels = T,
+         sample_new_levels = "gaussian",
+         summary = F,
+         nsamples = n_chimps)
+```
+
+Our `f` object will need a lot of wrangling. Before I walk out the wrangling steps, we should reiterate what McElreath originally did in the text (pp. 429--430). He based the new actors on the deviation scores from `post$sigma_a`. That was the first working line in his **R** code 13.38. In the remaining lines in that code block, he used the model formula to compute the actor-level trajectories. Then in his plot code in **R** code 13.39, he just used the first 100 rows from that output. 
+
+In our `fitted()` code, above, we saved a little time and computer memory by setting `nsamples = n_chimps`, which equaled 100. That's functionally the same as when McElreath used the first 100 posterior draws in the plot. A difficulty for us is the way `brms::fitted()` returns the output, the 100 new levels of `actor` and the four levels of `treatment` are confounded in the 400 columns. In the code block, below, the `data.frame()` through `left_join()` lines are meant to disentangle those two. After that, we'll make an `actor_number` variable, which which we'll filter the data such that the first row returned by `fitted()` is only assigned to the new actor #1, the second row is only assigned to the new actor #2, and so on. The result is that we have 100 new simulated actors, each of which corresponds to a different iteration of the posterior draws from the fixed effects[^1].
+
+```{r, fig.width = 2.5, fig.height = 3.25}
+p6 <-
+  f %>%
+  data.frame() %>% 
+  # name the columns by the `row` values in `nd`
+  set_names(pull(nd, row)) %>% 
+  # add an iteration index
+  mutate(iter = 1:n()) %>% 
+  # make it long
+  pivot_longer(-iter, names_to = "row") %>% 
+  mutate(row = as.double(row)) %>% 
+  # add the new data
+  left_join(nd, by = "row") %>% 
+  # extract the numbers from the names of the new actors
+  mutate(actor_number = str_extract(actor, "\\d+") %>% as.double()) %>% 
+  # only keep the posterior iterations that match the `actor_number` values
+  filter(actor_number == iter) %>% 
+  # add the `treatment` labels
+  mutate(treatment = factor(treatment, labels = labels)) %>% 
+  
+  # plot!
+  ggplot(aes(x = treatment, y = value, group = actor)) +
+  geom_line(alpha = 1/2, color = "blue") +
+  ggtitle("100 simulated actors") +
+  theme(plot.title = element_text(size = 14, hjust = .5))
+
+p6
+```
+
+Here they are altogether.
+
+```{r, fig.width = 7.5, fig.height = 3.25}
+p4 | p5 | p6
+```
+
+## Session info
+
+```{r}
+sessionInfo()
+```
+
+## Endnote
+
+[^1]: The `fitted()` version of the code for the third panel is cumbersome. Indeed, this in one of those cases where it seems more straightforward to work directly with the `posterior_samples()` output, rather than with `fitted()`. The workflow in this section from previous editions of this ebook was more streamlined and superficially seemed to work. However, fellow researcher [Ladislas Nalborczyk](https://twitter.com/lnalborczyk) kindly pointed out I was taking 100 draws from one new simulated `actor`, rather than one simulated draw from 100 new levels of `actor`. To my knowledge, if you want 100 new levels of `actor` AND want each one to be from a different posterior iteration, you'll need a lot of post-processing code when working with `fitted()`.
+
