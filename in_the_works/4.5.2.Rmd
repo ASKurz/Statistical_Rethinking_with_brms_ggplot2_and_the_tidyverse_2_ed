@@ -181,7 +181,7 @@ d2 <-
   drop_na(doy)
 ```
 
-On page 117 in the text, McElreath indirectly explained how to make Figure 4.12 by walking through the workflow for making Figure 4.13. Here we mimic that ordering. 
+On page 117 in the text, McElreath indirectly explained how to make Figure 4.12 by walking through the workflow for making Figure 4.13. Here we mimic that ordering.
 
 > First, we choose the knots. Remember, the knots are just values of year that serve as pivots for our spline. Where should the knots go? There are different ways to answer this question. You can, in principle, put the knots wherever you like. Their locations are part of the model, and you are responsible for them. Let's do what we did in the simple example above, place the knots at different evenly-spaced quantiles of the predictor variable. This gives you more knots where there are more observations. We used only 5 knots in the first example. Now let's go for 15:
 
@@ -272,7 +272,7 @@ b %>%
         panel.grid = element_blank(),
         strip.background = element_rect(fill = scales::alpha("#ffb7c5", .25), color = "transparent"),
         strip.text = element_text(size = 8, margin = margin(0.1, 0, 0.1, 0, "cm"))) +
-  facet_wrap(~bias_function, ncol = 1)
+  facet_wrap(~ bias_function, ncol = 1)
 ```
 
 > Now to get the parameter weights for each basis function, we need to actually define the model and make it run. The model is just a linear regression. The synthetic basis functions do all the work. We'll use each column of the matrix `B` as a variable. We'll also have an intercept to capture the average blossom day. This will make it easier to define priors on the basis weights, because then we can just conceive of each as a deviation from the intercept. (p. 117)
@@ -318,12 +318,12 @@ d3 <-
 d3 %>% glimpse()
 ```
 
-In our `d3` data, columns `year` through `temp_lower` are all standard data columns. The `B` column is a *matrix column*, which contains the same number of rows as the others, but also smuggled in 17 columns *within* that column. Each of those 17 columns corresponds to one of our synthetic $B_k$ variables. The advantage of such a data structure is we can simply define our `formula` argument as `doy ~ 1 + B`, where `B` is a stand-in for `B.1 + B.2 + ... + B.17`. 
+In our `d3` data, columns `year` through `temp_lower` are all standard data columns. The `B` column is a *matrix column*, which contains the same number of rows as the others, but also smuggled in 17 columns *within* that column. Each of those 17 columns corresponds to one of our synthetic $B_k$ variables. The advantage of such a data structure is we can simply define our `formula` argument as `doy ~ 1 + B`, where `B` is a stand-in for `B.1 + B.2 + ... + B.17`.
 
 Here's how to fit the model.
 
-```{r b4.7}
-b4.7 <- 
+```{r b4.8}
+b4.8 <- 
   brm(data = d3,
       family = gaussian,
       doy ~ 1 + B,
@@ -332,13 +332,13 @@ b4.7 <-
                 prior(exponential(1), class = sigma)),
       iter = 2000, warmup = 1000, chains = 4, cores = 4,
       seed = 4,
-      file = "/Users/solomonkurz/Dropbox/Recoding Statistical Rethinking 2nd ed/fits/b04.07")
+      file = "/Users/solomonkurz/Dropbox/Recoding Statistical Rethinking 2nd ed/fits/b04.08")
 ```
 
 Here's the model summary.
 
 ```{r}
-print(b4.7)
+print(b4.8)
 ```
 
 Look at that. Each of the 17 columns in our `B` matrix was assigned its own parameter. If you fit this model using McElreath's **rethinking** code, you'll see the results are very similar. Anyway, McElreath's comments are in line with the general consensus on spline modes: the parameter estimates are very difficult to interpret directly. It's often easier to just plot the results. First we'll use `posterior_samples()`.
@@ -362,7 +362,7 @@ m4.7 <- rethinking::quap(
 
 bind_rows(
   # brms
-  fixef(b4.7)[-1, ] %>% 
+  fixef(b4.8)[-1, ] %>% 
     data.frame() %>% 
     mutate(param = 1:n(),
            fit = "brms"),
@@ -381,7 +381,7 @@ bind_rows(
 ```
 
 ```{r}
-post <- posterior_samples(b4.7)
+post <- posterior_samples(b4.8)
 
 glimpse(post)
 ```
@@ -409,19 +409,17 @@ post %>%
 In case you missed it, the main action in the **ggplot2** code was `y = bias * weight`, where we defined the $y$-axis as the product of `bias` and `weight`. This is fulfillment of the $w_k B_{k, i}$ parts of the model. Now here's how we might use `brms::fitted()` to make the lower plot of Figure 4.13.
 
 ```{r, fig.width = 6, fig.height = 1.5, message = F}
-f <- fitted(b4.7)
+f <- fitted(b4.8)
 
 f %>% 
   data.frame() %>% 
   bind_cols(d2) %>% 
   
-  ggplot(aes(x = year)) + 
+  ggplot(aes(x = year, y = doy, ymin = Q2.5, ymax = Q97.5)) + 
   geom_vline(xintercept = knot_list, color = "white", alpha = 1/2) +
-  geom_hline(yintercept = fixef(b4.7)[1, 1], color = "white", linetype = 2) +
-  geom_point(aes(y = doy),
-             color = "#ffb7c5", alpha = 1/2) +
-  geom_ribbon(aes(ymin = Q2.5, ymax = Q97.5),
-              fill = "white", alpha = 2/3) +
+  geom_hline(yintercept = fixef(b4.8)[1, 1], color = "white", linetype = 2) +
+  geom_point(color = "#ffb7c5", alpha = 1/2) +
+  geom_ribbon(fill = "white", alpha = 2/3) +
   labs(x = "year",
        y = "day in year") +
   theme_bw() +
@@ -431,7 +429,7 @@ f %>%
 
 If it wasn't clear, the dashed horizontal line intersecting a little above 100 on the $y$-axis is the poster mean for the intercept. Now let's use our skills to remake the simpler model expressed in Figure 4.12. This model, recall, is based on 5 knots.
 
-```{r b4.8}
+```{r b4.9}
 # redo the `B` splines
 num_knots <- 5
 knot_list <- quantile(d2$year, probs = seq(from = 0, to = 1, length.out = num_knots))
@@ -442,12 +440,12 @@ B <- bs(d2$year,
         degree = 1, 
         intercept = TRUE)
 
-# define a new `d4 data
+# define a new `d4` data
 d4 <- 
   d2 %>% 
-  mutate(B   = B)
+  mutate(B = B)
 
-b4.8 <- 
+b4.9 <- 
   brm(data = d4,
       family = gaussian,
       formula = doy ~ 1 + B,
@@ -456,13 +454,13 @@ b4.8 <-
                 prior(exponential(1), class = sigma)),
       iter = 2000, warmup = 1000, chains = 4, cores = 4,
       seed = 4,
-      file = "/Users/solomonkurz/Dropbox/Recoding Statistical Rethinking 2nd ed/fits/b04.08")
+      file = "/Users/solomonkurz/Dropbox/Recoding Statistical Rethinking 2nd ed/fits/b04.09")
 ```
 
 Review the new model summary.
 
 ```{r}
-print(b4.8)
+print(b4.9)
 ```
 
 Here we do all the work to make and save the three subplots for Figure 4.12 in bulk.
@@ -488,7 +486,7 @@ p1 <-
 ## middle
 # wrangle
 p2 <-
-  posterior_samples(b4.8) %>% 
+  posterior_samples(b4.9) %>% 
   select(b_B1:b_B5) %>% 
   set_names(str_c("B.", 1:5)) %>% 
   pivot_longer(everything(), names_to = "bias_function") %>% 
@@ -504,7 +502,7 @@ p2 <-
 
 ## bottom
 # wrangle
-f <- fitted(b4.8)
+f <- fitted(b4.9)
 
 p3 <-
   f %>% 
@@ -512,13 +510,11 @@ p3 <-
   bind_cols(d2) %>% 
   
   # plot
-  ggplot(aes(x = year)) + 
+  ggplot(aes(x = year, y = doy, ymin = Q2.5, ymax = Q97.5)) + 
   geom_vline(xintercept = knot_list, color = "white", alpha = 1/2) +
-  geom_hline(yintercept = fixef(b4.7)[1, 1], color = "white", linetype = 2) +
-  geom_point(aes(y = doy),
-             color = "#ffb7c5", alpha = 1/2) +
-  geom_ribbon(aes(ymin = Q2.5, ymax = Q97.5),
-              fill = "white", alpha = 2/3) +
+  geom_hline(yintercept = fixef(b4.9)[1, 1], color = "white", linetype = 2) +
+  geom_point(color = "#ffb7c5", alpha = 1/2) +
+  geom_ribbon(fill = "white", alpha = 2/3) +
   labs(x = "year",
        y = "day in year")
 ```
@@ -532,7 +528,7 @@ Now combine the subplots with **patchwork** syntax and plot.
         panel.grid = element_blank())
 ```
 
-### Smooth functions for a rough world. 
+### Smooth functions for a rough world.
 
 > The splines in the previous section are just the beginning. A entire class of models, **generalized additive models** (GAMs), focuses on predicting an outcome variable using smooth functions of some predictor variables. The topic is deep enough to deserve its own book. (p. 120, **emphasis** in the original)
 
@@ -548,10 +544,10 @@ get_prior(data = d2,
           doy ~ 1 + s(year))
 ```
 
-We have an overall intercept (`class = Intercept`), a single $\beta$ parameter for `year` (`class = b`), a $\sigma$ parameter (`class = sigma`), and an unfamiliar parameter of `class = sds`. I'm not going to go into that last parameter in any detail, here. We'll need to work our way up through [Chapter 13][Models With Memory] and the multilevel model to get a full picture of what it means. The important thing to note here is that the priors for our `s()`-based alternative to the B-spline models, above, are going to look a little different. Here's how we might fit an alternative to `b4.7`
+We have an overall intercept (`class = Intercept`), a single $\beta$ parameter for `year` (`class = b`), a $\sigma$ parameter (`class = sigma`), and an unfamiliar parameter of `class = sds`. I'm not going to go into that last parameter in any detail, here. We'll need to work our way up through [Chapter 13][Models With Memory] and the multilevel model to get a full picture of what it means. The important thing to note here is that the priors for our `s()`-based alternative to the B-spline models, above, are going to look a little different. Here's how we might fit an alternative to `b4.8`
 
-```{r b4.9}
-b4.9 <-
+```{r b4.10}
+b4.10 <-
   brm(data = d2,
       family = gaussian,
       doy ~ 1 + s(year),
@@ -562,24 +558,24 @@ b4.9 <-
       iter = 2000, warmup = 1000, chains = 4, cores = 4,
       seed = 4,
       control = list(adapt_delta = .99),
-      file = "/Users/solomonkurz/Dropbox/Recoding Statistical Rethinking 2nd ed/fits/b04.09")
+      file = "/Users/solomonkurz/Dropbox/Recoding Statistical Rethinking 2nd ed/fits/b04.10")
 ```
 
 Check out the model summary.
 
 ```{r}
-print(b4.9)
+print(b4.10)
 ```
 
-Our intercept and $\sigma$ summaries are similar to those we got from `b4.7`. The rest looks different. Here's what happens when we use `brms::fitted()` to plot the implications of the model.
+Our intercept and $\sigma$ summaries are similar to those we got from `b4.8`. The rest looks different. Here's what happens when we use `brms::fitted()` to plot the implications of the model.
 
 ```{r, fig.width = 6, fig.height = 1.67, message = F}
-fitted(b4.9) %>% 
+fitted(b4.10) %>% 
   data.frame() %>% 
   bind_cols(select(d2, year, doy)) %>% 
   
   ggplot(aes(x = year, y = doy, ymin = Q2.5, ymax = Q97.5)) +
-  geom_hline(yintercept = fixef(b4.8)[1, 1], color = "white", linetype = 2) +
+  geom_hline(yintercept = fixef(b4.10)[1, 1], color = "white", linetype = 2) +
   geom_point(color = "#ffb7c5", alpha = 1/2) +
   geom_ribbon(fill = "white", alpha = 2/3) +
   labs(subtitle = "b4.7 useing s(year)",
@@ -591,8 +587,8 @@ fitted(b4.9) %>%
 
 That smooth doesn't look quite the same. Hopefully this isn't terribly surprising. We used a function from a different package and ended up with a underlying statistical model. In fact, we didn't even use a B-spline. The default for `s()` is to use what's called a *thin plate* regression spline. If we'd like to fit a B-spline, we have to set `bs = "bs"`. Here's an example.
 
-```{r b4.10}
-b4.10 <-
+```{r b4.11}
+b4.11 <-
   brm(data = d2,
       family = gaussian,
       doy ~ 1 + s(year, bs = "bs", k = 19),
@@ -603,22 +599,22 @@ b4.10 <-
       iter = 2000, warmup = 1000, chains = 4, cores = 4,
       seed = 4,
       control = list(adapt_delta = .99),
-      file = "/Users/solomonkurz/Dropbox/Recoding Statistical Rethinking 2nd ed/fits/b04.10")
+      file = "/Users/solomonkurz/Dropbox/Recoding Statistical Rethinking 2nd ed/fits/b04.11")
 ```
 
 ```{r}
-print(b4.10)
+print(b4.11)
 ```
 
 Now here's the depiction of our `s()`-based B-spline model.
 
 ```{r, fig.width = 6, fig.height = 1.67, message = F}
-fitted(b4.10) %>% 
+fitted(b4.11) %>% 
   data.frame() %>% 
   bind_cols(select(d2, year, doy)) %>% 
   
   ggplot(aes(x = year, y = doy, ymin = Q2.5, ymax = Q97.5)) +
-  geom_hline(yintercept = fixef(b4.10)[1, 1], color = "white", linetype = 2) +
+  geom_hline(yintercept = fixef(b4.11)[1, 1], color = "white", linetype = 2) +
   geom_point(color = "#ffb7c5", alpha = 1/2) +
   geom_ribbon(fill = "white", alpha = 2/3) +
   labs(subtitle = 'b4.7_bs useing s(year, bs = "bs")',
@@ -628,7 +624,7 @@ fitted(b4.10) %>%
         panel.background = element_rect(fill = "#4f455c"))
 ```
 
-There are still other important differences between the underlying statistical model for `b4.10` and the earlier `b4.7` that I'm just not going to go into, here. 
+There are still other important differences between the underlying statistical model for `b4.11` and the earlier `b4.8` that I'm just not going to go into, here.
 
 For more on the B-splines and smooths, more generally, check out the blog post by the great [Gavin Simpson](https://twitter.com/ucfagls), [*Extrapolating with B splines and GAMs*](https://fromthebottomoftheheap.net/2020/06/03/extrapolating-with-gams/). For a high-level introduction to the models you can fit with **mgcv**, check out the nice talk by [Noam Ross](https://twitter.com/noamross), [*Nonlinear models in R: The wonderful world of mgcv*](https://www.youtube.com/watch?v=q4_t8jXcQgc), or the equally-nice presentation by Simpson, [*Introduction to generalized additive models with R and mgcv*](https://www.youtube.com/watch?v=sgw4cu8hrZM). Ross also has a free online course covering **mgcv** called [GAMS in R](https://noamross.github.io/gams-in-r-course/). And for specific examples of fitting various GAMS with **brms**, check out Simpson's blog post, [**Fitting GAMs with brms: part 1**](https://fromthebottomoftheheap.net/2018/04/21/fitting-gams-with-brms/).
 
