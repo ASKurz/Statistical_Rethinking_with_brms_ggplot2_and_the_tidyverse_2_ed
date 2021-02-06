@@ -336,7 +336,7 @@ dd %>%
   geom_text(size = 2, hjust = 0, family = "Times") +
   scale_y_reverse() +
   theme_void() +
-  facet_wrap(~cid, scales = "free_x")
+  facet_wrap(~ cid, scales = "free_x")
 ```
 
 If you recall from the latter sections of [Chapter 5][The Many Variables & The Spurious Waffles], the conventional **brms** syntax can accommodate an index variable by simply suppressing the default intercept via the `0 + ...`. syntax. That will be our approach, here.
@@ -475,7 +475,7 @@ fitted(b8.2,
         legend.title = element_blank())
 ```
 
-### Adding an interaction does work. 
+### Adding an interaction does work.
 
 The `0 + ...` syntax works fine when we just want to use an index variable to fit a model with multiple intercepts, this approach will not work for fitting **brms** models that apply the index variable to slopes. Happily, we have alternatives. If we'd like to use the `cid` index to make intercepts and slopes as in McElreath's `m8.3`, we can use the **brms** [non-linear syntax](https://CRAN.R-project.org/package=brms/vignettes/brms_nonlinear.html) [@Bürkner2020Non_linear]. Here it is for `b8.3`.
 
@@ -629,7 +629,7 @@ dd %>%
        y = "log GDP (as proportion of mean)") +
   coord_cartesian(xlim = c(0, 1)) +
   theme(legend.position = "none") +
-  facet_wrap(~cont_africa)
+  facet_wrap(~ cont_africa)
 ```
 
 "Finally, the slope reverses direction inside and outside of Africa. And because we achieved this inside a single model, we could statistically evaluate the value of this reversal" (p. 250).
@@ -841,6 +841,7 @@ Now we're ready for the top row of Figure 8.8. Here's our variation on McElreath
 ```{r, fig.height = 2, fig.width = 2.3}
 # loop over values of `water_c` and plot predictions
 for(s in -1:1) {
+  
   # define the subset of the original data
   dt <- d[d$shade_cent == s, ]
   # defining our new data
@@ -875,6 +876,7 @@ for(s in -1:1) {
   
   # plot that joint
   plot(fig)
+  
 }
 ```
 
@@ -903,8 +905,7 @@ rbind(fitted(b8.4, newdata = nd, summary = F, nsamples = 20),
   set_names(mutate(nd, name = str_c(shade_cent, water_cent, sep = "_")) %>% pull()) %>%
   mutate(row = 1:n(),
          fit = rep(c("b8.4", "b8.5"), each = n() / 2)) %>%
-  pivot_longer(-c(row:fit),
-               values_to = "blooms_std") %>%
+  pivot_longer(-c(row:fit), values_to = "blooms_std") %>%
   separate(name, into = c("shade_cent", "water_cent"), sep = "_") %>%
   mutate(shade_cent = shade_cent %>% as.double(),
          water_cent = water_cent %>% as.double()) %>%
@@ -929,7 +930,7 @@ rbind(fitted(b8.4, newdata = nd, summary = F, nsamples = 20),
 
 ### Plotting prior predictions.
 
-In some of the earlier models in this book, we used the `sample_prior = T` argument within `brm()` to simultaneously sample from the posterior and prior distributions. As far as the priors go, we could then retrieve their draws from the `prior_samples()` function and plot as desired. And to be clear, we could use this method to remake Figure 8.8 with our **brms** fits. 
+In some of the earlier models in this book, we used the `sample_prior = T` argument within `brm()` to simultaneously sample from the posterior and prior distributions. As far as the priors go, we could then retrieve their draws from the `prior_samples()` function and plot as desired. And to be clear, we could use this method to remake Figure 8.8 with our **brms** fits.
 
 However, a limitation of the `sample_prior = T` method is it will not work if you're trying to use a `fitted()`-oriented work flow. Happily, we have an alternative. Within `brm()`, set `sample_prior = "only"`. The resulting fit object will be based solely on the priors. Here we'll use this method within `update()` to refit the last two models.
 
@@ -961,8 +962,7 @@ rbind(fitted(b8.4p, newdata = nd, summary = F, nsamples = 20),
   set_names(mutate(nd, name = str_c(shade_cent, water_cent, sep = "_")) %>% pull()) %>%
   mutate(row = rep(1:20, times = 2),
          fit = rep(c("b8.4", "b8.5"), each = n() / 2)) %>%
-  pivot_longer(-c(row:fit),
-               values_to = "blooms_std") %>%
+  pivot_longer(-c(row:fit), values_to = "blooms_std") %>%
   separate(name, into = c("shade_cent", "water_cent"), sep = "_") %>%
   mutate(shade_cent = shade_cent %>% as.double(),
          water_cent = water_cent %>% as.double()) %>%
@@ -987,7 +987,7 @@ rbind(fitted(b8.4p, newdata = nd, summary = F, nsamples = 20),
   facet_grid(y_grid ~ x_grid)
 ```
 
-It was the `aes()` statement within `geom_line()` and the `scale_size_manual()` and `scale_alpha_manual()` lines that followed that allowed us to bold the one line in each panel. Relatedly, it was the `set.seed()` line at the top of the code block that made the results reproducible. 
+It was the `aes()` statement within `geom_line()` and the `scale_size_manual()` and `scale_alpha_manual()` lines that followed that allowed us to bold the one line in each panel. Relatedly, it was the `set.seed()` line at the top of the code block that made the results reproducible.
 
 > What can we say about these priors, overall? They are harmless, but only weakly realistic. Most of the lines stay within the valid outcome space. But silly trends are not rare. We could do better. We could also do a lot worse, such as flat priors which would consider plausible that even a tiny increase in shade would kill all the tulips. If you displayed these priors to your colleagues, a reasonable summary might be, "These priors contain no bias towards positive or negative effects, and at the same time they very weakly bound the effects to realistic ranges." (p. 260)
 
@@ -1099,7 +1099,7 @@ plot(p1,
   scale_x_continuous(breaks = -1:1) +
   theme(legend.position = "none",
         panel.grid.minor = element_blank()) +
-  facet_wrap(~shade_cent, labeller = label_both)
+  facet_wrap(~ shade_cent, labeller = label_both)
 ```
 
 I tend to prefer using other plotting methods when visualizing models, so we won't be seeing much more from the `conditional_effects()` function in this ebook. But if you like method, you can find more ideas by checking out the `conditional_effects` section of the [**brms** reference manual](https://cran.r-project.org/package=brms/brms.pdf) [@brms2020RM] or searching for "conditional_effects" under the ["brms" tag on the Stan Forums](https://discourse.mc-stan.org/c/interfaces/brms/36).
