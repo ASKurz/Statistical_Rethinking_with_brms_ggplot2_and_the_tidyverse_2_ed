@@ -89,6 +89,7 @@ Figure 9.2.b.
 tibble(week   = 1:1e5,
        island = positions) %>%
   mutate(island = factor(island)) %>%
+  
   ggplot(aes(x = island)) +
   geom_bar(fill = pomological_palette[2]) +
   scale_y_continuous("number of weeks", expand = expansion(mult = c(0, 0.05))) +
@@ -109,7 +110,7 @@ The Gibbs sampler [@gemanStochasticRelaxationGibbs1984; @casellaExplainingGibbsS
 
 The Gibbs sampler is limited in that (a) you might not want to use conjugate priors and (b) it can be quite inefficient with complex hierarchical models, which we'll be fitting soon. McElreath gave a visual example of the pathology high autocorrelations can create when using the Metropolis algorithm. However, the Metropolis algorithm is beyond the scope of this project and we will not be reproducing those plots at this time. However, if any enthusiastic readers happen to reproduce those plots on their own, I would be [interested in seeing your code](https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed/issues).
 
-We may as well make a version of Figure 9.4, however. McElreath threw us a bone and gave us the code in his **R** code 9.4. Here we'll warp his code into a function called `concentration_sim()` which adds a `seed` argument for reproducibility. 
+We may as well make a version of Figure 9.4, however. McElreath threw us a bone and gave us the code in his **R** code 9.4. Here we'll warp his code into a function called `concentration_sim()` which adds a `seed` argument for reproducibility.
 
 ```{r}
 concentration_sim <- function(d = 1, t = 1e3, seed = 9) {
@@ -141,7 +142,7 @@ d  %>%
   theme(legend.position = c(.7, .625))
 ```
 
-With high-dimensional posteriors, 
+With high-dimensional posteriors,
 
 > sampled points are in a thin, high-dimensional shell very far from the mode. This shell can create very hard paths for a sampler to follow.
 >
@@ -297,7 +298,7 @@ HMC2(U, grad_U, epsilon, L, current_q)
 
 This section is beyond the scope of this project.
 
-### Limitations. 
+### Limitations.
 
 > As always, there are some limitations. HMC requires continuous parameters. It can't glide through a discrete parameter. In practice, this means that certain techniques, like the imputation of discrete missing data, have to be done differently with HMC. HMC can certainly sample from such models, often much more efficiently than a Gibbs sampler could. But you have to change how you code them. (p. 278)
 
@@ -314,7 +315,7 @@ d <- rugged
 rm(rugged)
 ```
 
-It takes just a sec to do a little data manipulation. 
+It takes just a sec to do a little data manipulation.
 
 ```{r}
 d <- 
@@ -484,6 +485,7 @@ post %>%
 Now we get the pairs plot on the lower triangle and the Pearson's correlation coefficients in the upper. Since `GGally::ggpairs()` returns a **ggplot2** object, you can customize it as you please.
 
 ```{r, fig.width = 6, fig.height = 5.5, message = F, warning = F}
+# make the custom functions
 my_diag <- function(data, mapping, ...) {
   ggplot(data = data, mapping = mapping) + 
     geom_density(fill = pomological_palette[7],
@@ -497,6 +499,7 @@ my_upper <- function(data, mapping, ...) {
                         high = pomological_palette[1])
 }
 
+# plot!
 post %>%
   select(-lp__ ) %>%
   ggpairs(lower = list(continuous = wrap("cor", family = "Marck Script", color = "black")),
@@ -542,7 +545,7 @@ post %>%
 ```
 
 That's just what we like to see--nice L-shaped autocorrelation plots. Those are the kinds of shapes you'd expect when you have reasonably large effective samples.
-Before we move on, there's an important difference between the trace plots McElreath showed in the text and the ones we just made. McElreath's trace plots include the warmup iterations. Ours did not. To my knowledge, neither the `brms::plot()` nor the `bayesplot::mcmc_trace()` functions support including warmups in their trace plots. One quick way to get them is with the [**ggmcmc** package](https://cran.rstudio.com/package=ggmcmc) [@R-ggmcmc; @marinGgmcmcAnalysisMCMC2016]. 
+Before we move on, there's an important difference between the trace plots McElreath showed in the text and the ones we just made. McElreath's trace plots include the warmup iterations. Ours did not. To my knowledge, neither the `brms::plot()` nor the `bayesplot::mcmc_trace()` functions support including warmups in their trace plots. One quick way to get them is with the [**ggmcmc** package](https://cran.rstudio.com/package=ggmcmc) [@R-ggmcmc; @marinGgmcmcAnalysisMCMC2016].
 
 ```{r, message = F, warning = F}
 # install.packages("ggmcmc", dependencies = T)
@@ -574,7 +577,7 @@ ggs(b9.1b) %>%
        x = NULL, y = NULL) +
   theme_pomological_fancy(base_family = "Marck Script") +
   theme(legend.position = c(.95, .18)) +
-  facet_wrap(~Parameter, scales = "free_y")
+  facet_wrap(~ Parameter, scales = "free_y")
 ```
 
 Following **brms** defaults, we won't include warmup iterations in the trace plots for other models in this book. A nice thing about plots that do contain them, though, is they reveal how quickly our HMC chains transition away from their start values into the posterior. To get a better sense of this, let's make those trace plots once more, but this time zooming in on the first 50 iterations.
@@ -594,7 +597,7 @@ ggs(b9.1b) %>%
   coord_cartesian(xlim = c(1, 50)) +
   theme_pomological_fancy(base_family = "Marck Script") +
   theme(legend.position = c(.95, .18)) +
-  facet_wrap(~Parameter, scales = "free_y")
+  facet_wrap(~ Parameter, scales = "free_y")
 ```
 
 For each parameter, the all four chains had moved away from their starting values to converge on the marginal posteriors by the 30^th^ iteration or so.
@@ -605,7 +608,7 @@ But anyway, we've veered a bit from the text. McElreath pointed out a second way
 post %>% 
   mcmc_rank_overlay(pars = vars(b_a_cid1:sigma)) +
   scale_color_pomological() +
-  labs(title = "My custom trank plots") +
+  ggtitle("My custom trank plots") +
   coord_cartesian(ylim = c(25, NA)) +
   theme_pomological_fancy(base_family = "Marck Script") +
   theme(legend.position = c(.95, .2))
@@ -639,7 +642,7 @@ The **brms** defaults are `iter = 2000` and `warmup = 1000`, which are twice the
 
 And remember, with changes from **brms** version 2.10.0, we now have both `Bulk_ESS` and `Tail_ESS` to consult when thinking about the effective sample size. What McElreath referred to as `n_eff` is what we now think of as `Bulk_ESS` when using **brms**. When McElreath referred to the "tail ESS" in the end of that block quote, that's our **brms** `Tail_ESS` number.
 
-#### Rethinking: Warmup is not burn-in. 
+#### Rethinking: Warmup is not burn-in.
 
 > Other MCMC algorithms and software often discuss **burn-in**....
 >
@@ -651,7 +654,7 @@ And remember, with changes from **brms** version 2.10.0, we now have both `Bulk_
 >
 > for typical regression models, you can live by the motto *one short chain to debug, four chains for verification and inference*. (pp. 288--289, *emphasis* in the original)
 
-#### Rethinking: Convergence diagnostics. 
+#### Rethinking: Convergence diagnostics.
 
 We've already covered how **brms** has expanded the traditional notion of effective samples (i.e., `n_eff`) to `Bulk_ESS` and `Tail_ESS`. Times are changing for the $\widehat R$, too. However, it turns out the Stan team has found some deficiencies with the $\widehat R$, for which they've made recommendations that will be implemented in the Stan ecosystem sometime soon (see [here](https://discourse.mc-stan.org/t/new-r-hat-and-ess/8165) for a related thread on the Stan Forums). In the meantime, you can read all about it in @vehtariRanknormalizationFoldingLocalization2019 and in one of Dan Simpson's [blog posts](https://statmodeling.stat.columbia.edu/2019/03/19/maybe-its-time-to-let-the-old-ways-die-or-we-broke-r-hat-so-now-we-have-to-fix-it/). If you learn best by sassy twitter banter, [click through this interchange](https://twitter.com/betanalpha/status/1108185746870030336) among some of our Stan team all-stars.
 
@@ -819,11 +822,11 @@ p2 <-
 
 > These weakly informative priors have helped by providing a very gentle nudge towards reasonable values of the parameters. Now values like 30 million are no longer equally plausible as small values like 1 or 2. Lots of problematic chains want subtle priors like these, designed to tune estimation by assuming a tiny bit of prior information about each parameter. And even though the priors end up getting washed out right away--two observations were enough here--they still have a big effect on inference, by allowing us to get an answer. (pp. 292--293)
 
-#### Rethinking: The folk theorem of statistical computing. 
+#### Rethinking: The folk theorem of statistical computing.
 
 > The example above illustrates [Andrew Gelman's **folk theorem of statistical computing**](https://andrewgelman.com/2008/05/13/the_folk_theore/): When you have computational problems, often there's a problem with your model. Before we begin to tune the software and pour more computer power into a problem, it can be useful to go over the model specification again, and the data itself, to make sure the problem isn't in the pre-sampling stage. (p. 293)
 
-#### Overthinking: Divergent transitions are your friend. 
+#### Overthinking: Divergent transitions are your friend.
 
 > You'll see divergent transition warnings often in using [`brms::brm()`] and Stan. They are your friend, providing a helpful warning. These warnings arise when the numerical simulation that HMC uses is inaccurate. HMC can detect these inaccuracies. That is one of its major advantages over other sampling approaches, most of which provide few automatic ways to discover bad chains. (p. 293)
 
@@ -890,7 +893,7 @@ trace_rank <- function(data, var, subtitle = NULL, ymin = NA) {
                facet_args = list(ncol = 1)) +
     labs(subtitle = subtitle,
          y = NULL) +
-    facet_wrap(~parameter)
+    facet_wrap(~ parameter)
   
   p2 <-
     data %>%
