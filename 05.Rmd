@@ -114,10 +114,10 @@ left_join(
   theme_void() +
   theme(legend.position = "none",
         strip.text = element_text(margin = margin(0, 0, .5, 0))) +
-  facet_wrap(~name) 
+  facet_wrap(~ name) 
 ```
 
-One of the advantages of this visualization method is it just became clear that Nevada is missing from the WaffleDivorce data. Execute `d %>% distinct(Location)` to see for yourself and click [here](https://github.com/rmcelreath/rethinking/issues/62) to find out why it's missing. Those missing data should motivate the skills we'll cover in Chapter 15. But let's get back on track.
+One of the advantages of this visualization method is it just became clear that Nevada is missing from the WaffleDivorce data. Execute `d %>% distinct(Location)` to see for yourself and click [here](https://github.com/rmcelreath/rethinking/issues/62) to find out why it's missing. Those missing data should motivate the skills we'll cover in [Chapter 15][Missing Data and Other Opportunities]. But let's get back on track.
 
 Here's the standard deviation for `MedianAgeMarriage` in its current metric.
 
@@ -293,7 +293,7 @@ If you're interested in making directed acyclic graphs (DAG) in **R**, the [**da
 library(ggdag)
 ```
 
-If all you want is a quick and dirty DAG for our three variables, you can execute something like this.
+If all you want is a quick and dirty DAG for our three variables, you might execute something like this.
 
 ```{r, fig.width = 3, fig.height = 1.75}
 set.seed(5)
@@ -313,8 +313,8 @@ dag_coords <-
 
 p1 <-
   dagify(M ~ A,
-       D ~ A + M,
-       coords = dag_coords) %>%
+         D ~ A + M,
+         coords = dag_coords) %>%
   
   ggplot(aes(x = x, y = y, xend = xend, yend = yend)) +
   geom_dag_point(color = "firebrick", alpha = 1/4, size = 10) +
@@ -364,7 +364,7 @@ p2
 >
 > So which is it? Is there a direct effect of marriage rate, or rather is age at marriage just driving both, creating a spurious correlation between marriage rate and divorce rate? To find out, we need to consider carefully what each DAG implies. That's what's next. (p. 129)
 
-#### Rethinking: What's a cause? 
+#### Rethinking: What's a cause?
 
 > Questions of causation can become bogged down in philosophical debates. These debates are worth having. But they don’t usually intersect with statistical concerns. Knowing a cause in statistics means being able to correctly predict the consequences of an intervention. There are contexts in which even this is complicated. (p. 129)
 
@@ -386,7 +386,7 @@ d %>%
   cor()
 ```
 
-If you just want the lower triangle, you can use the `lowerCor()` function from the [**psych** package](https://CRAN.R-project.org/package=psych) [@R-psych]. 
+If you just want the lower triangle, you can use the `lowerCor()` function from the [**psych** package](https://CRAN.R-project.org/package=psych) [@R-psych].
 
 ```{r, warning = F, message = F}
 library(psych)
@@ -477,7 +477,7 @@ bind_cols(
             ll   = quantile(value, prob = .025),
             ul   = quantile(value, prob = .975)) %>% 
   # since the `key` variable is really two variables in one, here we split them up
-  separate(name, into = c("fit", "parameter"), sep = "_") %>% 
+  separate(col = name, into = c("fit", "parameter"), sep = "_") %>% 
   
   # plot!
   ggplot(aes(x = mean, xmin = ll, xmax = ul, y = fit)) +
@@ -487,7 +487,7 @@ bind_cols(
   theme_bw() +
   theme(panel.grid = element_blank(),
         strip.background = element_rect(fill = "transparent", color = "transparent")) +
-  facet_wrap(~parameter, ncol = 1, labeller = label_parsed)
+  facet_wrap(~ parameter, ncol = 1, labeller = label_parsed)
 ```
 
 Don't worry, coefficient plots won't always be this complicated. We'll walk out simpler ones toward the end of the chapter.
@@ -582,7 +582,7 @@ bind_cols(
   theme_bw() +
   theme(panel.grid = element_blank(),
         strip.background = element_blank()) +
-  facet_wrap(~parameter, ncol = 1, labeller = label_parsed)
+  facet_wrap(~ parameter, ncol = 1, labeller = label_parsed)
 ```
 
 Well, okay. This is the same basic pattern, but with the signs switched and with a little simulation variability thrown in. But you get the picture.
@@ -661,8 +661,8 @@ With our residuals in hand, we just need a little more data processing to make l
 ```{r, fig.width = 3, fig.height = 3, message = F}
 r <- 
   residuals(b5.4) %>%
-  # To use this in ggplot2, we need to make it a tibble or data frame
-  as_tibble() %>% 
+  # to use this in ggplot2, we need to make it a tibble or data frame
+  data.frame() %>% 
   bind_cols(d)
 
 p3 <-
@@ -763,7 +763,7 @@ Here we close out the section by combining our four subplots into one glorious w
 p1 + p2 + p3 + p4 + plot_annotation(title = "Understanding multiple regression through residuals")
 ```
 
-##### Rethinking: Residuals are parameters, not data. 
+##### Rethinking: Residuals are parameters, not data.
 
 > There is a tradition, especially in parts of biology, of using residuals from one model as data in another model. For example, a biologist might regress brain size on body size and then use the brain size residuals as data in another model. This procedure is always a mistake. Residuals are not known. They are parameters, variables with unobserved values. Treating them as known values throws away uncertainty. (p. 137)
 
@@ -809,7 +809,7 @@ The code below will make our version of Figure 5.5.
 ```{r, fig.width = 3, fig.height = 3}
 fitted(b5.3) %>%
   data.frame() %>%
-  # unstandardize the model predictions
+  # un-standardize the model predictions
   mutate_all(~. * sd(d$Divorce) + mean(d$Divorce)) %>% 
   bind_cols(d) %>%
   
@@ -1066,7 +1066,7 @@ predict(b5.3_A,
   theme(panel.grid = element_blank()) 
 ```
 
-##### Overthinking: Simulating counterfactuals. 
+##### Overthinking: Simulating counterfactuals.
 
 Just like McElreath showed how to compute the counterfactuals without his `sim()` function, we can make ours without `brms::predict()`. First we'll start out extracting the posterior draws.
 
@@ -1111,7 +1111,7 @@ post %>%
   theme_bw() +
   theme(panel.grid = element_blank(),
         strip.background = element_blank()) +
-  facet_wrap(~dv)
+  facet_wrap(~ dv)
 ```
 
 ## Masked relationship
@@ -1285,7 +1285,7 @@ bind_rows(
         axis.ticks.y = element_blank(),
         panel.grid = element_blank(),
         strip.background = element_blank()) +
-  facet_wrap(~name, ncol = 1)
+  facet_wrap(~ name, ncol = 1)
 ```
 
 The results were quite similar, but the estimates from `b5.5` are more precise. Let's get back on track with the text and make the top left panel of Figure 5.9. Just for kicks, we'll superimpose 50% intervals atop 95% intervals for the next few plots. Here's Figure 5.9, top left.
@@ -1316,7 +1316,7 @@ fitted(b5.5,
   theme(panel.grid = element_blank())
 ```
 
-Do note the `probs` argument in the `fitted()` code, above. 
+Do note the `probs` argument in the `fitted()` code, above.
 
 Now we use `log_mass_s` as the new sole predictor.
 
@@ -1346,7 +1346,7 @@ nd <- tibble(log_mass_s = seq(from = -2.5, to = 2.5, length.out = 30))
 fitted(b5.6, 
        newdata = nd,
        probs = c(.025, .975, .25, .75)) %>%
-  as_tibble() %>%
+  data.frame() %>%
   bind_cols(nd) %>% 
   
   ggplot(aes(x = log_mass_s, y = Estimate)) +
@@ -1356,7 +1356,7 @@ fitted(b5.6,
               stat = "identity",
               fill = "firebrick4", color = "firebrick4", alpha = 1/5, size = 1/2) +
   geom_point(data = dcc, 
-             aes(x = log_mass_s, y = kcal.per.g_s),
+             aes(y = kcal.per.g_s),
              size = 2, color = "firebrick4") +
   coord_cartesian(xlim = range(dcc$log_mass_s), 
                   ylim = range(dcc$kcal.per.g_s)) +
@@ -1423,7 +1423,7 @@ bind_cols(
   theme_bw() +
   theme(panel.grid = element_blank(),
         strip.background = element_rect(fill = "transparent", color = "transparent")) +
-  facet_wrap(~parameter, ncol = 1, labeller = label_parsed)
+  facet_wrap(~ parameter, ncol = 1, labeller = label_parsed)
 ```
 
 On page 151, McElreath suggested we look at a pairs plot to get a sense of the zero-order correlations. We did that once with the raw data. Here it is, again, but with the transformed variables.
@@ -1448,6 +1448,7 @@ dcc %>%
 But you can customize [these](http://ggobi.github.io/ggally/), too. E.g.,
 
 ```{r, fig.width = 3.5, fig.height = 3.5, message = F}
+# define custom functions
 my_diag <- function(data, mapping, ...) {
   ggplot(data = data, mapping = mapping) + 
     geom_density(fill = "firebrick4", size = 0)
@@ -1460,6 +1461,7 @@ my_lower <- function(data, mapping, ...) {
     geom_point(color = "firebrick", alpha = .8, size = 1/3)
   }
 
+# plot
 dcc %>% 
   select(ends_with("_s")) %>% 
   ggpairs(upper = list(continuous = wrap("cor", family = "sans", color = "black")),
@@ -1544,13 +1546,13 @@ Let's make the counterfactual plots at the bottom of Figure 5.9. Here's the one 
 
 ```{r}
 nd <- tibble(neocortex.perc_s = seq(from = -2.5, to = 2, length.out = 30),
-             log_mass_s = 0)
+             log_mass_s       = 0)
 
 p1 <-
   fitted(b5.7, 
          newdata = nd,
          probs = c(.025, .975, .25, .75)) %>%
-  as_tibble() %>%
+  data.frame() %>%
   bind_cols(nd) %>% 
   
   ggplot(aes(x = neocortex.perc_s, y = Estimate)) +
@@ -1569,14 +1571,14 @@ p1 <-
 Now make Figure 5.9, bottom right, and combine the two.
 
 ```{r, fig.width = 6, fig.height = 3.25, warning = F, message = F}
-nd <- tibble(log_mass_s = seq(from = -2.5, to = 2.5, length.out = 30),
+nd <- tibble(log_mass_s       = seq(from = -2.5, to = 2.5, length.out = 30),
              neocortex.perc_s = 0)
 
 p2 <-
   fitted(b5.7, 
          newdata = nd,
          probs = c(.025, .975, .25, .75)) %>%
-  as_tibble() %>%
+  data.frame() %>%
   bind_cols(nd) %>% 
   
   ggplot(aes(x = log_mass_s, y = Estimate)) +
@@ -1703,7 +1705,7 @@ dag5.7 %>%
   theme_bw() +
   theme(panel.grid = element_blank(),
         strip.background = element_blank()) +
-  facet_wrap(~dag)
+  facet_wrap(~ dag)
 ```
 
 These all demonstrate Markov equivalence. I should note that I [got help](https://github.com/malcolmbarrett/ggdag/issues/41) from the great [Malcolm Barrett](https://twitter.com/malco_barrett) on how to make this plot with **ggdag**.
@@ -1903,7 +1905,7 @@ The `mcmc_plot()` function is an easy way to get a default coefficient plot. You
 mcmc_plot(b5.9, pars = "^b_")
 ```
 
-There are numerous ways to make a coefficient plot. Another is with the `mcmc_intervals()` function from the [**bayesplot** package](https://mc-stan.org/bayesplot/) [@R-bayesplot; @gabry2019visualization]. A nice feature of the **bayesplot** package is its convenient way to alter the color scheme with the `color_scheme_set()` function. Here, for example, we'll make the theme `red`. But note how the `mcmc_intervals()` function requires you to work with the `posterior_samples()` instead of the brmsfit object. 
+There are numerous ways to make a coefficient plot. Another is with the `mcmc_intervals()` function from the [**bayesplot** package](https://mc-stan.org/bayesplot/) [@R-bayesplot; @gabry2019visualization]. A nice feature of the **bayesplot** package is its convenient way to alter the color scheme with the `color_scheme_set()` function. Here, for example, we'll make the theme `red`. But note how the `mcmc_intervals()` function requires you to work with the `posterior_samples()` instead of the brmsfit object.
 
 ```{r, message = F, warning = F, fig.width = 6, fig.height = 1.25}
 # install.packages("bayesplot", dependencies = T)
@@ -2047,7 +2049,7 @@ posterior_samples(b5.11) %>%
         axis.ticks.y = element_blank(),
         panel.grid = element_blank(),
         strip.background = element_blank()) +
-  facet_wrap(~predictor, scales = "free_y")
+  facet_wrap(~ predictor, scales = "free_y")
 ```
 
 Just for fun, we used 89% intervals.
@@ -2064,7 +2066,7 @@ One of the noteworthy changes in the second edition of *Statistical rethinking* 
 
 ### You can use a dummy.
 
-The first alternative is the one McElreath mentioned directly at the top of page 154. If you have $K$ categories in a nominal variable, you can depict the categories in the model with $K - 1$ dummy variables. To start simple, consider the case of the $K = 2$ variable `sex` we used in `b5.8`. 
+The first alternative is the one McElreath mentioned directly at the top of page 154. If you have $K$ categories in a nominal variable, you can depict the categories in the model with $K - 1$ dummy variables. To start simple, consider the case of the $K = 2$ variable `sex` we used in `b5.8`.
 
 ```{r}
 b5.8$data %>% 
@@ -2193,10 +2195,10 @@ posterior_samples(b5.8c) %>%
   stat_halfeye(.width = .95,
                fill = "firebrick4", normalize = "panels") +
   scale_y_continuous(NULL, breaks = NULL) +
-  theme_bw() +
   xlab("height") +
+  theme_bw() +
   theme(panel.grid = element_blank()) +
-  facet_wrap(~name, scales = "free")
+  facet_wrap(~ name, scales = "free")
 ```
 
 This approach can also be generalized to contexts where you have three or more groups. I'm not going to show you how to do so, here. It's a deep rabbit hole and I'm just not interested in shoveling that hard, today. For those who want more, I'll provide some references at the end.
