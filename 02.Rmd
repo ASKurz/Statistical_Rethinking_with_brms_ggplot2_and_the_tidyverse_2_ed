@@ -607,7 +607,7 @@ d %>%
   scale_x_continuous("proportion water", breaks = c(0, .5, 1)) +
   scale_y_continuous("plausibility", breaks = NULL) +
   theme(panel.grid = element_blank()) +
-  facet_wrap(~strip, scales = "free_y")
+  facet_wrap(~ strip, scales = "free_y")
 ```
 
 If it wasn't clear in the code, the dashed curves are normalized prior densities. The solid ones are normalized likelihoods. If you don't normalize (i.e., divide the density by the sum of the density), their respective heights don't match up with those in the text. Furthermore, it’s the normalization that makes them directly comparable.
@@ -709,7 +709,7 @@ tibble(a = 0,
                      labels = c("0", "1/9", "1/3", "1/2", "2/3", "1")) +
   theme(panel.grid.minor = element_blank(),
         panel.grid.major.x = element_blank()) +
-  facet_wrap(~b, ncol = 5)
+  facet_wrap(~ b, ncol = 5)
 ```
 
 As we'll learn much later in the project, the $\operatorname{Uniform}(0, 1)$ distribution is special in that we can also express it as the beta distribution for which $\alpha = 1 \text{ and } \beta = 1$. E.g.,
@@ -793,7 +793,7 @@ p1 <-
   scale_x_continuous(NULL, breaks = NULL) +
   scale_y_continuous(NULL, breaks = NULL) +
   theme(panel.grid = element_blank()) +
-  facet_wrap(~name, scales = "free_y")
+  facet_wrap(~ name, scales = "free_y")
 
 p2 <-
   d %>%
@@ -805,7 +805,7 @@ p2 <-
   theme(panel.grid = element_blank(),
         strip.background = element_blank(),
         strip.text = element_blank()) +
-  facet_wrap(~name, scales = "free_y")
+  facet_wrap(~ name, scales = "free_y")
 
 p3 <-
   d %>%
@@ -817,7 +817,7 @@ p3 <-
   theme(panel.grid = element_blank(),
         strip.background = element_blank(),
         strip.text = element_blank()) +
-  facet_wrap(~name, scales = "free_y")
+  facet_wrap(~ name, scales = "free_y")
 
 library(patchwork)
 
@@ -930,7 +930,7 @@ tibble(n_points = c(5, 20)) %>%
        x = "probability of water",
        y = "posterior probability") +
   theme(panel.grid = element_blank()) +
-  facet_grid(n_points~priors, scales = "free")
+  facet_grid(n_points ~ priors, scales = "free")
 ```
 
 ### Quadratic approximation.
@@ -1007,7 +1007,7 @@ tibble(w = c(6, 12, 24),
   labs(x = "proportion water",
        y = "density") +
   theme(panel.grid = element_blank()) +
-  facet_wrap(~n, scales = "free")
+  facet_wrap(~ n, scales = "free")
 ```
 
 > This phenomenon, where the quadratic approximation improves with the amount of data, is very common. It's one of the reasons that so many classical statistical procedures are nervous about small samples: Those procedures use quadratic (or other) approximations that are only known to be safe with infinite data. Often, these approximations are useful with less than infinite data, obviously. But the rate of improvement as sample size increases varies greatly depending upon the details. In some models, the quadratic approximation can remain terrible even with thousands of samples. (p. 44)
@@ -1067,7 +1067,7 @@ posterior_samples(b2.1) %>%
   geom_density(fill = "black") +
   scale_x_continuous("proportion water", limits = c(0, 1)) +
   theme(panel.grid = element_blank()) +
-  facet_wrap(~n)
+  facet_wrap(~ n)
 ```
 
 If you're still confused. Cool. This is just a preview. We'll start walking through fitting models with **brms** in [Chapter 4][Geocentric models] and we'll learn a lot about regression with the binomial likelihood in [Chapter 11][God Spiked the Integers].

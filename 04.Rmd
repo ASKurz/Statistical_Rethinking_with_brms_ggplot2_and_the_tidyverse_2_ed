@@ -158,13 +158,12 @@ samples <-
 
 # wrangle
 samples %>% 
-  pivot_longer(everything(),
-               values_to = "samples") %>% 
+  pivot_longer(everything(), values_to = "samples") %>% 
   
   # plot
   ggplot(aes(x = samples)) +
   geom_density(fill = "black") +
-  facet_wrap(~name, scales = "free") 
+  facet_wrap(~ name, scales = "free") 
 ```
 
 Yep, the `small` samples were more Gaussian. "The interacting growth deviations, as long as they are sufficiently small, converge to a Gaussian distribution. In this way, the range of causal forces that tend towards Gaussian distributions extends well beyond purely additive interactions" (p. 74).
@@ -196,7 +195,7 @@ The Gaussian is
 >
 > [However,] one consequence of this is that statistical models based on Gaussian distributions cannot reliably identify micro-process. (p. 75)
 
-But like Ptolemy’s circles within circles, the Gaussian can still be useful even if it sheds information.
+But like Ptolemy's circles within circles, the Gaussian can still be useful even if it sheds information.
 
 #### Epistemological justification.
 
@@ -204,7 +203,7 @@ But like Ptolemy’s circles within circles, the Gaussian can still be useful ev
 >
 > That is to say that the Gaussian distribution is the most natural expression of our state of ignorance, because if all we are willing to assume is that a measure has finite variance, the Gaussian distribution is the shape that can be realized in the largest number of ways and does not introduce any new assumptions. It is the least surprising and least informative assumption to make. In this way, the Gaussian is the distribution most consistent with our assumptions. Or rather, it is the most consistent with our golem's assumptions. If you don't think the distribution should be Gaussian, then that implies that you know something else that you should tell your golem about, something that would improve inference. (p. 75)
 
-We'll dive deeper into why the Gaussian is such a natural expression of ignorance in these contexts when we cover maximum entropy in Chapter 7.
+We'll dive deeper into why the Gaussian is such a natural expression of ignorance in these contexts when we cover maximum entropy in [Chapter 7][Ulysses' Compass].
 
 #### Rethinking: Heavy tails.
 
@@ -297,7 +296,7 @@ d %>%
   scale_fill_manual(values = c("blue", "red", "purple")) +
   scale_y_continuous(NULL, breaks = NULL) +
   theme(legend.position = "none") +
-  facet_wrap(~name, scales = "free")
+  facet_wrap(~ name, scales = "free")
 ```
 
 The posterior is a combination of the prior and the likelihood. When the prior is flat across the parameter space, the posterior is just the likelihood re-expressed as a probability. As we go along, you'll see we almost never use flat priors in practice. Be warned that eschewing flat priors is a recent development, however. You only have to look at the literature from a couple decades ago to see mounds and mounds of flat priors.
@@ -347,7 +346,7 @@ d %>%
   
   ggplot(aes(x = value)) +
   geom_histogram(bins = 10) +
-  facet_wrap(~name, scales = "free", ncol = 1)
+  facet_wrap(~ name, scales = "free", ncol = 1)
 ```
 
 If you're curious, McElreath made those tiny histograms with help from Wickham's [`histospark()` function](https://github.com/hadley/precis/blob/master/R/histospark.R). Here's the code.
@@ -600,8 +599,8 @@ d_grid <-
   d_grid %>% 
   mutate(log_likelihood = map2(mu, sigma, grid_function)) %>%
   unnest(log_likelihood) %>% 
-  mutate(prior_mu    = dnorm(mu,    mean = 178, sd  = 20, log = T),
-         prior_sigma = dunif(sigma, min  = 0,   max = 50, log = T)) %>% 
+  mutate(prior_mu    = dnorm(mu, mean = 178, sd = 20, log = T),
+         prior_sigma = dunif(sigma, min = 0, max = 50, log = T)) %>% 
   mutate(product = log_likelihood + prior_mu + prior_sigma) %>% 
   mutate(probability = exp(product - max(product)))
   
@@ -664,8 +663,7 @@ d_grid_samples %>%
   scale_y_continuous(NULL, breaks = NULL) +
   xlab(NULL) +
   theme(panel.grid = element_blank()) +
-  facet_wrap(~name, scales = "free",
-             labeller = label_parsed)
+  facet_wrap(~ name, scales = "free", labeller = label_parsed)
 ```
 
 We'll use the **tidybayes** package to compute their posterior modes and 95% HDIs.
@@ -718,7 +716,7 @@ Now we'll use the amended `grid_function()` to make the posterior.
 d_grid <-
   d_grid %>% 
   mutate(log_likelihood = map2_dbl(mu, sigma, grid_function)) %>% 
-  mutate(prior_mu    = dnorm(mu, mean = 178, sd  = 20, log = T),
+  mutate(prior_mu    = dnorm(mu, mean = 178, sd = 20, log = T),
          prior_sigma = dunif(sigma, min = 0, max = 50, log = T)) %>% 
   mutate(product = log_likelihood + prior_mu + prior_sigma) %>% 
   mutate(probability = exp(product - max(product)))
@@ -738,7 +736,6 @@ d_grid_samples <-
 d_grid_samples %>% 
   ggplot(aes(x = mu, y = sigma)) + 
   geom_point(size = .9, alpha = 1/15) +
-  scale_fill_viridis_c() +
   labs(x = expression(mu[samples]),
        y = expression(sigma[samples])) +
   theme(panel.grid = element_blank())
@@ -755,7 +752,7 @@ d_grid_samples %>%
   scale_y_continuous(NULL, breaks = NULL) +
   xlab(NULL) +
   theme(panel.grid = element_blank()) +
-  facet_wrap(~name, scales = "free", labeller = label_parsed)
+  facet_wrap(~ name, scales = "free", labeller = label_parsed)
 ```
 
 That `labeller = label_parsed` bit in the `facet_wrap()` function is what converted our subplot strip labels into Greek. You can learn more about `labeller` [here](https://ggplot2.tidyverse.org/reference/labeller.html). Anyway, our posterior for $\sigma$ isn't so Gaussian with that small $n$.
@@ -969,7 +966,7 @@ We won't be emphasizing start values in this ebook. But, yes, you can set start 
 
 #### Overthinking: Under the hood with multivariate sampling.
 
-Again, `brms::posterior_samples()` is not the same as `rethinking::extract.samples()`. Rather than use the `MASS::mvnorm()`, **brms** takes the draws from the HMC chains. McElreath covered all of this in Chapter 9 and we will too. You might also look at the [**brms** reference manual](https://cran.r-project.org/package=brms/brms.pdf) or [GitHub page](https://github.com/paul-buerkner/brms) for details. To get documentation in a hurry, you could also just execute `?posterior_samples`.
+Again, `brms::posterior_samples()` is not the same as `rethinking::extract.samples()`. Rather than use the `MASS::mvnorm()`, **brms** takes the draws from the HMC chains. McElreath covered all of this in [Chapter 9][Markov Chain Monte Carlo] and we will too. You might also look at the [**brms** reference manual](https://cran.r-project.org/package=brms/brms.pdf) or [GitHub page](https://github.com/paul-buerkner/brms) for details. To get documentation in a hurry, you could also just execute `?posterior_samples`.
 
 ## Linear prediction
 
@@ -1039,7 +1036,7 @@ n_lines <- 100
 lines <-
   tibble(n = 1:n_lines,
          a = rnorm(n_lines, mean = 178, sd = 20),
-         b = rnorm(n_lines, mean = 0,   sd = 10)) %>% 
+         b = rnorm(n_lines, mean = 0, sd = 10)) %>% 
   expand(nesting(n, a, b), weight = range(d2$weight)) %>% 
   mutate(height = a + b * (weight - mean(d2$weight)))
 
@@ -1087,7 +1084,7 @@ tibble(rnorm           = rnorm(1e5, mean = 0, sd = 1),
   geom_density(fill = "grey92") +
   coord_cartesian(xlim = c(-3, 3)) +
   theme_classic() +
-  facet_wrap(~name, nrow = 2)
+  facet_wrap(~ name, nrow = 2)
 ```
 
 They are the same within simulation variance. Also, did you notice how we simulated those log-normal data with `mean = 0, sd = 1`? Those values are what the mean and standard deviation of the output from the `rlnorm()` function **after** they are log transformed. The formulas for the actual mean and standard deviation for the log-normal distribution itself are complicated (see [here](https://en.wikipedia.org/wiki/Log-normal_distribution)). They are
@@ -1213,7 +1210,7 @@ ggmcmc::ggs(b4.3) %>%
             size = .25) +
   scale_color_viridis_d(end = .75) +
   theme_classic() +
-  facet_wrap(~Parameter, scales = "free_y", ncol = 1)
+  facet_wrap(~ Parameter, scales = "free_y", ncol = 1)
 ```
 
 #### Overthinking: Logs and exps, oh my.
@@ -1249,7 +1246,7 @@ They're the same within simulation variance.
 
 "One trouble with statistical models is that they are hard to understand" (p. 99). Welcome to the world of applied statistics, friends. `r emo::ji("sweat_smile")`
 
-##### Rethinking: What do parameters mean? 
+##### Rethinking: What do parameters mean?
 
 > A basic issue with interpreting model-based estimates is in knowing the meaning of parameters. There is no consensus about what a parameter means, however, because different people take different philosophical stances towards models, probability, and prediction. The perspective in this book is a common Bayesian perspective: *Posterior probabilities of parameter values describe the relative compatibility of different states of the world with the data, according to the model*. (p. 99, *emphasis* in the original)
 
@@ -1418,7 +1415,7 @@ Here is the code for the four individual plots.
 
 ```{r}
 p1 <- 
-  ggplot(data =  d2[1:10 , ], 
+  ggplot(data =  d2[1:10, ], 
          aes(x = weight_c, y = height)) +
   geom_abline(intercept = post010[1:20, 1], 
               slope     = post010[1:20, 2],
@@ -1429,7 +1426,7 @@ p1 <-
   labs(subtitle = "N = 10")
 
 p2 <-
-  ggplot(data =  d2[1:50 , ], 
+  ggplot(data =  d2[1:50, ], 
          aes(x = weight_c, y = height)) +
   geom_abline(intercept = post050[1:20, 1], 
               slope     = post050[1:20, 2],
@@ -1440,7 +1437,7 @@ p2 <-
   labs(subtitle = "N = 50")
 
 p3 <-
-  ggplot(data =  d2[1:150 , ], 
+  ggplot(data =  d2[1:150, ], 
          aes(x = weight_c, y = height)) +
   geom_abline(intercept = post150[1:20, 1], 
               slope     = post150[1:20, 2],
@@ -1451,7 +1448,7 @@ p3 <-
   labs(subtitle = "N = 150")
 
 p4 <- 
-  ggplot(data =  d2[1:352 , ], 
+  ggplot(data =  d2[1:352, ], 
          aes(x = weight_c, y = height)) +
   geom_abline(intercept = post352[1:20, 1], 
               slope     = post352[1:20, 2],
@@ -1531,7 +1528,7 @@ mu <- fitted(b4.3, summary = F)
 str(mu)
 ```
 
-When you specify `summary = F`, `fitted()` returns a matrix of values with as many rows as there were post-warmup iterations across your HMC chains and as many columns as there were cases in your analysis. Because we had 4,000 post-warmup iterations and $n = 352$, `fitted()` returned a matrix of 4,000 rows and 352 vectors. If you omitted the `summary = F` argument, the default is `TRUE` and `fitted()` will return summary information instead. 
+When you specify `summary = F`, `fitted()` returns a matrix of values with as many rows as there were post-warmup iterations across your HMC chains and as many columns as there were cases in your analysis. Because we had 4,000 post-warmup iterations and $n = 352$, `fitted()` returned a matrix of 4,000 rows and 352 vectors. If you omitted the `summary = F` argument, the default is `TRUE` and `fitted()` will return summary information instead.
 
 Much like **rethinking**'s `link()`, `brms::fitted()` can accommodate custom predictor values with its `newdata` argument.
 
@@ -1604,7 +1601,7 @@ d2 %>%
 
 if you wanted to use intervals other than the default 95% ones, you'd enter a `probs` argument like this: `fitted(b4.3, newdata = weight.seq, probs = c(.25, .75))`. The resulting third and fourth vectors from the `fitted()` object would be named `Q25` and `Q75` instead of the default `Q2.5` and `Q97.5`. The [`Q` prefix](https://github.com/paul-buerkner/brms/issues/425) stands for quantile.
 
-##### Rethinking: Overconfident intervals. 
+##### Rethinking: Overconfident intervals.
 
 > The compatibility interval for the regression line in Figure 4.9 clings tightly to the MAP line. Thus there is very little uncertainty about the average height as a function of average weight. But you have to keep in mind that these inferences are always conditional on the model. Even a very bad model can have very tight compatibility intervals. It may help if you think of the regression line in Figure 4.9 as saying: *Conditional on the assumption that height and weight are related by a straight line, then this is the most plausible line, and these are its plausible bounds*. (p. 107, *emphasis* in the original)
 
@@ -1735,7 +1732,7 @@ McElreath warned: "Fitting these models to data is easy. Interpreting them can b
 ```{r}
 d <-
   d %>%
-  mutate(weight_s  = (weight - mean(weight)) / sd(weight)) %>% 
+  mutate(weight_s = (weight - mean(weight)) / sd(weight)) %>% 
   mutate(weight_s2 = weight_s^2)
 ```
 
@@ -1779,7 +1776,7 @@ ggmcmc::ggs(b4.5) %>%
             size = .25) +
   scale_color_viridis_d(end = .75) +
   theme_classic() +
-  facet_wrap(~Parameter, scales = "free_y", ncol = 1)
+  facet_wrap(~ Parameter, scales = "free_y", ncol = 1)
 ```
 
 Note our use of the `coef` argument within our prior statements. Since $\beta_1$ and $\beta_2$ are both parameters of `class = b` within the **brms** set-up, we need to use the `coef` argument in cases when we want their priors to differ.
@@ -1834,7 +1831,7 @@ p2 <-
 p2
 ```
 
-From a formula perspective, the cubic model is a simple extenstion of the quadratic:
+From a formula perspective, the cubic model is a simple extension of the quadratic:
 
 $$\mu = \alpha + \beta_1 x_i + \beta_2 x_i^2 + \beta_3 x_i^3.$$
 
@@ -1875,7 +1872,7 @@ ggmcmc::ggs(b4.6) %>%
             size = .25) +
   scale_color_viridis_d(end = .75) +
   theme_classic() +
-  facet_wrap(~Parameter, scales = "free_y", ncol = 1)
+  facet_wrap(~ Parameter, scales = "free_y", ncol = 1)
 ```
 
 And now we'll fit the good old linear model.
@@ -1905,7 +1902,7 @@ ggmcmc::ggs(b4.7) %>%
             size = .25) +
   scale_color_viridis_d(end = .75) +
   theme_classic() +
-  facet_wrap(~Parameter, scales = "free_y", ncol = 1)
+  facet_wrap(~ Parameter, scales = "free_y", ncol = 1)
 ```
 
 Here's the `fitted()`, `predict()`, and **ggplot2** code for Figure 4.11.c, the cubic model.
@@ -2174,7 +2171,7 @@ b %>%
         panel.grid = element_blank(),
         strip.background = element_rect(fill = scales::alpha("#ffb7c5", .25), color = "transparent"),
         strip.text = element_text(size = 8, margin = margin(0.1, 0, 0.1, 0, "cm"))) +
-  facet_wrap(~bias_function, ncol = 1)
+  facet_wrap(~ bias_function, ncol = 1)
 ```
 
 We have come to a point in the text where we need to address a difficulty in the aim of this project. We're trying to translate McElreath's **rethinking** and base **R** code into a more **brms**/**tidyverse** oriented workflow. It's usually quite feasible to switch out the data manipulation and plotting steps from base **R** to their **tidyverse** counterparts. As for the statistical modeling part, **rethinking** and **brms** both function as user-friendly interfaces with the [Stan probabilistic programming language](https://mc-stan.org/) [@carpenterStanProbabilisticProgramming2017] and they share a lot of overlap in their functionality [for a somewhat outdated comparison, see @burknerBrmsPackageBayesian2017]. But they differ in important ways, too. For example, **brms** was not designed to fit models with the quadratic approximation the way McElreath can with `rethinking::quap()`. That's why we just jumped right to using HMC. This section in the book reveals another important difference. Whereas McElreath showcased the use of B-splines with functionality based on the **splines** package, which [is a part of base **R**](https://www.rdocumentation.org/packages/splines/versions/3.6.2), **brms** offers spines and other smoothing approaches using functions for the [**mgcv** package](https://CRAN.R-project.org/package=mgcv) [@R-mgcv; @mgcv2003; @mgcv2004; @mgcv2011; @mgcv2017; @mgcv2016].
