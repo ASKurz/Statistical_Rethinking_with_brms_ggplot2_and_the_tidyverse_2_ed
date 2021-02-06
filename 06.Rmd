@@ -170,10 +170,10 @@ library(bayesplot)
 color_scheme_set("orange")
 
 mcmc_plot(b6.1, 
-         type = "intervals", 
-         prob = .5, 
-         prob_outer = .95,
-         point_est = "mean") +
+          type = "intervals", 
+          prob = .5, 
+          prob_outer = .95,
+          point_est = "mean") +
   labs(title = "The coefficient plot for the two-leg model",
        subtitle = "Holy smokes; look at the widths of those betas!") +
   theme(axis.text.y = element_text(hjust = 0),
@@ -183,7 +183,7 @@ mcmc_plot(b6.1,
 
 Now you can use the `brms::mcmc_plot()` function without explicitly loading the **bayesplot** package. But loading **bayesplot** allows you to set the color scheme with `color_scheme_set()`.
 
-In the middle of page 164, McElreath suggested we might try this again with different seeds. This might be a good place to introduce iteration. Our first step will be to make a custom function that will simulate new data of the same form as above and then immediately fit a model based on `b6.1` to those new data. To speed up the process, we'll use the `update()` function to avoid recompiling the model. Our custom function, sim_and_fit()`, will take two arguments. The `seed` argument will allow us to keep the results reproducible by setting a seed for the data simulation. The `n` argument will allow us, should we wish, to change the sample size. 
+In the middle of page 164, McElreath suggested we might try this again with different seeds. This might be a good place to introduce iteration. Our first step will be to make a custom function that will simulate new data of the same form as above and then immediately fit a model based on `b6.1` to those new data. To speed up the process, we'll use the `update()` function to avoid recompiling the model. Our custom function, sim_and_fit()`, will take two arguments. The `seed` argument will allow us to keep the results reproducible by setting a seed for the data simulation. The `n` argument will allow us, should we wish, to change the sample size.
 
 ```{r}
 sim_and_fit <- function(seed, n = 100) {
@@ -243,7 +243,7 @@ sim %>%
         panel.border = element_rect(color = "black", fill = "transparent"),
         panel.grid.minor = element_blank(),
         strip.text = element_text(hjust = 0)) +
-  facet_wrap(~seed, ncol = 1)
+  facet_wrap(~ seed, ncol = 1)
 ```
 
 Though the results varied across iterations, the overall pattern was massive uncertainty in the two $\beta$ parameters. You may be wondering, 
@@ -348,8 +348,8 @@ posterior_samples(b6.2) %>%
 
 ### Multicollinear `milk`.
 
-Multicollinearity arises in real data, too.
-rethinking
+Multicollinearity arises in real data, too. Load the `milk` data.
+
 ```{r, message = F}
 data(milk, package = "rethinking")
 d <- milk
@@ -431,6 +431,7 @@ Now here's the custom **GGally** version.
 ```{r, fig.width = 4, fig.height = 4, message = F}
 library(GGally)
 
+# define a couple custom functions
 my_diag <- function(data, mapping, ...) {
   ggplot(data = data, mapping = mapping) + 
     geom_density(fill = "steelblue", color = "black")
@@ -480,7 +481,7 @@ dagify(L ~ D,
 
 > The central tradeoff decides how dense, $D$, the milk needs to be. We haven't observed this variable, so it's shown circled. Then fat, $F$, and lactose, $L$, are determined. Finally, the composition of $F$ and $L$ determines the kilocalories, $K$. If we could measure $D$, or had an evolutionary and economic model to predict it based upon other aspects of a species, that would be better than stumbling through regressions. (p. 167)
 
-#### Rethinking: Identification guaranteed; comprehension up to you. 
+#### Rethinking: Identification guaranteed; comprehension up to you.
 
 If you come from a frequentist background, this may jar you, but
 
@@ -491,6 +492,7 @@ If you come from a frequentist background, this may jar you, but
 First we'll get the data and define the functions. You'll note I've defined my `sim_coll()` a little differently from `sim.coll()` in the text. I've omitted `rep.sim.coll()` as an independent function altogether, but computed similar summary information with the `summarise()` code at the bottom of the block.
 
 ```{r, warning = F, message = F}
+# define a custom function
 sim_coll <- function(seed, rho) {
   
   # simulate the data
@@ -573,8 +575,8 @@ And here's a quick summary with `tidybayes::mean_qi()`.
 
 ```{r}
 d %>% 
-  gather() %>% 
-  group_by(key) %>% 
+  pivot_longer(everything()) %>% 
+  group_by(name) %>% 
   mean_qi(.width = .89) %>% 
   mutate_if(is.double, round, digits = 2)
 ```
@@ -604,7 +606,7 @@ sim_p %>%
   scale_y_continuous(NULL, breaks = NULL) +
   coord_cartesian(xlim = c(0, 6)) +
   theme(panel.grid.minor.x = element_blank()) +
-  facet_wrap(~key, scale = "free_y", ncol = 1)
+  facet_wrap(~ key, scale = "free_y", ncol = 1)
 ```
 
 Summarize.
@@ -612,8 +614,8 @@ Summarize.
 ```{r}
 sim_p %>% 
   mutate(`exp(sim_p)` = exp(sim_p)) %>%
-  gather() %>%
-  group_by(key) %>% 
+  pivot_longer(everything()) %>%
+  group_by(name) %>% 
   mean_qi(.width = .89) %>% 
   mutate_if(is.double, round, digits = 2)
 ```
@@ -790,7 +792,7 @@ Anyway, the DAG clarifies
 >
 > An even more DAG way to say this is that conditioning on $F$ induces **d-separation**. The "d" stands for *directional*. D-separation means that some variables on a directed graph are independent of others. There is no path connecting them. In this case, $H_1$ is d-separated from $T$, but only when we condition on $F$. Conditioning on $F$ effectively blocks the directed path $T \rightarrow F \rightarrow H_1$, making $T$ and $H_1$ independent (d-separated). (p. 174, **emphasis** in the original)
 
-Note that our ggdag object, `dag`, will also work with the `dagitty::dseparated()` function.
+Note that our **ggdag** object, `dag`, will also work with the `dagitty::dseparated()` function.
 
 ```{r, message = F, warning = F}
 library(dagitty)
@@ -870,7 +872,7 @@ d2 <-
          treatment = rep(0:1, each = n / 2),
          m         = rbinom(n, size = 1, prob = .5),
          fungus    = rbinom(n, size = 1, prob = .5 - treatment * 0.4 + 0.4 * m),
-         h1        = h0 + rnorm(n, 5 + 3 * m))
+         h1        = h0 + rnorm(n, mean = 5 + 3 * m, sd = 1))
 
 head(d2)
 ```
@@ -971,8 +973,8 @@ d %>%
   mutate(married = factor(married,
                           labels = c("unmarried", "married"))) %>% 
   
-  ggplot(aes(x = age, y = happiness)) +
-  geom_point(aes(color = married), size = 1.75) +
+  ggplot(aes(x = age, y = happiness, color = married)) +
+  geom_point(size = 1.75) +
   scale_color_manual(NULL, values = c("grey85", "forestgreen")) +
   scale_x_continuous(expand = c(.015, .015)) +
   theme(panel.grid = element_blank())
@@ -980,12 +982,10 @@ d %>%
 
 Here's the likelihood for the simple Gaussian multivariable model predicting happiness:
 
-$$
 \begin{align*}
 \text{happiness}_i & \sim \operatorname{Normal}(\mu_i, \sigma) \\
 \mu_i              & = \alpha_{\text{married} [i]} + \beta_1 \text{age}_i ,\\
 \end{align*}
-$$
 
 where $\text{married}[i]$ is the marriage status of individual $i$. Here we make `d2`, the subset of `d` containing only those 18 and up. We then make a new `age` variable, `a`, which is scaled such that $18 = 0$, $65 = 1$, and so on. 
 
@@ -1286,12 +1286,13 @@ Conditioning on either $C$ or $A$ will close the open backdoor.
 
 ```{r}
 dag_6.1 <- 
-  dagitty("dag {
-  U [unobserved]
-  X -> Y
-  X <- U <- A -> C -> Y 
-  U -> B <- C
-           }"
+  dagitty(
+    "dag {
+    U [unobserved]
+    X -> Y
+    X <- U <- A -> C -> Y 
+    U -> B <- C
+    }"
   )
 
 adjustmentSets(dag_6.1, exposure = "X", outcome = "Y")
@@ -1319,12 +1320,13 @@ dagify(A ~ S,
 
 ```{r}
 dag_6.2 <- 
-  dagitty("dag {
-  A -> D
-  A -> M -> D
-  A <- S -> M
-  S -> W -> D
-           }"
+  dagitty(
+    "dag {
+    A -> D
+    A -> M -> D
+    A <- S -> M
+    S -> W -> D
+    }"
   )
 
 adjustmentSets(dag_6.2, exposure = "W", outcome = "D")
