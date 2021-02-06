@@ -27,7 +27,7 @@ There's a lot going on in this chapter. More more practice with these ideas, che
 
 > The most common form of model selection among practicing scientists is to search for a model in which every coefficient is statistically significant. Statisticians sometimes call this **stargazing**, as it is embodied by scanning for asterisks ($^{\star \star}$) trailing after estimates....
 >
-> Whatever you think about null hypothesis significance testing in general, using it to select among structurally different models is a mistake--$p$-values are not designed to help you navigate between underfitting and overfitting. (p. 193, **emphasis** in the original). 
+> Whatever you think about null hypothesis significance testing in general, using it to select among structurally different models is a mistake--$p$-values are not designed to help you navigate between underfitting and overfitting. (p. 193, **emphasis** in the original).
 
 McElreath spent little time discussing $p$-values and null hypothesis testing in the text. If you'd like to learn more from a Bayesian perspective, you might check out the first several chapters (particularly 10--13) in Kruschke's [-@kruschkeDoingBayesianData2015] [text](https://sites.google.com/site/doingbayesiandataanalysis/) and my [-@kurzDoingBayesianData2020] [ebook translating it to **brms** and the tidyverse](https://bookdown.org/content/3686/). The great [Frank Harrell](https://twitter.com/f2harrell) has complied [*A Litany of Problems With p-values*](https://www.fharrell.com/post/pval-litany/).
 Also, don't miss the statement on $p$-values released by the [American Statistical Association](https://www.amstat.org/) [@wassersteinASAStatementPvalues2016].
@@ -433,7 +433,7 @@ p1 + p2
 
 "Notice that the straight lines hardly vary, while the curves fly about wildly. This is a general contrast between underfit and overfit models: sensitivity to the exact composition of the sample used to fit the model" (p. 201).
 
-#### Rethinking: Bias and variance. 
+#### Rethinking: Bias and variance.
 
 > The underfitting/overfitting dichotomy is often described as the **bias-variance trade-off**. While not exactly the same distinction, the bias-variance trade-off addresses the same problem. "Bias" is related to underfitting, while "variance" is related to overfitting. These terms are confusing, because they are used in many different ways in different contexts, even within statistics. The term "bias" also sounds like a bad thing, even though increasing bias often leads
 to better predictions. (p. 201, **emphasis** in the original)
@@ -460,12 +460,12 @@ weatherperson %>%
   ggplot(aes(x = day, y = name, fill = value)) +
   geom_tile(color = "white") +
   geom_text(aes(label = value, color = value == 0)) +
-  scale_x_continuous(breaks = 1:10, expand = c(0, 0)) +
-  scale_y_discrete(NULL, expand = c(0, 0)) +
   scale_fill_viridis_c(direction = -1) +
   scale_color_manual(values = c("white", "black")) +
-  theme(legend.position = "none",
-        axis.ticks.y = element_blank())
+  scale_x_continuous(breaks = 1:10, expand = c(0, 0)) +
+  scale_y_discrete(NULL, expand = c(0, 0)) +
+  theme(axis.ticks.y = element_blank(),
+        legend.position = "none")
 ```
 
 Here's how the newcomer fared:
@@ -482,12 +482,12 @@ newcomer %>%
   ggplot(aes(x = day, y = name, fill = value)) +
   geom_tile(color = "white") +
   geom_text(aes(label = value, color = value == 0)) +
-  scale_x_continuous(breaks = 1:10, expand = c(0, 0)) +
-  scale_y_discrete(NULL, expand = c(0, 0)) +
   scale_fill_viridis_c(direction = -1) +
   scale_color_manual(values = c("white", "black")) +
-  theme(legend.position = "none",
-        axis.ticks.y = element_blank())
+  scale_x_continuous(breaks = 1:10, expand = c(0, 0)) +
+  scale_y_discrete(NULL, expand = c(0, 0)) +
+  theme(axis.ticks.y = element_blank(),
+        legend.position = "none")
 ```
 
 If we do the math entailed in the tibbles, we'll see why the newcomer could boast "I'm the best person for the job" (p. 203).
@@ -531,8 +531,7 @@ bind_rows(weatherperson,
   mutate(power = hit ^ n,
          term  = rep(letters[1:2], times = 2)) %>% 
   select(person, term, power) %>% 
-  pivot_wider(names_from = term,
-              values_from = power) %>% 
+  pivot_wider(names_from = term, values_from = power) %>% 
   mutate(probability_correct_sequence = a * b)
 ```
 
@@ -643,7 +642,7 @@ tibble(direction = c("Earth to Mars", "Mars to Earth"),
   mutate(d_kl = (p_1 * log(p_1 / q_1)) + (p_2 * log(p_2 / q_2)))
 ```
 
-The $D_\text{KL}$ was double when applying Martian estimates to Terran estimates. 
+The $D_\text{KL}$ was double when applying Martian estimates to Terran estimates.
 
 > An important practical consequence of this asymmetry, in a model fitting context, is that if we use a distribution with high entropy to approximate an unknown true distribution of events, we will reduce the distance to the truth and therefore the error. This fact will help us build generalized linear models, later on in [Chapter 10][Big Entropy and the Generalized Linear Model]. (p. 209)
 
@@ -672,7 +671,7 @@ In our $D(q)$ formula, did you notice how we ended up multiplying $\sum_i \log (
 
 $$S(q) = \sum_i \log (q_i),$$
 
-which we can think of as a log-probability score which is "the gold standard way to compare the predictive accuracy of different models. It is an estimate of $\text E \log (q_i)$, just without the final step of dividing by the number of observations" (p. 210). When Bayesians compute $S(q)$, they do so over the entire posterior distribution. "Doing this calculation correctly requires a little subtlety. The **rethinking** package has a function called `lppd`--**log-pointwise-predictive-density**--to do this calculation for quap models" (p. 210, **emhasis** in the original for the second time, but not the first). Here's the `rethinking::lppd()` function in action for `m7.1`.
+which we can think of as a log-probability score which is "the gold standard way to compare the predictive accuracy of different models. It is an estimate of $\text E \log (q_i)$, just without the final step of dividing by the number of observations" (p. 210). When Bayesians compute $S(q)$, they do so over the entire posterior distribution. "Doing this calculation correctly requires a little subtlety. The **rethinking** package has a function called `lppd`--**log-pointwise-predictive-density**--to do this calculation for quap models" (p. 210, **emphasis** in the original for the second time, but not the first). Here's the `rethinking::lppd()` function in action for `m7.1`.
 
 ```{r}
 set.seed(1)
@@ -837,7 +836,7 @@ McElreath plotted the results of such a thought experiment in implemented in **R
 sim_train_test
 ```
 
-For the sake of brevity, I am going to show the results of a simulation based on 1,000 simulations rather than McElreath's 10,000. 
+For the sake of brevity, I am going to show the results of a simulation based on 1,000 simulations rather than McElreath's 10,000.
 
 ```{r, eval = F}
 # I've reduced this number by one order of magnitude to reduce computation time
@@ -883,8 +882,7 @@ dev_tibble <-
          sample    = rep(c("in", "out"), times = 2) %>% rep(., times = 2),
          n         = rep(c("n = 20", "n = 100"), each = 4)) %>% 
   pivot_longer(-(statistic:n)) %>% 
-  pivot_wider(names_from = statistic,
-              values_from = value) %>%
+  pivot_wider(names_from = statistic, values_from = value) %>%
   mutate(n     = factor(n, levels = c("n = 20", "n = 100")),
          n_par = str_extract(name, "\\d+") %>% as.double()) %>% 
   mutate(n_par = ifelse(sample == "in", n_par - .075, n_par + .075))
@@ -917,7 +915,7 @@ dev_tibble %>%
        y = "deviance") +
   theme(legend.position = "none",
         strip.background = element_rect(fill = alpha(carto_pal(7, "BurgYl")[1], 1/4), color = "transparent")) +
-  facet_wrap(~n, scale = "free_y")
+  facet_wrap(~ n, scale = "free_y")
 ```
 
 Even with a substantially smaller $N$, our simulation results matched up well with those in the text.
@@ -1003,8 +1001,7 @@ s %>%
   mutate(statistic = rep(c("mean", "sd"), each = 2) %>% rep(., times = 3 * 2),
          sample    = rep(c("in", "out"), times = 2) %>% rep(., times = 3 * 2)) %>% 
   pivot_longer(-c(n:b_sigma, statistic:sample)) %>% 
-  pivot_wider(names_from = statistic,
-              values_from = value) %>%
+  pivot_wider(names_from = statistic, values_from = value) %>%
   mutate(n     = str_c("n = ", n) %>% factor(., levels = c("n = 20", "n = 100")),
          n_par = str_extract(name, "\\d+") %>% as.double()) %>% 
   
@@ -1021,10 +1018,10 @@ s %>%
   scale_color_manual(values = carto_pal(7, "BurgYl")[c(7, 5)]) +
   labs(x = "number of parameters",
        y = "deviance") +
-  theme(legend.position  = "none",
+  theme(legend.position = "none",
         strip.background = element_rect(fill = alpha(carto_pal(7, "BurgYl")[1], 1/4), 
                                         color = "transparent")) +
-  facet_wrap(~n, scale = "free_y")
+  facet_wrap(~ n, scale = "free_y")
 ```
 
 Our results don't perfectly align with those in the text. I suspect his is because we used `1e3` iterations, rather than the `1e4` of the text. If you'd like to wait all night long for the simulation to yield more stable results, be my guest.
@@ -1051,7 +1048,7 @@ To dive even deeper into the horseshoe prior, check out Michael Betancourt's [-@
 
 Folds are typically equivalent in size and we often denote the total number of folds by $k$, which means that the number of cases will get smaller as $k$ increases. In the extreme $k = N$. **Leave-one-out cross-validation** (LOO-CV) is the name for this popular type of cross-validation which uses the largest number of folds possible by including a single case in each fold [see @zhangCrossvalidationSelectingModel2015; @derooijCrossvalidationMethodEvery2020]. This will be our approach.
 
-A practical difficulty with LOO-CV is it's costly in terms of the time and memory required to refit the model $k = N$ times. Happily, we have an approximation to pure LOO-CV. Vehtari, Gelman, and Gabry [-@vehtariPracticalBayesianModel2017] proposed Pareto smoothed importance-sampling leave-one-out cross-validation (PSIS-LOO-CV) as an efficient way to approximate true LOO-CV. 
+A practical difficulty with LOO-CV is it's costly in terms of the time and memory required to refit the model $k = N$ times. Happily, we have an approximation to pure LOO-CV. Vehtari, Gelman, and Gabry [-@vehtariPracticalBayesianModel2017] proposed Pareto smoothed importance-sampling leave-one-out cross-validation (PSIS-LOO-CV) as an efficient way to approximate true LOO-CV.
 
 ## Information criteria
 
@@ -1065,7 +1062,7 @@ $$\text{WAIC}(y, \Theta) = -2 \big (\text{lppd} - \underbrace{\sum_i \operatorna
 
 where $y$ is the data, $\Theta$ is the posterior distribution, and $\text{lppd}$ is the log-posterior-predictive-density from before. The penalty term is also referred to at the effective number of parameters, $p_\text{WAIC}$. There are a few ways to compute the WAIC with **brms**, including with the `waic()` function.
 
-#### Overthinking: WAIC calculation. 
+#### Overthinking: WAIC calculation.
 
 Here is how to fit the pre-WAIC model with **brms**.
 
@@ -1158,7 +1155,7 @@ Now we can finally plug our hand-made `lppd` and `pwaic` values into the formula
 waic(b7.m)
 ```
 
-Before we move on, did you notice the `elpd_waic` row in the tibble returned by the`waic()` function? That value is the `lppd` minus the `pwaic`, but without multiplying the result by -2. E.g., 
+Before we move on, did you notice the `elpd_waic` row in the tibble returned by the`waic()` function? That value is the `lppd` minus the `pwaic`, but without multiplying the result by -2. E.g.,
 
 ```{r}
 (lppd - pwaic)
@@ -1259,7 +1256,7 @@ s %>%
   labs(x = "number of parameters (k)",
        y = "average deviance") +
   theme(strip.background = element_rect(fill = alpha(carto_pal(7, "BurgYl")[1], 1/4), color = "transparent")) +
-  facet_grid(n~b_sigma, scales = "free_y")
+  facet_grid(n ~ b_sigma, scales = "free_y")
 ```
 
 Although our specific values vary, the overall patterns in our simulations are well aligned with those in the text. The CV, PSIS, and WAIC all did a reasonable job approximating out-of-sample deviance. Now we'll follow the same sensibilities to make our version of the right column of McElreath's Figure 7.9.
@@ -1281,7 +1278,7 @@ s %>%
   labs(x = "number of parameters (k)",
        y = "average error (test deviance)") +
   theme(strip.background = element_rect(fill = alpha(carto_pal(7, "BurgYl")[1], 1/4), color = "transparent")) +
-  facet_grid(n~b_sigma, scales = "free_y")
+  facet_grid(n ~ b_sigma, scales = "free_y")
 ```
 
 As in the text, the mean error was very similar across the three criteria. When $N = 100$, they were nearly identical. When $N = 20$, the WAIC was slightly better than the PSIS, which was slightly better than the CV. As we will see, the PSIS-LOO-CV has the advantage of a built-in diagnostic.
@@ -1330,8 +1327,7 @@ b6.6 <- add_criterion(b6.6, "waic", file = "fits/b06.06.rds")
 b6.8 <- add_criterion(b6.8, "waic", file = "fits/b06.08.rds")
 
 # compare the WAIC estimates
-w <- loo_compare(b6.6, b6.7, b6.8,
-                 criterion = "waic")
+w <- loo_compare(b6.6, b6.7, b6.8, criterion = "waic")
 
 print(w)
 print(w, simplify = F)
@@ -1348,7 +1344,7 @@ cbind(waic_diff = w[, 1] * -2,
 
 Now those match up reasonably well with the values in McElreath's `dWAIC` and `dSE` columns.
 
-One more thing. On page 227, and on many other pages to follow in the text, McElreath used the `rethinking::compare()` function to return a rich table of information about the WAIC information for several models. If we're tricky, we can do something similar with `loo_compare`. To learn how, let's peer further into the structure of our `w` object. 
+One more thing. On page 227, and on many other pages to follow in the text, McElreath used the `rethinking::compare()` function to return a rich table of information about the WAIC information for several models. If we're tricky, we can do something similar with `loo_compare`. To learn how, let's peer further into the structure of our `w` object.
 
 ```{r}
 str(w)
@@ -1427,8 +1423,8 @@ tibble(waic_b6.6 = waic(b6.6)$pointwise[, "waic"],
 Unlike `rethinking::compare()`, the `loo_compare()` function will not allow us to so easily pull this value by indexing with `@dSE`.
 
 ```{r}
-loo_compare(b6.6, b6.7, b6.8,
-                 criterion = "waic") %>% str()
+loo_compare(b6.6, b6.7, b6.8, criterion = "waic") %>% 
+  str()
 ```
 
 However, if you really want that value, make a simple WAIC comparison between `b6.6` and `b6.8`.
@@ -1450,8 +1446,7 @@ $$w_i = \frac{\exp(-0.5 \Delta_i)}{\sum_j \exp(-0.5 \Delta_j)},$$
 where $w_i$ is the weight for the $i^\text{th}$ model and $\Delta_i$ is the difference between that model and the WAIC for the best one in the comparison set. If you want to get those WAIC weights, you can use the `brms::model_weights()` function like so.
 
 ```{r}
-model_weights(b6.6, b6.7, b6.8, 
-              weights = "waic") %>% 
+model_weights(b6.6, b6.7, b6.8, weights = "waic") %>% 
   round(digits = 2)
 ```
 
@@ -1461,7 +1456,7 @@ In his endnote #130, McElreath discussed how these WAIC weights can be used for 
 
 A variety of approaches to model averaging are available with **brms** and I covered them in my [-@kurzStatisticalRethinkingBrms2020] ebook translation of the first edition of McElreath's text.
 
-#### Rethinking: WAIC metaphors. 
+#### Rethinking: WAIC metaphors.
 
 > Think of models as race horses. In any particular race, the best horse may not win. But it's more likely to win than is the worst horse. And when the winning horse finishes in half the time of the second-place horse, you can be pretty sure the winning horse is also the best. But if instead it's a photo-finish, with a near tie between first and second place, then it is much harder to be confident about which is the best horse. (p. 230)
 
@@ -1626,12 +1621,12 @@ tibble(x = seq(from = -6, to = 6, by = 0.01)) %>%
   ylim(0, NA) +
   labs(x = "value", y = NULL) +
   theme(strip.background = element_blank()) +
-  facet_wrap(~name, scales = "free_y")
+  facet_wrap(~ name, scales = "free_y")
 ```
 
 I'm a little baffled as to why our curves don't quite match up with those in the text. The Gaussian curves were made using the `dnorm()` function with the default settings, which are $\operatorname{Normal}(0, 1)$. The Student-$t$ curves were made with McElreath's `rethinking::dstudent()`function with the default settings, which are $\operatorname{Student-t}(2, 0, 1)$--you get the same results is you use `dt(x, df = 2)`. Discrepancies aside, the main point in the text still stands. The $t$ distribution, especially as $\nu \rightarrow 1$, has thicker tails than the Gaussian. As a consequence, it is more robust to extreme values.
 
-The **brms** package will allow us to fit a Student $t$ model. Just set `family = student`. We are at liberty to estimate $nu$ along with the other parameters in the model or to set it to a constant. We'll follow McElreath and fix `nu = 2`. Note that **brms** syntax requires we do so within a `bf()` statement. 
+The **brms** package will allow us to fit a Student $t$ model. Just set `family = student`. We are at liberty to estimate $nu$ along with the other parameters in the model or to set it to a constant. We'll follow McElreath and fix `nu = 2`. Note that **brms** syntax requires we do so within a `bf()` statement.
 
 ```{r b5.3t}
 b5.3t <- 
@@ -1705,10 +1700,10 @@ bind_rows(posterior_samples(b5.3),
         legend.position = "none",
         strip.background = element_rect(fill = alpha(carto_pal(7, "BurgYl")[1], 1/4), color = "transparent"),
         strip.text = element_text(size = 12)) +
-  facet_wrap(~name, ncol = 1, labeller = label_parsed)
+  facet_wrap(~ name, ncol = 1, labeller = label_parsed)
 ```
 
-Overall, the coefficients are very similar between the two models. The most notable difference is in $\sigma$. This is, in part, because $\sigma$ has a slightly different meaning for Student-$t$ models than it does for the Gaussian. For both, we can refer to $\sigma$ as the *scale* parameter, with is a measure of spread or variability around the mean. However, the scale is the same thing as the standard deviation only for the Gaussian. Kruschke walked this out nicely: 
+Overall, the coefficients are very similar between the two models. The most notable difference is in $\sigma$. This is, in part, because $\sigma$ has a slightly different meaning for Student-$t$ models than it does for the Gaussian. For both, we can refer to $\sigma$ as the *scale* parameter, with is a measure of spread or variability around the mean. However, the scale is the same thing as the standard deviation only for the Gaussian. Kruschke walked this out nicely:
 
 > It is important to understand that the scale parameter $\sigma$ in the $t$ distribution is not the standard deviation of the distribution. (Recall that the standard deviation is the square root of the variance, which is the expected value of the squared deviation from the mean, as defined back in Equation 4.8, p. 86.) The standard deviation is actually larger than $\sigma$ because of the heavy tails. In fact, when $\nu$drops below 2 (but is still $\geq 1$), the standard deviation of the mathematical $t$ distribution goes to infinity. [-@kruschkeDoingBayesianData2015, p. 159]
 
@@ -1749,6 +1744,7 @@ tibble(nu = seq(from = 2.1, to = 20, by = 0.01)) %>%
 As $\nu \rightarrow \infty$, the standard deviation approaches the scale, $\sigma$. We'll have more practice with robust Student's $t$ regression later on. In the mean time, you might check out chapters [16](https://bookdown.org/content/3686/metric-predicted-variable-on-one-or-two-groups.html#outliers-and-robust-estimation-the-t-distribution), [17](https://bookdown.org/content/3686/metric-predicted-variable-with-one-metric-predictor.html#robust-linear-regression), [18](https://bookdown.org/content/3686/metric-predicted-variable-with-multiple-metric-predictors.html#the-model-and-implementation.), [19](https://bookdown.org/content/3686/metric-predicted-variable-with-one-nominal-predictor.html#the-two-group-case.), and [20](https://bookdown.org/content/3686/metric-predicted-variable-with-multiple-nominal-predictors.html#heterogeneous-variances-and-robustness-against-outliers-1) from my [-@kurzDoingBayesianData2020] ebook translation of Kruschke's text. I've also blogged on using the robust Student's $t$ for [regression](https://solomonkurz.netlify.app/post/robust-linear-regression-with-the-robust-student-s-t-distribution/) and [correlations](https://solomonkurz.netlify.app/post/bayesian-robust-correlations-with-brms-and-why-you-should-love-student-s-t/).
 
 #### Rethinking: The Curse of Tippecanoe.
+
 > One concern with model comparison is, if we try enough combinations and transformations of predictors, we might eventually find a model that fits any sample very well. But this fit will be badly overfit, unlikely to generalize....
 >
 > Fiddling with and constructing many predictor variables is a great way to find coincidences, but not necessarily a great way to evaluate hypotheses. However, fitting many possible models isn't always a dangerous idea, provided some judgment is exercised in weeding down the list of variables at the start. There are two scenarios in which this strategy appears defensible. First, sometimes all one wants to do is explore a set of data, because there are no clear hypotheses to evaluate. This is rightly labeled pejoratively as **data dredging**, when one does not admit to it. But when used together with model averaging, and freely admitted, it can be a way to stimulate future investigation. Second, sometimes we need to convince an audience that we have tried all of the combinations of predictors, because none of the variables seem to help much in prediction. (p. 234, **emphasis** in the original)
@@ -1767,7 +1763,7 @@ With just a little data processing, you can get a tibble table of each of models
 rbind(bayes_R2(b5.1), 
       bayes_R2(b5.2), 
       bayes_R2(b5.3)) %>%
-  as_tibble() %>%
+  data.frame() %>%
   mutate(model                   = c("b5.1", "b5.2", "b5.3"),
          r_square_posterior_mean = round(Estimate, digits = 3)) %>%
   select(model, r_square_posterior_mean)
