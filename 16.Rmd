@@ -24,7 +24,7 @@ options(width = 110)
 >
 > In this chapter, I will go **beyond generalized linear madness**. I'll work through examples in which the scientific context provides a causal model that will breathe life into the statistical model. I've chosen examples which are individually distinct and highlight different challenges in developing and translating causal models into *bespoke* (see the Rethinking ~~box~~ [section] below) statistical models. You won't require any specialized scientific expertise to grasp these examples. And the basic strategy is the same as it has been from the start: Define a generative model of a phenomenon and then use that model to design strategies for causal inference and statistical estimation. [@mcelreathStatisticalRethinkingBayesian2020, p. 525, *emphasis* in the original]
 
-McElreath then reported he was going to work with Stan code, via `rstan::stan()`, in this chapter because of the unique demands of some of the models. Our approach will be mixed. We can fit at least a few of the models with **brms**, particularly with help from the non-linear syntax. However, some of the models to ome are either beyond the current scope of **brms** or are at least beyond my current skill set. In those cases, we'll follow McElreath's approach and fit the models with `stan()`.
+McElreath then reported he was going to work with Stan code, via `rstan::stan()`, in this chapter because of the unique demands of some of the models. Our approach will be mixed. We can fit at least a few of the models with **brms**, particularly with help from the non-linear syntax. However, some of the models to come are either beyond the current scope of **brms** or are at least beyond my current skill set. In those cases, we'll follow McElreath's approach and fit the models with `stan()`.
 
 #### Rethinking: Bespoken for.
 
@@ -79,7 +79,6 @@ d <-
 
 McElreath's proposed statistical model follows the form
 
-$$
 \begin{align*}
 \text{w}_i  & \sim \operatorname{Log-Normal}(\mu_i, \sigma) \\
 \exp(\mu_i) & = k \pi p^2 \text{h}_i^3 \\
@@ -89,7 +88,6 @@ p      & \sim \operatorname{Beta}(2, 18) \\
 \text w_i & = \text{weight}_i \big / \overline{\text{weight}}, && \text{and} \\
 \text h_i & = \text{height}_i \big / \overline{\text{height}}.
 \end{align*}
-$$
 
 The Log-Normal likelihood ensures the predictions for $\text{weight}_i$ will always be non-negative. Because our parameter $p$ is the ratio of radius to height, $p = r / h$, it must be positive. Since people are typically taller than their width, it should also be less than one, and probably substantially less than that. Our next step will be taking a look at our priors.
 
@@ -127,10 +125,10 @@ c(prior(beta(2, 18), nlpar = p, coef = italic(p)),
                     n = 2e3, normalize = "xy") +
   scale_y_continuous(NULL, breaks = NULL) +
   xlab(expression(theta)) +
-  facet_wrap(~coef, scales = "free_x", labeller = label_parsed)
+  facet_wrap(~ coef, scales = "free_x", labeller = label_parsed)
 ```
 
-Here the points are the posterior medians and the horizontal lines the quantile-based 50% intervals. Turns out that $\operatorname{Beta}(2, 18)$ prior for $p$ pushes the bulk of the prior mass down near zero. The beta distribution also forces the parameter space for $p$ to range between 0 and 1. If we denote the two parameters of the beta distribution as $\alpha$ and $\beta$, we can compute the mean for any beta distribution as $\alpha / (\alpha + \beta)$. Thus the mean for our $\operatorname{Beta}(2, 18)$ prior is $2 / (2 + 18) = 2 / 20 = 0.1$. 
+Here the points are the posterior medians and the horizontal lines the quantile-based 50% intervals. Turns out that $\operatorname{Beta}(2, 18)$ prior for $p$ pushes the bulk of the prior mass down near zero. The beta distribution also forces the parameter space for $p$ to range between 0 and 1. If we denote the two parameters of the beta distribution as $\alpha$ and $\beta$, we can compute the mean for any beta distribution as $\alpha / (\alpha + \beta)$. Thus the mean for our $\operatorname{Beta}(2, 18)$ prior is $2 / (2 + 18) = 2 / 20 = 0.1$.
 
 Because we computed our weight and height variables, `w` and `h`, by dividing the original variables by their respective means, each now has a mean of 1.
 
@@ -153,22 +151,18 @@ d %>%
 
 With this scaling, here is the formula for an individual with average weight and height:
 
-$$
 \begin{align*}
 1 & = k \pi p^2 1^3 \\
   & = k \pi p^2.
 \end{align*}
-$$
 
 If you assume $p < .5$, $k$ must be greater than 1. $k$ also has to be positive. To get a sense of this, we can further work the algebra:
 
-$$
 \begin{align*}
 1 & = k \pi p^2 \\
 1/k  & = \pi p^2 \\
 k  & = 1 / \pi p^2.
 \end{align*}
-$$
 
 To get a better sense of that relation, we might plot.
 
@@ -294,21 +288,17 @@ Overall the model did okay, but the poor fit for the cases with lower values of 
 
 Recall that because **brms** does not support the log link for the Log-Normal likelihood, we recast our `b16.1` likelihood as
 
-$$
 \begin{align*}
 \text{w}_i & \sim \operatorname{Log-Normal}(\mu_i, \sigma) \\
 \mu_i      & = \log(k \pi p^2 \text{h}_i^3).
 \end{align*}
-$$
 
 Because multiplication becomes addition on the log scale, we can also express this as
 
-$$
 \begin{align*}
 \text{w}_i & \sim \operatorname{Log-Normal}(\mu_i, \sigma) \\
 \mu_i      & = \log(k) + \log(\pi) + 2 \log(p) + 3 \log(\text{h}_i),
 \end{align*}
-$$
 
 which means our fancy non-linear model is just linear regression on the log scale. McElreath pointed this out
 
@@ -384,7 +374,6 @@ tibble(name  = rep(c("y1", "y2"), each = n / 2),
   summarise(`number of 2s` = sum(y == 2) / n)
 ```
 
-
 > We'll consider 5 different strategies children might use.
 >
 > 1. Follow the Majority: Copy the majority demonstrated color.
@@ -397,13 +386,11 @@ tibble(name  = rep(c("y1", "y2"), each = n / 2),
 
 Our statistical will follow the form
 
-$$
 \begin{align*}
 y_i & \sim \operatorname{Categorical}(\theta) \\
 \theta_j & = \sum_{s = 1}^5 p_s \operatorname{Pr}(j | s) \;\;\; \text{for} \; j = 1, \dots, 3 \\
 p & \sim \operatorname{Dirichlet}(4, 4, 4, 4, 4),
 \end{align*}
-$$
 
 where $s$ indexes one of our five latent strategies and $\operatorname{Pr}(j | s)$ is the probability of one of the three color choices given a child is using the $s$th strategy. The $\sum_{s = 1}^5 p_s$ portion conveys these five probabilities are treated as a simplex, which means they will sum to one. We give these probabilities a Dirichlet prior, which we learned about back in [Section 12.4][Ordered categorical predictors]. Here's what that prior looks like.
 
@@ -423,7 +410,7 @@ rdirichlet(n = 1e5, alpha = rep(4, times = 5)) %>%
                      breaks = c(0, .2, .5, 1), labels = c("0", ".2", ".5", "1"), ) +
   scale_y_continuous(NULL, breaks = NULL) +
   labs(subtitle = expression("Dirichlet"*(4*", "*4*", "*4*", "*4*", "*4))) +
-  facet_wrap(~alpha, labeller = label_parsed, nrow = 1)
+  facet_wrap(~ alpha, labeller = label_parsed, nrow = 1)
 ```
 
 ### Coding the statistical model.
@@ -596,7 +583,7 @@ $$\lambda = \alpha S_t^\theta = \alpha \big ( \beta M_\text{max} [1 - \exp(-kt) 
 
 $$\lambda = \alpha \beta^\theta [1 - \exp(-kt) ]^\theta.$$
 
-As "the product $\alpha \beta^\theta$ in the front just rescales strength to nuts-opened-per-second" (p. 538), we can colapse it to a single parameter, $\phi$, which leaves us with
+As "the product $\alpha \beta^\theta$ in the front just rescales strength to nuts-opened-per-second" (p. 538), we can collapse it to a single parameter, $\phi$, which leaves us with
 
 $$\lambda = \phi [1 - \exp(-kt) ]^\theta.$$
 
@@ -606,22 +593,18 @@ This is our scientific model.
 
 Now if we let $n_i$ be the number of nuts opened, we can write our statistical model as
 
-$$
 \begin{align*}
 n_i & \sim \operatorname{Poisson}(\lambda_i) \\
 \lambda_i & = \text{seconds}_i \, \phi [1 - \exp(-k \,\text{age}_i) ]^\theta,
 \end{align*}
-$$
 
 where we have replaced our time index, $t$, with the variable `age`. By including the variable `seconds` in the equation, we have scaled the results to be nuts per second. McElreath proposed the priors:
 
-$$
 \begin{align*}
 \phi   & \sim \operatorname{Log-Normal}(\log 1, 0.10) \\
 k      & \sim \operatorname{Log-Normal}(\log 2, 0.25) \\
 \theta & \sim \operatorname{Log-Normal}(\log 5, 0.25),
 \end{align*}
-$$
 
 all of which were Log-Normal to ensure the parameters were positive and continuous. To get a sense of what these priors implied, he simulated. Here's our version of his simulations, which make up Figure 16.4. 
 
@@ -684,9 +667,9 @@ tibble(phi         = rlnorm(n, meanlog = log(1), sdlog = 0.1),
   
   ggplot(aes(x = value)) +
   geom_histogram(fill = "grey67", bins = 40, boundary = 0) +
-  scale_y_continuous(NULL, breaks = NULL) +
   scale_x_continuous("marginal prior", limits = c(0, NA)) +
-  facet_wrap(~name, scales = "free", labeller = label_parsed)
+  scale_y_continuous(NULL, breaks = NULL) +
+  facet_wrap(~ name, scales = "free", labeller = label_parsed)
 ```
 
 Happily, we can fit this model using the non-linear **brms** syntax.
@@ -857,9 +840,8 @@ z %>%
   mutate(time = 1:n()) %>% 
   pivot_longer(-time) %>% 
   
-  ggplot(aes(x = time, y = value)) +
-  geom_line(aes(color = name),
-            size = 1/4) +
+  ggplot(aes(x = time, y = value, color = name)) +
+  geom_line(size = 1/4) +
   scale_color_grey(start = 0, end = .5) +
   scale_x_continuous(breaks = NULL) +
   scale_y_continuous("number (thousands)", breaks = 0:4 * 10, limits = c(0, 45)) +
@@ -925,14 +907,13 @@ tibble(shape1 = c(2, 10, 18),
   scale_fill_grey(start = .67, end = 0, breaks = NULL) +
   scale_y_continuous(NULL, breaks = NULL) +
   xlab(expression(thousand~of~pelts~(italic(h[t])))) +
-  facet_grid(Htlab~beta, labeller = label_parsed, scales = "free_y")
+  facet_grid(Htlab ~ beta, labeller = label_parsed, scales = "free_y")
 ```
 
 The vertical dashed lines mark off the maximum values in each panel. The histogram in black is of the simulation parameters based on our version of Figure 16.8, above.
 
 McElreath's proposed model is
 
-$$
 \begin{align*}
 h_t & \sim \operatorname{Log-Normal} \big (\log(p_H H_t), \sigma_H \big) \\
 l_t & \sim \operatorname{Log-Normal} \big (\log(p_L L_t), \sigma_L \big) \\
@@ -949,7 +930,6 @@ b_L & \sim \operatorname{Half-Normal}(0.5, 0.5) \\
 m_H & \sim \operatorname{Half-Normal}(0.5, 0.5) \\
 m_L & \sim \operatorname{Half-Normal}(1, 0.5).
 \end{align*}
-$$
 
 It's not immediately clear from the text, but if you look closely at the output from `cat(Lynx_Hare_model)` (see below), you'll see $\alpha_H = \alpha_L = 40$ and $\beta_H = \beta_L = 200$.
 
@@ -1019,8 +999,7 @@ p1 <-
   set_names(1900:1920) %>% 
   mutate(iter = rep(1:21, times = 2),
          name = rep(c("Hare", "Lynx"), each = 21)) %>% 
-  pivot_longer(-c(iter, name),
-               names_to = "year") %>% 
+  pivot_longer(-c(iter, name), names_to = "year") %>% 
   mutate(year = as.numeric(year)) %>% 
   
   # plot
@@ -1033,8 +1012,8 @@ p1 <-
   geom_text(data = text,
             aes(label = label, color = name),
             hjust = 0, family = "Times") +
-  scale_fill_grey(start = 0, end = .5, breaks = NULL) +
   scale_color_grey(start = 0, end = .5, breaks = NULL) +
+  scale_fill_grey(start = 0, end = .5, breaks = NULL) +
   scale_x_continuous(NULL, breaks = NULL) +
   scale_y_continuous("thousands of pelts", breaks = 0:6 * 20) +
   coord_cartesian(ylim = c(0, 120))
@@ -1052,8 +1031,7 @@ p2 <-
   set_names(1900:1920) %>% 
   mutate(iter = rep(1:21, times = 2),
          name = rep(c("Hare", "Lynx"), each = 21)) %>% 
-  pivot_longer(-c(iter, name),
-               names_to = "year") %>% 
+  pivot_longer(-c(iter, name), names_to = "year") %>% 
   mutate(year = as.numeric(year)) %>% 
   
   # plot
@@ -1073,7 +1051,6 @@ p1 / p2 +
 
 Back in [Section 16.4][Population dynamics], we briefly discussed how autoregressive models are a typical way to explore processes like those in lynx-hare data. In this bonus section, we'll practice fitting a few of these. To start off, we'll restrict ourselves to focusing on just one of the criteria, `Hare`. Our basic autoregressive model will follow the form
 
-$$
 \begin{align*}
 \text{Hare}_t & \sim \operatorname{Normal}(\mu_t, \sigma) \\
 \mu_t & = \alpha + \beta_1 \text{Hare}_{t - 1} \\
@@ -1081,7 +1058,6 @@ $$
 \beta_1 & \sim \; ? \\
 \sigma  & \sim \operatorname{Exponential}(1),
 \end{align*}
-$$
 
 were $\beta_1$ is the first-order autoregressive coefficient and the question marks in the third and fourth lines indicate we're not wedding ourselves to specific priors, at the moment. Also, note the $t$ subscripts, which denote which time period the observation is drawn from, which in these data is $\text{Year} = 1900, 1901, \dots, 1920$. Conceptually, $t$ is *now* and $t - 1$ the time point just before now. So if we were particularly interested in $\operatorname E (\text{Hare}_{t = 1920})$, $\text{Hare}_{t - 1}$ would be the same as $\text{Hare}_{t = 1919}$.
 
@@ -1194,18 +1170,15 @@ The model did a pretty good job capturing the non-linear trends in the data. But
 
 So far we've been fitting the autoregressive models with the Gaussian likelihood, which is a typical approach. If you look at McElreath's practice problem 16H3, you'll see he proposed a bivariate autoregressive model using the Log-Normal likelihood. His approach used hand-made lagged predictors and ignored the missing value problem by dropping the first case. That model followed the form
 
-$$
 \begin{align*}
 L_t & \sim \operatorname{Log-Normal}(\log \mu_{L, t}, \sigma_L) \\
 H_t & \sim \operatorname{Log-Normal}(\log \mu_{H, t}, \sigma_H) \\
 \mu_{L, t} & = \alpha_L + \beta_{L1} L_{t - 1} + \beta_{L2} H_{t - 1} \\
 \mu_{H, t} & = \alpha_H + \beta_{H1} H_{t - 1} + \beta_{H2} L_{t - 1},
 \end{align*}
-$$
 
 where $\beta_{L1}$ and $\beta_{H1}$ are the autoregressive parameters and $\beta_{L2}$ and $\beta_{H2}$ are what are sometimes called the cross-lag parameters. McElreath left the priors up to us. I propose something like this:
 
-$$
 \begin{align*}
 \alpha_L & \sim \operatorname{Normal}(\log 10, 1) \\
 \alpha_H & \sim \operatorname{Normal}(\log 10, 1) \\
@@ -1213,7 +1186,6 @@ $$
 \sigma_L & \sim \operatorname{Exponential}(1) \\
 \sigma_H & \sim \operatorname{Exponential}(1).
 \end{align*}
-$$
 
 Before we fit the model, we'll need to make a lagged version of `Lynx`.
 
@@ -1265,8 +1237,8 @@ rbind(fitted(b16.9, resp = "Hare"),
   geom_point(data = Lynx_Hare %>% pivot_longer(Lynx:Hare),
              aes(x = Year, y = value, color = name),
              size = 2) +
-  scale_fill_grey(start = 0, end = .5, breaks = NULL) +
   scale_color_grey(start = 0, end = .5, breaks = NULL) +
+  scale_fill_grey(start = 0, end = .5, breaks = NULL) +
   scale_x_continuous(limits = c(1900, 1920)) +
   scale_y_continuous("thousands of pelts", breaks = 0:6 * 20)
 ```
