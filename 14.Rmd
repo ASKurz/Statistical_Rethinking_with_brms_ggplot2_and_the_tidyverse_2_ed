@@ -102,9 +102,9 @@ scales::show_col(dutchmasters$pearl_earring)
 
 We'll name our custom theme `theme_pearl_earring()`. I cobbled together this approach to defining a custom **ggplot2** theme with help from
 
-* [Chapter 17](https://ggplot2-book.org/programming.html) of Wichkam's [-@wickhamGgplot2ElegantGraphics2016] *ggplot2: Elegant graphics for data analysis*; 
-* [Section 4.6](https://bookdown.org/rdpeng/RProgDA/building-a-new-theme.html) of Peng, Kross, and Anderson's [-@pengMasteringSoftwareDevelopment2017] [*Mastering Software Development in R*](https://bookdown.org/rdpeng/RProgDA/building-a-new-theme.html); 
-* Lea Waniek's blog post, [*Custom themes in ggplot2*](https://www.statworx.com/de/blog/custom-themes-in-ggplot2/), and 
+* [Chapter 17](https://ggplot2-book.org/programming.html) of Wichkam's [-@wickhamGgplot2ElegantGraphics2016] *ggplot2: Elegant graphics for data analysis*;
+* [Section 4.6](https://bookdown.org/rdpeng/RProgDA/building-a-new-theme.html) of Peng, Kross, and Anderson's [-@pengMasteringSoftwareDevelopment2017] [*Mastering Software Development in R*](https://bookdown.org/rdpeng/RProgDA/building-a-new-theme.html);
+* Lea Waniek's blog post, [*Custom themes in ggplot2*](https://www.statworx.com/de/blog/custom-themes-in-ggplot2/), and
 * Joey Stanley's blog post of the same name, [*Custom themes in ggplot2*](https://joeystanley.com/blog/custom-themes-in-ggplot2).
 
 ```{r}
@@ -115,16 +115,16 @@ theme_pearl_earring <- function(light_color = "#E8DCCF",
   
   theme(line = element_line(color = light_color),
         text = element_text(color = light_color, family = my_family),
-        strip.text = element_text(color = light_color, family = my_family),
+        axis.line = element_blank(),
         axis.text = element_text(color = light_color),
         axis.ticks = element_line(color = light_color),
-        axis.line = element_blank(),
         legend.background = element_rect(fill = dark_color, color = "transparent"),
         legend.key = element_rect(fill = dark_color, color = "transparent"),
         panel.background = element_rect(fill = dark_color, color = light_color),
         panel.grid = element_blank(),
         plot.background = element_rect(fill = dark_color, color = dark_color),
         strip.background = element_rect(fill = dark_color, color = "transparent"),
+        strip.text = element_text(color = light_color, family = my_family),
         ...)
   
 }
@@ -191,9 +191,9 @@ d %>%
   scale_color_manual(values = c("#80A0C7", "#EEDA9D")) +
   scale_x_continuous(NULL, breaks = 1:10, labels = rep(c("M", "A"), times = 5)) +
   scale_y_continuous("wait time in minutes", limits = c(0, NA)) +
-  theme_pearl_earring(legend.position = "none",
-                      axis.ticks.x = element_blank()) +
-  facet_wrap(~cafe, ncol = 1)
+  theme_pearl_earring(axis.ticks.x = element_blank(),
+                      legend.position = "none") +
+  facet_wrap(~ cafe, ncol = 1)
 ```
 
 #### Rethinking: Simulation and misspecification.
@@ -231,17 +231,17 @@ n_sim <- 1e4
 set.seed(14)
 r_1 <- 
   rlkjcorr(n_sim, K = 2, eta = 1) %>%
-  as_tibble()
+  data.frame()
 
 set.seed(14)
 r_2 <- 
   rlkjcorr(n_sim, K = 2, eta = 2) %>%
-  as_tibble()
+  data.frame()
 
 set.seed(14)
 r_4 <- 
   rlkjcorr(n_sim, K = 2, eta = 4) %>%
-  as_tibble()
+  data.frame()
 ```
 
 Here are the $\text{LKJcorr}$ distributions of Figure 14.3.
@@ -255,7 +255,7 @@ text <-
 
 # plot
 r_1 %>% 
-  ggplot(aes(x = V2)) +
+  ggplot(aes(x = X2)) +
   geom_density(color = "transparent", fill = "#394165", alpha = 2/3, adjust = 1/2) +
   geom_density(data = r_2,
                color = "transparent", fill = "#DCA258", alpha = 2/3, adjust = 1/2) +
@@ -287,7 +287,7 @@ crossing(k   = 2:5,
                      breaks = c(-1, -.5, 0, .5, 1), labels = c("-1", "-.5", "0", ".5", "1")) +
   scale_y_continuous(expression(eta), breaks = 1:4) +
   ggtitle(expression("Marginal correlation for the LKJ prior relative to K and "*eta)) +
-  facet_wrap(~strip, labeller = label_parsed, ncol = 4)
+  facet_wrap(~ strip, labeller = label_parsed, ncol = 4)
 ```
 
 To learn more about this plotting method, check out Kay's [-@kayMarginalDistributionSingle2020] [*Marginal distribution of a single correlation from an LKJ distribution*](https://mjskay.github.io/ggdist/reference/lkjcorr_marginal.html). To get a better intuition what that plot means, check out the illuminating blog post by [Stephen Martin](https://twitter.com/smartin2018), [*Is the LKJ(1) prior uniform? "Yes"*](http://srmart.in/is-the-lkj1-prior-uniform-yes/).
@@ -323,14 +323,14 @@ post <- posterior_samples(b14.1)
 
 post %>%
   ggplot() +
-  geom_density(data = r_2, aes(x = V2),
+  geom_density(data = r_2, aes(x = X2),
                color = "transparent", fill = "#EEDA9D", alpha = 3/4) +
   geom_density(aes(x = cor_cafe__Intercept__afternoon),
                color = "transparent", fill = "#A65141", alpha = 9/10) +
-  annotate(geom = "text", x = -0.15, y = 2.21, 
-           label = "posterior", color = "#A65141", family = "Courier") +
-  annotate(geom = "text", x = 0, y = 0.85, 
-           label = "prior", color = "#EEDA9D", alpha = 2/3, family = "Courier") +
+  annotate(geom = "text", 
+           x = c(-0.15, 0), y = c(2.21, 0.85), 
+           label = c("posterior", "prior"), 
+           color = c("#A65141", "#EEDA9D"), family = "Courier") +
   scale_y_continuous(NULL, breaks = NULL) +
   labs(subtitle = "Correlation between intercepts\nand slopes, prior and posterior",
   x = "correlation")
@@ -350,7 +350,7 @@ partially_pooled_params <-
   # with this line we select each of the 20 cafe's posterior mean (i.e., Estimate)
   # for both `Intercept` and `afternoon`
   coef(b14.1)$cafe[ , 1, 1:2] %>%
-  as_tibble() %>%               # convert the two vectors to a tibble
+  data.frame() %>%              # convert the two vectors to a data frame
   rename(Slope = afternoon) %>%
   mutate(cafe = 1:nrow(.)) %>%  # add the `cafe` index
   select(cafe, everything())    # simply moving `cafe` to the leftmost position
@@ -401,8 +401,7 @@ p1 <-
   stat_ellipse(geom = "polygon", type = "norm", level = .99,  size = 0, alpha = 1/20, fill = "#E7CDC2") +
   geom_point(aes(group = cafe, color = pooled)) +
   geom_line(aes(group = cafe), size = 1/4) +
-  scale_color_manual("Pooled?",
-                     values = c("#80A0C7", "#A65141")) +
+  scale_color_manual("Pooled?", values = c("#80A0C7", "#A65141")) +
   coord_cartesian(xlim = range(params$Intercept),
                   ylim = range(params$Slope))
 p1
@@ -414,8 +413,8 @@ Learn more about `stat_ellipse()`, [here](https://ggplot2.tidyverse.org/referenc
 # retrieve the partially-pooled estimates with `coef()`
 partially_pooled_estimates <-
   coef(b14.1)$cafe[ , 1, 1:2] %>%
-  # convert the two vectors to a tibble
-  as_tibble() %>%
+  # convert the two vectors to a data frame
+  data.frame() %>%
   # the Intercept is the wait time for morning (i.e., `afternoon == 0`)
   rename(morning = Intercept) %>%
   # `afternoon` wait time is the `morning` wait time plus the afternoon slope
@@ -432,7 +431,7 @@ un_pooled_estimates <-
   # ungrouping allows us to alter the grouping variable, afternoon
   ungroup() %>% 
   mutate(afternoon = ifelse(afternoon == 0, "morning", "afternoon")) %>%
-  # this seperates out the values into morning and afternoon columns
+  # this separates out the values into morning and afternoon columns
   spread(key = afternoon, value = mean)
 
 estimates <-
@@ -573,7 +572,7 @@ posterior_samples(b14.3, add_chain = T) %>%
   scale_x_continuous(breaks = 0:4 * 1e3, labels = c(0, str_c(1:4, "K"))) +
   coord_cartesian(ylim = c(30, NA)) +
   theme(legend.position = "bottom") +
-  facet_wrap(~parameter, labeller = label_parsed, ncol = 4)
+  facet_wrap(~ parameter, labeller = label_parsed, ncol = 4)
 ```
 
 Because we only fit a non-centered version of the model, we aren't able to make a faithful version of McElreath's Figure 14.6. However, we can still use `posterior::summarise_draws()` to help make histograms of the two kinds of effective sample sizes for our `b14.3`.
@@ -588,7 +587,7 @@ posterior_samples(b14.3) %>%
   ggplot(aes(x = value)) +
   geom_histogram(binwidth = 250, fill = "#EEDA9D", color = "#DCA258") +
   xlim(0, NA) +
-  facet_wrap(~name)
+  facet_wrap(~ name)
 ```
 
 Here is a summary of the model parameters.
@@ -597,11 +596,11 @@ Here is a summary of the model parameters.
 print(b14.3)
 ```
 
-Like McElreath explained on page 450, our `b14.3` has 76 parameters: 
+Like McElreath explained on page 450, our `b14.3` has 76 parameters:
 
 * 4 average `treatment` effects, as listed in the 'Population-Level Effects' section;
 * 7 $\times$ 4 = 28 varying effects on `actor`, as indicated in the '~actor:treatment (Number of levels: 7)' header multiplied by the four levels of `treatment`;
-* 6 $\times$ 4 = 24 varying effects on `block`, as indicated in the '~block:treatment (Number of levels: 6)' header multiplied by the four levels of `treatment`; 
+* 6 $\times$ 4 = 24 varying effects on `block`, as indicated in the '~block:treatment (Number of levels: 6)' header multiplied by the four levels of `treatment`;
 * 8 standard deviations listed in the eight rows beginning with `sd(`; and 
 * 12 free correlation parameters listed in the eight rows beginning with `cor(`.
 
@@ -654,7 +653,7 @@ fitted(b14.3,
   geom_line(aes(y = Estimate, group = prosoc_left),
             size = 3/4, color = "#80A0C7") +
   geom_pointrange(aes(y = Estimate, ymin = Q2.5, ymax = Q97.5, shape = condition),
-             color = "#80A0C7", fill = "#100F14", fatten = 8, size = 1/3, show.legend = F) + 
+                  color = "#80A0C7", fill = "#100F14", fatten = 8, size = 1/3, show.legend = F) + 
   # annotation for the conditions
   geom_text(data = text,
             aes(y = prop, label = labels), 
@@ -663,7 +662,7 @@ fitted(b14.3,
   scale_x_discrete(NULL, breaks = NULL) +
   scale_y_continuous("proportion left lever", breaks = 0:2 / 2, labels = c("0", ".5", "1")) +
   labs(subtitle = "Posterior predictions, in light blue, against the raw data, in dark blue, for\nmodel b14.3, the cross-classified varying effects model.") +
-  facet_wrap(~actor, nrow = 1, labeller = label_both)
+  facet_wrap(~ actor, nrow = 1, labeller = label_both)
 ```
 
 > These chimpanzees simply did not behave in any consistently different way in the partner treatments. The model we've used here does have some advantages, though. Since it allows for some individuals to differ in how they respond to the treatments, it could reveal a situation in which a treatment has no effect on average, even though some of the individuals respond strongly. That wasn't the case here. But often we are more interested in the distribution of responses than in the average response, so a model that estimates the distribution of treatment effects is very useful. (p. 452)
@@ -712,8 +711,8 @@ dagify(E ~ U,
 
 Instrumental variables will solve some of the difficulties we have in not being able to condition on $U$. Here we'll call our instrumental variable $Q$. In the terms of the present example, the **instrumental variable** has the qualities that
 
-* $Q$ is independent of $U$, 
-* $Q$ is not independent of $E$, and 
+* $Q$ is independent of $U$,
+* $Q$ is not independent of $E$, and
 * $Q$ can only influence $W$ through $E$ (i.e., the effect of $Q$ on $W$ is fully mediated by $E$).
 
 There is what this looks like in a DAG.
@@ -918,8 +917,8 @@ bind_rows(
                   fatten = 2, position = position_dodge(width = 0.5)) +
   geom_text(data = text,
             aes(x = y, label = fit, hjust = hjust)) +
-  scale_x_discrete(NULL, labels = ggplot2:::parse_safe) +
   scale_color_manual(NULL, values = c("#E7CDC2", "#A65141")) +
+  scale_x_discrete(NULL, labels = ggplot2:::parse_safe) +
   ylab("marginal posterior") +
   coord_flip() +
   theme(axis.text.y = element_text(hjust = 0),
@@ -943,7 +942,7 @@ instrumentalVariables(dagIV, exposure = "E", outcome = "W")
 >
 > In general, it is not possible to statistically prove whether a variable is a good instrument. As always, we need scientific knowledge outside of the data to make sense of the data. (p. 460)
 
-#### Rethinking: Two-stage worst squares. 
+#### Rethinking: Two-stage worst squares.
 
 "The instrumental variable model is often discussed with an estimation procedure known as **two-stage least squares** (2SLS)" (p. 460, **emphasis** in the original). For a nice introduction to instrumental variables via 2SLS, see this [practical introduction](https://evalf20.classes.andrewheiss.com/example/iv/), and also the [slides and video-lecture files](https://evalf20.classes.andrewheiss.com/content/11-content/), from the great [Andrew Heiss](https://twitter.com/andrewheiss).
 
@@ -1124,8 +1123,8 @@ tibble(`sigma[italic(g)]`          = post$sigma_gr[, 1],
   ggplot(aes(x = value, y = name, fill = name)) +
   geom_vline(xintercept = 0, color = "#FCF9F0", alpha = 1/3) +
   stat_halfeye(.width = .89, color = "#FCF9F0") + 
-  scale_y_discrete(NULL, labels = ggplot2:::parse_safe) +
   scale_fill_manual(values = c("#80A0C7", "#EEDA9D", "#DCA258")) +
+  scale_y_discrete(NULL, labels = ggplot2:::parse_safe) +
   xlab("marginal posterior") +
   coord_cartesian(ylim = c(1.5, 3.5)) +
   theme(legend.position = "none")
@@ -1158,10 +1157,8 @@ rbind(exp(g), exp(r)) %>%
   set_names(1:25) %>% 
   mutate(parameter = rep(c("g", "r"), each = n() / 2),
          iter      = rep(1:4000, times = 2)) %>% 
-  pivot_longer(-c(parameter, iter),
-               names_to = "household") %>% 
-  pivot_wider(names_from = parameter,
-              values_from = value) %>% 
+  pivot_longer(-c(parameter, iter), names_to = "household") %>% 
+  pivot_wider(names_from = parameter, values_from = value) %>% 
   group_by(household) %>% 
   mutate(mu_g = mean(g),
          mu_r = mean(r)) %>% 
@@ -1202,8 +1199,8 @@ tibble(`sigma[italic(d)]` = post$sigma_d,
   ggplot(aes(x = value, y = name, fill = name)) +
   geom_vline(xintercept = 0, color = "#FCF9F0", alpha = 1/3) +
   stat_halfeye(.width = .89, color = "#FCF9F0") + 
-  scale_y_discrete(NULL, labels = ggplot2:::parse_safe) +
   scale_fill_manual(values = c("#A65141", "#B1934A")) +
+  scale_y_discrete(NULL, labels = ggplot2:::parse_safe) +
   xlab("marginal posterior") +
   coord_cartesian(ylim = c(1.5, 2)) +
   theme(legend.position = "none")
@@ -1506,7 +1503,7 @@ p1 <-
          etasq = sdgp_a_gplat_adjlon2_adj^2,
          rhosq = 1 / (2 * lscale_a_1_gplat_adjlon2_adj^2)) %>% 
   slice_sample(n = 100) %>%
-  tidyr::expand(nesting(iter, etasq, rhosq),
+  expand(nesting(iter, etasq, rhosq),
          x = seq(from = 0, to = 10, by = .05)) %>% 
   mutate(covariance = etasq * exp(-rhosq * x^2)) %>% 
   
@@ -1534,7 +1531,7 @@ p2 <-
             etasq = sdgp_a_gplat_adjlon2_adj^2,
          rhosq = 1 / (2 * lscale_a_gplat_adjlon2_adj^2)) %>% 
   slice_sample(n = 50) %>% 
-  tidyr::expand(nesting(iter, etasq, rhosq),
+  expand(nesting(iter, etasq, rhosq),
          x = seq(from = 0, to = 10, by = .05)) %>% 
   mutate(covariance = etasq * exp(-rhosq * x^2)) %>% 
   
@@ -1594,9 +1591,9 @@ Here are those correlations in a plot.
 rho %>%
   data.frame() %>% 
   mutate(row = d$culture) %>% 
-  gather(column, distance, -row) %>% 
-  mutate(column = factor(column, levels = colnames(d_mat)),
-         row    = factor(row,    levels = rownames(d_mat)) %>% fct_rev(),
+  pivot_longer(-row, values_to = "distance") %>% 
+  mutate(column = factor(name, levels = colnames(d_mat)),
+         row    = factor(row, levels = rownames(d_mat)) %>% fct_rev(),
          label  = formatC(distance, format = 'f', digits = 2) %>% str_replace(., "0.", ".")) %>%
   # omit this line to keep the diagonal of 1's
   filter(distance != 1) %>% 
@@ -1667,7 +1664,7 @@ Here's our the code for our version of Figure 14.12.b.
 # log population and total tools, summarized by the median and 80% interval
 f <-
   post %>% 
-  tidyr::expand(logpop = seq(from = 6, to = 14, length.out = 30),
+  expand(logpop = seq(from = 6, to = 14, length.out = 30),
          nesting(b_a_Intercept, b_b_Intercept, b_g_Intercept)) %>%
   mutate(population = exp(logpop)) %>% 
   mutate(lambda = exp(b_a_Intercept) * population^b_b_Intercept / b_g_Intercept) %>%
@@ -1708,7 +1705,7 @@ p1 + p2 +
 
 As expressed by the intensity of the colors of those connecting lines, our correlations are a bit more pronounced than those in the text, making for a more densely webbed plot. It is still the case that the correlations among Malekula, Tikopia, and Santa Cruz are the most pronounced. The next two notable correlations are between Manus and Trobriand and between Lau Fiji and Tonga.
 
-##### Rethinking: Dispersion by other names. 
+##### Rethinking: Dispersion by other names.
 
 McElreath remarked it might be a good idea to fit an alternative of this model using the gamma-Poisson likelihood. Let's take him up on the challenge. Remember that gamma-Poisson models are also referred to as negative binomial models. When using **brms**, you specify this using `family = negbinomial`.
 
@@ -1733,7 +1730,7 @@ b14.8_nb <-
       file = "fits/b14.08_nb")
 ```
 
-Check the summary
+Check the summary.
 
 ```{r}
 print(b14.8_nb)
@@ -1769,9 +1766,9 @@ Like before, we'll view them in a plot.
 rho %>%
   data.frame() %>% 
   mutate(row = d$culture) %>% 
-  gather(column, distance, -row) %>% 
-  mutate(column = factor(column, levels = colnames(d_mat)),
-         row    = factor(row,    levels = rownames(d_mat)) %>% fct_rev(),
+  pivot_longer(-row, values_to = "distance") %>% 
+  mutate(column = factor(name, levels = colnames(d_mat)),
+         row    = factor(row, levels = rownames(d_mat)) %>% fct_rev(),
          label  = formatC(distance, format = 'f', digits = 2) %>% str_replace(., "0.", ".")) %>%
   # omit this line to keep the diagonal of 1's
   filter(distance != 1) %>% 
@@ -1823,7 +1820,7 @@ p1 <-
 # log population and total tools, summarized by the median and 80% interval
 f <-
   post %>% 
-  tidyr::expand(logpop = seq(from = 6, to = 14, length.out = 30),
+  expand(logpop = seq(from = 6, to = 14, length.out = 30),
          nesting(b_a_Intercept, b_b_Intercept, b_g_Intercept)) %>%
   mutate(population = exp(logpop)) %>% 
   mutate(lambda = exp(b_a_Intercept) * population^b_b_Intercept / b_g_Intercept) %>%
@@ -2257,7 +2254,7 @@ dat %>%
   geom_line(color = "#80A0C7") +
   geom_point(color = "#FCF9F0", size = 1/2) +
   ylab("negative affect (standardized)") +
-  facet_wrap(~record_id)
+  facet_wrap(~ record_id)
 ```
 
 ### Conventional multilevel growth model.
@@ -2369,7 +2366,7 @@ bind_cols(
              color = "#8B9DAF") +
   scale_x_continuous(breaks = c(0, .5, 1)) +
   ylab("negative affect (standardized)") +
-  facet_wrap(~record_id)
+  facet_wrap(~ record_id)
 ```
 
 Because of our fixed $\sigma_\epsilon$ parameter, the 95% posterior predictive interval is the same width for both participants. Yet look how closely participant the data points for participant 30 cluster not only within the center region of the posterior prediction intervals, but also almost completely within the 95% interval for the fitted line. In contrast, notice how much more spread out the data points for participant 115 are, and how many of them extend well beyond the posterior predictive interval. This difference in variability is ignored by conventional growth models. However, there's no reason we can't adjust our model to capture this kind of person-level variability, too. Enter the MELSM.
@@ -2479,7 +2476,7 @@ bind_cols(
              color = "#8B9DAF") +
   scale_x_continuous(breaks = c(0, .5, 1)) +
   ylab("negative affect (standardized)") +
-  facet_wrap(~record_id)
+  facet_wrap(~ record_id)
 ```
 
 That's a big improvement. Let's expand our skill set. Within the MELSM paradigm, one can use multiple variables to model participant-specific variation. Here we'll add in our time variable.
@@ -2523,7 +2520,7 @@ b14.14 <-
       file = "fits/b14.14")
 ```
 
-At this point, `print()` is starting to return a lot of output. 
+At this point, `print()` is starting to return a lot of output.
 
 ```{r}
 print(b14.14)
@@ -2542,8 +2539,8 @@ posterior_summary(b14.14) %>%
   ggplot(aes(x = Estimate, xmin = Q2.5, xmax = Q97.5, y = par)) +
   geom_vline(xintercept = c(-.5, 0, .5), linetype = c(2, 1, 2), size = c(1/4, 1/2, 1/4), color = "#FCF9F0", alpha = 1/4) +
   geom_pointrange(color = "#B1934A") +
-  xlim(-1, 1) +
   scale_y_discrete(labels = ggplot2:::parse_safe) +
+  xlim(-1, 1) +
   labs(x = "marginal posterior",
        y = NULL) +
   theme(axis.text.y = element_text(hjust = 0, size = 9),
@@ -2607,7 +2604,6 @@ Interestingly, the strongest two associations involve variation around our $\eta
 nd <-
   dat %>% 
   filter(record_id %in% c(30, 115)) %>% 
-  # filter(record_id < 20) %>% 
   select(record_id, N_A.std, day01)
 
 bind_cols(
@@ -2632,7 +2628,7 @@ bind_cols(
              color = "#8B9DAF") +
   scale_x_continuous(breaks = c(0, .5, 1)) +
   ylab("negative affect (standardized)") +
-  facet_wrap(~record_id)
+  facet_wrap(~ record_id)
 ```
 
 With respect to $\rho_{31}$, participant 115 showed both a higher intercept and higher level of variability toward the beginning of the study than participant 30 did. The meaning of $\rho_{42}$ is less clear, with these two. But at least you can get a sense of why you might want to include a  $\eta_1$ parameter to allow response variability to change over time, and why you might want to allow that parameter to vary across participants. Whereas response variability increased quite a bit for participant 115 over time, it stayed about the same for participant 30, perhaps even decreasing a bit.
@@ -2849,7 +2845,7 @@ rho %>%
   scale_x_continuous(NULL, breaks = NULL, expand = c(0, 0)) +
   scale_y_continuous(NULL, breaks = NULL, expand = c(0, 0)) +
   theme(strip.text = element_text(size = 12)) +
-  facet_grid(row~col, labeller = label_parsed, switch = "y")
+  facet_grid(row ~ col, labeller = label_parsed, switch = "y")
 ```
 
 From Kay's GitHub repo, we read: "This is akin to something like an icon array. You should still be able to see the average color (thanks to the human visual system's ensembling processing), but also get a sense of the uncertainty by how 'dithered' a square looks." Hopefully this will give you a little inspiration to find new and better ways to express the posterior uncertainty in your Bayesian correlation plots. If you come up with any great solutions, [let the rest of us know](https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed/issues)!
@@ -2883,7 +2879,7 @@ sessionInfo()
 ```
 
 ```{r, warning = F, echo = F}
-rm(a, b, sigma_a, sigma_b, rho, mu, cov_ab, sigma, sigmas, n_cafes, vary_effects, theme_pearl_earring, n_visits, d, n_sim, r_1, r_2, r_4, text, b14.1, post, partially_pooled_params, un_pooled_params, params, p1, partially_pooled_estimates, un_pooled_estimates, estimates, p2, b14.3, names, nd, dag_coords, theme_pearl_dag, standardize, n, dat_sim, b14.4, b14.5, e_model, w_model, b14.6, b14.4x, b14.6x, dagIV, kl_dyads, kl_dyads, kl_households, kl_data, m14.7, g, r, islandsDistMatrix, d_mat, b14.8, k, tidy_rho, f, b14.8_nb, Primates301, Primates301_nex, b14.9, spp_obs, tree_trimmed, Rbm, V, Dmat, R, b14.10, dat_list, m14.11, dat, b14.12, b14.13, b14.14, levels, rho, b14.15)
+rm(a, b, sigma_a, sigma_b, rho, mu, cov_ab, sigma, sigmas, n_cafes, vary_effects, theme_pearl_earring, n_visits, d, n_sim, r_1, r_2, r_4, text, b14.1, post, partially_pooled_params, un_pooled_params, params, p1, partially_pooled_estimates, un_pooled_estimates, estimates, p2, b14.3, names, nd, dag_coords, theme_pearl_dag, standardize, n, dat_sim, b14.4, b14.5, e_model, w_model, b14.6, b14.4x, b14.6x, dagIV, kl_dyads, kl_dyads, kl_households, kl_data, m14.7, g, r, islandsDistMatrix, d_mat, b14.8, k, i, j, tidy_rho, f, b14.8_nb, Primates301, Primates301_nex, b14.9, spp_obs, tree_trimmed, Rbm, V, Dmat, R, b14.10, dat_list, m14.11, dat, b14.12, b14.13, b14.14, levels, rho, b14.15)
 ```
 
 ```{r, echo = F, message = F, warning = F, results = "hide"}
