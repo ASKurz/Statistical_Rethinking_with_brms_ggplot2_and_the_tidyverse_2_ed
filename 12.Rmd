@@ -1822,5 +1822,6 @@ rm(pbar, theta, betaABfromMeanKappa, d, beta_binomial2, stan_funs, stanvars, b12
 
 ```{r, echo = F, message = F, warning = F, results = "hide"}
 ggplot2::theme_set(ggplot2::theme_grey())
+# pacman::p_unload(pacman::p_loaded(), character.only = TRUE)
 ```
 
