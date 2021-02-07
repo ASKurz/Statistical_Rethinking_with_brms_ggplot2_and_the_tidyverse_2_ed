@@ -146,14 +146,14 @@ crossing(pbar  = c(.25, .5, .75),
 If you'd like to see how to make a similar plot in terms of $\alpha$ and $\beta$, see [Chapter 6](https://bookdown.org/content/3686/inferring-a-binomial-probability-via-exact-mathematical-analysis.html) of my [-@kurzDoingBayesianData2020] [ebook](https://bookdown.org/content/3686/) wherein I translated Kruschke's text into **tidyverse** and **brms** code.
 
 But remember, we're not fitting a beta model. We're using the beta-binomial. "We're going to bind our linear model to $\bar p$, so that changes in predictor variables change the central tendency of the distribution" (p. 371). The statistical model we'll be fitting follows the form
-$$
+
 \begin{align*}
 \text{admit}_i & \sim \operatorname{BetaBinomial}(n_i, \bar p_i, \phi)\\
 \operatorname{logit}(\bar p_i) & = \alpha_{\text{gid}[i]} \\
 \alpha_j                       & \sim \operatorname{Normal}(0, 1.5) \\
 \phi                           & \sim \operatorname{Exponential}(1).
 \end{align*}
-$$
+
 Here the size, $n$, is defined in the `applications` column in the data we'll load in just a moment. In case you're confused, yes, our statistical model is not quite the same as the one McElreath presented on page 371 in the text. If you look closely, we dropped all mention of $\theta$ and jumped directly to $\phi$. Instead of implementing McElreath's $\theta = \phi + 2$ trick, we're going to set the lower bound for $\phi$ directly. Which brings us to the next issue:
 
 We have an additional complication. The beta-binomial likelihood is not natively supported in **brms** at this time (see [GitHub issue #144](https://github.com/paul-buerkner/brms/issues/144)). However, **brms** versions 2.2.0 and above allow users to define custom distributions. To get all the details, you might check out Bürkner's [-@Bürkner2020Define] vignette, [*Define custom response distributions with brms*](https://CRAN.R-project.org/package=brms/vignettes/brms_customfamilies.html). Happily, Bürkner even used the [beta-binomial distribution as the exemplar](https://cran.r-project.org/package=brms/vignettes/brms_customfamilies.html#the-beta-binomial-distribution) in the vignette.
@@ -191,7 +191,7 @@ stan_funs <- "
 stanvars <- stanvar(scode = stan_funs, block = "functions")
 ```
 
-Did you notice the `lb = c(NA, 2)` portion of the code defining `beta_binomial2()`? In Bürkner's vignette, he set the lower bound of `phi` to zero. Since McElreath wanted the lower bound for $\phi$ to be 2, we just set that as the default in the likelihood. We should clarify two more points: 
+Did you notice the `lb = c(NA, 2)` portion of the code defining `beta_binomial2()`? In Bürkner's vignette, he set the lower bound of `phi` to zero. Since McElreath wanted the lower bound for $\phi$ to be 2, we just set that as the default in the likelihood. We should clarify two more points:
 
 First, what McElreath referred to as the shape parameter, $\theta$, Bürkner called the precision parameter, $\phi$. In our exposition, above, we followed Kruschke's convention and called it $\kappa$. These are all the same thing: $\theta$, $\phi$, and $\kappa$ are **all the same thing**. Perhaps less confusingly, what McElreath called the `pbar` parameter, $\bar p$, Bürkner simply refers to as $\mu$.
 
@@ -263,7 +263,7 @@ All that was just for the thin lines. To make the thicker line for the posterior
 lines %>% 
   ggplot(aes(x = x, y = density)) + 
   stat_function(fun = rethinking::dbeta2,
-                args = list(prob  = mean(inv_logit_scaled(post[, "b_gid2"])),
+                args = list(prob = mean(inv_logit_scaled(post[, "b_gid2"])),
                             theta = mean(post[, "phi"])),
                 size = 1.5, color = canva_pal("Green fields")(4)[4]) +
   geom_line(aes(group = iter),
@@ -310,12 +310,12 @@ With those intermediary steps out of the way, we're ready to make Figure 12.1.b.
 ```{r, fig.width = 4, fig.height = 3.5}
 # the prediction intervals
 predict(b12.1) %>%
-  as_tibble() %>% 
+  data.frame() %>% 
   transmute(ll = Q2.5,
             ul = Q97.5) %>%
   bind_cols(
     # the fitted intervals
-    fitted(b12.1) %>% as_tibble(),
+    fitted(b12.1) %>% data.frame(),
     # the original data used to fit the model) %>% 
     b12.1$data
     ) %>% 
@@ -454,10 +454,10 @@ p %>%
   
   ggplot(aes(x = lambda)) +
   geom_density(color = "transparent", fill = canva_pal("Green fields")(4)[2]) +
-  scale_y_continuous(NULL, breaks = NULL) +
   scale_x_continuous(expression(lambda["[culture]"]), breaks = 0:2 * 100) +
+  scale_y_continuous(NULL, breaks = NULL) +
   coord_cartesian(xlim = c(0, 210)) +
-  facet_wrap(~culture, nrow = 2)
+  facet_wrap(~ culture, nrow = 2)
 ```
 
 Because this model had no predictors, we have similar posterior-predictive distributions for each case in the data. It's important, however, to be very clear of what these posterior-predictive distributions are of. They are not of the data, per se. Let's look back at the text:
@@ -474,15 +474,14 @@ post <- posterior_samples(b12.2a)
 post %>% 
   mutate(mu    = exp(b_Intercept),
          alpha = shape) %>%
-  pivot_longer(mu:alpha,
-               names_to = "parameter") %>% 
+  pivot_longer(mu:alpha, names_to = "parameter") %>% 
   
   ggplot(aes(x = value)) +
   geom_density(color = "transparent", fill = canva_pal("Green fields")(4)[2]) +
   scale_y_continuous(NULL, breaks = NULL) +
   labs(title = "Behold our gamma parameters!",
        x = "posterior") +
-  facet_wrap(~parameter, scales = "free", labeller = label_parsed)
+  facet_wrap(~ parameter, scales = "free", labeller = label_parsed)
 ```
 
 We might want to use these parameters estimates to visualize the model-implied gamma distribution of $\lambda$ parameters. But recall that the base **R** `dgamma()` function doesnt' take the mean. It is based on either the `shape` and `rate` or the `shape and `scale`. Since we already have the shape ($\alpha$), we need a way to compute the scale or rate. Happily, we can define the scale in terms of the mean and the shape with the equation
@@ -649,7 +648,7 @@ p2 <-
   labs(subtitle = "gamma-Poisson model")
 ```
 
-Combine the two ggplots with **patchwork** syntax to make the full version of Figure 12.2. 
+Combine the two ggplots with **patchwork** syntax to make the full version of Figure 12.2.
 
 ```{r, fig.width = 7.25, fig.height = 3.25}
 library(patchwork)
@@ -687,10 +686,10 @@ predict(b12.2b,
                color = canva_pal("Green fields")(4)[1]) +
   geom_vline(aes(xintercept = total_tools),
              color = canva_pal("Green fields")(4)[3]) +
-  scale_y_continuous(NULL, breaks = NULL) +
   scale_x_continuous(expression(lambda["[culture]"]), breaks = 0:2 * 100) +
+  scale_y_continuous(NULL, breaks = NULL) +
   coord_cartesian(xlim = c(0, 210)) +
-  facet_wrap(~culture, nrow = 2)
+  facet_wrap(~ culture, nrow = 2)
 ```
 
 Because we used predictors in the model, this time the posterior predictive distributions differ across the cultures. The mean and interquartile range of each distribution are marked off by the light-green dot and horizontal line below each. The vertical lines in the foreground mark off the corresponding `total_tools` values from the data. Recall that these distributions are not based on the `total_tools` values themselves, but rather are estimates of the $\lambda$ values from the underlying Poisson distributions that might have generated such `total_tools` values.
@@ -725,10 +724,10 @@ n <- 365
 
 # simulate days monks drink
 set.seed(365)
-drink <- rbinom(n, 1, prob_drink)
+drink <- rbinom(n, size = 1, prob = prob_drink)
 
 # simulate manuscripts completed
-y <- (1 - drink) * rpois(n, rate_work)
+y <- (1 - drink) * rpois(n, lambda = rate_work)
 ```
 
 We'll put those data in a tidy tibble before plotting.
@@ -738,7 +737,8 @@ d <-
   tibble(drink = factor(drink, levels = 1:0), 
          y     = y)
   
-ggplot(data = d, aes(x = y)) +
+d %>% 
+  ggplot(aes(x = y)) +
   geom_histogram(aes(fill = drink),
                  binwidth = 1, size = 1/10, color = "grey92") +
   scale_fill_manual(values = canva_pal("Green fields")(4)[1:2]) +
@@ -766,13 +766,13 @@ And
 > Since drinking monks never produce $y > 0$, the expression above is just the chance the monks both work $1 - p$, and finish $y$ manuscripts. (pp. 377--378, *emphasis* in the original)
 
 So letting $p$ be the probability $y$ is zero and $\lambda$ be the shape of the distribution, the zero-inflated Poisson ($\operatorname{ZIPoisson}$) regression model might take the basic form
-$$
+
 \begin{align*}
 y_i & \sim \operatorname{ZIPoisson}(\color{#5a5f37}{p_i}, \color{#524a3a}{\lambda_i})\\
 \color{#5a5f37}{\operatorname{logit}(p_i)} & \color{#5a5f37}= \color{#5a5f37}{\alpha_p + \beta_p x_i} \\
 \color{#524a3a}{\log (\lambda_i)} & \color{#524a3a}= \color{#524a3a}{\alpha_\lambda + \beta_\lambda x_i},
 \end{align*}
-$$
+
 where both parameters in the likelihood, $p_i$ and $\lambda_i$ might get their own statistical model, making this a special case of what Bürkner [-@Bürkner2020Distributional] calls distributional models. One last thing to note is that in **brms**, $p_i$ is denoted `zi`. To fit a zero-inflated Poisson model with **brms**, make sure to specify the correct likelihood with `family = zero_inflated_poisson`. To use a non-default prior for `zi`, make sure to indicate `class = zi` within the `prior()` function.
       
 ```{r b12.3}
@@ -793,7 +793,7 @@ print(b12.3)
 
 If you look at the [*Zero-inflated and hurdle models* section](https://cran.r-project.org/package=brms/vignettes/brms_families.html#zero-inflated-and-hurdle-models) of Bürkner's [-@Bürkner2020Parameterization] [*Parameterization of response distributions in brms*](https://cran.r-project.org/package=brms/vignettes/brms_families.html) document, you'll see the zero-inflated Poisson is set up a little differently in **brms** than it is in **rethinking**. The difference did not influence the estimate for the intercept, $\lambda$. In both here and in the text, $\lambda$ was about zero. However, it did influence the summary of `zi`. Note how McElreath's `mean( inv_logit( post$ap ) )` returned 0.2241255, which seems rather close to our `zi` estimate of `r round(posterior_summary(b12.3)[2, 1], 3)`. Hopefully it's clear that `zi` in **brms** is already in the probability metric. There's no need to convert it. You can further confirm this by looking at the second line from the `print()` output, `Links: mu = log; zi = identity`. When there are no predictors for `zi`, the **brms** default is to use the identity link. In the text, however, McElreath used the logit link for `p`.
 
-In the `prior` argument, we used `beta(2, 6)` for `zi` and also mentioned in the margin that the **brms** default is `beta(1, 1)`. The beta distribution ranges from 0 to 1, making it a natural distribution to use for priors on probabilities when using the identity link. To give you a sense of what those two versions of the beta look like, let's plot. 
+In the `prior` argument, we used `beta(2, 6)` for `zi` and also mentioned in the margin that the **brms** default is `beta(1, 1)`. The beta distribution ranges from 0 to 1, making it a natural distribution to use for priors on probabilities when using the identity link. To give you a sense of what those two versions of the beta look like, let's plot.
 
 A typical way to plot a beta distribution would be to use the base **R** `dbeta()` function. Let's try a different approach, instead. The **tidybayes** package includes a `parse_dist()` function which takes the kind of string specifications you would usually include in the `brms::prior()` function and converts them into a format one can plot with. For example, here's what the preparatory work would be in our case.
 
@@ -1209,7 +1209,7 @@ So the rule is we *subtract the linear model from each intercept*. "This way, a 
 \beta_1, \dots, \beta_5 & \sim \operatorname{Normal}(0, 0.5),
 \end{align*}
 
-where, because we have included predictors, $\phi$ is no longer set to 0. Using our skills from back in [Chapter 8][Conditional Manatees], we might also rewrite the linear model for $\phi$ as 
+where, because we have included predictors, $\phi$ is no longer set to 0. Using our skills from back in [Chapter 8][Conditional Manatees], we might also rewrite the linear model for $\phi$ as
 
 $$\phi_i = \beta_1 \text{action}_i + \beta_2 \text{contact}_i + \beta_3 \text{intention}_i + \beta_4 (\text{action}_i \times \text{intention}_i) + \beta_5 (\text{contact}_i \times \text{intention}_i).$$
 
@@ -1298,7 +1298,7 @@ f <-
 glimpse(f)
 ```
 
-We're moving pretty quickly, here. If it wasn’t apparent, the original values in the `f` data were in the probability metric. This is why we followed the convention from earlier in this section and named them `pk`. However, we need them to be in the cumulative-probability metric to make the top panels of the figure. 
+We're moving pretty quickly, here. If it wasn't apparent, the original values in the `f` data were in the probability metric. This is why we followed the convention from earlier in this section and named them `pk`. However, we need them to be in the cumulative-probability metric to make the top panels of the figure.
 
 ```{r}
 # to order our factor levels for `facet`
@@ -1336,9 +1336,9 @@ p1 <-
   scale_color_gradient(low = canva_pal("Green fields")(4)[4],
                        high = canva_pal("Green fields")(4)[1]) +
   scale_x_continuous("intention", breaks = 0:1) +
-  scale_y_continuous(breaks = c(0, .5, 1), limits = c(0, 1)) +
+  scale_y_continuous(breaks = c(0, .5, 1), limits = 0:1) +
   theme(legend.position = "none") +
-  facet_wrap(~facet)
+  facet_wrap(~ facet)
 ```
 
 We will look at the results of our code in just a bit. For now, we'll focus on the code for the triptych in the bottom panels of Figure 12.6. These plots will be based on `predict()`.
@@ -1373,7 +1373,7 @@ p2 <-
   scale_fill_manual(values = canva_pal("Green fields")(4)[2:1]) +
   scale_x_continuous("response", breaks = 1:7) +
   theme(legend.position = "none") +
-  facet_wrap(~facet)
+  facet_wrap(~ facet)
 ```
 
 Finally, we're ready to combine our two triptychs into one glorious remake of Figure 12.6.
@@ -1404,7 +1404,7 @@ p1 <-
   scale_x_continuous("intention", breaks = 0:1) +
   scale_y_continuous("resopnse", breaks = 1:7, limits = c(1, 7)) +
   theme(legend.position = "none") +
-  facet_wrap(~facet)
+  facet_wrap(~ facet)
 ```
 
 I really like how intuitive the histograms were in McElreath’s bottom triptych. A limitation of that approach, however, is there is no direct expression of uncertainty. To address this, we might recall that the bars in the histogram are basically just reparameterizations of the `pk` values already in our `f` data and, happily, our vector of `pk` values already contains the uncertainty in the posterior. One way we might express that is with the `tidybayes::stat_ccdfinterval()` function, which will return a bar plot where the top parts of the bars depict our uncertainty in terms of cumulative density curves.
@@ -1423,7 +1423,7 @@ p2 <-
   scale_x_continuous("resopnse", breaks = 1:7) +
   scale_y_continuous("count", breaks = 0:3 / 10, labels = 0:3 * 100, limits = c(0, NA)) +
   theme(legend.position = "none") +
-  facet_wrap(~facet)
+  facet_wrap(~ facet)
 ```
 
 Here's our alternative plot.
@@ -1434,7 +1434,7 @@ p1 / p2
 
 I suspect our `stat_ccdfinterval()` approach would work better in plots with fewer bars. But hopefully it gives you some ideas.
 
-#### Rethinking: Staring into the abyss. 
+#### Rethinking: Staring into the abyss.
 
 > The plotting code for ordered logistic models is complicated, compared to that of models from previous chapters. But as models become more monstrous, so too does the code needed to compute predictions and display them. With power comes hardship. It's better to see the guts of the machine than to live in awe or fear of it. (p. 391)
 
@@ -1477,6 +1477,7 @@ The prior often used to handle monotonic effects is the Dirichlet distribution. 
 library(gtools)
 set.seed(1805)
 delta <- rdirichlet(10, alpha = rep(2, 7)) 
+
 str(delta)
 ```
 
@@ -1523,7 +1524,7 @@ brms::rdirichlet(n = 1e4,
   scale_y_continuous(NULL, breaks = NULL) +
   labs(subtitle = expression("Dirichlet"*(2*", "*2*", "*2*", "*2*", "*2*", "*2*", "*2))) +
   theme(legend.position = "none") +
-  facet_wrap(~alpha, labeller = label_parsed, nrow = 2)
+  facet_wrap(~ alpha, labeller = label_parsed, nrow = 2)
 ```
 
 When using **brms**, the issue of treating a predictor in the way McElreath covered in this section is referred to as **monotonic effects**. Bürkner outlined the issue in his [-@Bürkner2020Monotonic] vignette, [*Estimating monotonic effects with with brms*](https://CRAN.R-project.org/package=brms/vignettes/brms_monotonic.html), and in his [-@burknerModellingMonotonicEffects2020] article with Emmanuel Charpentier, *Modelling monotonic effects of ordinal predictors in Bayesian regression models* (click [here](https://psyarxiv.com/9qkhj/) for the freely-available  preprint). From the introduction in Bürkner's vignette, we read:
@@ -1534,9 +1535,9 @@ When using **brms**, the issue of treating a predictor in the way McElreath cove
 >
 > The parameter $b$ can take on any real value, while $\zeta$ is a simplex, which means that it satisfies $\zeta_i \in [0, 1]$ and $\sum_{i = 1}^D \zeta_i = 1$ with $D$ being the number of elements of $\zeta$. Equivalently, $D$ is the number of categories (or highest integer in the data) minus 1, since we start counting categories from zero to simplify the notation.
 
-In this context, $n$ indexes the observations in the hypothetical data and $\eta$ denotes the linear model for some outcome $y$. Unlike with **rethinking**, the **brms** syntax for fitting models with monotonic predictors is fairly simple. Just place your monotonic predictors within the `mo()` function and enter them into the `formula`. 
+In this context, $n$ indexes the observations in the hypothetical data and $\eta$ denotes the linear model for some outcome $y$. Unlike with **rethinking**, the **brms** syntax for fitting models with monotonic predictors is fairly simple. Just place your monotonic predictors within the `mo()` function and enter them into the `formula`.
 
-In the text, McElreath remarked it took about 20 minutes to fit this model in his computer. Using my 2019 MacBook Pro, it took just under 40 minutes. Mind you, our **brms** version of the model used twice the number of warmup and post-warmup iterations, so this isn't a knock against the sampling speed of **brms** versus **rethinking**. But either way, get ready to wait a while when fitting a model like this. 
+In the text, McElreath remarked it took about 20 minutes to fit this model in his computer. Using my 2019 MacBook Pro, it took just under 40 minutes. Mind you, our **brms** version of the model used twice the number of warmup and post-warmup iterations, so this isn't a knock against the sampling speed of **brms** versus **rethinking**. But either way, get ready to wait a while when fitting a model like this.
 
 ```{r b12.6}
 b12.6 <- 
@@ -1571,7 +1572,7 @@ The current version of **brms** takes expresses $\beta_\text{E}$ as an average e
 
 > If the monotonic effect is used in a linear model, $b$ can be interpreted as the expected average difference between two adjacent categories of $x$, while $\zeta_i$ describes the expected difference between the categories $i$ and $i - 1$ in the form of a proportion of the overall difference between lowest and highest categories. Thus, this parameterization has an intuitive interpretation while guaranteeing the monotonicity of the effect (p. 6)
 
-To clarify, the $b$ in this section is what we're calling $\beta_\text{E}$ in the current example and Bürkner and Charpentier used $\zeta_i$ in place of McElreath's $\delta_j$. The upshot of all this is that if we'd like to compare the summary of our `b12.6` to the results McElreath reported for his `m12.6`, we'll need to multiply our `moedu_new` by 7. 
+To clarify, the $b$ in this section is what we're calling $\beta_\text{E}$ in the current example and Bürkner and Charpentier used $\zeta_i$ in place of McElreath's $\delta_j$. The upshot of all this is that if we'd like to compare the summary of our `b12.6` to the results McElreath reported for his `m12.6`, we'll need to multiply our `moedu_new` by 7.
 
 ```{r}
 posterior_samples(b12.6) %>% 
@@ -1760,7 +1761,7 @@ bind_rows(f12.6, f12.7) %>%
   scale_y_continuous("probability", limits = c(0, .43)) +
   theme(legend.background = element_blank(),
         legend.position = "right") +
-  facet_wrap(~fit)  
+  facet_wrap(~ fit)  
 ```
 
 In case you were curious, the PSIS-LOO suggests the monotonic model (`b12.6`) made better sense of the data.
@@ -1781,8 +1782,7 @@ posterior_samples(b12.6) %>%
   set_names(1:7) %>% 
   mutate(iter = 1:n(), 
          `0`  = 0) %>% 
-  pivot_longer(-iter,
-               names_to = "delta") %>% 
+  pivot_longer(-iter, names_to = "delta") %>% 
   arrange(delta) %>% 
   group_by(iter) %>% 
   mutate(cum_sum = cumsum(value)) %>% 
@@ -1808,8 +1808,7 @@ d %>%
 
 ## Summary
 
-"This chapter introduced several new types of regression, all of which are generalizations of generalized linear models (GLMs)" (p. 397). This chapter has been a ride. If you'd like more practice with the negative-binomial model and some of the others models for categorical data we covered in this chapter and in [Chapter 11][God Spiked the Integers], Alan Agresti covered them extensively in his [-@agrestiFoundationsLinearGeneralized2015] text, [*Foundations of linear and generalized linear models*](https://www.wiley.com/en-us/Foundations+of+Linear+and+Generalized+Linear+Models-p-9781118730034). For more on different kinds of zero-inflated count models, check out @atkinsTutorialCountRegression2013, [*A tutorial on count regression and zero-altered count models for
-longitudinal substance use data*](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3513584/pdf/nihms396181.pdf). If you'd like to learn more about using cumulative probabilities to model ordinal data in **brms**, check out Bürkner and Vuorre's [-@burknerOrdinalRegressionModels2019] [*Ordinal regression models in psychology: A tutorial*](https://doi.org/10.1177/2515245918823199) and its repository on the Open Science Framework ([https://osf.io/cu8jv/](https://osf.io/cu8jv/)). Also check out [Chapter 23](https://bookdown.org/content/3686/ordinal-predicted-variable.html) of my [-@kurzDoingBayesianData2020] ebook [*Doing Bayesian Data Analysis in brms and the tidyverse*](https://bookdown.org/content/3686/) were we model ordinal data with a series of cumulative *probit* models.
+"This chapter introduced several new types of regression, all of which are generalizations of generalized linear models (GLMs)" (p. 397). This chapter has been a ride. If you'd like more practice with the negative-binomial model and some of the others models for categorical data we covered in this chapter and in [Chapter 11][God Spiked the Integers], Alan Agresti covered them extensively in his [-@agrestiFoundationsLinearGeneralized2015] text, [*Foundations of linear and generalized linear models*](https://www.wiley.com/en-us/Foundations+of+Linear+and+Generalized+Linear+Models-p-9781118730034). For more on different kinds of zero-inflated count models, check out @atkinsTutorialCountRegression2013, [*A tutorial on count regression and zero-altered count models for longitudinal substance use data*](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3513584/pdf/nihms396181.pdf). If you'd like to learn more about using cumulative probabilities to model ordinal data in **brms**, check out Bürkner and Vuorre's [-@burknerOrdinalRegressionModels2019] [*Ordinal regression models in psychology: A tutorial*](https://doi.org/10.1177/2515245918823199) and its repository on the Open Science Framework ([https://osf.io/cu8jv/](https://osf.io/cu8jv/)). Also check out [Chapter 23](https://bookdown.org/content/3686/ordinal-predicted-variable.html) of my [-@kurzDoingBayesianData2020] ebook [*Doing Bayesian Data Analysis in brms and the tidyverse*](https://bookdown.org/content/3686/) were we model ordinal data with a series of cumulative *probit* models.
 
 ## Session info {-}
 
