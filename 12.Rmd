@@ -83,8 +83,8 @@ pbar  <- .5
 theta <- 5
 
 ggplot(data = tibble(x = seq(from = 0, to = 1, by = .01)),
-       aes(x = x, ymin = 0, ymax = rethinking::dbeta2(x, pbar, theta))) +
-  geom_ribbon(fill = canva_pal("Green fields")(4)[1]) +
+       aes(x = x, y = rethinking::dbeta2(x, pbar, theta))) +
+  geom_area(fill = canva_pal("Green fields")(4)[1]) +
   scale_x_continuous("probability space", breaks = c(0, .5, 1)) +
   scale_y_continuous(NULL, breaks = NULL) +
   ggtitle(expression(The~beta~distribution),
@@ -113,8 +113,8 @@ And finally, we can double check that all of this works. Here's the same distrib
 
 ```{r, fig.width = 4, fig.height = 3}
 ggplot(data = tibble(x = seq(from = 0, to = 1, by = .01)),
-       aes(x = x, ymin = 0, ymax = dbeta(x, 2.5, 2.5))) +
-  geom_ribbon(fill = canva_pal("Green fields")(4)[4]) +
+       aes(x = x, y = dbeta(x, 2.5, 2.5))) +
+  geom_area(fill = canva_pal("Green fields")(4)[4]) +
   scale_x_continuous("probability space", breaks = c(0, .5, 1)) +
   scale_y_continuous(NULL, breaks = NULL) +
   ggtitle(expression(The~beta~distribution),
@@ -134,8 +134,8 @@ crossing(pbar  = c(.25, .5, .75),
                           levels = c("kappa == 30", "kappa == 15", "kappa == 5"))) %>% 
   
   # plot
-  ggplot(aes(x = x, ymin = 0, ymax = density)) +
-  geom_ribbon(fill = canva_pal("Green fields")(4)[4]) +
+  ggplot(aes(x = x, y = density)) +
+  geom_area(fill = canva_pal("Green fields")(4)[4]) +
   scale_x_continuous("probability space", 
                      breaks = c(0, .5, 1), labels = c("0", ".5", "1")) +
   scale_y_continuous(NULL, labels = NULL) +
@@ -401,10 +401,9 @@ get_prior(data = d,
 
 ```{r, fig.width = 3.5, fig.height = 3}
 ggplot(data = tibble(x = seq(from = 0, to = 60, by = .1)),
-       aes(x = x)) +
-  geom_ribbon(aes(ymin = 0, ymax = dgamma(x, 0.01, 0.01)),
-              color = "transparent", 
-              fill = canva_pal("Green fields")(4)[2]) +
+       aes(x = x, y = dgamma(x, 0.01, 0.01))) +
+  geom_area(color = "transparent", 
+            fill = canva_pal("Green fields")(4)[2]) +
   scale_x_continuous(NULL) +
   scale_y_continuous(NULL, breaks = NULL) +
   coord_cartesian(xlim = c(0, 50)) +
