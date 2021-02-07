@@ -291,8 +291,8 @@ d %>%
   # this line allows us to dictate the order in which the panels will appear
   mutate(name = factor(name, levels = c("prior", "likelihood", "posterior"))) %>% 
   
-  ggplot(aes(x = p_grid, ymin = 0, ymax = value, fill = name)) +
-  geom_ribbon() +
+  ggplot(aes(x = p_grid, y = value, fill = name)) +
+  geom_area() +
   scale_fill_manual(values = c("blue", "red", "purple")) +
   scale_y_continuous(NULL, breaks = NULL) +
   theme(legend.position = "none") +
@@ -2198,8 +2198,8 @@ Throughout this chapter, I've griped a bit about using the uniform prior for $\s
 tibble(x = seq(from = 0, to = 10, by = 0.1)) %>% 
   mutate(d = dexp(x, rate = 1)) %>% 
   
-  ggplot(aes(x = x, ymin = 0, ymax = d)) +
-  geom_ribbon(fill = "#ffb7c5") +
+  ggplot(aes(x = x, y = d)) +
+  geom_area(fill = "#ffb7c5") +
   scale_y_continuous(NULL, breaks = NULL) +
   theme_bw() +
   theme(panel.background = element_rect(fill = "#4f455c"),
