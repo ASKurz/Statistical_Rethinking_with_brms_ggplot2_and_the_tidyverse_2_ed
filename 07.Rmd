@@ -939,11 +939,9 @@ tibble(x = seq(from = - 3.5, to = 3.5, by = 0.01)) %>%
          c = dnorm(x, mean = 0, sd = 1.0)) %>% 
   pivot_longer(-x) %>% 
   
-  ggplot(aes(x = x)) +
-  geom_line(aes(y = value, color = name, linetype = name), 
-            size = 1/2) +
-  geom_ribbon(aes(ymin = 0, ymax = value, fill = name),
-              alpha = 1/2) +
+  ggplot(aes(x = x, y = value,
+             fill = name, color = name, linetype = name)) +
+  geom_area(alpha = 1/2, size = 1/2, position = "identity") +
   scale_fill_manual(values = carto_pal(7, "BurgYl")[7:5]) +
   scale_color_manual(values = carto_pal(7, "BurgYl")[7:5]) +
   scale_linetype_manual(values = 1:3) +
