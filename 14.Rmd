@@ -1478,12 +1478,13 @@ get_prior(data = d,
 That is, we used the **brms** default prior for $lscale$. In a [GitHub exchange](https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse/issues/8), Bürkner pointed out that **brms** uses special priors for $lscale$ parameters based on Michael Betancourt's [-@betancourtRobustGaussianProcesses2017] vignette, [*Robust Gaussian processes in Stan*](https://betanalpha.github.io/assets/case_studies/gp_part3/part3.html). We can use the `dinvgamma()` function from the well-named [**invgamma** package](https://CRAN.R-project.org/package=invgamma) [@R-invgamma] to get a sense of what that prior looks like.
   
 ```{r, fig.width = 4, fig.height = 2.5}
-tibble(lscale = seq(from = 0, to = 9, by = 0.01)) %>% 
+tibble(lscale = seq(from = 0.01, to = 9, by = 0.01)) %>% 
   mutate(density = invgamma::dinvgamma(lscale, 2.874624, 2.941204)) %>% 
   
-  ggplot(aes(x = lscale, ymin = 0, ymax = density)) +
-  geom_ribbon(size = 0, fill = "#80A0C7") +
-  annotate(geom = "text", x = 4.75, y = 0.75,
+  ggplot(aes(x = lscale, y = density)) +
+  geom_area(fill = "#80A0C7") +
+  annotate(geom = "text", 
+           x = 4.75, y = 0.75,
            label = "inverse gamma(2.874624, 2.941204)",
            color = "#8B9DAF", family = "Courier") +
   scale_y_continuous(NULL, breaks = NULL) +
