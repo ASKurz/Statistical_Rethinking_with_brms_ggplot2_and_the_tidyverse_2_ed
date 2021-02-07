@@ -581,8 +581,8 @@ fitted(b4.10) %>%
   labs(subtitle = "b4.7 useing s(year)",
        y = "day in year") +
   theme_bw() +
-  theme(panel.grid = element_blank(),
-        panel.background = element_rect(fill = "#4f455c"))
+  theme(panel.background = element_rect(fill = "#4f455c"), 
+        panel.grid = element_blank())
 ```
 
 That smooth doesn't look quite the same. Hopefully this isn't terribly surprising. We used a function from a different package and ended up with a underlying statistical model. In fact, we didn't even use a B-spline. The default for `s()` is to use what's called a *thin plate* regression spline. If we'd like to fit a B-spline, we have to set `bs = "bs"`. Here's an example.
@@ -620,8 +620,8 @@ fitted(b4.11) %>%
   labs(subtitle = 'b4.7_bs useing s(year, bs = "bs")',
        y = "day in year") +
   theme_bw() +
-  theme(panel.grid = element_blank(),
-        panel.background = element_rect(fill = "#4f455c"))
+  theme(panel.background = element_rect(fill = "#4f455c"), 
+        panel.grid = element_blank())
 ```
 
 There are still other important differences between the underlying statistical model for `b4.11` and the earlier `b4.8` that I'm just not going to go into, here.
