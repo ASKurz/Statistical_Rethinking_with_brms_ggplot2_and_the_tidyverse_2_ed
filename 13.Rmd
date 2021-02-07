@@ -115,7 +115,7 @@ tibble(estimate = fixef(b13.1)[, 1]) %>%
        subtitle = "Notice now inspecting the distributions of the posterior means can offer insights you\nmight not get if you looked at them one at a time.") +
   theme(legend.position = "none",
         panel.grid = element_blank()) +
-  facet_wrap(~name, scales = "free_x")
+  facet_wrap(~ name, scales = "free_x")
 ```
 
 Even though it seems like we can derive important insights from how the `tank`-level intercepts are distributed, that information is not explicitly encoded in the statistical model. Keep that in mind as we now consider the multilevel alternative. Its formula is
@@ -216,7 +216,8 @@ post_mdn %>%
   geom_vline(xintercept = c(16.5, 32.5), size = 1/4, color = "grey25") +
   geom_point(aes(y = propsurv), color = "orange2") +
   geom_point(aes(y = post_mdn), shape = 1) +
-  annotate(geom = "text", x = c(8, 16 + 8, 32 + 8), y = 0, 
+  annotate(geom = "text", 
+           x = c(8, 16 + 8, 32 + 8), y = 0, 
            label = c("small tanks", "medium tanks", "large tanks")) +
   scale_x_continuous(breaks = c(1, 16, 32, 48)) +
   scale_y_continuous(breaks = 0:5 / 5, limits = c(0, 1)) +
@@ -225,7 +226,7 @@ post_mdn %>%
   theme(panel.grid.major = element_blank())
 ```
 
-Here is the code for our version of Figure 13.2.a, where we visualize the model-implied population distribution of log-odds survival (i.e., the population distribution yielding all the `tank`-level intercepts). 
+Here is the code for our version of Figure 13.2.a, where we visualize the model-implied population distribution of log-odds survival (i.e., the population distribution yielding all the `tank`-level intercepts).
 
 ```{r}
 # this makes the output of `slice_sample()` reproducible
@@ -272,7 +273,7 @@ library(patchwork)
 
 Both plots show different ways in expressing the model uncertainty in terms of both location $\alpha$ and scale $\sigma$.
 
-#### Rethinking: Varying intercepts as over-dispersion. 
+#### Rethinking: Varying intercepts as over-dispersion.
 
 > In the previous chapter ([page 369][Over-dispersed counts]), the beta-binomial and gamma-Poisson models were presented as ways for coping with **over-dispersion** of count data. Varying intercepts accomplish the same thing, allowing count outcomes to be over-dispersed. They accomplish this, because when each observed count gets its own unique intercept, but these intercepts are pooled through a common distribution, the predictions expect over-dispersion just like a beta-binomial or gamma-Poisson model would. Multilevel models are also mixtures. Compared to a beta-binomial or gamma-Poisson model, a binomial or Poisson model with a varying intercept on every observed outcome will often be easier to estimate and easier to extend. (p. 407, **emphasis** in the original)
 
@@ -330,7 +331,7 @@ tibble(`prior_Exponential(1)`        = prior_samples(b13.2) %>% pull(sd_tank),
   labs(subtitle = expression(Hierarchical~sigma~parameter)) +
   coord_cartesian(xlim = c(0, 4)) +
   theme(legend.position = "none") +
-  facet_wrap(~prior)
+  facet_wrap(~ prior)
 ```
 
 By the way, this is why we set `iter = 5000` and `sample_prior = "yes"` for the last two models. Neither were necessary to fit the models, but both helped us out with this plot.
@@ -529,7 +530,7 @@ I originally learned about the multilevel in order to work with [longitudinal da
 
 When McElreath [lectured on this topic in 2015](https://www.youtube.com/watch?v=82TaniPgzQc&t=2048s&frags=pl%2Cwn), he traced partial pooling to statistician [Charles M. Stein](https://imstat.org/2017/05/15/obituary-charles-m-stein-1920-2016/). Efron and Morris [-@efronSteinParadoxStatistics1977] wrote the now classic paper, [*Stein's paradox in statistics*](https://statweb.stanford.edu/~ckirby/brad/other/Article1977.pdf), which does a nice job breaking down why partial pooling can be so powerful. One of the primary examples they used in the paper was of 1970 batting average data. If you'd like more practice seeing how partial pooling works--or if you just like baseball--, check out my blog post, [*Stein's paradox and what partial pooling can do for you*](https://solomonkurz.netlify.com/post/stein-s-paradox-and-what-partial-pooling-can-do-for-you/).
 
-#### Overthinking: Repeating the pond simulation. 
+#### Overthinking: Repeating the pond simulation.
 
 Within the **brms** workflow, we can reuse a compiled model with `update()`. But first, we'll simulate new data.
 
@@ -584,7 +585,7 @@ bind_rows(posterior_samples(b13.3),
                   ylim = c(.8, 1.9)) +
   theme(legend.position = "none",
         panel.grid.major = element_blank()) +
-  facet_wrap(~model, ncol = 2)
+  facet_wrap(~ model, ncol = 2)
 ```
 
 If you'd like the `stanfit` portion of your `brm()` object, subset with `$fit`. Take `b13.3`, for example. You might check out its structure via `b13.3$fit %>% str()`. Here's the actual Stan code.
@@ -670,7 +671,7 @@ b13.4 <-
       file = "fits/b13.04")
 ```
 
-The `b ~ 0 + treatment` part of the `formula` is our expression of what we wrote above as $\beta_{\text{treatment}[i]}$. There's a lot going on with the `a ~ 1 + (1 | actor) + (1 | block)` part of the formula. The initial `1` outside of the parenthesis is $\bar \alpha$. The `(1 | actor)` and `(1 | block)` parts correspond to $z_{\text{actor}[i]} \sigma_\alpha$ and $x_{\text{block}[i]} \sigma_\gamma$, respectively. 
+The `b ~ 0 + treatment` part of the `formula` is our expression of what we wrote above as $\beta_{\text{treatment}[i]}$. There's a lot going on with the `a ~ 1 + (1 | actor) + (1 | block)` part of the formula. The initial `1` outside of the parenthesis is $\bar \alpha$. The `(1 | actor)` and `(1 | block)` parts correspond to $z_{\text{actor}[i]} \sigma_\alpha$ and $x_{\text{block}[i]} \sigma_\gamma$, respectively.
 
 Check the trace plots.
 
@@ -1019,9 +1020,9 @@ posterior_samples(b13.4) %>%
   ylim(0, 4700) +
   ggtitle("Effective sample size summaries for b13.4",
           subtitle = "ess_bulk is on the x and ess_tail is on the y") +
-  theme(plot.title = element_text(size = 11.5),
-        plot.title.position = "plot",
-        plot.subtitle = element_text(size = 10))
+  theme(plot.subtitle = element_text(size = 10),
+        plot.title = element_text(size = 11.5),
+        plot.title.position = "plot")
 ```
 
 Both measures of effective sample size are fine.
@@ -1176,7 +1177,7 @@ f %>%
 
 Not bad.
 
-### Posterior prediction for new clusters. 
+### Posterior prediction for new clusters.
 
 By average actor, McElreath referred to a chimp with an intercept exactly at the population mean $\bar \alpha$. Given our non-centered parameterization for `b13.4`, this means we'll leave out the random effects for `actor`. Since we're predicting what might happen in new experimental blocks, we'll leave out the random effects for `block`, too. When doing this by hand, the workflow is much like is was before, just with fewer columns added together within the first `mutate()` line.
 
@@ -1190,7 +1191,7 @@ f <-
   select(name:treatment) %>%
   group_by(treatment) %>%
   # note we're using 80% intervals
-  tidybayes::mean_qi(fitted, .width = .8)
+  mean_qi(fitted, .width = .8)
 
 f
 ```
@@ -1440,7 +1441,7 @@ glimpse(cell_counts)
 Our primary data file, which contains the survey responses to whether women changed their names after marriage, is `d`. Our criterion variable will be `kept_name`, which is dummy coded 0 = "no" 1 = "yes." We have four grouping variables:
 
 * `age_group`, which ranges from 25 to 75 and is discretized such that 25 = [25, 30), 30 = [30, 35), and so on;
-* `decade_married`, which ranges from 1979 to 2019 and is discretized such that 1979 = [1979, 1989), 1989 = [1989, 1999), and so on; 
+* `decade_married`, which ranges from 1979 to 2019 and is discretized such that 1979 = [1979, 1989), 1989 = [1989, 1999), and so on;
 * `educ_group`, which is coded as <BA = no bachelor's degree, BA = bachelor's degree, and >BA = above a bachelor's degree; and
 * `state_name`, which includes the names of the 50 US states, the District of Columbia, and Puerto Rico.
 
@@ -1509,8 +1510,8 @@ posterior_samples(b13.7) %>%
   
   ggplot(aes(x = value, xmin = .lower, xmax = .upper, y = reorder(name, value))) +
   geom_interval(aes(alpha = .width), color = "orange3") +
-  scale_y_discrete(labels = ggplot2:::parse_safe) +
   scale_alpha_continuous("CI width", range = c(.7, .15)) +
+  scale_y_discrete(labels = ggplot2:::parse_safe) +
   xlim(0, NA) +
   theme(axis.text.y = element_text(hjust = 0),
         panel.grid.major.y = element_blank())
@@ -1542,8 +1543,8 @@ p1 <-
   # plot!
   ggplot(aes(x = prop, y = age_group)) + 
   geom_point() +
-  scale_x_continuous(breaks = c(0, .5, 1), limits = c(0, 1)) +
-  facet_wrap(~type)
+  scale_x_continuous(breaks = c(0, .5, 1), limits = 0:1) +
+  facet_wrap(~ type)
 
 p1
 ```
@@ -1566,7 +1567,7 @@ p2 <-
   geom_pointrange(color = "blue2", size = 0.8, fatten = 2) +
   scale_x_continuous(breaks = c(0, .5, 1), limits = c(0, 1)) +
   scale_y_discrete(labels = NULL) +
-  facet_wrap(~type)
+  facet_wrap(~ type)
 ```
 
 We will take a look at the multilevel coefficient plot in just a bit. Now we turn our focus to computing the MRP estimates. As a first step, we'll follow Alexander's lead and add a `prop` column to the `cell_counts` data, which will give us the proportions of the combinations of the other three demographic categories, within each level of `age_group`. We'll save the results as `age_prop`.
@@ -1624,9 +1625,9 @@ p3 <-
 
   ggplot(aes(x = kept_name_predict, xmin = .lower, xmax = .upper, y = age_group)) + 
   geom_pointrange(color = "orange2", size = 0.8, fatten = 2) +
-  scale_x_continuous(breaks = c(0, .5, 1), limits = c(0, 1)) +
+  scale_x_continuous(breaks = c(0, .5, 1), limits = 0:1) +
   scale_y_discrete(labels = NULL) +
-  facet_wrap(~type)
+  facet_wrap(~ type)
 
 # combine!
 (p1 | p2 | p3) +
@@ -1660,7 +1661,7 @@ p1 <-
   scale_x_continuous(breaks = NULL) +
   scale_y_continuous(breaks = NULL) +
   theme(legend.position = "none") +
-  facet_wrap(~type)
+  facet_wrap(~ type)
 
 p1
 ```
@@ -1686,7 +1687,7 @@ p2 <-
   scale_fill_viridis_c("proportion\nkeeping\nname", option = "B", limits = c(0, 0.8)) +
   scale_x_continuous(breaks = NULL) +
   scale_y_continuous(breaks = NULL) +
-  facet_wrap(~type)
+  facet_wrap(~ type)
 ```
 
 In preparation for the MRP estimates, we’ll first wrangle `cell_counts`, this time grouping by `state_name` before computing the weights.
@@ -1725,7 +1726,7 @@ p3 <-
   scale_x_continuous(breaks = NULL) +
   scale_y_continuous(breaks = NULL) +
   theme(legend.position = "none") +
-  facet_wrap(~type)
+  facet_wrap(~ type)
 ```
 
 We're finally ready to combine our three panels into one grand plot.
@@ -1740,10 +1741,10 @@ Remember how small the posterior for $\sigma_\text{state}$ was relative to the o
 
 ### Wrap this MRP up.
 
-Interested readers should practice exploring the MRP estimates by the other two grouping variables, `educ_group` and `decate_married`. Both contain interesting results. Also, there are many other great free resources for learning about MRP. 
+Interested readers should practice exploring the MRP estimates by the other two grouping variables, `educ_group` and `decate_married`. Both contain interesting results. Also, there are many other great free resources for learning about MRP.
 
-* [Tim Mastny](https://twitter.com/timmastny) showed how to use MRP via **brms** with data of US state level opinions for gay marriage in his blog post, [*MRP Using brms and tidybayes*](https://timmastny.rbind.io/blog/multilevel-mrp-tidybayes-brms-stan/). 
-* [Rohan Alexander](https://twitter.com/RohanAlexander) showed how to fit political poling data with both **lme4** and **brms** in his post, [*Getting started with MRP*](https://rohanalexander.com/posts/2019-12-04-getting_started_with_mrp/). 
+* [Tim Mastny](https://twitter.com/timmastny) showed how to use MRP via **brms** with data of US state level opinions for gay marriage in his blog post, [*MRP Using brms and tidybayes*](https://timmastny.rbind.io/blog/multilevel-mrp-tidybayes-brms-stan/).
+* [Rohan Alexander](https://twitter.com/RohanAlexander) showed how to fit political poling data with both **lme4** and **brms** in his post, [*Getting started with MRP*](https://rohanalexander.com/posts/2019-12-04-getting_started_with_mrp/).
 * [Lauren Kennedy](https://twitter.com/jazzystats) and Andrew Gelman have a [-@kennedyKnowYourPopulation2020] preprint called [*Know your population and know your model: Using model-based regression and post-stratification to generalize findings beyond the observed sample*](https://arxiv.org/pdf/1906.11323.pdf), which shows how to use **brms** to apply MRP to Big Five personality data.
 
 For a more advanced application, check out the paper by [Kolczynska](https://twitter.com/MartaKolcz), Bürkner, [Kennedy](https://twitter.com/jazzystats), and Vehtari [-@kolczynskaTrustStateInstitutions2020], which combines MRP with a model with ordinal outcomes (recall [Section 12.3][Ordered categorical outcomes]). Their supplemental material, which includes their **R** code, lives at [https://osf.io/dz4y7/](https://osf.io/dz4y7/). With all this good stuff, it seems we have an embarrassment of riches when it comes to **brms** and MRP! To wrap this section up, we'll give Monica Alexander the last words:
