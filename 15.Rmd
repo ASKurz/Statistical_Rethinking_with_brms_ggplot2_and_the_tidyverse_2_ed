@@ -61,6 +61,7 @@ take_sample <- function(seed) {
   set.seed(seed)
   sample(x = 1:3, size = 1)
 }
+
 tibble(seed = 2:11) %>% 
   mutate(value_returned = map_dbl(seed, take_sample))
 ```
@@ -109,8 +110,8 @@ load("/Users/solomonkurz/Dropbox/Recoding Statistical Rethinking 2nd ed/sims/15.
 
 ```{r, eval = F}
 # how many simulations would you like?
-
 n_sim <- 1e4
+
 d <-
   tibble(seed = 1:n_sim) %>% 
   mutate(burnt = map(seed, sim_pancake)) %>% 
@@ -200,17 +201,16 @@ tibble(factor       = "a",
        color_number = str_c(1:7, ". ", viridis_pal(option = "C")(7))) %>% 
   
   ggplot(aes(x = factor, y = number)) +
-  geom_tile(aes(fill  = number)) +
-  geom_text(aes(color = number, label = color_number)) +
-  scale_color_manual(values = c(rep("black", times = 4), 
-                                rep("white", times = 3))) +
+  geom_tile(aes(fill = number)) +
+  geom_text(aes(label = color_number, color = number %in% c("5", "6", "7"))) +
+  scale_color_manual(values = c("black", "white")) +
   scale_fill_viridis(option = "C", discrete = T, direction = -1) +
   scale_x_discrete(NULL, breaks = NULL, expand = c(0, 0)) +
   scale_y_discrete(NULL, breaks = NULL, expand = c(0, 0)) +
   ggtitle("Behold: viridis C!")
 ```
 
-Now, let's make use of our custom theme and reproduce/reimagine Figure 15.1.a. 
+Now, let's make use of our custom theme and reproduce/reimagine Figure 15.1.a.
 
 ```{r}
 color <- viridis_pal(option = "C")(7)[7]
@@ -471,7 +471,7 @@ We will express this DAG in an augmented statistical model following the form
 \end{align*}
 
 The current version **brms** allows users to specify error on predictors with an `me()` statement in the form of `me(predictor, sd_predictor)` where `sd_predictor` is a vector in the data denoting the size of the measurement error, presumed to be in a standard-deviation metric.
-      
+
 ```{r b15.2}
 # put the data into a `list()`
 dlist <- list(
@@ -739,7 +739,7 @@ bind_rows(posterior_summary(b15.2b) %>% data.frame() %>% rownames_to_column("ter
        y = NULL) +
   theme(axis.ticks.y = element_blank(),
         strip.background = element_rect(color = "transparent", fill = "transparent")) +
-  facet_wrap(~term, labeller = label_parsed, ncol = 1)
+  facet_wrap(~ term, labeller = label_parsed, ncol = 1)
 ```
 
 ## Missing data
@@ -752,7 +752,7 @@ produced the missing values will also prevent the identification of causal effec
 
 Starting with [version 2.2.0](https://cran.r-project.org/package=brms/news/news.html), **brms** supports Bayesian missing data imputation using adaptations of the [multivariate syntax](https://cran.r-project.org/package=brms/vignettes/brms_multivariate.html) [@Bürkner2020Multivariate]. Bürkner's [-@Bürkner2020HandleMissingValues] vignette, [*Handle missing values with brms*](https://cran.r-project.org/package=brms/vignettes/brms_missings.html), can provide a nice overview.
 
-#### Rethinking: Missing data are meaningful data. 
+#### Rethinking: Missing data are meaningful data.
 
 > The fact that a variable has an unobserved value is still an observation. It is data, just with a very special value. The meaning of this value depends upon the context. Consider for example a questionnaire on personal income. If some people refuse to fill in their income, this may be associated with low (or high) income. Therefore a model that tries to predict the missing values can be enlightening. (p. 499)
 
@@ -1003,6 +1003,7 @@ p2 <-
 
 p1 + p2
 ```
+
 McElreath didn't fit this model in the text, but he encouraged us to do so on our own (p. 503). Here it is.
 
 ```{r b15.4b}
@@ -1296,7 +1297,7 @@ bind_rows(fixef(b15.5) %>% data.frame() %>% rownames_to_column("term"),
        y = NULL) +
   theme(axis.ticks.y = element_blank(),
         strip.background = element_rect(color = "transparent", fill = "transparent")) +
-  facet_wrap(~term, labeller = label_parsed, ncol = 1)
+  facet_wrap(~ term, labeller = label_parsed, ncol = 1)
 ```
 
 The model using Bayesian imputation (`b15.5`) used more information, resulting in narrower marginal posteriors for $\beta_1$ and $\beta_2$. Because it wasted perfectly good information, the conventional `b15.6` model was less certain.
@@ -1682,15 +1683,15 @@ dat <-
 glimpse(dat)
 ```
 
-Note how we constructed `cat_obs` by replacing several values of `cat` with `-9`. 
+Note how we constructed `cat_obs` by replacing several values of `cat` with `-9`.
 
 > There is nothing special about this value. The model will skip them. But it is usually good to use some invalid value, so that if you make a mistake in coding, an error will result. In this case, since `cat` has a Bernoulli distribution, if the model ever asks for the probability of observing -9, there should be an error, because -9 is impossible. (p. 518)
 
-`r emo::ji("sad")` Sadly, this is as far as I'm going in this section. I still haven't made sense of McElreath's *weighted average* approach to missing data and I'm not sure whether it's even possible with **brms**. If you have insights in to how one might accommodate categoriacal missing data with **brms**, share them with the rest of us on [GitHub](https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed/issues).
+`r emo::ji("sad")` Sadly, this is as far as I'm going in this section. I still haven't made sense of McElreath's *weighted average* approach to missing data and I'm not sure whether it's even possible with **brms**. If you have insights in to how one might accommodate categorical missing data with **brms**, share them with the rest of us on [GitHub](https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed/issues).
 
 ## Summary
 
-> This chapter has been a quick introduction to the design and implementation of measurement error and missing data models. Measurement error and missing data have causes. Incorporating those causes into the generative model helps us decide how error and missing- ness impact inference as well as how to design a statistical procedure. (p. 521)
+> This chapter has been a quick introduction to the design and implementation of measurement error and missing data models. Measurement error and missing data have causes. Incorporating those causes into the generative model helps us decide how error and missingness impact inference as well as how to design a statistical procedure. (p. 521)
 
 If modern missing data methods are new to you, you might also check out van Burren's great online [-@vanbuurenFlexibleImputationMissing2018] text, [*Flexible imputation of missing data*](https://stefvanbuuren.name/fimd/). I'm also a fan of Enders's [-@enders2010applied] [*Applied missing data analysis*](http://www.appliedmissingdata.com), for which you can find a free sample chapter [here](http://www.appliedmissingdata.com/sample-chapter.pdf).
 
@@ -1969,7 +1970,7 @@ rbind(coef(b15.10)$loc[, , "Intercept"],
   geom_pointrange(fatten = 1, color = color) +
   scale_x_continuous(expression(log-odds~effect~size~(theta[italic(j)])), limits = c(0, 4.5)) +
   scale_y_continuous(NULL, breaks = NULL) +
-  facet_wrap(~type)
+  facet_wrap(~ type)
 ```
 
 The results are very similar. You might be curious how to show these results in a more conventional looking forest plot where the names of the groups (typically studies) for the $\theta_j$ values are listed on the left, the point estimate and 95% interval summaries are listed on the right, and the summary for the population level effect, $\mu$, is listed beneath all all the $\theta_j$'s. That'll require some prep work. First we'll need to reformat the location names. I'll save the results in an object called `labs`.
@@ -2138,7 +2139,7 @@ post %>%
   xlab(expression(Normal(mu*', '*tau))) +
   theme(text = element_text(family = "Times"),
         strip.background = element_rect(color = "transparent")) +
-  facet_wrap(~name, scales = "free")
+  facet_wrap(~ name, scales = "free")
 ```
 
 Both panels show 1,000 draws, each of which is depicted by a single dot. If we were to run this experiment 1,000 times and compute the effect size separately for each one, this is what we'd expect those distributions of effect sizes to look like. Seems like there's a lot of variation in there, eh? The next time you observe your fellow scientists debating over whether a study replicated or not, keep these distributions in mind. Once you start thinking about distributions, replication becomes a tricky notion.
@@ -2240,7 +2241,7 @@ sessionInfo()
 ```
 
 ```{r, echo = F}
-rm()
+rm(p_pancake, d, take_sample, sim_pancake, n_sim, color, p1, p2, dag_coords, dlist, b15.1, states, d_est, b15.2, color_y, color_p, n, dat, b15.2b, b15.2c, text, p4, p3, b15.3, b15.4, b15.4b, b_model, b15.5, b15.6, b15.7, n_houses, alpha, beta, k, r, glm0, glms, b15.10, b15.11, n_loc, ranks, labs, my_format, groups, average, post, c, breaks, nd)
 ```
 
 ```{r, echo = F, message = F, warning = F, results = "hide", eval = F}
