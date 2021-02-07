@@ -702,8 +702,8 @@ tibble(a = 0,
   mutate(prob = dunif(parameter_space, a, b),
          b    = str_c("b = ", b)) %>% 
   
-  ggplot(aes(x = parameter_space, ymin = 0, ymax = prob)) +
-  geom_ribbon() +
+  ggplot(aes(x = parameter_space, y = prob)) +
+  geom_area() +
   scale_x_continuous(breaks = c(0, 1:3, 9)) +
   scale_y_continuous(breaks = c(0, 1/9, 1/3, 1/2, 2/3, 1),
                      labels = c("0", "1/9", "1/3", "1/2", "2/3", "1")) +
@@ -718,8 +718,8 @@ As we'll learn much later in the project, the $\operatorname{Uniform}(0, 1)$ dis
 tibble(parameter_space = seq(from = 0, to = 1, length.out = 50)) %>% 
   mutate(prob = dbeta(parameter_space, 1, 1)) %>% 
   
-  ggplot(aes(x = parameter_space, ymin = 0, ymax = prob)) +
-  geom_ribbon() +
+  ggplot(aes(x = parameter_space, y = prob)) +
+  geom_area() +
   scale_y_continuous("density", limits = c(0, 2)) +
   ggtitle(expression("This is beta"*(1*", "*1))) +
   theme(panel.grid = element_blank())
