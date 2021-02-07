@@ -509,8 +509,8 @@ tibble(x = seq(from = 0, to = 5, length.out = length_out)) %>%
   pivot_longer(-x, values_to = "density") %>% 
   mutate(label = ifelse(name == "Gamma", "y %~% Gamma(lambda, kappa)", "y %~% Exponential(lambda)")) %>% 
   
-  ggplot(aes(x = x, ymin = 0, ymax = density)) +
-  geom_ribbon(fill = ghibli_palette("SpiritedMedium")[3]) +
+  ggplot(aes(x = x, y = density)) +
+  geom_area(fill = ghibli_palette("SpiritedMedium")[3]) +
   scale_x_continuous(NULL, breaks = NULL) +
   scale_y_continuous(NULL, breaks = NULL) +
   coord_cartesian(xlim = c(0, 4)) +
@@ -527,8 +527,8 @@ tibble(x = seq(from = -5, to = 5, length.out = length_out)) %>%
   mutate(density = dnorm(x),
          strip   = "y %~% Normal(mu, sigma)") %>% 
   
-  ggplot(aes(x = x, ymin = 0, ymax = density)) +
-  geom_ribbon(fill = ghibli_palette("SpiritedMedium")[3]) +
+  ggplot(aes(x = x, y = density)) +
+  geom_area(fill = ghibli_palette("SpiritedMedium")[3]) +
   scale_x_continuous(NULL, breaks = NULL) +
   scale_y_continuous(NULL, breaks = NULL) +
   coord_cartesian(xlim = c(-4, 4)) +
