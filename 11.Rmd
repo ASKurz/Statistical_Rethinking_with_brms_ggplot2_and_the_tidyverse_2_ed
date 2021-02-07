@@ -1064,10 +1064,9 @@ tibble(x       = c(3, 22),
   mutate(density = dlnorm(number, meanlog, sdlog),
          group   = str_c("alpha%~%Normal(", meanlog, ", ", sdlog, ")")) %>% 
   
-  ggplot(aes(ymin = 0, ymax = density, 
-             fill = group, color = group)) +
-  geom_ribbon(aes(x = number), 
-              alpha = 3/4, size = 0) +
+  ggplot(aes(fill = group, color = group)) +
+  geom_area(aes(x = number, y = density),
+            alpha = 3/4, size = 0, position = "identity") +
   geom_text(data = . %>% group_by(group) %>% slice(1),
             aes(x = x, y = y, label = group),
             family = "Times", parse = T,  hjust = 0) +
@@ -1112,10 +1111,9 @@ tibble(x    = c(10, 4),
   mutate(density = dnorm(number, mean, sd),
          group   = str_c("alpha%~%Normal(", mean, ", ", sd, ")")) %>% 
   
-  ggplot(aes(ymin = 0, ymax = density, 
-             fill = group, color = group)) +
-  geom_ribbon(aes(x = number), 
-              alpha = 3/4, size = 0) +
+  ggplot(aes(fill = group, color = group)) +
+  geom_area(aes(x = number, y = density),
+            alpha = 3/4, size = 0, position = "identity") +
   geom_text(data = . %>% group_by(group) %>% slice(1),
             aes(x = x, y = y, label = group),
             family = "Times", parse = T,  hjust = 0) +
