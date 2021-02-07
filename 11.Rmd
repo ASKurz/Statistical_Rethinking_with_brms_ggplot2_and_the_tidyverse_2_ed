@@ -130,7 +130,7 @@ prior_samples(b11.1) %>%
   mutate(p = inv_logit_scaled(Intercept)) %>% 
   
   ggplot(aes(x = p)) +
-  geom_density(fill  = wes_palette("Moonrise2")[4], 
+  geom_density(fill = wes_palette("Moonrise2")[4], 
                size = 0, adjust = 0.1) +
   scale_y_continuous(NULL, breaks = NULL) +
   xlab("prior prob pull left")
@@ -217,8 +217,8 @@ Anyway, here's how to make a version of the right panel of Figure 11.3.
 prior <-
   bind_rows(prior_samples(b11.2),
             prior_samples(b11.3)) %>% 
-  mutate(w = factor(rep(c(10, 0.5), each = n() / 2),
-                    levels = c(10, 0.5)),
+  mutate(w  = factor(rep(c(10, 0.5), each = n() / 2),
+                     levels = c(10, 0.5)),
          p1 = inv_logit_scaled(b_a + b_b_treatment1),
          p2 = inv_logit_scaled(b_a + b_b_treatment2)) %>% 
   mutate(diff = abs(p1 - p2)) 
@@ -347,9 +347,8 @@ post %>%
   geom_vline(xintercept = .5, color = wes_palette("Moonrise2")[1], linetype = 3) +
   stat_pointinterval(.width = .95, size = 1/2,
                      color = wes_palette("Moonrise2")[4]) +
-  labs(x = expression(alpha[actor]),
-       y = NULL) +
-  xlim(0, 1) +
+  scale_x_continuous(expression(alpha[actor]), limits = 0:1) +
+  ylab(NULL) +
   theme(axis.ticks.y = element_blank())
 ```
 
@@ -454,7 +453,7 @@ library(patchwork)
   xlab(NULL) &
   theme(axis.ticks.x = element_blank(),
         panel.background = element_rect(fill = alpha("white", 1/10), size = 0)) &
-  facet_wrap(~actor, nrow = 1, labeller = label_both)
+  facet_wrap(~ actor, nrow = 1, labeller = label_both)
 ```
 
 Let's make two more index variables.
@@ -533,10 +532,10 @@ fitted(b11.5,
        x = NULL) +
   theme(axis.ticks.x = element_blank(),
         panel.background = element_rect(fill = alpha("white", 1/10), size = 0)) +
-  facet_wrap(~actor, nrow = 1, labeller = label_both)
+  facet_wrap(~ actor, nrow = 1, labeller = label_both)
 ```
 
-#### Overthinking: Adding log-probability calculations to a Stan model. 
+#### Overthinking: Adding log-probability calculations to a Stan model.
 
 For retrieving log-probability summaries, our approach with **brms** is a little different than the one you might take with McElreath's **rethinking**. Rather than adding a `log_lik=TRUE` argument within `rethinking::ulam()`, we just use the `log_lik()` function after fitting a **brms** model. You may recall we already practiced this way back in [Section 7.2.4.1][Overthinking: Computing the lppd.]. Here's a quick example of what that looks like for `b11.5`.
 
@@ -627,7 +626,7 @@ bind_rows(posterior_samples(b11.4),
   ggplot(aes(x = value, y = name, color = fit)) +
   stat_pointinterval(.width = .95, size = 2/3,
                      position = position_dodge(width = 0.5)) +
-  scale_color_manual(values = wes_palette("Moonrise2")[c(2:1)]) +
+  scale_color_manual(values = wes_palette("Moonrise2")[2:1]) +
   geom_text(data = text,
             aes(label = fit),
             family = "Times", position = position_dodge(width = 2.25)) +
@@ -777,9 +776,8 @@ p %>%
             aes(y = admit, label = dept),
             color = wes_palette("Moonrise2")[2],
             family = "serif") +
-  labs(title = "Posterior validation check",
-       y = "Proportion admitted") +
-  ylim(0, 1) +
+  scale_y_continuous("Proportion admitted", limits = 0:1) +
+  ggtitle("Posterior validation check") +
   theme(axis.ticks.x = element_blank())
 ```
 
@@ -828,8 +826,7 @@ posterior_samples(b11.8) %>%
   mean_qi(value, .width = .89)
 ```
 
-> Why did adding departments to the model change the inference about gender so much? The earlier figure gives you a hint--the rates of admission vary a lot across departments. Furthermore, women and men applied to different departments. Let's do a quick tabulation
-to show that: (p. 344)
+> Why did adding departments to the model change the inference about gender so much? The earlier figure gives you a hint--the rates of admission vary a lot across departments. Furthermore, women and men applied to different departments. Let's do a quick tabulation to show that: (p. 344)
 
 Here's our **tidyverse**-style tabulation of the proportions of applicants in each department by `gid`.
 
@@ -862,8 +859,8 @@ d %>%
   scale_color_manual(values = wes_palette("Moonrise2")[c(1, 4)]) +
   scale_x_discrete(NULL, position = "top") +
   ylab(NULL) +
-  theme(axis.ticks = element_blank(),
-        axis.text.y = element_text(hjust = 0),
+  theme(axis.text.y = element_text(hjust = 0),
+        axis.ticks = element_blank(),
         legend.position = "none")
 ```
 
@@ -908,10 +905,9 @@ predict(b11.8) %>%
             aes(y = admit, label = dept),
             color = wes_palette("Moonrise2")[2],
             family = "serif") +
+  scale_y_continuous("Proportion admitted", limits = 0:1) +
   labs(title = "Posterior validation check",
-       subtitle = "Though imperfect, this model is a big improvement",
-       y = "Proportion admitted") +
-  ylim(0, 1) +
+       subtitle = "Though imperfect, this model is a big improvement") +
   theme(axis.ticks.x = element_blank())
 ```
 
@@ -993,7 +989,7 @@ posterior_samples(b11.8) %>%
 
 > Why might we want to over-parameterize the model? Because it makes it easier to assign priors. If we made one of the genders baseline and measured the other as a deviation from it, we would stumble into the issue of assuming that the acceptance rate for one of the genders is pre-data more uncertain than the other. This isn't to say that over-parameterizing a model is always a good idea. But it isn't a violation of any statistical principle. You can always convert the posterior, post sampling, to any alternative parameterization. The only limitation is whether the algorithm we use to approximate the posterior can handle the high correlations. In this case, it can. (p. 345)
 
-#### Rethinking: Simpson's paradox is not a paradox. 
+#### Rethinking: Simpson's paradox is not a paradox.
 
 > This empirical example is a famous one in statistical teaching. It is often used to illustrate a phenomenon known as **Simpson’s paradox**. Like most paradoxes, there is no violation of logic, just of intuition. And since different people have different intuition, Simpson's paradox means different things to different people. The poor intuition being violated in this case is that a positive association in the entire population should also hold within each department. (p. 345, **emphasis** in the original)
 
@@ -1056,7 +1052,7 @@ Our statistical model will follow the form
 \beta_j              & \sim \; ?, 
 \end{align*}
 
-where the priors for $\alpha_j$ and $\beta_j$ have yet be defined. If we continue our convention of using a Normal prior on the $\alpha$ parameters, we should recognize those will be log-Normal distributed on the outcome scale. Why? Because we're modeling $\lambda$ with the log link. Here's our version of Figure 11.7, depicting the two log-Normal priors considered in the text. 
+where the priors for $\alpha_j$ and $\beta_j$ have yet be defined. If we continue our convention of using a Normal prior on the $\alpha$ parameters, we should recognize those will be log-Normal distributed on the outcome scale. Why? Because we're modeling $\lambda$ with the log link. Here's our version of Figure 11.7, depicting the two log-Normal priors considered in the text.
 
 ```{r, fig.width = 4, fig.height = 2.75}
 tibble(x       = c(3, 22),
@@ -1070,7 +1066,7 @@ tibble(x       = c(3, 22),
   
   ggplot(aes(ymin = 0, ymax = density, 
              fill = group, color = group)) +
-  geom_ribbon(aes(x = number, ), 
+  geom_ribbon(aes(x = number), 
               alpha = 3/4, size = 0) +
   geom_text(data = . %>% group_by(group) %>% slice(1),
             aes(x = x, y = y, label = group),
@@ -1098,7 +1094,7 @@ rnorm(1e4, 0, 10) %>%
   mean()
 ```
 
-Now compute the mean for the other prior under consideration, $\alpha \sim \operatorname{Normal}(3, 0.5)$. 
+Now compute the mean for the other prior under consideration, $\alpha \sim \operatorname{Normal}(3, 0.5)$.
 
 ```{r}
 exp(3 + 0.5^2 / 2)
@@ -1118,7 +1114,7 @@ tibble(x    = c(10, 4),
   
   ggplot(aes(ymin = 0, ymax = density, 
              fill = group, color = group)) +
-  geom_ribbon(aes(x = number, ), 
+  geom_ribbon(aes(x = number), 
               alpha = 3/4, size = 0) +
   geom_text(data = . %>% group_by(group) %>% slice(1),
             aes(x = x, y = y, label = group),
@@ -1140,7 +1136,7 @@ n <- 100
 
 # simulate and wrangle
 tibble(i = 1:n,
-       a = rnorm(n, mean = 3 , sd = 0.5)) %>% 
+       a = rnorm(n, mean = 3, sd = 0.5)) %>% 
   mutate(`beta%~%Normal(0*', '*10)`  = rnorm(n, mean = 0 , sd = 10),
          `beta%~%Normal(0*', '*0.2)` = rnorm(n, mean = 0 , sd = 0.2)) %>% 
   pivot_longer(contains("beta"),
@@ -1156,7 +1152,7 @@ tibble(i = 1:n,
   labs(x = "log population (std)",
        y = "total tools") +
   coord_cartesian(ylim = c(0, 100)) +
-  facet_wrap(~prior, labeller = label_parsed)
+  facet_wrap(~ prior, labeller = label_parsed)
 ```
 
 It turns out that many of the lines considered plausible under $\operatorname{Normal}(0, 10)$ are disturbingly extreme. Here is what $\alpha \sim \operatorname{Normal}(3, 0.5)$ and $\beta \sim \operatorname{Normal}(0, 0.2)$ would mean when the $x$-axis is on the log population scale and the population scale.
@@ -1500,14 +1496,14 @@ y_i \sim \operatorname{Poisson}(\lambda_i) \\
 $$
 
 Therefore, you can rewrite the equation if the exposure ($\tau$) varies in your data and you still want to model the mean ($\mu$). Using the model we're about to fit as an example, here's what that might look like:
-$$
+
 \begin{align*}
 y_i & \sim \operatorname{Poisson}(\mu_i) \\
 \log \mu_i & = \color{#a4692f}{\log \tau_i} + \alpha + \beta \text{monastery}_i \\
 \alpha     & \sim \operatorname{Normal}(0, 1) \\
 \beta      & \sim \operatorname{Normal}(0, 1),
 \end{align*}
-$$
+
 where the offset $\log \tau_i$ does not get a prior. In this context, its value is added directly to the right side of the formula. With the **brms** package, you use the `offset()` function in the `formula` syntax. You just insert a pre-processed variable like `log_days` or the log of a variable, such as `log(days)`. Fit the model.
 
 ```{r b11.12}
@@ -1862,7 +1858,7 @@ For the sake of space, I'm not going to show the results for those two models. I
 
 Now it's time to focus on the **brms** version of McElreath's `m11.13`. To my eye, McElreath's model has two odd features. First, though he has two intercepts, he only has one $\beta$ parameter. Second, if you look at McElreath's `parameters` block, you'll see that he restricted his $\beta$ parameter to be zero and above (`real<lower=0> b;`).
 
-With the **brms** non-linear syntax, we can fit the model with one $\beta$ parameter or allow the one $\beta$ parameter to differ for `mu1` and `mu2`. As to setting a lower bound to the `b` parameter[s], we can do that with the `lb` argument within the `prior()` function. If we fit our version of `m11.13` by systemically varying these two features, we'll end up with the four versions listed in the table below. 
+With the **brms** non-linear syntax, we can fit the model with one $\beta$ parameter or allow the one $\beta$ parameter to differ for `mu1` and `mu2`. As to setting a lower bound to the `b` parameter[s], we can do that with the `lb` argument within the `prior()` function. If we fit our version of `m11.13` by systemically varying these two features, we'll end up with the four versions listed in the table below.
 
 ```{r}
 crossing(b  = factor(c("b1 + b2", "b"), levels = c("b1 + b2", "b")),
@@ -1961,7 +1957,7 @@ tibble(fit = str_c("b11.13", letters[1:4])) %>%
   ylab(NULL) +
   theme(axis.ticks.y = element_blank(),
         panel.background = element_rect(fill = alpha("white", 1/8), size = 0)) +
-  facet_wrap(~parameter, nrow = 1)
+  facet_wrap(~ parameter, nrow = 1)
 ```
 
 The results differed across models. None of them match up with the results McElreath reported in the text. However, the parameters from `b11.13d` are very close to those from our `m11.13`.
@@ -1985,7 +1981,7 @@ model_weights(b11.13a, b11.13b, b11.13c, b11.13d, weights = "loo") %>%
   round(digits = 2)
 ```
 
-Two things pop out, here. First, all models are essentially equivalent in terms of LOO estimates and LOO weights. Second, the effective number of parameters ($p_\text{LOO}$) is about 2 for each model. At first glance, this might be surprising given that `b11.13a` and `b11.13b` both have 4 parameters and `b11.13c` and `b11.13d` both have three parameters. But recall that none of these models contain predictor variables from the data. All those $\beta$ parameters, whether they’re held equal or allowed to vary across $s_1$ and $s_2$, are just constants. In the absence of actual `income` values that vary within the data, those $\beta$ parameters are kinda like extra intercepts. For context, go back and review our multicollinear legs from [Section 6.1.1][Multicollinear legs.] or our double intercepts from [Section 9.5.4][Non-identifiable parameters.].
+Two things pop out, here. First, all models are essentially equivalent in terms of LOO estimates and LOO weights. Second, the effective number of parameters ($p_\text{LOO}$) is about 2 for each model. At first glance, this might be surprising given that `b11.13a` and `b11.13b` both have 4 parameters and `b11.13c` and `b11.13d` both have three parameters. But recall that none of these models contain predictor variables from the data. All those $\beta$ parameters, whether they're held equal or allowed to vary across $s_1$ and $s_2$, are just constants. In the absence of actual `income` values that vary within the data, those $\beta$ parameters are kinda like extra intercepts. For context, go back and review our multicollinear legs from [Section 6.1.1][Multicollinear legs.] or our double intercepts from [Section 9.5.4][Non-identifiable parameters.].
 
 Now see what happens when we compare these four models with our intercepts-only model, `b11.13io`.
 
@@ -2147,7 +2143,7 @@ rbind(f[, , 1],
                      breaks = 0:3 / 3, labels = c("0", ".33", ".67", "1")) +
   theme(axis.text.y = element_text(hjust = 0),
         legend.position = "none") +
-  facet_wrap(~career)
+  facet_wrap(~ career)
 ```
 
 If we're willing to summarize those fitted lines by their posterior means, we could also make a model-implied version of the stacked area plot from above.
@@ -2251,7 +2247,7 @@ summary(b11.pois)$fixed
 Here's the posterior mean for the probability of admission, based on `b11.binom`.
 
 ```{r}
-fixef(b11.binom)[ ,"Estimate"] %>%
+fixef(b11.binom)[, "Estimate"] %>%
   inv_logit_scaled()
 ```
 
@@ -2304,10 +2300,6 @@ bind_cols(
 In the middle of the [thirteenth lecture of his 2019 lecture series](https://www.youtube.com/watch?v=p7g-CgGCS34&feature=youtu.be&t=1423), McElreath briefly covered continuous-time survival analysis. Sadly, the problem didn't make it into the text. Here we'll slip it in as a bonus section. To fully understand this section, do listen to this section of the lecture. It's only about ten minutes.
 
 ```{r, echo = F}
-# it looks like this is not supported when using output: github_document.
-# it does work for output: html_document.
-# it will also work for the ebook.
-
 vembedr::embed_url("https://www.youtube.com/watch?v=p7g-CgGCS34&feature=youtu.be&t=1423") %>%
   vembedr::use_align("center")
 ```
@@ -2483,7 +2475,7 @@ f %>%
             family = "Times") +
   scale_fill_manual(values = wes_palette("Moonrise2")[c(4, 1)], breaks = NULL) +
   scale_color_manual(values = wes_palette("Moonrise2")[c(4, 1)], breaks = NULL) +
-  scale_y_continuous("proportion remaining", , breaks = c(0, .5, 1), limits = c(0, 1)) +
+  scale_y_continuous("proportion remaining", breaks = c(0, .5, 1), limits = 0:1) +
   xlab("days to adoption")
 ```
 
@@ -2535,7 +2527,7 @@ sessionInfo()
 ```
 
 ```{r, echo = F}
-rm(d, b11.1, b11.1b, b11.2, b11.3, prior, b11.4, post, tx, p1, nd, p2, b11.5, d_aggregated, b11.6, text, b11.7, p, b11.8, dag_coords, my_upper, my_diag, my_lower, n, b11.9, b11.10, cultures, f, b11.11, num_days, y, num_weeks, y_new, b11.12, income, score, career, i, code_m11.13, dat_list, m11.13, s1, s2_orig, s2_new, p_orig, p_new, p_diff, b11.13io, b11.13a, b11.13b, b11.13c, b11.13d, family_income, b, b11.14, b11.binom, b11.pois, k, b11.15, medians)
+rm(d, b11.1, b11.1b, b11.2, b11.3, prior, b11.4, post, tx, p1, nd, p2, b11.5, d_aggregated, b11.6, text, b11.7, p, b11.8, dag_coords, my_upper, my_diag, my_lower, n, b11.9, b11.10, cultures, f, b11.11, num_days, y, num_weeks, y_new, b11.12, income, score, career, i, code_m11.13, dat_list, m11.13, s1, s2_orig, s2_new, p_orig, p_new, p_diff, b11.13io, b11.13io_verbose, b11.13io_nonlinear, b11.13a, b11.13b, b11.13c, b11.13d, family_income, b, b11.14, b11.binom, b11.pois, k, b11.15, medians)
 ```
 
 ```{r, echo = F, message = F, warning = F, results = "hide"}
