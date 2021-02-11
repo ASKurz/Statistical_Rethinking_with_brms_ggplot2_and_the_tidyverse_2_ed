@@ -534,7 +534,7 @@ Now combine the subplots with **patchwork** syntax and plot.
 
 McElreath ended that block quote with a reference to his endnote #78. On page 562, we read: "A very popular and comprehensive text is Wood [-@woodGeneralizedAdditiveModels2017]."
 
-## ~~Summary~~ Smooth functions with `brms::s()`
+## ~~Summary~~ First bonus: Smooth functions with `brms::s()`
 
 It's convenient for us how McElreath ended that last section with a reference to Simon Wood's work because **brms** allows for a variety of non-linear models by borrowing functions from Woods's [**mgcv** package](https://CRAN.R-project.org/package=mgcv) [@R-mgcv; @mgcv2003; @mgcv2004; @mgcv2011; @mgcv2017; @mgcv2016]. The two smooth functions **brms** imports from **mgcv** are `s()` and `t2()`. We'll be exploring `s()`. We might use the `brms::get_prior()` function to get a sense of how to set up the priors when using `s()`.
 
@@ -628,6 +628,86 @@ There are still other important differences between the underlying statistical m
 
 For more on the B-splines and smooths, more generally, check out the blog post by the great [Gavin Simpson](https://twitter.com/ucfagls), [*Extrapolating with B splines and GAMs*](https://fromthebottomoftheheap.net/2020/06/03/extrapolating-with-gams/). For a high-level introduction to the models you can fit with **mgcv**, check out the nice talk by [Noam Ross](https://twitter.com/noamross), [*Nonlinear models in R: The wonderful world of mgcv*](https://www.youtube.com/watch?v=q4_t8jXcQgc), or the equally-nice presentation by Simpson, [*Introduction to generalized additive models with R and mgcv*](https://www.youtube.com/watch?v=sgw4cu8hrZM). Ross also has a free online course covering **mgcv** called [GAMS in R](https://noamross.github.io/gams-in-r-course/). And for specific examples of fitting various GAMS with **brms**, check out Simpson's blog post, [**Fitting GAMs with brms: part 1**](https://fromthebottomoftheheap.net/2018/04/21/fitting-gams-with-brms/).
 
+## Second bonus: Group predictors with matrix columns
+
+When we fit `b4.8`, our direct **brms** analogue to McElreath's `m4.7`[^2], we used a compact syntax to pass a matrix column of predictors into the `formula`. If memory serves, this is one of the only places in the text where we see this. It would be easy for the casual reader to think this was only appropriate for something like a spline model. But that's not the case. One could use the matrix-column trick as a general approach. In this bonus section, we'll explore how.
+
+In Section 11.2.6 of their [-@gelmanRegressionOtherStories2020] text, Gelman, Hill, and Vehtari worked through an example of a multiple regression model,
+
+$$
+\begin{align*}
+y_i & \sim \operatorname{Normal}(\mu_i, \sigma) \\
+\mu_i & = \alpha + \theta z_i + \sum_{k = 1}^K b_k x_{k, i} \\
+& \text{<priors>},
+\end{align*}
+$$
+
+where $y_i$ was some continuous variable collected across participants, $i$. The $\alpha$ term was the intercept and the $\theta$ term was the regression slope for a binary variable $z$--we'll practice with binary predictors in [Section 5.3][Categorical variables]. More to our interest, the last portion of the equation is a compact way to convey there are $K$ additional predictors and their associated regression coefficients, which we might more explicitly express as $\beta_1 x_{1, i} + \cdots + \beta_k x_{k, i}$, where $K \geq 1$. In this particular example, $K = 10$, meaning there were ten $x_{k, i}$ predictors, making this an example of a model with 11 total predictor variables.
+
+Riffing off of Gelman and colleagues, here's how you might simulate data of this kind.
+
+```{r}
+# how many cases would you like?
+n <- 100
+
+# how many continuous x predictor variables would you like?
+k <- 10
+
+# simulate a dichotomous dummy variable for z
+# simulate an n by k array for X
+set.seed(4)
+
+d <- 
+  tibble(z = sample(0:1, size = n, replace = T),
+         X = array(runif(n * k, min = 0, max = 1), dim = c(n, k)))
+
+# set the data-generating parameter values
+a     <- 1
+theta <- 5
+b     <- 1:k
+sigma <- 2
+
+# simulate the criterion
+d <-
+  d %>% 
+  mutate(y = as.vector(a + X %*% b + theta * z + rnorm(n, mean = 0, sd = sigma)))
+
+# check the data structure
+d %>% 
+  glimpse()
+```
+
+Although our `d` tibble has only three columns, the `X` column is a matrix column into which we've smuggled ten more columns. Here's how we might access them more directly.
+
+```{r}
+d %>% 
+  pull(X) %>% 
+  glimpse()
+```
+
+See? There's an $100 \times 10$ data matrix in there. Here's how to fit the full model with **brms** where we use the compact matrix-column syntax in the `formula` argument.
+
+```{r b4.12}
+b4.12 <-
+  brm(data = d,
+      family = gaussian,
+      y ~ 1 + z + X,
+      prior = c(prior(normal(0, 2), class = Intercept),
+                prior(normal(0, 10), class = b),
+                prior(exponential(1), class = sigma)),
+      iter = 2000, warmup = 1000, chains = 4, cores = 4,
+      seed = 4,
+      file = "/Users/solomonkurz/Dropbox/Recoding Statistical Rethinking 2nd ed/fits/b04.12")
+```
+
+Check the parameter summary.
+
+```{r}
+print(b4.12)
+```
+
+**brms** automatically numbered our $K = 10$ `X` variables as `X1` through `X10`. As far as applications go, I'm not sure where I'd use this way of storing and modeling data in real life. But maybe some of y'all work in domains where this is just the right way to approach your data needs. If so, good luck and happy modeling.
+
 ## Session info {-}
 
 ```{r}
@@ -645,4 +725,6 @@ ggplot2::theme_set(ggplot2::theme_grey())
 ```
 
 [^1]: In the first edition of his text, McElreath [-@mcelreathStatisticalRethinkingBayesian2015] started out with the uniform prior for $\sigma$ and transitioned to the half Cauchy when he introduced HMC in Chapter 8. In this edition, he largely replaced the half Cauchy with the exponential distribution. Both are fine. If you'd like to learn more about the half Cauchy, you might check out [Section 8.4.3.1](https://bookdown.org/content/3890/markov-chain-monte-carlo.html#taming-a-wild-chain.) of my [-@kurzStatisticalRethinkingBrms2020] translation of his first edition. We'll learn about the exponential distribution just a little later in this chapter.
+
+[^2]: I know. I'm sorry our model numbering diverged from the numbering in the text. The problem popped up in [Section 4.5.1.][Polynomial regression.] where McElreath fit a linear model with the `weight_s` predictor, but didn't show the code in the text and, as a consequence, didn't assign that model a number. Since we explicitly fit that linear model, we assigned it the next number in the sequence. So it goes. But yes, I am correct in comparing our `b4.8` to McElreath's `m4.7`.
 
