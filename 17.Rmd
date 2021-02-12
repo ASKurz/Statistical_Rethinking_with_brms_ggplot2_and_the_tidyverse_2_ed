@@ -262,11 +262,17 @@ If you're not on it, consider joining academic Twitter (see the related blog pos
 
 [I'm on twitter](https://twitter.com/SolomonKurz?lang=en), too.
 
-There are also some great blogs out there. Of primary interest, McElreath blogs once in a blue moon at [https://elevanth.org/blog/](https://elevanth.org/blog/). Andrew Gelman regularly blogs at [https://statmodeling.stat.columbia.edu/](https://statmodeling.stat.columbia.edu/). Many of Gelman's posts are great, but don't miss the action in the comments sections.
+There are also some great blogs out there. Of primary interest, McElreath blogs once in a blue moon at [https://elevanth.org/blog/](https://elevanth.org/blog/). Andrew Gelman regularly blogs at [https://statmodeling.stat.columbia.edu/](https://statmodeling.stat.columbia.edu/). Many of Gelman's posts are great, but don't miss the action in the comments sections. Every so often, I post on **brms**-related content at [https://solomonkurz.netlify.app/post/](https://solomonkurz.netlify.app/post/).
 
 Also, do check out the [Stan Forums](https://discourse.mc-stan.org). They have a special [**brms** tag](https://discourse.mc-stan.org/c/interfaces/brms) there, under which you can find all kinds of hot **brms** talk.
 
 But if you're new to the world of asking for help with your code online, you might acquaint yourself with the notion of a [minimally reproducible example](https://stackoverflow.com/questions/5963269/how-to-make-a-great-r-reproducible-example). In short, a good minimally reproducible example helps others help you. If you fail to do this, prepare for some snark.
+
+## Extra rethinking-related resources
+
+You may have noticed I don't offer solutions to the homework problems. Happily, [David Salazar](https://twitter.com/DavidSalazarVir) has a blog series on the homework problems highlighting a **tiydverse**- and **rethinking**-oriented workflow; find his first post ([here](https://david-salazar.github.io/2020/04/19/statistical-rethinking-week-1/)). [Ania Kawiecki](https://twitter.com/aniakawiecki) made a beautiful website solving the homework problems using the **tiydverse** and [**INLA**](https://www.r-inla.org/home) [@rue2009approximate], which you can find [here](https://akawiecki.github.io/statistical_rethinking_inla/). Also, [Vincent Arel-Bundock](https://twitter.com/VincentAB) has a nice website where we worked through the primary material in the book chapters using **rstan** and the **tidyverse**, which you can find [here](https://vincentarelbundock.github.io/rethinking2/04.html).
+
+If you find other resources along these lines, please tell me about it in a [GitHub issue](https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed/issues).
 
 ## Parting wisdom
 
