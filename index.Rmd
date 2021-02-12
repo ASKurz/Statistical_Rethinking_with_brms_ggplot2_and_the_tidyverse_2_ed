@@ -1,6 +1,6 @@
 --- 
 title: "*Statistical rethinking* with brms, ggplot2, and the tidyverse: Second edition"
-subtitle: "version 0.1.1"
+subtitle: "version 0.2.0"
 author: ["A Solomon Kurz"]
 date: "`r Sys.Date()`"
 site: bookdown::bookdown_site
@@ -38,22 +38,38 @@ I released the 0.1.0 version of this project in November 24, 2020. It was the fi
 
 ### Version 0.1.1. {-}
 
-Welcome to version 0.1.1! This is a mini update designed to 
+On December 2, 2020, I released a mini update designed to 
 
 * fix code breaks resulting from updates to the [**broom** package](https://CRAN.R-project.org/package=broom) [@R-broom], caught by [Jenny Bigman](https://twitter.com/jennybigman);
 * replace the soon-to-be retired `sample_n()` code with `slice_sample()`, caught by [Randall Pruim](https://github.com/rpruim);
 * and correct a few typos along the way.
 
+### Version 0.2.0. {-}
+
+Welcome to version 0.2.0! Major improvements include:
+
+* a corrected workflow for fitting single-level b-spline models ([Section 4.5.2][Splines.]), thanks to Stephen Wild ([\@sjwild](https://github.com/sjwild));
+* a refined workflow for fitting multilevel b-spline models using the `s()` function, thanks to Gavin Simpson ([\@gavinsimpson](https://github.com/gavinsimpson));
+* a new [bonus section][Second bonus: Group predictors with matrix columns] on grouping predictors within matrix columns, thanks to insights from @gelmanRegressionOtherStories2020 and [hints](https://discourse.mc-stan.org/t/fit-a-brm-model-with-an-array-of-predictors/20465) from Paul-Christian Bürkner ([\@paul-buerkner](https://github.com/paul-buerkner));
+* a **brms** solution to the $\sigma = 0.01$ sixth-order polynomial model in [Section 7.1.1][More parameters (almost) always improve fit.], thanks again to Stephen Wild;
+* a workflow to reproduce the Metropolis simulation for [Figure 9.3][High-dimensional problems.], thanks to James Henegan ([\@jameshenegan](https://github.com/jameshenegan));
+* a corrected workflow for taking `fitted()`-based random draws for the bonus material in [Section 13.5.2.1][Bonus: Let's use `fitted()` this time.], thanks to an exchange with Ladislas Nalborczyk ([\@lnalborczyk](https://github.com/lnalborczyk)); 
+* a **brms** solution to McElreath's bivariate differential equation model in Section 16.4][Population dynamics], thanks to Markus Gesmann ([\@mages](https://github.com/mages));
+* better use of `geom_area()`, thanks to insights from Randall Pruim ([\@rpruim](https://github.com/rpruim));
+* the adoptoin of a [CONTRIBUTING](https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed/blob/master/CONTRIBUTING.md) section on GitHub, thanks to Brenton M. Wiernik ([\@bwiernik](https://github.com/bwiernik));
+
+
+<blah blah>
+
+
 ### We're not done yet and I could use your help. {-}
 
 Some areas of the book could use some fleshing out. The sections I'm particularly anxious to improve are
 
-* [4.6][~~Summary~~ B-splines with **brms**], which introduces the **brms** approach to b-splines;
-* [15.3][Categorical errors and discrete absences], which may someday include a **brms** workflow for categorical missing data;
-* [16.2.3][Coding the statistical model.], which contains a mixture model that McElreath fit directly in Stan and I suspect may be possible in **brms** with a custom likelihood; and
-* [16.4.2][The statistical model.], which contains an ordinary differential equation model that McElreath fit directly in Stan and I suspect may be possible in **brms**, but is beyond my current skill set.
+* [15.3][Categorical errors and discrete absences], which may someday include a **brms** workflow for categorical missing data; and
+* [16.2.3][Coding the statistical model.], which contains a mixture model that McElreath fit directly in Stan and I suspect may be possible in **brms** with a custom likelihood.
 
-If you have insights on how to improve any of these sections, please share your thoughts on GitHub at [https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed/issues](https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed/issues). The contribution guidelines for this book are listed at [https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed/blob/master/CONTRIBUTING.md](https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed/blob/master/CONTRIBUTING.md).
+If you have insights on how to improve these or any other sections, please share your thoughts on GitHub at [https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed/issues](https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed/issues). The contribution guidelines for this book are listed at [https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed/blob/master/CONTRIBUTING.md](https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed/blob/master/CONTRIBUTING.md).
 
 ## Thank-you's are in order {-}
 
@@ -67,12 +83,17 @@ I'd like to thank the following for their helpful contributions:
 * Jenny Bigman ([\@jennybigman](https://github.com/jennybigman)),
 * Louis Bliard ([\@lbiard](https://github.com/lbiard)),
 * Paul-Christian Bürkner ([\@paul-buerkner](https://github.com/paul-buerkner)),
+* Markus Gesmann ([\@mages](https://github.com/mages)),
+* James Henegan ([\@jameshenegan](https://github.com/jameshenegan)),
 * Sebastian Lobentanzer ([\@slobentanzer](https://github.com/slobentanzer)),
 * Ed Merkle ([\@ecmerkle](https://github.com/ecmerkle)),
+* Ladislas Nalborczyk ([\@lnalborczyk](https://github.com/lnalborczyk)),
 * Randall Pruim ([\@rpruim](https://github.com/rpruim)),
 * Gavin Simpson ([\@gavinsimpson](https://github.com/gavinsimpson)),
-* Richard Torkar ([\@torkar](https://github.com/torkar)), and
-* Donald R. Williams ([\@donaldRwilliams](https://github.com/donaldRwilliams)). 
+* Richard Torkar ([\@torkar](https://github.com/torkar)),
+* Brenton M. Wiernik ([\@bwiernik](https://github.com/bwiernik)),
+* Stephen Wild ([\@sjwild](https://github.com/sjwild)), and
+* Donald R. Williams ([\@donaldRwilliams](https://github.com/donaldRwilliams)).
 
 Science is better when we work together.
 
@@ -81,12 +102,12 @@ Science is better when we work together.
 This book is licensed under the Creative Commons Zero v1.0 Universal license. You can learn the details, [here](https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed/blob/master/LICENSE). In short, you can use my work. Just make sure you give me the appropriate credit the same way you would for any other scholarly resource. Here's the citation information:
 
 ```{r, eval = F}
-@book{kurzStatisticalRethinkingSecondEd2020,
+@book{kurzStatisticalRethinkingSecondEd2021,
   title = {Statistical rethinking with brms, ggplot2, and the tidyverse: {{Second}} edition},
   author = {Kurz, A. Solomon},
-  year = {2020},
-  month = {dec},
-  edition = {version 0.1.1},
+  year = {2021},
+  month = {feb},
+  edition = {version 0.2.0},
   url = {https://bookdown.org/content/4857/}
 }
 ```
