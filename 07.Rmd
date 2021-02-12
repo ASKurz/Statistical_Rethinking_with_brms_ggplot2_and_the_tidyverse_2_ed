@@ -113,129 +113,185 @@ Our first statistical model will follow the form
 
 > This simply says that the average brain volume $b_i$ of species $i$ is a linear function of its body mass $m_i$. Now consider what the priors imply. The prior for $\alpha$ is just centered on the mean brain volume (rescaled) in the data. So it says that the average species with an average body mass has a brain volume with an 89% credible interval from about −1 to 2. That is ridiculously wide and includes impossible (negative) values. The prior for $\beta$ is very flat and centered on zero. It allows for absurdly large positive and negative relationships. These priors allow for absurd inferences, especially as the model gets more complex. And that's part of the lesson. (p. 196)
 
-Instead of jumping into **brms**, we're going to practice fitting these initial models with **rethinking**. **brms** does fine with the first five models (`m7.1` through `m7.5`), but has major issues with the sixth-order polynomial model, `m7.6`. Given that I ~~suspect~~ hope you would not want to fit such a model for a real-world application, it's not worth the effort to try to fight **brms** to make it work. However, if any of my readers are actually able to get `m7.6` to work with **brms**, I'd be grateful if you [shared your code on GitHub](https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed/issues).
+Fire up **brms**.
 
 ```{r, warning = F, message = F}
-library(rethinking)
-
-m7.1 <- quap( 
-  alist(
-    brain_std ~ dnorm(mu, exp(log_sigma)), 
-    mu <- a + b * mass_std,
-    a ~ dnorm(0.5, 1),
-    b ~ dnorm(0, 10),
-    log_sigma ~ dnorm(0, 1)
-  ), 
-  data = d)
+library(brms)
 ```
 
-Check the summary.
+A careful study of McElreath's **R** code 7.3 will show he is modeling `log_sigma`, rather than $\sigma$. There are ways to do this with **brms** [see @Bürkner2020Distributional], but I'm going to keep things simple, here. Our approach will be to follow the above equation more literally and just slap the $\operatorname{Log-Normal}(0, 1)$ prior directly onto $\sigma$.
 
-```{r}
-precis(m7.1)
+```{r b7.1}
+b7.1 <- 
+  brm(data = d, 
+      family = gaussian,
+      brain_std ~ 1 + mass_std,
+      prior = c(prior(normal(0.5, 1), class = Intercept),
+                prior(normal(0, 10), class = b),
+                prior(lognormal(0, 1), class = sigma)),
+      iter = 2000, warmup = 1000, chains = 4, cores = 4,
+      seed = 7,
+      file = "fits/b07.01")
 ```
 
-Although **rethinking** does not contain a convenience function for computing the $R^2$ directly, McElreath showed us how to make a function for that purpose ourselves. Because part of his `R2_is_bad()` function contains the `rethinking:sim()` function, I'm going to add a `seed` argument to make the results more reproducible.
+Check the model summary.
 
 ```{r}
-R2_is_bad <- function(quap_fit, seed = 7, ...) {
+print(b7.1)
+```
+
+As we'll learn later on, **brms** already has a convenience function for computing the Bayesian $R^2$. At this point in the chapter, we'll follow along and make a **brms**-centric version of McElreath's `R2_is_bad()`. But because part of our version of `R2_is_bad()` will contain the `brms::predict()` function, I'm going to add a `seed` argument to make the results more reproducible.
+
+```{r}
+R2_is_bad <- function(brm_fit, seed = 7, ...) {
+  
   set.seed(seed)
-  s <- sim(quap_fit, refresh = 0, ...)
-  r <- apply(s, 2, mean) - d$brain_std
-  1 - var2(r) / var2(d$brain_std)
+  p <- predict(brm_fit, summary = F, ...)
+  r <- apply(p, 2, mean) - d$brain_std
+  1 - rethinking::var2(r) / rethinking::var2(d$brain_std)
+  
 }
 ```
 
 Here's the estimate for our $R^2$.
 
 ```{r}
-R2_is_bad(m7.1)
+R2_is_bad(b7.1)
 ```
 
 Do note that,
 
 > in principle, the Bayesian approach mandates that we do this for each sample from the posterior. But $R^2$ is traditionally computed only at the mean prediction. So we'll do that as well here. Later in the chapter you'll learn a properly Bayesian score that uses the entire posterior distribution. (p. 197)
 
-Now fit the quadratic through sixth-order polynomial models.
+Now fit the quadratic through the fifth-order polynomial models using `update()`.
 
-```{r m7.2}
+```{r b7.2, message = F}
 # quadratic
-m7.2 <- quap( 
-  alist(
-    brain_std ~ dnorm(mu, exp(log_sigma)), 
-    mu <- a + b[1] * mass_std + b[2] * mass_std^2,
-    a ~ dnorm(0.5, 1),
-    b ~ dnorm(0, 10),
-    log_sigma ~ dnorm(0, 1)
-  ), 
-  data = d, start = list(b = rep(0, 2)))
+b7.2 <- 
+  update(b7.1,
+         newdata = d, 
+         formula = brain_std ~ 1 + mass_std + I(mass_std^2),
+         iter = 2000, warmup = 1000, chains = 4, cores = 4,
+         seed = 7,
+         file = "fits/b07.02")
 
 # cubic
-m7.3 <- quap( 
-  alist(
-    brain_std ~ dnorm(mu, exp(log_sigma)), 
-    mu <- a + b[1] * mass_std + b[2] * mass_std^2 + b[3] * mass_std^3,
-    a ~ dnorm(0.5, 1),
-    b ~ dnorm(0, 10),
-    log_sigma ~ dnorm(0, 1)
-  ), 
-  data = d, start = list(b = rep(0, 3)))
+b7.3 <- 
+  update(b7.1,
+         newdata = d, 
+         formula = brain_std ~ 1 + mass_std + I(mass_std^2) + I(mass_std^3),
+         iter = 2000, warmup = 1000, chains = 4, cores = 4,
+         seed = 7,
+         control = list(adapt_delta = .9),
+         file = "fits/b07.03")
+
 
 # fourth-order
-m7.4 <- quap( 
-  alist(
-    brain_std ~ dnorm(mu, exp(log_sigma)), 
-    mu <- a + b[1] * mass_std + b[2] * mass_std^2 + b[3] * mass_std^3 + b[4] * mass_std^4,
-    a ~ dnorm(0.5, 1),
-    b ~ dnorm(0, 10),
-    log_sigma ~ dnorm(0, 1)
-  ), 
-  data = d, start = list(b = rep(0, 4)))
+b7.4 <- 
+  update(b7.1,
+         newdata = d, 
+         formula = brain_std ~ 1 + mass_std + I(mass_std^2) + I(mass_std^3) + I(mass_std^4),
+         iter = 2000, warmup = 1000, chains = 4, cores = 4,
+         seed = 7,
+         control = list(adapt_delta = .995),
+         file = "fits/b07.04")
 
 # fifth-order
-m7.5 <- quap( 
-  alist(
-    brain_std ~ dnorm(mu, exp(log_sigma)), 
-    mu <- a + b[1] * mass_std + b[2] * mass_std^2 + b[3] * mass_std^3 + b[4] * mass_std^4 + b[5] * mass_std^5,
-    a ~ dnorm(0.5, 1),
-    b ~ dnorm(0, 10),
-    log_sigma ~ dnorm(0, 1)
-  ), 
-  data = d, start = list(b = rep(0, 5)))
-
-# sixth-order
-m7.6 <- quap( 
-  alist(
-    brain_std ~ dnorm(mu, 0.001), 
-    mu <- a + b[1] * mass_std + b[2] * mass_std^2 + b[3] * mass_std^3 + b[4] * mass_std^4 + b[5] * mass_std^5 + b[6] * mass_std^6,
-    a ~ dnorm(0.5, 1),
-    b ~ dnorm(0, 10)
-  ), 
-  data = d, start = list(b = rep(0, 6)))
+b7.5 <- 
+  update(b7.1,
+         newdata = d, 
+         formula = brain_std ~ 1 + mass_std + I(mass_std^2) + I(mass_std^3) + I(mass_std^4) + I(mass_std^5),
+         iter = 2000, warmup = 1000, chains = 4, cores = 4,
+         seed = 7,
+         control = list(adapt_delta = .99999),
+         file = "fits/b07.05")
 ```
 
-Here's how we might plot the result for the first model, `m7.1`.
+You may have noticed we fiddled with the `adapt_delta` setting for some of the models. When you try to fit complex models with few data points and wide priors, that can cause difficulties for Stan. I'm not going to get into the details on what `adapt_delta` does, right now. But it'll make appearances in later chapters and we'll more formally introduce it in [Section 13.4.2][Non-centered chimpanzees.].
 
-```{r, fig.width = 3.5, fig.height = 3}
+Now returning to the text,
+
+> That last model, `m7.6`, has one trick in it. The standard deviation is replaced with a constant value 0.001. The model will not work otherwise, for a very important reason that will become clear as we plot these monsters. (p. 198)
+
+By "last model, `m7.6`," McElreath was referring to the sixth-order polynomial, fit on page 199. McElreath's **rethinking** package is set up so the syntax is simple to replacing $\sigma$ with a constant value. We can do this with **brms**, too, but it'll take more effort. If we want to fix $\sigma$ to a constant, we'll need to define a custom likelihood. Bürkner explained how to do so in his [-@Bürkner2020Define] vignette, [*Define custom response distributions with brms*](https://CRAN.R-project.org/package=brms/vignettes/brms_customfamilies.html). I'm not going to explain this in great detail, here. In brief, first we use the `custom_family()` function to define the name and parameters of a `custom_normal()` likelihood that will set $\sigma$ to a constant value, 0.001. Second, we'll define some functions for Stan which are not defined in Stan itself and save them as `stan_funs`. Third, we make a `stanvar()` statement which will allow us to pass our `stan_funs` to `brm()`.
+
+```{r, warning = F, message = F}
+custom_normal <- custom_family(
+  "custom_normal", dpars = "mu",
+  links = "identity",
+  type = "real"
+)
+
+stan_funs  <- "real custom_normal_lpdf(real y, real mu) {
+  return normal_lpdf(y | mu, 0.001);
+}
+real custom_normal_rng(real mu) {
+  return normal_rng(mu, 0.001);
+}
+" 
+
+stanvars <- stanvar(scode = stan_funs, block = "functions")
+```
+
+Now we can fit the model by setting `family = custom_normal`. Note that since we've set $\sigma = 0.001$, we don't need to include a prior for $\sigma$. Also notice our `stanvars = stanvars` line.
+
+```{r b7.6}
+b7.6 <- 
+  brm(data = d, 
+      family = custom_normal,
+      brain_std ~ 1 + mass_std + I(mass_std^2) + I(mass_std^3) + I(mass_std^4) + I(mass_std^5) + I(mass_std^6),
+      prior = c(prior(normal(0.5, 1), class = Intercept),
+                prior(normal(0, 10), class = b)),
+      iter = 2000, warmup = 1000, chains = 4, cores = 4,
+      seed = 7,
+      stanvars = stanvars,
+      file = "fits/b07.06")
+```
+
+Before we can do our variant of Figure 7.3, we'll need to define a few more custom functions to work with `b7.6`. The `posterior_epred_custom_normal()` function is required for `brms::fitted()` to work with our `family = custom_normal` `brmsfit` object. Same thing for `posterior_predict_custom_normal()` and `brms::predict()`. Though we won't need it until [Section 7.2.5][Scoring the right data.], we'll also define `log_lik_custom_normal` so we can use the `log_lik()` function for any models fit with `family = custom_normal`. Before all that, we need to throw in a line with the `expose_functions()` function. If you want to understand why, read up in Bürkner's [-@Bürkner2020Define] vignette. For now, just go with it.
+
+```{r, message = F, warning = F, results = "hide"}
+expose_functions(b7.6, vectorize = TRUE)
+
+posterior_epred_custom_normal <- function(prep) {
+  mu <- prep$dpars$mu
+  mu 
+}
+
+posterior_predict_custom_normal <- function(i, prep, ...) {
+  mu <- prep$dpars$mu
+  mu 
+  custom_normal_rng(mu)
+}
+
+log_lik_custom_normal <- function(i, prep) {
+  mu <- prep$dpars$mu
+  y <- prep$data$Y[i]
+  custom_normal_lpdf(y, mu)
+}
+```
+
+Okay, here's how we might plot the result for the first model, `b7.1`.
+
+```{r, fig.width = 3.25, fig.height = 3, message = F, warning = F}
 library(tidybayes)
 
-mass_seq <- seq(from = -2, to = 2, length.out = 100) 
+nd <- tibble(mass_std = seq(from = -2, to = 2, length.out = 100))
 
-link(m7.1, data = list(mass_std = mass_seq)) %>% 
+fitted(b7.1, 
+       newdata = nd, 
+       probs = c(.055, .945)) %>% 
   data.frame() %>% 
-  pivot_longer(everything()) %>% 
-  mutate(mass_std = rep(mass_seq, times = 1000)) %>% 
-  group_by(mass_std) %>% 
-  mean_qi(value, .width = .89) %>% 
+  bind_cols(nd) %>% 
   
-  ggplot(aes(x = mass_std, y = value)) +
-  geom_lineribbon(aes(ymin = .lower, ymax = .upper),
+  ggplot(aes(x = mass_std, y = Estimate)) +
+  geom_lineribbon(aes(ymin = Q5.5, ymax = Q94.5),
                   color = carto_pal(7, "BurgYl")[7], size = 1/2, 
                   fill = alpha(carto_pal(7, "BurgYl")[6], 1/3)) +
   geom_point(data = d,
              aes(y = brain_std),
              color = carto_pal(7, "BurgYl")[7]) +
-  labs(subtitle = bquote(italic(R)^2==.(round(R2_is_bad(m7.1), digits = 2))),
+  labs(subtitle = bquote(italic(R)^2==.(round(R2_is_bad(b7.1), digits = 2))),
        x = "body mass (standardized)",
        y = "brain volume (standardized)") +
   coord_cartesian(xlim = range(d$mass_std))
@@ -248,25 +304,22 @@ To slightly repurpose a quote from McElreath:
 Our `make_figure7.3()` function will wrap the simulation, data wrangling, and plotting code all in one. It takes two arguments, the first of which defines which fit object we'd like to plot. If you look closely at Figure 7.3 in the text, you'll notice that the range of the $y$-axis changes in the last three plots. Our second argument, `ylim`, will allow us to vary those parameters across subplots.
 
 ```{r}
-make_figure7.3 <- function(quap_fit, ylim = range(d$brain_std)) {
+make_figure7.3 <- function(brms_fit, ylim = range(d$brain_std)) {
   
   # compute the R2
-  r2 <- R2_is_bad(quap_fit)
+  r2 <- R2_is_bad(brms_fit)
   
-  # define the mass_seq 
-  mass_seq <- seq(from = -2, to = 2, length.out = 100) 
+  # define the new data 
+  nd <- tibble(mass_std = seq(from = -2, to = 2, length.out = 200))
   
   # simulate and wrangle
-  link(quap_fit, data = list(mass_std = mass_seq)) %>% 
+  fitted(brms_fit, newdata = nd, probs = c(.055, .945)) %>% 
     data.frame() %>% 
-    pivot_longer(everything()) %>% 
-    mutate(mass_std = rep(mass_seq, times = 1000)) %>% 
-    group_by(mass_std) %>% 
-    mean_qi(value, .width = .89) %>% 
+    bind_cols(nd) %>% 
     
     # plot!  
-    ggplot(aes(x = mass_std, y = value)) +
-    geom_lineribbon(aes(ymin = .lower, ymax = .upper),
+    ggplot(aes(x = mass_std)) +
+    geom_lineribbon(aes(y = Estimate, ymin = Q5.5, ymax = Q94.5),
                     color = carto_pal(7, "BurgYl")[7], size = 1/2, 
                     fill = alpha(carto_pal(7, "BurgYl")[6], 1/3)) +
     geom_point(data = d,
@@ -277,18 +330,19 @@ make_figure7.3 <- function(quap_fit, ylim = range(d$brain_std)) {
          y = "brain volume (std)") +
     coord_cartesian(xlim = c(-1.2, 1.5),
                     ylim = ylim)
+  
 }
 ```
 
 Here we make and save the six subplots in bulk.
 
 ```{r}
-p1 <- make_figure7.3(m7.1)
-p2 <- make_figure7.3(m7.2)
-p3 <- make_figure7.3(m7.3)
-p4 <- make_figure7.3(m7.4, ylim = c(.25, 1.1))
-p5 <- make_figure7.3(m7.5, ylim = c(.1, 1.4))
-p6 <- make_figure7.3(m7.6, ylim = c(-0.25, 1.5)) +
+p1 <- make_figure7.3(b7.1)
+p2 <- make_figure7.3(b7.2)
+p3 <- make_figure7.3(b7.3)
+p4 <- make_figure7.3(b7.4, ylim = c(.25, 1.1))
+p5 <- make_figure7.3(b7.5, ylim = c(.1, 1.4))
+p6 <- make_figure7.3(b7.6, ylim = c(-0.25, 1.5)) +
   geom_hline(yintercept = 0, color = carto_pal(7, "BurgYl")[2], linetype = 2) 
 ```
 
@@ -300,6 +354,8 @@ library(patchwork)
 ((p1 | p2) / (p3 | p4) / (p5 | p6)) +
   plot_annotation(title = "Figure7.3. Polynomial linear models of increasing\ndegree for the hominin data.")
 ```
+
+It's not clear, to me, why our **brms**-based 89% intervals are so much broader than those in the text. But if you do fit the size models with `rethinking::quap()` and compare the summaries, you'll see our **brms**-based parameters are systemically less certain than those fit with `quap()`. In you have an answer or perhaps even an alternative workflow to solve the issue, [share on GitHub](https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed/issues).
 
 If you really what the axes scaled in the original metrics of the variables rather than their standardized form, you can use the re-scaling techniques from back in [Section 4.5.1.0.1][Overthinking: Converting back to natural scale.].
 
@@ -313,7 +369,7 @@ If you really what the axes scaled in the original metrics of the variables rath
 
 > The overfit polynomial models fit the data extremely well, but they suffer for this within-sample accuracy by making nonsensical out-of-sample predictions. In contrast, **underfitting** produces models that are inaccurate both within and out of sample. They learn too little, failing to recover regular features of the sample. (p. 201, **emphasis** in the original)
 
-To explore the distinctions between overfitting and underfitting, we'll need to refit `m7.1` and `m7.4` several times after serially dropping one of the rows in the data. You can `filter()` by `row_number()` to drop rows in a [**tidyverse** kind of way](https://dplyr.tidyverse.org/reference/slice.html). For example, we can drop the second row of `d` like this.
+To explore the distinctions between overfitting and underfitting, we'll need to refit `b7.1` and `b7.4` several times after serially dropping one of the rows in the data. You can `filter()` by `row_number()` to drop rows in a [**tidyverse** kind of way](https://dplyr.tidyverse.org/reference/slice.html). For example, we can drop the second row of `d` like this.
 
 ```{r}
  d %>%
@@ -323,63 +379,65 @@ To explore the distinctions between overfitting and underfitting, we'll need to 
 
 In his **Overthinking: Dropping rows** box (p. 202), McElreath encouraged us to take a look at the `brain_loo_plot()` function to get a sense of how he made his Figure 7.4. Here it is.
 
-```{r}
+```{r, warning = F, message = F}
+library(rethinking)
 brain_loo_plot
 ```
 
-Though we'll be taking a slightly different route than the one outlined in McElreath's `brain_loo_plot()` function, we can glean some great insights. For example, here's a tricky way to update a `quap()` model.
+Though we'll be taking a slightly different route than the one outlined in McElreath's `brain_loo_plot()` function, we can glean some great insights. For example, we'll be refitting our **brms** models with `update()`.
 
-```{r}
-m7.1.1 <- quap(m7.1@formula,
-               data = filter(d, row_number() != 1))
+```{r b7.1.1}
+b7.1.1 <- 
+  update(b7.1,
+         newdata = filter(d, row_number() != 1), 
+         iter = 2000, warmup = 1000, chains = 4, cores = 4,
+         seed = 7,
+         file = "fits/b07.01.1")
 
-precis(m7.1.1)
+print(b7.1.1)
 ```
 
-You can see by the `data` statement that `m7.1.1` is fit on the `d` data after dropping the first row. Here's how we might amend out plotting strategy from before to visualize the posterior mean for the model-implied trajectory.
+You can see by the `newdata` statement that `b7.1.1` is fit on the `d` data after dropping the first row. Here's how we might amend out plotting strategy from before to visualize the posterior mean for the model-implied trajectory.
 
-```{r, fig.width = 3.5, fig.height = 3, warning = F, message = F}
-link(m7.1.1, data = list(mass_std = mass_seq)) %>% 
+```{r, fig.width = 3.25, fig.height = 3}
+fitted(b7.1.1, 
+       newdata = nd) %>% 
   data.frame() %>% 
-  pivot_longer(everything()) %>% 
-  mutate(mass_std = rep(mass_seq, times = 1000)) %>% 
-  group_by(mass_std) %>% 
-  summarise(mean = mean(value)) %>% 
+  bind_cols(nd) %>% 
   
-  ggplot(aes(x = mass_std, y = mean)) +
-  geom_line(color = carto_pal(7, "BurgYl")[7], size = 1/2, alpha = 1/2) +
+  ggplot(aes(x = mass_std)) +
+  geom_line(aes(y = Estimate),
+            color = carto_pal(7, "BurgYl")[7], size = 1/2, alpha = 1/2) +
   geom_point(data = d,
              aes(y = brain_std),
              color = carto_pal(7, "BurgYl")[7]) +
-  labs(subtitle = "m7.1.1",
+  labs(subtitle = "b7.1.1",
        x = "body mass (std)",
        y = "brain volume (std)") +
   coord_cartesian(xlim = range(d$mass_std),
                   ylim = range(d$brain_std))
 ```
 
-Now we can build off of those sensibilities to make an alternative to McElreath's `brain_loo_plot`. Our `brain_loo_lines()` function will refit a model after dropping the row we define in the `row` argument. After fitting the model, it then extracts the fitted line over the previously-defined values of `mass_seq`.
+Now we'll make a **brms**-oriented version of McElreath's `brain_loo_plot()` function. Our version `brain_loo_lines()` will refit the model and extract the lines information in one step. We'll leave the plotting for a second step.
 
 ```{r}
-brain_loo_lines <- function(quap_fit, row) {
-  
-  # determine the order of the polynomial
-  n <- extract.samples(quap_fit)$b %>% ncol()
-  if (is.null(n)) 
-    n <- 1
+brain_loo_lines <- function(brms_fit, row, ...) {
   
   # refit the model
-  fit <- quap(quap_fit@formula,
-              data = filter(d, row_number() != row),
-              start = list(b = rep(0, times = n)))
+  new_fit <- 
+    update(brms_fit,
+           newdata = filter(d, row_number() != row), 
+           iter = 2000, warmup = 1000, chains = 4, cores = 4,
+           seed = 7,
+           refresh = 0,
+           ...)
   
   # pull the lines values
-  link(fit, data = list(mass_std = mass_seq)) %>% 
+  fitted(new_fit, 
+         newdata = nd) %>% 
     data.frame() %>% 
-    pivot_longer(everything()) %>% 
-    mutate(mass_std = rep(mass_seq, times = 1000)) %>% 
-    group_by(mass_std) %>% 
-    summarise(mean = mean(value))
+    select(Estimate) %>% 
+    bind_cols(nd)
   
 }
 ```
@@ -387,47 +445,70 @@ brain_loo_lines <- function(quap_fit, row) {
 Here's how `brain_loo_lines()` works.
 
 ```{r, message = F}
-brain_loo_lines(m7.1, row = 1) %>% 
+brain_loo_lines(b7.1, row = 1) %>% 
   glimpse()
 ```
 
-Working within the **tidyverse** paradigm, we'll make a tibble with the predefined `row` values. We will then use `purrr::map()` to plug those `row` values into `brain_loo_lines()`, which will return the desired posterior `mean` values for each corresponding value of `mass_std`. Then we pump those values into `ggplot()` and customize the appearance of our plots from there.
+Working within the **tidyverse** paradigm, we'll make a tibble with the predefined `row` values. We will then use `purrr::map()` to plug those `row` values into `brain_loo_lines()`, which will return the desired posterior `mean` values for each corresponding value of `mass_std`. Here we do that for both `b7.1` and `b7.4`.
+
+```{r, echo = F}
+# save(b7.1_fits, file = "/Users/solomonkurz/Dropbox/Recoding Statistical Rethinking 2nd ed/fits/b07.01_fits.rda")
+# save(b7.4_fits, file = "/Users/solomonkurz/Dropbox/Recoding Statistical Rethinking 2nd ed/fits/b07.04_fits.rda")
+
+load("/Users/solomonkurz/Dropbox/Recoding Statistical Rethinking 2nd ed/fits/b07.01_fits.rda")
+load("/Users/solomonkurz/Dropbox/Recoding Statistical Rethinking 2nd ed/fits/b07.04_fits.rda")
+```
+
+```{r, eval = F}
+b7.1_fits <-
+  tibble(row = 1:7) %>% 
+  mutate(post = purrr::map(row, ~brain_loo_lines(brms_fit = b7.1, row = .))) %>% 
+  unnest(post)
+
+b7.4_fits <-
+  tibble(row = 1:7) %>% 
+  mutate(post = purrr::map(row, ~brain_loo_lines(brms_fit = b7.4, 
+                                                 row = ., 
+                                                 control = list(adapt_delta = .999)))) %>% 
+  unnest(post)
+```
+
+Now for each, pump those values into `ggplot()`, customize the settings, and combine the two ggplots to make the full Figure 7.4.
 
 ```{r, fig.width = 6, fig.height = 3, warning = F, message = F}
+# left
 p1 <-
-  tibble(row = 1:7) %>% 
-  mutate(post = purrr::map(row, ~brain_loo_lines(quap_fit = m7.1, row = .))) %>% 
-  unnest(post) %>%  
+  b7.1_fits %>%  
   
-  ggplot(aes(x = mass_std, y = mean)) +
-  geom_line(aes(group = row),
+  ggplot(aes(x = mass_std)) +
+  geom_line(aes(y = Estimate, group = row),
             color = carto_pal(7, "BurgYl")[7], size = 1/2, alpha = 1/2) +
   geom_point(data = d,
              aes(y = brain_std),
              color = carto_pal(7, "BurgYl")[7]) +
-  labs(subtitle = "m7.1",
-       x = "body mass (standardized)",
-       y = "brain volume (standardized)") +
+  labs(subtitle = "b7.1",
+       x = "body mass (std)",
+       y = "brain volume (std)") +
   coord_cartesian(xlim = range(d$mass_std),
                   ylim = range(d$brain_std))
 
+# right
 p2 <-
-  tibble(row = 1:7) %>% 
-  mutate(post = purrr::map(row, ~brain_loo_lines(quap_fit = m7.4, row = .))) %>% 
-  unnest(post) %>%  
+  b7.4_fits %>%  
   
-  ggplot(aes(x = mass_std, y = mean)) +
+  ggplot(aes(x = mass_std, y = Estimate)) +
   geom_line(aes(group = row),
             color = carto_pal(7, "BurgYl")[7], size = 1/2, alpha = 1/2) +
   geom_point(data = d,
              aes(y = brain_std),
              color = carto_pal(7, "BurgYl")[7]) +
-  labs(subtitle = "m7.4",
-       x = "body mass (standardized)",
-       y = "brain volume (standardized)") +
+  labs(subtitle = "b7.4",
+       x = "body mass (std)",
+       y = "brain volume (std)") +
   coord_cartesian(xlim = range(d$mass_std),
-                  ylim = c(-0.1, 1.6))
+                  ylim = c(-0.1, 1.4))
 
+# combine
 p1 + p2
 ```
 
@@ -460,10 +541,10 @@ weatherperson %>%
   ggplot(aes(x = day, y = name, fill = value)) +
   geom_tile(color = "white") +
   geom_text(aes(label = value, color = value == 0)) +
-  scale_fill_viridis_c(direction = -1) +
-  scale_color_manual(values = c("white", "black")) +
   scale_x_continuous(breaks = 1:10, expand = c(0, 0)) +
   scale_y_discrete(NULL, expand = c(0, 0)) +
+  scale_fill_viridis_c(direction = -1) +
+  scale_color_manual(values = c("white", "black")) +
   theme(axis.ticks.y = element_blank(),
         legend.position = "none")
 ```
@@ -482,10 +563,10 @@ newcomer %>%
   ggplot(aes(x = day, y = name, fill = value)) +
   geom_tile(color = "white") +
   geom_text(aes(label = value, color = value == 0)) +
-  scale_fill_viridis_c(direction = -1) +
-  scale_color_manual(values = c("white", "black")) +
   scale_x_continuous(breaks = 1:10, expand = c(0, 0)) +
   scale_y_discrete(NULL, expand = c(0, 0)) +
+  scale_fill_viridis_c(direction = -1) +
+  scale_color_manual(values = c("white", "black")) +
   theme(axis.ticks.y = element_blank(),
         legend.position = "none")
 ```
@@ -531,7 +612,8 @@ bind_rows(weatherperson,
   mutate(power = hit ^ n,
          term  = rep(letters[1:2], times = 2)) %>% 
   select(person, term, power) %>% 
-  pivot_wider(names_from = term, values_from = power) %>% 
+  pivot_wider(names_from = term,
+              values_from = power) %>% 
   mutate(probability_correct_sequence = a * b)
 ```
 
@@ -671,149 +753,119 @@ In our $D(q)$ formula, did you notice how we ended up multiplying $\sum_i \log (
 
 $$S(q) = \sum_i \log (q_i),$$
 
-which we can think of as a log-probability score which is "the gold standard way to compare the predictive accuracy of different models. It is an estimate of $\text E \log (q_i)$, just without the final step of dividing by the number of observations" (p. 210). When Bayesians compute $S(q)$, they do so over the entire posterior distribution. "Doing this calculation correctly requires a little subtlety. The **rethinking** package has a function called `lppd`--**log-pointwise-predictive-density**--to do this calculation for quap models" (p. 210, **emphasis** in the original for the second time, but not the first). Here's the `rethinking::lppd()` function in action for `m7.1`.
+which we can think of as a log-probability score which is "the gold standard way to compare the predictive accuracy of different models. It is an estimate of $\text E \log (q_i)$, just without the final step of dividing by the number of observations" (p. 210). When Bayesians compute $S(q)$, they do so over the entire posterior distribution. "Doing this calculation correctly requires a little subtlety. The **rethinking** package has a function called `lppd`--**log-pointwise-predictive-density**--to do this calculation for quap models" (p. 210, **emphasis** in the original for the second time, but not the first).  However, I'm now aware of a similar function within **brms**. If you're willing to roll up your sleeves, a little,  you can do it by hand. Here's an example with `b7.1`.
 
-```{r}
-set.seed(1)
-l <- lppd(m7.1, n = 1e4)
-l
+```{r, message = F}
+log_lik(b7.1) %>% 
+  data.frame() %>% 
+  set_names(pull(d, species)) %>% 
+  pivot_longer(everything(),
+               names_to = "species",
+               values_to = "logprob") %>% 
+  mutate(prob = exp(logprob)) %>% 
+  group_by(species) %>% 
+  summarise(log_probability_score = mean(prob) %>% log())
 ```
 
-Our `l` object contained the seven case-specific values for $\log(q_i)$. Here we sum them up to compute $S(q)$.
+"If you sum these values, you'll have the total log-probability score for the model and data" (p. 210). Here we sum those $\log (q_i)$ values up to compute $S(q)$.
 
-```{r}
-sum(l)
-```
-
-Here's how to take the last step if you would like to express that as $D(q)$.
-
-```{r}
--2 * sum(l)
+```{r, message = F}
+log_lik(b7.1) %>% 
+  data.frame() %>% 
+  set_names(pull(d, species)) %>% 
+  pivot_longer(everything(),
+               names_to = "species",
+               values_to = "logprob") %>% 
+  mutate(prob = exp(logprob)) %>% 
+  group_by(species) %>% 
+  summarise(log_probability_score = mean(prob) %>% log()) %>% 
+  summarise(total_log_probability_score = sum(log_probability_score))
 ```
 
 #### Overthinking: Computing the lppd.
 
-We can follow along with both our **rethinking** model `m7.1` and a counterpart fit with **brms**.
-
-```{r b7.1, warning = F, message = F}
-library(brms)
-
-b7.1 <- 
-  brm(data = d, 
-      family = gaussian(),
-      brain_std ~ 1 + mass_std,
-      prior = c(prior(normal(0.5, 1), class = Intercept),
-                prior(normal(0, 10), class = b),
-                prior(exponential(4.189324), class = sigma)),
-      iter = 2000, warmup = 1000, chains = 4, cores = 4,
-      seed = 7,
-      file = "fits/b07.01")
-```
-
-Before we move on, we should clarify where that `exponential(4.189324)` prior on $\sigma$ came from. Recall that the parameter in the exponential distribution is the rate, $\lambda$. To get the mean of the exponential distribution, you take the reciprocal of the rate.
-
-$$\mu_y = \frac{1}{\lambda}$$
-
-Since I wanted a diffuse prior for sigma with the mean centered around `sd(d$brain_std)`, a quick computation revealed that the appropriate $\lambda$ would be about 4.2.
-
-```{r}
-1 / sd(d$brain_std)
-```
-
-Anyway, here's our summary for `b7.1`.
-
-```{r}
-print(b7.1)
-```
-
-The **brms** package contains a `log_lik()` function, which returns a matrix. Each occasion gets a column and each HMC chain iteration gets a row.
-
-```{r}
-log_lik(b7.1) %>%
-  glimpse()
-```
-
-In just a bit, we'll see that this output is very similar to what we get from **rethinking**. For now, focus back to the text. On page 210, McElreath clarified that the Bayesian version of the log-probability score, what we've been calling the lppd, has to account for the data and the posterior distribution. It follows the form
+The Bayesian version of the log-probability score, what we've been calling the lppd, has to account for the data and the posterior distribution. It follows the form
 
 $$\text{lppd}(y, \Theta) = \sum_i \log \frac{1}{S} \sum_s p (y_i | \Theta_s),$$
 
 > where $S$ is the number of samples and $\Theta_s$ is the $s$-th set of sampled parameter values in the posterior distribution. While in principle this is easy--you just need to compute the probability (density) of each observation $i$ for each sample $s$, take the average, and then the logarithm--in practice it is not so easy. The reason is that doing arithmetic in a computer often requires some tricks to retain precision. (p. 210)
 
-We can wrap a mild reworking of McElreath's **R** code 7.14 code into a custom `lppd_r()` function.
+Our approach to McElreath's **R** code 7.14 code will look very different. Going step by step, first we use the `brms::log_lik()` function.
 
 ```{r}
-lppd_r <- function(quap_fit, seed = 1, n = 1e4) {
-  
-  set.seed(seed)
-  
-  lp <- sim(quap_fit, ll = TRUE, n = n)
-  ni <- ncol(lp)
-  ns <- nrow(lp)
-  
-  f <- function(i) {log_sum_exp(lp[, i]) - log(ns)}
-  
-  sapply(1:ni, f)
-  
-}
+log_prob <- log_lik(b7.1) 
+
+log_prob %>%
+  glimpse()
 ```
 
-The `lppd_r()` function is designed to work with models fit with `rethinking::quap()`. It works like this.
+The `log_lik()` function returned a matrix. Each occasion in the original data, $y_i$, got a column and each HMC chain iteration gets a row. Given we used the **brms** default of 4,000 HMC iterations, which corresponds to $S = 4{,}000$ in the formula. Note the each of these $7 \times 4{,}000$ values is a log-probability, not a probability itself. Thus, if we want to start summing these $s$ iterations within cases, we'll need to exponentiate them into probabilities.
 
 ```{r}
-lppd_r(m7.1)
+prob <-
+  log_prob %>% 
+  # make it a data frame
+  data.frame() %>% 
+  # add case names, for convenience
+  set_names(pull(d, species)) %>% 
+  # add an s iteration index, for convenience
+  mutate(s = 1:n()) %>% 
+  # make it long
+  pivot_longer(-s,
+               names_to = "species",
+               values_to = "logprob") %>% 
+  # compute the probability scores
+  mutate(prob = exp(logprob))
+
+prob
 ```
 
-Happily, it returned the same results as McElreath's **R** code 7.13 (p. 210). Our **brms** analogue to the output from `sim(quap_fit, ll = TRUE, n = 1e4)` is to inset a `brm()` model fit into the `log_lik()` function. Although the way those two functions compute their output differs, the format is largely the same. With that in mind, here's a mild reworking of our `lppd_r()` function designed to work with **brms** fits.
+Now for each case, we take the average of each of the probability sores, and then take the log of that.
+
+```{r, message = F}
+prob <-
+  prob %>% 
+  group_by(species) %>% 
+  summarise(log_probability_score = mean(prob) %>% log())
+
+prob
+```
+
+For our last step, we sum those values up.
 
 ```{r}
-lppd_b <- function(brm_fit) {
-  
-  lp <- log_lik(brm_fit)
-  
-  ni <- ncol(lp)
-  ns <- nrow(lp)
-  
-  f <- function(i) {log_sum_exp(lp[, i]) - log(ns)}
-  
-  sapply(1:ni, f)
-  
-}
+prob %>% 
+  summarise(total_log_probability_score = sum(log_probability_score))
 ```
 
-Here's what it returns for `b7.1`.
-
-```{r}
-lppd_b(b7.1)
-```
-
-Given we fit the model with a different prior on $\sigma$ and with a different algorithm (HMC versus using the quadratic approximation), we might expect the results would differ a bit. Happily, the overall pattern is very similar. Here we compare the results from the two packages in a plot.
-
-```{r, fig.width = 6, fig.height = 1.75}
-tibble(rethinking = lppd_r(m7.1),
-       brms       = lppd_b(b7.1),
-       i          = factor(1:7)) %>% 
-  pivot_longer(-i) %>% 
-  
-  ggplot(aes(x = value, y = i)) +
-  geom_line(aes(group = i),
-            color = carto_pal(7, "BurgYl")[2], linetype = 3) +
-  geom_point(aes(color = name),
-             size = 2.5) +
-  scale_color_manual("package", values = carto_pal(7, "BurgYl")[c(4, 7)]) +
-  labs(x = "lppd",
-       y = expression(italic(i)))
-```
+That, my friends, is the log-pointwise-predictive-density, $\text{lppd}(y, \Theta)$.
 
 ### Scoring the right data.
 
-Here's a **tidyverse**-style approach for computing the lppd for each of our six **rethinking** models.
+Since we don't have a `lppd()` function for **brms**, we'll have to turn our workflow from the last two sections into a custom function. We'll call it `my_lppd()`.
 
-```{r}
-set.seed(1)
+```{r, message = F}
+my_lppd <- function(brms_fit) {
+  
+  log_lik(brms_fit) %>% 
+    data.frame() %>% 
+    pivot_longer(everything(),
+                 values_to = "logprob") %>% 
+    mutate(prob = exp(logprob)) %>% 
+    group_by(name) %>% 
+    summarise(log_probability_score = mean(prob) %>% log()) %>% 
+    summarise(total_log_probability_score = sum(log_probability_score))
+  
+}
+```
 
-tibble(name = str_c("m7.", 1:6)) %>% 
-  mutate(fit = purrr::map(name, get)) %>% 
-  mutate(lppd = purrr::map_dbl(fit, ~sum(lppd(.))))
+Here's a **tidyverse**-style approach for computing the lppd for each of our six **brms** models.
+
+```{r, message = F}
+tibble(name = str_c("b7.", 1:6)) %>% 
+  mutate(brms_fit = purrr::map(name, get)) %>% 
+  mutate(lppd = purrr::map(brms_fit, ~my_lppd(.))) %>% 
+  unnest(lppd)
 ```
 
 > When we usually have data and use it to fit a statistical model, the data comprise a **training sample**. Parameters are estimated from it, and then we can imagine using those estimates to predict outcomes in a new sample, called the **test sample**. R is going to do all of this for you. But here's the full procedure, in outline:
@@ -1824,7 +1876,7 @@ sessionInfo()
 ```
 
 ```{r, echo = F}
-rm(d, m7.1, R2_is_bad, m7.2, m7.3, m7.4, m7.5, m7.6, mass_seq, make_figure7.3, p1, p2, p3, p4, p5, p6, m7.1.1, brain_loo_lines, weatherperson, newcomer, p, t, l, b7.1, lppd_r, lppd_b, make_sim, n_sim, n_cores, kseq, s, n, dev_20, dev_100, dev_tibble, text, cars, b7.m, n_cases, ll, log_mu_l, lppd, v_i, pwaic, b6.6, b6.7, b6.8, w, b5.1, b5.2, b5.3, b5.3t, r2_b5.1, r2)
+rm(d, b7.1, R2_is_bad, b7.2, b7.3, b7.4, b7.5, custom_normal, stan_funs, custom_normal_lpdf, custom_normal_rng, stanvars, b7.6, posterior_epred_custom_normal, posterior_predict_custom_normal, log_lik_custom_normal, nd, make_figure7.3, p1, p2, p3, p4, p5, p6, b7.1.1, brain_loo_lines, b7.1_fits, b7.4_fits, weatherperson, newcomer, p, t, log_prob, prob, my_lppd, make_sim, n_sim, n_cores, kseq, s, n, dev_20, dev_100, dev_tibble, text, cars, b7.m, n_cases, ll, log_mu_l, lppd, v_i, pwaic, b6.6, b6.7, b6.8, w, b5.1, b5.2, b5.3, b5.3t, r2_b5.1, r2)
 ```
 
 ```{r, echo = F, message = F, warning = F, results = "hide"}
