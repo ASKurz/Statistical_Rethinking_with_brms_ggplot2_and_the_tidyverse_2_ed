@@ -1088,7 +1088,7 @@ m14.7 <-
 
 We don't get a lot of information from the default `precis()` output for this model, but at least we'll get a summary for $\alpha$.
 
-```{r}
+```{r, warning = F, message = F}
 precis(m14.7)
 ```
 
