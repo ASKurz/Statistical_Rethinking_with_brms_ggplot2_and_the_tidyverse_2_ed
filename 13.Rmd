@@ -1360,41 +1360,60 @@ p5 <-
 p5
 ```
 
-For the simulated actors plot, we'll just amend our process from the last one. This time we set `summary = F` to keep the iteration-specific results and set `nsamples = n_sim` to indicate the number of actors we'd like to simulate (i.e., 100, as in the text).
+We'll have to amend our workflow a bit to make a `fitted()` version of the third panel. First we redefine our `nd` data and execute the `fitted()` code.
 
-```{r, warning = F, message = F}
+```{r}
 # how many simulated chimps would you like?
 n_chimps <- 100
 
+nd <- 
+  distinct(d, treatment) %>% 
+  # define 100 new actors
+  expand(actor = str_c("new", 1:n_chimps),
+         treatment) %>% 
+  # this adds a row number, which will come in handy, later
+  mutate(row = 1:n())
+
+# fitted
 set.seed(13)
 
-(
-  f <-
+f <-
   fitted(b13.4,
          newdata = nd,
-         probs = c(.1, .9),
          allow_new_levels = T,
          sample_new_levels = "gaussian",
          summary = F,
-         nsamples = n_chimps) %>% 
-  data.frame() %>% 
-  set_names(1:4) %>% 
-  mutate(iter = 1:n_chimps) %>% 
-  pivot_longer(-iter) %>%
-  mutate(treatment = factor(name, labels = labels))
-)
+         nsamples = n_chimps)
 ```
 
-Plot.
+Our `f` object will need a lot of wrangling. Before I walk out the wrangling steps, we should reiterate what McElreath originally did in the text (pp. 429--430). He based the new actors on the deviation scores from `post$sigma_a`. That was the first working line in his **R** code 13.38. In the remaining lines in that code block, he used the model formula to compute the actor-level trajectories. Then in his plot code in **R** code 13.39, he just used the first 100 rows from that output.
+
+In our `fitted()` code, above, we saved a little time and computer memory by setting `nsamples = n_chimps`, which equaled 100. That's functionally the same as when McElreath used the first 100 posterior draws in the plot. A difficulty for us is the way `brms::fitted()` returns the output, the 100 new levels of `actor` and the four levels of `treatment` are confounded in the 400 columns. In the code block, below, the `data.frame()` through `left_join()` lines are meant to disentangle those two. After that, we'll make an `actor_number` variable, which which we'll filter the data such that the first row returned by `fitted()` is only assigned to the new actor #1, the second row is only assigned to the new actor #2, and so on. The result is that we have 100 new simulated actors, each of which corresponds to a different iteration of the posterior draws from the fixed effects[^1].
 
 ```{r, fig.width = 2.5, fig.height = 3.25}
 p6 <-
   f %>%
+  data.frame() %>% 
+  # name the columns by the `row` values in `nd`
+  set_names(pull(nd, row)) %>% 
+  # add an iteration index
+  mutate(iter = 1:n()) %>% 
+  # make it long
+  pivot_longer(-iter, names_to = "row") %>% 
+  mutate(row = as.double(row)) %>% 
+  # add the new data
+  left_join(nd, by = "row") %>% 
+  # extract the numbers from the names of the new actors
+  mutate(actor_number = str_extract(actor, "\\d+") %>% as.double()) %>% 
+  # only keep the posterior iterations that match the `actor_number` values
+  filter(actor_number == iter) %>% 
+  # add the `treatment` labels
+  mutate(treatment = factor(treatment, labels = labels)) %>% 
   
-  ggplot(aes(x = treatment, y = value, group = iter)) +
+  # plot!
+  ggplot(aes(x = treatment, y = value, group = actor)) +
   geom_line(alpha = 1/2, color = "blue") +
   ggtitle("100 simulated actors") +
-  coord_cartesian(ylim = 0:1) +
   theme(plot.title = element_text(size = 14, hjust = .5))
 
 p6
@@ -1757,16 +1776,17 @@ For a more advanced application, check out the paper by [Kolczynska](https://twi
 sessionInfo()
 ```
 
-```{r, warning = F, echo = F, eval = F}
+```{r, warning = F, echo = F}
 rm(d, b13.1, b13.2, w, post, post_mdn, p1, p2, b13.2b, text, a_bar, sigma, n_ponds, dsim, b13.3, p_partpool, dfline, new_dsim, b13.3_new, b13.4, levels, text, arrow, b13.5, b13.6, parameter_space, chimp, nd, labels, f, chimp_2_d, chimp_5_d, n_chimps, p3, p4, p5, p6, b13.7, age_prop, p, state_prop, cell_counts)
 ```
 
-```{r, echo = F, message = F, warning = F, results = "hide", eval = F}
+```{r, echo = F, message = F, warning = F, results = "hide"}
 ggplot2::theme_set(ggplot2::theme_grey())
 bayesplot::color_scheme_set("blue")
 # pacman::p_unload(pacman::p_loaded(), character.only = TRUE)
 ```
 
+[^1]: The `fitted()` version of the code for the third panel is cumbersome. Indeed, this in one of those cases where it seems more straightforward to work directly with the `posterior_samples()` output, rather than with `fitted()`. The workflow in this section from previous editions of this ebook was more streamlined and superficially seemed to work. However, fellow researcher [Ladislas Nalborczyk](https://twitter.com/lnalborczyk) kindly pointed out I was taking 100 draws from one new simulated `actor`, rather than one simulated draw from 100 new levels of `actor`. To my knowledge, if you want 100 new levels of `actor` AND want each one to be from a different posterior iteration, you'll need a lot of post-processing code when working with `fitted()`.
 
 ```{r, eval = F, echo = F}
 # For all you super nerds, here is my data wrangling code for the MRP example
