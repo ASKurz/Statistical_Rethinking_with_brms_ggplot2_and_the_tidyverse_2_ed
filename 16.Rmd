@@ -47,12 +47,10 @@ If we let $V$ stand for volume, $r$ stand for a radius, and $h$ stand for height
 $$V = \pi r^2 h.$$
 If we further presume a person's radius is unknown, but some proportion ($p$) of height ($ph$), we can rewrite the formula as
 
-$$
 \begin{align*}
 V & = \pi (ph)^2 h \\
   & = \pi p^2 h^3.
 \end{align*}
-$$
 
 Though we're not interested in volume per se, we might presume weight is some proportion of volume. Thus we could include a final parameter $k$ to stand for the conversion form weight to volume, leaving us with the formula
 
@@ -731,6 +729,8 @@ data(Lynx_Hare, package = "rethinking")
 glimpse(Lynx_Hare)
 ```
 
+As McElreath indicated in his endnote #238 (p. 570), this example is based on Stan case study by the great [Bob Carpenter](https://bob-carpenter.github.io/), [*Predator-prey population dynamics: The Lotka-Volterra model in Stan*](https://mc-stan.org/users/documentation/case-studies/lotka-volterra-predator-prey.html). You might bookmark that link. It'll come up later in this section.
+
 Figure 6.6 will give us a sense of how the lynx and hare populations ebbed and flowed.
 
 ```{r, fig.width = 6.5, fig.height = 3}
@@ -760,7 +760,7 @@ Lynx_Hare %>%
   theme(legend.position = "none")
 ```
 
-Note, however, that these are numbers of pelts, not of actual animals.
+Note, however, that these are numbers of pelts, not of actual animals. This will become important when we start modeling.
 
 A typical way to model evenly-spaced time series data like this would be with an autoregressive model with the basic structure
 
@@ -778,7 +778,7 @@ McElreath isn't a huge fan of these models, particularly from the scientific mod
 
 ### The scientific model.
 
-If we let $H_t$ be the number of hares at time $t$, we can express the **rate of change** in the hare population as
+We'll start off simple and focus first on hares. If we let $H_t$ be the number of hares at time $t$, we can express the **rate of change** in the hare population as
 
 $$\frac{\mathrm{d} H}{\mathrm{d} t} = H_t \times (\text{birth rate}) - H_t \times (\text{death rate}).$$
 
@@ -786,7 +786,7 @@ If we presume both birth rates and death rates (*mortality* rates) are constants
 
 $$\frac{\mathrm{d} H}{\mathrm{d} t} = H_t b_H - H_t m_H = H_t (b_H - m_H).$$
 
-If we let $L_t$ stand for the number of lynx present at time $t$, we can allow the mortality rate depend on that variable with the expanded formula
+Building, if we let $L_t$ stand for the number of lynx present at time $t$, we can allow the mortality rate depend on that variable with the expanded formula
 
 $$\frac{\mathrm{d} H}{\mathrm{d} t} = H_t (b_H - L_t m_H).$$
 
@@ -797,13 +797,15 @@ $$\frac{\mathrm{d} L}{\mathrm{d} t} = L_t (H_t b_L - m_L),$$
 where the lynx mortality rate ($m_l$) is now constant. This is called the **Lotka-Volterra model** [@lotkaPrinciplesOfPhysicalBiology1925; @volterraFluctuationsAbundanceSpecies1926]. You may have noticed how the above equations shifted our focus from what were were originally interested in, $\operatorname{E}(H_t)$, to a rate of change, $\mathrm{d} H / \mathrm{d} t$. Happily, our equation for $\mathrm{d} H / \mathrm{d} t$, "tells us how to update $H$ after each tiny unit of passing time $\mathrm d t$" (p. 544). You update by
 
 $$H_{t +\mathrm d t} = H_t + \mathrm d t \frac{\mathrm d H}{\mathrm d t} = H_t + \mathrm d t H_t (b_H - L_t m_H).$$
-Here we'll use the custom `sim_lynx_hare()` function to simulate how this can work. Our version of the function is very similar to the one McElreath displayed in his **R** code 16.14, but we changed it so it returns a tibble.
+Here we'll use a custom function called `sim_lynx_hare()` to simulate how this can work. Our version of the function is very similar to the one McElreath displayed in his **R** code 16.14, but we changed it so it returns a tibble which includes a time index, `t`.
 
 ```{r}
 sim_lynx_hare <- function(n_steps, init, theta, dt = 0.002) { 
   
   L <- rep(NA, n_steps)
   H <- rep(NA, n_steps)
+  
+  # set initial values
   L[1] <- init[1]
   H[1] <- init[2]
   
@@ -813,7 +815,8 @@ sim_lynx_hare <- function(n_steps, init, theta, dt = 0.002) {
   }
   
   # return a tibble
-  tibble(H = H,
+  tibble(t = 1:n_steps,
+         H = H,
          L = L)
   
 }
@@ -822,12 +825,14 @@ sim_lynx_hare <- function(n_steps, init, theta, dt = 0.002) {
 Now we simulate.
 
 ```{r}
+# set the four theta values
 theta <- c(0.5, 0.05, 0.025, 0.5)
 
 # simulate
 z <- sim_lynx_hare(n_steps = 1e4, 
-                   init = as.numeric(Lynx_Hare[1, 2:3]), 
-                   theta)
+                   init = c(filter(Lynx_Hare, Year == 1900) %>% pull("Lynx"), 
+                            filter(Lynx_Hare, Year == 1900) %>% pull("Hare")), 
+                   theta = theta)
 
 # what did we do?
 glimpse(z)
@@ -837,13 +842,12 @@ Each row is a stand-in index for time. Here we'll explicitly add a `time` column
 
 ```{r, fig.width = 4, fig.height = 3}
 z %>% 
-  mutate(time = 1:n()) %>% 
-  pivot_longer(-time) %>% 
+  pivot_longer(-t) %>% 
   
-  ggplot(aes(x = time, y = value, color = name)) +
+  ggplot(aes(x = t, y = value, color = name)) +
   geom_line(size = 1/4) +
   scale_color_grey(start = 0, end = .5) +
-  scale_x_continuous(breaks = NULL) +
+  scale_x_continuous(expression(time~(italic(t))), breaks = NULL) +
   scale_y_continuous("number (thousands)", breaks = 0:4 * 10, limits = c(0, 45)) +
   theme(legend.position = "none")
 ```
@@ -852,12 +856,12 @@ z %>%
 
 ### The statistical model.
 
-If we continue to let $H_t$ and $L_t$ be the number of hares and lynx at time $t$, we might also want to acknowledge the distinction between those numbers and our observations by letting $h_t$ and $l_t$ stand for the observed numbers of hares and lynx. These observed numbers, recall, are from counts of pelts. We want a statistical model that can connect $h_t$ to $H_t$ and connect $l_t$ to $L_t$. Part of that model would include the probability a hare was trapped on a given year, $p_h$, and a similar probability for a lynx getting trapped, $p_l$. To make things worse, further imagine the number of pelts for each, in a given year, was  rounded to the nearest $100$ and divided by $1{,}000$. Those are our values.
+If we continue to let $H_t$ and $L_t$ be the number of hares and lynx at time $t$, we might also want to rehearse the distinction between those numbers and our observations by letting $h_t$ and $l_t$ stand for the observed numbers of hares and lynx. These observed numbers, recall, are from counts of pelts. We want a statistical model that can connect $h_t$ to $H_t$ and connect $l_t$ to $L_t$. Part of that model would include the probability a hare was trapped on a given year, $p_h$, and a similar probability for a lynx getting trapped, $p_l$. To make things worse, further imagine the number of pelts for each, in a given year, was rounded to the nearest $100$ and divided by $1{,}000$. Those are our values.
 
 We practice simulating all this in Figure 16.8. Here we propose a population of $H_t = 10^4$ hares and an average trapping rate of about $10\%$, as expressed by $p_t \sim \operatorname{Beta}(2, 18)$. As described above, we then divide the number of observed pelts by $1{,}000$ and round the results, yielding $h_t$.
 
 ```{r, fig.width = 4, fig.height = 3}
-n <- 1e4
+n  <- 1e4
 Ht <- 1e4
 
 set.seed(16)
@@ -880,7 +884,7 @@ On page 546, McElreath encouraged us to try the simulation with different values
 ```{r, fig.width = 7, fig.height = 5}
 set.seed(16)
 
-# define the 3X3 grid
+# define the 3 X 3 grid
 tibble(shape1 = c(2, 10, 18),
        shape2 = c(18, 10, 2)) %>% 
   expand(nesting(shape1, shape2),
@@ -901,7 +905,7 @@ tibble(shape1 = c(2, 10, 18),
   # plot!
   ggplot(aes(x = ht)) +
   geom_histogram(aes(fill = beta == "italic(p[t])%~%'Beta '(2, 18)" & Htlab == "italic(H[t])==10000"),
-                 size = 1/10, binwidth = 0.25) +
+                 size = 1/10, binwidth = 0.25, boundary = 0) +
   geom_vline(aes(xintercept = Ht / 1000), 
              size = 1/4, linetype = 2) +
   scale_fill_grey(start = .67, end = 0, breaks = NULL) +
@@ -931,121 +935,410 @@ m_H & \sim \operatorname{Half-Normal}(0.5, 0.5) \\
 m_L & \sim \operatorname{Half-Normal}(1, 0.5).
 \end{align*}
 
-It's not immediately clear from the text, but if you look closely at the output from `cat(Lynx_Hare_model)` (see below), you'll see $\alpha_H = \alpha_L = 40$ and $\beta_H = \beta_L = 200$.
+It's not immediately clear from the text, but if you look closely at the output from `cat(Lynx_Hare_model)` (see below), you'll see $\alpha_H = \alpha_L = 40$ and $\beta_H = \beta_L = 200$. If you're curious, here's a plot of what the $\operatorname{Beta}(40, 200)$ prior looks like.
 
-Happily, Stan has built-in functions for solving differential equations [@standevelopmentteamStanReferenceManual2020, Chapter 13] and using them is, in principle, possible with **brms**, For an example of an ODE model with **brms**, see [Markus Gesmann](https://twitter.com/MarkusGesmann)'s blog post, [*PK/PD reserving models*](https://magesblog.com/post/2018-01-30-pkpd-reserving-models/). However, this model is beyond my current skill set. Instead of attempting to fit the model with `brms::brm()`, we'll follow McElreath's example and load his pre-written Stan code.
+```{r, fig.width = 5, fig.height = 2.5}
+set.seed(16)
+
+tibble(p = rbeta(n = 1e6, shape1 = 40, shape2 = 200)) %>%
+  
+  ggplot(aes(x = p)) +
+  geom_histogram(size = 1/6, binwidth = 0.005, boundary = 0,
+                 color = "white", fill = "grey67") +
+  scale_x_continuous(expression(prior~predictive~distribution~of~italic(p[H])~and~italic(p[L])), 
+                     breaks = 0:5 / 5, expand = c(0, 0), limits = c(0, 1)) +
+  scale_y_continuous(NULL, breaks = NULL, expand = expansion(mult = c(0, 0.05))) +
+  labs(subtitle = expression("1,000,000 draws from Beta"*(40*", "*200)))
+```
+
+The $\operatorname{Beta}(40, 200)$ prior suggests an average trapping rate near 16%.
+
+`r emo::ji("warning")` The content to follow is going to diverge from the text, a bit. As you can see from the equation, above, McElreath's statistical model is a beast. We can fit this model with **brms**, but the workflow is more complicated than usual. To make this material more approachable, I am going to divide the remainder of this section into two subsections. In the first subsection, we'll fit a simplified version of McElreath's `m16.5`, which does not contain the measurement-error portion. In the second subsection, we'll tack on the measurement-error portion and fit the full model. `r emo::ji("warning")`
+
+#### The simple Lotka-Volterra model
+
+Before we get into it, I should acknowledge that this **brms** approach to fitting ODE's is a direct result of the generous contributions from [Markus Gesmann](https://twitter.com/MarkusGesmann). It was one of his older blog posts, [*PK/PD reserving models*](https://magesblog.com/post/2018-01-30-pkpd-reserving-models/), that led me to believe one could fit an ODE model with **brms**. When I reached out to Gesmann on GitHub (see [Issue #18](https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed/issues/18)), he went so far as to write a new blog post on exactly this model: [*Fitting multivariate ODE models with brms*](https://magesblog.com/post/2021-02-08-fitting-multivariate-ode-models-with-brms/). The workflow to follow is something of a blend of the methods in his blog post, McElreath's model in the text, and the [original post](https://mc-stan.org/users/documentation/case-studies/lotka-volterra-predator-prey.html) by Carpenter that started this all.
+
+As far as the statistical model goes, we might express the revision of McElreath's model omitting the measurement-error portion as
+
+\begin{align*}
+h_t & \sim \operatorname{Log-Normal} \big (\log(H_t), \sigma_H \big) \\
+l_t & \sim \operatorname{Log-Normal} \big (\log(L_t), \sigma_L \big) \\
+H_1 & \sim \operatorname{Log-Normal}(\log 10, 1) \\
+L_1 & \sim \operatorname{Log-Normal}(\log 10, 1) \\
+H_{T >1} & = H_1 + \int_1^T H_t (b_H - m_H L_t) \mathrm{d} t \\
+L_{T >1} & = L_1 + \int_1^T L_t (b_L H_T - m_L) \mathrm{d} t \\
+b_H & \sim \operatorname{Half-Normal}(1, 0.5) \\
+b_L & \sim \operatorname{Half-Normal}(0.5, 0.5) \\
+m_H & \sim \operatorname{Half-Normal}(0.5, 0.5) \\
+m_L & \sim \operatorname{Half-Normal}(1, 0.5) \\
+\sigma_H & \sim \operatorname{Exponential}(1) \\
+\sigma_L & \sim \operatorname{Exponential}(1).
+\end{align*}
+
+With the exception of the priors for the $\sigma$ parameters, this is basically the same model Carpenter fit with his original Stan code. Carpenter expressed his model using a different style of notation, but the parts are all there.
+
+As for our **brms**, the first issue we need to address is that, at the time of this writing, **brms** is only set up to fit a univariate ODE model. As Gesmann pointed out, the way around this is to convert the `Lynx_Hare` data into the long format where the pelt values from the `Lynx` and `Hare` columns are all listed in a `pelts` columns and the two animal populations are differentiated in a `population` column. We'll call this long version of the data `Lynx_Hare_long`.
 
 ```{r}
-data(Lynx_Hare_model) 
-cat(Lynx_Hare_model)
+Lynx_Hare_long <-
+  Lynx_Hare %>% 
+  pivot_longer(-Year,
+               names_to = "population", 
+               values_to = "pelts") %>% 
+  mutate(delta = if_else(population == "Lynx", 1, 0),
+         t     = Year - min(Year) + 1) %>% 
+  arrange(delta, Year)
+
+# what did we do?
+head(Lynx_Hare_long)
 ```
 
-Fit the model directly with `rstan::stan()`.
+You'll note how we converted the information in the `population` column into a dummy variable, `delta`, which is coded 0 = hares, 1 = lynxes. It's that dummy variable that will allow us to adjust our model formula so we express a bivariate model as if it were univariate. You'll see. Also notice how we added a `t` index for *time*. This is because the Stan code to follow will expect us to index time in that way.
 
-```{r m16.5, echo = F}
-# save(list = c("dat_list", "m16.5"), file = "fits/m16.5.rda")
-
-load(file = "fits/m16.5.rda")
-```
-
-```{r, eval = F}
-dat_list <- list(
-  N     = nrow(Lynx_Hare), 
-  pelts = Lynx_Hare[, 2:3])
-
-m16.5 <- 
-  stan(model_code = Lynx_Hare_model, 
-       data = dat_list,
-       chains = 3, cores = 3,
-       seed = 16,
-       control = list(adapt_delta = .95))
-```
-
-Check the model summary.
-
-```{r, warning = F, message = F}
-precis(m16.5, depth = 2)
-```
-
-```{r, eval = F, echo = F}
-precis(m16.5, depth = 3)
-```
-
-For a more elaborate summary, execute `precis(m16.5, depth = 3)`. Here we extract the posterior samples with `extract.samples()`. Since this differs a bit from our typical **brms** workflow, we'll want to inspect the structure of its contents.
+The next step is to write a script that will tell **brms** how to tell Stan how to fit a Lotka-Volterra model. In his blog, Gesmann called this `LotkaVolterra`. Our script to follow is a very minor adjustment of his.
 
 ```{r}
-post <- extract.samples(m16.5) 
+LotkaVolterra <- "
+// Sepcify dynamical system (ODEs)
+real[] ode_LV(real t,         // time
+              real [] y,      // the system rate
+              real [] theta,  // the parameters (i.e., the birth and mortality rates)
+              real [] x_r,    // data constant, not used here
+              int [] x_i) {   // data constant, not used here
+  // the outcome
+  real dydt[2];
+  
+  // differential equations
+  dydt[1] = (theta[1] - theta[2] * y[2]) * y[1]; // Hare process
+  dydt[2] = (theta[3] * y[1] - theta[4]) * y[2]; // Lynx process
+  
+  return dydt;  // return a 2-element array
+              }
 
-post %>% 
-  glimpse()
+// Integrate ODEs and prepare output
+real LV(real t, real Hare0, real Lynx0, 
+        real brHare, real mrHare, 
+        real brLynx, real mrLynx,
+        real delta) {
+        
+  real y0[2];     // Initial values
+  real theta[4];  // Parameters
+  real y[1, 2];   // ODE solution
+  // Set initial values
+  y0[1] = Hare0; 
+  y0[2] = Lynx0;
+  // Set parameters
+  theta[1] = brHare; 
+  theta[2] = mrHare;
+  theta[3] = brLynx; 
+  theta[4] = mrLynx;
+  // Solve ODEs
+  y = integrate_ode_rk45(ode_LV, 
+                         y0, 0, rep_array(t, 1), theta,
+                         rep_array(0.0, 0), rep_array(1, 1),
+                         0.001, 0.001, 100); // tolerances, steps
+                         
+  // Return relevant population values based on our dummy-variable coding method
+  return (y[1, 1] * (1 - delta) + 
+          y[1, 2] * delta);
+}
+"
 ```
 
-To make our version of the top portion of Figure 16.9, we'll want to draw from the contents of `post$pelts_pred`.
+If you study this, you'll see echos of Carpenter's [original Stan code](https://mc-stan.org/users/documentation/case-studies/lotka-volterra-predator-prey.html#coding-the-model-stan-program) and connections to McElreath's Stan code (execute `cat(Lynx_Hare_model)` from his **R** code 16.17 block), too. But take special notice of the last two lines, above. Those lines use the `delta` dummy to differentiate the model results for the hare and lynx populations, respectively.
+
+Next we define our `formula` input. To keep from overwhelming the `brm()` code, we'll save it, here, as an independent object called `lv_formula`.
 
 ```{r}
+lv_formula <- 
+  bf(pelts ~ log(eta),
+     # use our LV() function from above
+     nlf(eta ~ LV(t, H1, L1, bh, mh, bl, ml, delta)),
+     # initial population state
+     H1 ~ 1, L1 ~ 1,
+     # hare parameters
+     bh ~ 1, mh ~ 1,
+     # lynx parameters
+     bl ~ 1, ml ~ 1,
+     # population-based measurement errors
+     sigma ~ 0 + population,
+     nl = TRUE
+  )
+```
+
+Note our use of the `LV()` function in the `nlf()` line. That's a function defined in the `LotkaVolterra` script, above, which will allow us to connect the variables and parameters in our `formula` code to the underlying statistical model. Next we define our priors and save them as an independent object called `lv_priors`.
+
+```{r}
+lv_priors <- c(
+  prior(lognormal(log(10), 1), nlpar = H1, lb = 0),
+  prior(lognormal(log(10), 1), nlpar = L1, lb = 0),
+  prior(normal(1, 0.5),     nlpar = bh, lb = 0),
+  prior(normal(0.05, 0.05), nlpar = bl, lb = 0),
+  prior(normal(0.05, 0.05), nlpar = mh, lb = 0),
+  prior(normal(1, 0.5),     nlpar = ml, lb = 0),
+  prior(exponential(1), dpar = sigma, lb = 0)
+)
+```
+
+We're finally ready to fit our model with **brms**! Are you excited? Notice our `stanvars` and `backend` settings[^1]. For the current version of **brms**, these are crucial. Also, I find these models benefit from setting `inits = 0`. Happily, this model fit in just about four minutes on my 2019 MacBook Pro.
+
+```{r b16.5a}
+b16.5a <- 
+  brm(data = Lynx_Hare_long, 
+      family = brmsfamily("lognormal", link_sigma = "identity"),
+      formula = lv_formula, 
+      prior = lv_priors, 
+      iter = 2000, warmup = 1000, chains = 4, cores = 4,
+      inits = 0,
+      stanvars = stanvar(scode = LotkaVolterra, block = "functions"),
+      backend = "cmdstan",
+      file = "fits/b16.05a")
+```
+
+On page 548, McElreath recommend we check the chains. Here we'll pretty them up with help from **bayesplot**.
+
+```{r, fig.width = 8, fig.height = 4, warning = F, message = F}
+library(bayesplot)
+
+color_scheme_set("gray")
+
+col_names <- c("italic(H)[1]", "italic(L)[1]", str_c("italic(", c("b[H]", "m[H]", "b[L]", "m[L]"), ")"), 
+               "sigma[italic(H)]", "sigma[italic(L)]", "lp__", "chain", "iter")
+
+posterior_samples(b16.5a, add_chain = T) %>% 
+  set_names(col_names) %>% 
+  
+  mcmc_trace(pars = vars(-iter, -lp__),
+             facet_args = list(labeller = label_parsed), 
+             size = .15) +
+  scale_x_continuous(breaks = NULL) +
+  theme(legend.key.size = unit(0.15, 'in'),
+        legend.position = c(.97, .13))
+```
+
+They look like a dream. Now inspect the parameter summary.
+
+```{r}
+print(b16.5a)
+```
+
+As Gesmann [covered in his blog](https://magesblog.com/post/2021-02-08-fitting-multivariate-ode-models-with-brms/#plot-posterior-simulations), we need to use the `brms::expose_functions()` function to expose Stan functions to **R** before we use some of our favorite post-processing functions. But the current version of **brms** will not allow one to do so for a model fit with `backend = "cmdstan"`. So we need an intermediary step where we compile the model with `backend = "rstan"`. Note the `chains = 0` setting.
+
+```{r b16.5a_rstan, warning = F, message = F, results = "hide"}
+b16.5a_rstan <- 
+  brm(data = Lynx_Hare_long, 
+      family = brmsfamily("lognormal", link_sigma = "identity"),
+      formula = lv_formula, 
+      prior = lv_priors, 
+      chains = 0,
+      stanvars = stanvar(scode = LotkaVolterra, block = "functions"),
+      backend = "rstan",
+      file = "fits/b16.05a_rstan")
+
+expose_functions(b16.5a_rstan, vectorize = TRUE)
+```
+
+Now we're ready to plot our results like McElreath did in Figure 16.9a. Our first step will be to use `predict()`.
+
+```{r}
+p <- 
+  predict(b16.5a, 
+          summary = F, 
+          # how many posterior predictive draws would you like?
+          nsamples = 21)
+
+str(p)
+```
+
+We're ready to plot!
+
+```{r, fig.width = 6.5, fig.height = 3}
 # for annotation
 text <-
-  tibble(name  = c("Hare", "Lynx"),
-         label = c("Lepus", "Lynx"),
-         year  = c(1914, 1916.5),
-         value = c(92, 54))
+  tibble(population = c("Hare", "Lynx"),
+         label      = c("Lepus", "Lynx"),
+         Year       = c(1914, 1916.5),
+         value      = c(92, 54))
 
-# subset the relevant posterior draws
-p1 <-
-  rbind(post$pelts_pred[1:21, 1:21, 2],
-        post$pelts_pred[1:21, 1:21, 1])%>% 
-  # wrangle
+# wrangle
+p %>% 
   data.frame() %>% 
-  set_names(1900:1920) %>% 
-  mutate(iter = rep(1:21, times = 2),
-         name = rep(c("Hare", "Lynx"), each = 21)) %>% 
-  pivot_longer(-c(iter, name), names_to = "year") %>% 
-  mutate(year = as.numeric(year)) %>% 
-  
-  # plot
-  ggplot(aes(x = year, y = value)) +
-  geom_line(aes(group = interaction(iter, name), color = name),
+  set_names(1:42) %>% 
+  mutate(iter = 1:n()) %>% 
+  pivot_longer(-iter, names_to = "row") %>% 
+  mutate(row = as.double(row)) %>% 
+  left_join(Lynx_Hare_long %>% mutate(row  = 1:n()),
+            by = "row") %>% 
+
+  # plot!
+  ggplot(aes(x = Year, y = value)) +
+  geom_line(aes(group = interaction(iter, population), color = population),
             size = 1/3, alpha = 1/2) +
-  geom_point(data = Lynx_Hare %>% pivot_longer(Lynx:Hare),
-             aes(x = Year, fill = name),
-             size = 3, shape = 21, stroke = 1/4, color = "white") +
+  geom_point(data = . %>% filter(iter == 1),
+             aes(x = Year, fill = population),
+             size = 3, shape = 21, stroke = 1/5, color = "white") +
   geom_text(data = text,
-            aes(label = label, color = name),
+            aes(label = label, color = population),
             hjust = 0, family = "Times") +
   scale_color_grey(start = 0, end = .5, breaks = NULL) +
   scale_fill_grey(start = 0, end = .5, breaks = NULL) +
-  scale_x_continuous(NULL, breaks = NULL) +
   scale_y_continuous("thousands of pelts", breaks = 0:6 * 20) +
   coord_cartesian(ylim = c(0, 120))
 ```
 
-The workflow for the bottom portion of Figure 16.9 will be very similar. The main difference is this time we're subsetting the posterior draws from `post$pop`.
+Since this version of the model didn't include a measurement-error process, we don't have a clear way to make an analogue of Figure 16.9b. We'll contend with that in the next section.
 
-```{r, fig.width = 6.5, fig.height = 6}
-# subset the relevant posterior draws
-p2 <-
-  rbind(post$pop[1:21, 1:21, 2],
-        post$pop[1:21, 1:21, 1])%>% 
+#### 16.4.2.2 Add a measurement-error process to the Lotka-Volterra model
+
+Now we have a sense of what the current Lotka-Volterra workflow looks like for **brms**, we're ready to complicate our model a bit. Happily, we won't need to update our `LotkaVolterra` code. That's good as it is. But we will need to make a couple minor adjustments to our model `formula` object, which we now call `lv_formula_error`. Make special note of the first `bf()` line and the last line before we set `nl = TRUE`. That's where all the measurement-error action is at.
+
+```{r}
+lv_formula_error <- 
+  # this is new
+  bf(pelts ~ log(eta * p),
+     nlf(eta ~ LV(t, H1, L1, bh, mh, bl, ml, delta)),
+     H1 ~ 1, L1 ~ 1,
+     bh ~ 1, mh ~ 1,
+     bl ~ 1, ml ~ 1,
+     sigma ~ 0 + population,
+     # this is new, too
+     p ~ 0 + population,
+     nl = TRUE
+  )
+```
+
+Update the priors and save them as `lv_priors_error`.
+
+```{r}
+lv_priors_error <- c(
+  prior(lognormal(log(10), 1), nlpar = H1, lb = 0),
+  prior(lognormal(log(10), 1), nlpar = L1, lb = 0),
+  prior(normal(1, 0.5),     nlpar = bh, lb = 0),
+  prior(normal(0.05, 0.05), nlpar = bl, lb = 0),
+  prior(normal(0.05, 0.05), nlpar = mh, lb = 0),
+  prior(normal(1, 0.5),     nlpar = ml, lb = 0),
+  prior(exponential(1), dpar = sigma, lb = 0),
+  # here's our new prior setting
+  prior(beta(40, 200), nlpar = p, lb = 0, ub = 1)
+)
+```
+
+That wasn't all that bad, was it? Okay, fit the full **brms** analogue to McElreath's `m16.5`. If you followed along closely, all should go well.
+
+```{r b16.5b}
+b16.5b <- 
+  brm(data = Lynx_Hare_long, 
+      family = brmsfamily("lognormal", link_sigma = "identity"),
+      formula = lv_formula_error, 
+      prior = lv_priors_error, 
+      iter = 2000, warmup = 1000, chains = 4, cores = 4,
+      inits = 0,
+      stanvars = stanvar(scode = LotkaVolterra, block = "functions"),
+      backend = "cmdstan",
+      file = "fits/b16.05b")
+```
+
+Once again, check the quality of the chains.
+
+```{r, fig.width = 8, fig.height = 4, warning = F, message = F}
+col_names <- c("italic(H)[1]", "italic(L)[1]", str_c("italic(", c("b[H]", "m[H]", "b[L]", "m[L]"), ")"), 
+               "italic(p[H])", "italic(p[L])", "sigma[italic(H)]", "sigma[italic(L)]", "lp__", "chain", "iter")
+
+posterior_samples(b16.5b, add_chain = T) %>% 
+  set_names(col_names) %>% 
+  
+  mcmc_trace(pars = vars(-iter, -lp__),
+             facet_args = list(labeller = label_parsed), 
+             size = .15) +
+  scale_x_continuous(breaks = NULL) +
+  theme(legend.key.size = unit(0.15, 'in'),
+        legend.position = c(.55, .13))
+```
+
+They look great! Now inspect the model parameter summary.
+
+```{r}
+print(b16.5b)
+```
+
+If you fit McElreath's `m16.5`, you'll see our parameter summaries are very similar to his. Okay, we're now ready to make the real analogue of McElreath's Figure 16.9. First we'll make and save the plot for the top panel.
+
+```{r}
+p1 <-
+  # get the posterior predictive draws
+  predict(b16.5b, 
+          summary = F, 
+          # how many posterior predictive draws would you like?
+          nsamples = 21) %>%
   # wrangle
   data.frame() %>% 
-  set_names(1900:1920) %>% 
-  mutate(iter = rep(1:21, times = 2),
-         name = rep(c("Hare", "Lynx"), each = 21)) %>% 
-  pivot_longer(-c(iter, name), names_to = "year") %>% 
-  mutate(year = as.numeric(year)) %>% 
-  
-  # plot
-  ggplot(aes(x = year, y = value)) +
-  geom_line(aes(group = interaction(iter, name), color = name),
+  set_names(1:42) %>% 
+  mutate(iter = 1:n()) %>% 
+  pivot_longer(-iter, names_to = "row") %>% 
+  mutate(row = as.double(row)) %>% 
+  left_join(Lynx_Hare_long %>% mutate(row = 1:n()),
+            by = "row") %>% 
+
+  # plot!
+  ggplot(aes(x = Year, y = value)) +
+  geom_line(aes(group = interaction(iter, population), color = population),
+            size = 1/3, alpha = 1/2) +
+  geom_point(data = . %>% filter(iter == 1),
+             aes(x = Year, fill = population),
+             size = 3, shape = 21, stroke = 1/5, color = "white") +
+  geom_text(data = text,
+            aes(label = label, color = population),
+            hjust = 0, family = "Times") +
+  scale_color_grey(start = 0, end = .5, breaks = NULL) +
+  scale_fill_grey(start = 0, end = .5, breaks = NULL) +
+  scale_y_continuous("thousands of pelts", breaks = 0:6 * 20) +
+  scale_x_continuous(NULL, breaks = NULL) +
+  coord_cartesian(ylim = c(0, 120))
+```
+
+Our workflow for the second panel will differ a bit from above and a lot from McElreath's **rethinking**-based workflow. In essence, we won't get the same kind of output McElreath got when he executed `post <- extract.samples(m16.5)`. Our `post <- posterior_samples(b16.5b)` call only get's us part of the way there. So we'll have to be tricky and supplement those results with a little `fitted()` magic.
+
+```{r}
+post <- posterior_samples(b16.5b)
+
+f <-
+  fitted(b16.5b,
+         summary = F)
+```
+
+Now we're ready to make our version of the bottom panel of Figure 16.9. The trick is to divide our `fitted()` based results by the appropriate posterior draws from our $p$ parameters. This is a way of hand computing the `post$pop` values McElreath showed off in his **R** code 16.20 block.
+
+```{r}
+p2 <-
+  cbind(f[, 1:21]  / post$b_p_populationHare,
+        f[, 22:42] / post$b_p_populationLynx) %>% 
+  data.frame() %>% 
+  set_names(1:42) %>% 
+  mutate(iter = 1:n()) %>% 
+  pivot_longer(-iter, names_to = "row") %>% 
+  mutate(row = as.double(row)) %>% 
+  left_join(Lynx_Hare_long %>% mutate(row = 1:n()),
+            by = "row")  %>% 
+  filter(iter < 22) %>% 
+
+  # plot!
+  ggplot(aes(x = Year, y = value)) +
+  geom_line(aes(group = interaction(iter, population), color = population),
             size = 1/3, alpha = 1/2) +
   scale_color_grey(start = 0, end = .5, breaks = NULL) +
+  scale_fill_grey(start = 0, end = .5, breaks = NULL) +
   scale_y_continuous("thousands of animals", breaks = 0:5 * 100) +
   coord_cartesian(ylim = c(0, 500))
-
-# combine and add a title
-p1 / p2 + 
-  plot_annotation(title = "Posterior predictions for the lynx-hare model")
 ```
+
+Now combine the two ggplot2 with **patchwork** to make the full Figure 16.9 in all its glory.
+
+```{r, fig.width = 6.5, fig.height = 6}
+p1 / p2
+```
+
+Boom!
 
 ### ~~Lynx lessons~~ Bonus: Practice with the autoregressive model.
 
@@ -1253,11 +1546,11 @@ The kinds autoregressive models we fit in this section are special cases of what
 sessionInfo()
 ```
 
-```{r, warning = F, echo = F, eval = F}
-rm()
+```{r, warning = F, echo = F}
+rm(d, b16.1, my_lower, my_diag, my_upper, nd, p, n, Boxes_model, dat_list, m16.2, label, at, n_samples, prior, p1, p2, b16.4, Lynx_Hare, text, sim_lynx_hare, theta, z, Ht, Lynx_Hare_long, LotkaVolterra, LV, ode_LV, lv_formula, lv_priors, b16.5a, col_names, b16.5a_rstan, lv_formula_error, lv_priors_error, b16.5b, post, f, b16.6, b16.7, b16.8, b16.9)
 ```
 
-```{r, echo = F, message = F, warning = F, results = "hide", eval = F}
+```{r, echo = F, message = F, warning = F, results = "hide"}
 ggplot2::theme_set(ggplot2::theme_grey())
 # pacman::p_unload(pacman::p_loaded(), character.only = TRUE)
 ```
