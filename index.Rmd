@@ -130,6 +130,38 @@ I'd like to thank the following for their helpful contributions:
 
 Science is better when we work together.
 
+## **R** setup {-}
+
+To get the full benefit from this ebook, you'll need some software. Happily, everything will be free (provided you have access to a decent personal computer and an good internet connection).
+
+First, you'll need to install **R**, which you can learn about at [https://cran.r-project.org/](https://cran.r-project.org/).
+
+Though not necessary, your **R** experience might be more enjoyable if done through the free RStudio interface, which you can learn about at [https://rstudio.com/products/rstudio/](https://rstudio.com/products/rstudio/).
+
+Once you have installed **R**, execute the following to install the bulk of the add-on packages. This will probably take a few minutes to finish. Go make yourself a coffee.
+
+```{r, eval = F}
+packages <- c("ape", "bayesplot", "brms", "broom", "dagitty", "devtools", "GGally", "ggdag", "ggdark", "ggrepel", "ggthemes", "ggtree", "ghibli", "gtools", "loo", "patchwork", "psych", "rcartocolor", "Rcpp", "remotes", "rethinking", "rstan", "StanHeaders", "statebins", "tidybayes", "tidyverse", "viridis", "viridisLite", "wesanderson")
+
+install.packages(packages, dependencies = T)
+```
+
+A few of the other packages are not officially available via the Comprehensive R Archive Network (https://cran.r-project.org/). You can download them directly from GitHub by executing the following.
+
+```{r, eval = F}
+devtools::install_github("stan-dev/cmdstanr")
+devtools::install_github("EdwinTh/dutchmasters")
+devtools::install_github("gadenbuie/ggpomological")
+devtools::install_github("UrbanInstitute/urbnmapr")
+remotes::install_github("stan-dev/posterior")
+```
+
+It's possible you'll have problems installing some of these packages. Here are some likely suspects and where you can find help:
+
+* for difficulties installing **cmdstanr**, go to [https://mc-stan.org/cmdstanr/articles/cmdstanr.html](https://mc-stan.org/cmdstanr/articles/cmdstanr.html);
+* for difficulties installing **rethinking**, go to [https://github.com/rmcelreath/rethinking#quick-installation](https://github.com/rmcelreath/rethinking#quick-installation); and
+* for difficulties installing **rstan**, go to [https://github.com/stan-dev/rstan/wiki/RStan-Getting-Started](https://github.com/stan-dev/rstan/wiki/RStan-Getting-Started).
+
 ## License and citation {-}
 
 This book is licensed under the Creative Commons Zero v1.0 Universal license. You can learn the details, [here](https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed/blob/master/LICENSE). In short, you can use my work. Just make sure you give me the appropriate credit the same way you would for any other scholarly resource. Here's the citation information:
