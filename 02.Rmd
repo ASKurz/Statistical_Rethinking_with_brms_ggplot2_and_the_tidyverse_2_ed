@@ -1082,6 +1082,7 @@ sessionInfo()
 rm(d, lines_1, lines_2, n_blue, n_white, t, move_over, ways, sequence_length, p1, p2, p3, globe_qa, globe_qa_18, globe_qa_36, n_grid, b2.1)
 ```
 
+
 ```{r, echo = F, warning = F, message = F, results = "hide"}
 # pacman::p_unload(pacman::p_loaded(), character.only = TRUE)
 ```
