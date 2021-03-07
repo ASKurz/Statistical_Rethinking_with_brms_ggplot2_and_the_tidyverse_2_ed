@@ -299,8 +299,6 @@ y_i   & \sim \operatorname{Normal}(\mu_i, \sigma) \\
 Accordingly, here's the posterior of the sum of the two regression coefficients, Figure 6.2.b. We'll use `tidybayes::stat_halfeye()` to both plot the density and mark off the posterior median and percentile-based 95% probability intervals at its base.
 
 ```{r, fig.width = 3, fig.height = 3, warning = F, message = F}
-library(tidybayes)
-
 post %>% 
   ggplot(aes(x = b_leg_left + b_leg_right, y = 0)) +
   stat_halfeye(point_interval = median_qi, 
@@ -364,12 +362,6 @@ d <-
   mutate(k = rethinking::standardize(kcal.per.g),
          f = rethinking::standardize(perc.fat),
          l = rethinking::standardize(perc.lactose))
-```
-
-Now load **brms**.
-
-```{r, message = F}
-library(brms)
 ```
 
 We'll follow the text and fit the two univariable models, first. Note our use of the `update()` function.
