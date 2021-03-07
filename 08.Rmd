@@ -37,7 +37,6 @@ library(brms)
 For this chapter, we'll take our plot theme from the [**ggthemes** package](https://cran.r-project.org/package=ggthemes) [@R-ggthemes].
 
 ```{r, message = F}
-# install.packages("ggthemes", dependencies = T)
 library(tidyverse)
 library(ggthemes)
 

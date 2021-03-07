@@ -183,7 +183,6 @@ theme_set(
 For the rest of our color palette, we'll use colors from the [**viridis** package](https://github.com/sjmgarnier/viridis) [@R-viridis], which provides a variety of colorblind-safe color palettes [see @rudisViridisColorPalettes2018].
 
 ```{r, message = F, warning = F}
-# install.packages("viridis")
 library(viridis)
 ```
 

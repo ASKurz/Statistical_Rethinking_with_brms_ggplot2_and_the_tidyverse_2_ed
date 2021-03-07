@@ -62,7 +62,6 @@ For more on the formula syntax we used within `mutate_all()`, you might check ou
 Anyway, we're almost ready to plot, which brings us to color. For the plots in this chapter, we'll be taking our color palettes from the [**ghibli** package](https://github.com/ewenme/ghibli) [@R-ghibli], which provides palettes based on scenes from anime films by the Studio Ghibli.
 
 ```{r, message = F, warning = F}
-# install.packages("ghibli", dependencies = T)
 library(ghibli)
 ```
 

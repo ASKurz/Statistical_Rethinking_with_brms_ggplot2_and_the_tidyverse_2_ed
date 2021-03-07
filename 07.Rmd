@@ -58,7 +58,6 @@ library(tidyverse)
 Let's get ready for Figure 7.2. The plots in this chapter will be characterized by `theme_classic() + theme(text = element_text(family = "Courier"))`. Our color palette will come from the [**rcartocolor** package](https://CRAN.R-project.org/package=rcartocolor) [@R-rcartocolor], which provides color schemes [designed by 'CARTO'](https://carto.com/carto-colors/).
 
 ```{r}
-# install.packages("rcartocolor", dependencies = T)
 library(rcartocolor)
 ```
 

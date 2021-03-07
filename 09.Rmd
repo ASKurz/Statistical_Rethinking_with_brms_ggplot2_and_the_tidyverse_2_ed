@@ -50,7 +50,6 @@ for (i in 1:num_weeks) {
 In this chapter, we'll take our plotting theme from the [**ggpomological** package](https://github.com/gadenbuie/ggpomological) [@R-ggpomological].
 
 ```{r, warning = F, message = F}
-# devtools::install_github("gadenbuie/ggpomological")
 library(ggpomological)
 ```
 
@@ -820,7 +819,6 @@ That's just what we like to see--nice L-shaped autocorrelation plots. Those are 
 Before we move on, there's an important difference between the trace plots McElreath showed in the text and the ones we just made. McElreath's trace plots include the warmup iterations. Ours did not. To my knowledge, neither the `brms::plot()` nor the `bayesplot::mcmc_trace()` functions support including warmups in their trace plots. One quick way to get them is with the [**ggmcmc** package](https://cran.rstudio.com/package=ggmcmc) [@R-ggmcmc; @marinGgmcmcAnalysisMCMC2016].
 
 ```{r, message = F, warning = F}
-# install.packages("ggmcmc", dependencies = T)
 library(ggmcmc)
 ```
 

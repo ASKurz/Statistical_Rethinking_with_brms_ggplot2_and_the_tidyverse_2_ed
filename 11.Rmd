@@ -104,7 +104,6 @@ b11.1 <-
 Before we go any further, let's discuss the plot theme. For this chapter, we'll take our color scheme from the `"Moonrise2"` palette from the [**wesanderson** package](https://cran.r-project.org/package=wesanderson) [@R-wesanderson].
 
 ```{r, message = F, fig.width = 3, fig.height = 1}
-# install.packages("wesanderson", dependencies = T)
 library(wesanderson)
 wes_palette("Moonrise2")
 wes_palette("Moonrise2")[1:4]
