@@ -29,10 +29,13 @@ There are a lot of great points, themes, methods, and factoids in this text. For
 Anyway, McElreath left us no code or figures to translate in this chapter. But before you skip off to the next one, why not invest a little time soaking in this chapter's material by way of a lecture by McElreath, himself? He's an engaging speaker and the material in his online lectures does not entirely overlap with that in the text. Here's the first lecture from his Winter 2019 course:
 
 ```{r, echo = F, message = F}
-library(magrittr)
+# library(magrittr)
+# 
+# vembedr::embed_url("https://www.youtube.com/watch?v=4WVelCswXo4&list=PLDcUM9US4XdNM4Edgs7weiyIguLSToZRI") %>%
+#   vembedr::use_align("center")
 
-vembedr::embed_url("https://www.youtube.com/watch?v=4WVelCswXo4&list=PLDcUM9US4XdNM4Edgs7weiyIguLSToZRI") %>%
-  vembedr::use_align("center")
+vembedr::use_align(vembedr::embed_url("https://www.youtube.com/watch?v=4WVelCswXo4&list=PLDcUM9US4XdNM4Edgs7weiyIguLSToZRI"), 
+                   "center")
 ```
 
 ## Session info {-}
