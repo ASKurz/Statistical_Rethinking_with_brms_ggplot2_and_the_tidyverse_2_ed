@@ -1,0 +1,107 @@
+---
+title: "Ch. 11 God Spiked the Integers"
+author: "A Solomon Kurz"
+date: "`r format(Sys.Date())`"
+output:
+  github_document
+bibliography: bib.bib
+biblio-style: apalike
+csl: apa.csl
+link-citations: yes
+---
+
+<Note, flextable tables will not render with github_document. They should be fine for the final book.>
+
+```{r, echo = F, cache = F}
+knitr::opts_chunk$set(fig.retina = 2.5)
+knitr::opts_chunk$set(fig.align = "center")
+options(width = 110)
+```
+
+# God Spiked the Integers
+
+## Binomial regression
+
+### Logistic regression: Prosocial chimpanzees.
+
+Load the @silkChimpanzeesAreIndifferent2005 `chimpanzees` data.
+
+```{r, message = F, warning = F}
+data(chimpanzees, package = "rethinking")
+d <- chimpanzees
+rm(chimpanzees)
+```
+
+The data include two experimental conditions, `prosoc_left` and `condition`, each of which has two levels. This results in four combinations.
+
+```{r, message = F, warning = F}
+library(tidyverse)
+library(flextable)
+
+d %>% 
+  distinct(prosoc_left, condition) %>% 
+  mutate(description = c("Two food items on right and no partner",
+                         "Two food items on left and no partner",
+                         "Two food items on right and partner present",
+                         "Two food items on left and partner present")) %>% 
+  flextable() %>% 
+  width(width = c(1, 1, 4))
+```
+
+#### Overthinking: Adding log-probability calculations to a Stan model.
+
+### Relative shark and absolute deer.
+
+### Aggregated binomial: Chimpanzees again, condensed.
+
+### Aggregated binomial: Graduate school admissions.
+
+#### Rethinking: Simpson's paradox is not a paradox.
+
+## Poisson regression
+
+### Example: Oceanic tool complexity.
+
+#### Overthinking: Modeling tool innovation.
+
+### Negative binomial (gamma-Poisson) models.
+
+### Example: Exposure and the offset.
+
+## Multinomial and categorical models
+
+### Predictors matched to outcomes.
+
+.
+.
+.
+
+With the **brms** non-linear syntax, we can fit the model with one $\beta$ parameter or allow the one $\beta$ parameter to differ for `mu1` and `mu2`. As to setting a lower bound to the `b` parameter[s], we can do that with the `lb` argument within the `prior()` function. If we fit our version of `m11.13` by systemically varying these two features, we'll end up with the four versions listed in the table below.
+
+```{r}
+crossing(b  = factor(c("b1 & b2", "b"), levels = c("b1 & b2", "b")),
+         lb = factor(c("NA", 0), levels = c("NA", 0))) %>% 
+  mutate(fit = str_c("b11.13", letters[1:n()])) %>% 
+  select(fit, everything()) %>% 
+  
+  flextable() %>% 
+  width(width = 1.25)
+```
+
+## Session info {-}
+
+```{r}
+sessionInfo()
+```
+
+```{r, echo = F, eval = F}
+rm(d, b11.1, b11.1b, b11.2, b11.3, prior, b11.4, post, tx, p1, nd, p2, b11.5, d_aggregated, b11.6, text, b11.7, p, b11.8, dag_coords, my_upper, my_diag, my_lower, n, b11.9, b11.10, cultures, f, b11.11, num_days, y, num_weeks, y_new, b11.12, income, score, career, i, code_m11.13, dat_list, m11.13, s1, s2_orig, s2_new, p_orig, p_new, p_diff, b11.13io, b11.13io_verbose, b11.13io_nonlinear, b11.13a, b11.13b, b11.13c, b11.13d, family_income, b, b11.14, b11.binom, b11.pois, k, b11.15, medians)
+```
+
+```{r, echo = F, message = F, warning = F, results = "hide", eval = F}
+ggplot2::theme_set(ggplot2::theme_grey())
+bayesplot::color_scheme_set("blue")
+# pacman::p_unload(pacman::p_loaded(), character.only = TRUE)
+```
+
+[^1]: Though McElreath didn't cover it, here, it's also fine to fit binomial models using the probit link. @gelmanRegressionOtherStories2020 covered probit regression in Section 15.4. With **brms**, it's simply a matter of setting `family = binomial(link = "probit")` within `brm()`.
