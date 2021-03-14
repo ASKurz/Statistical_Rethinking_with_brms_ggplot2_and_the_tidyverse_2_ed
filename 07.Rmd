@@ -639,7 +639,7 @@ p <- c(.7, .15, .15)
 -sum(p * log(p))
 ```
 
-"These entropy values by themselves don’t mean much to us, though. Instead we can use them to build a measure of accuracy. That comes next" (p. 206).
+"These entropy values by themselves don't mean much to us, though. Instead we can use them to build a measure of accuracy. That comes next" (p. 206).
 
 ### From entropy to accuracy.
 
@@ -1613,7 +1613,7 @@ Alternatively, we could have extracted that value from our `b5.3` fit object lik
 b5.3$criteria$loo$diagnostics$pareto_k[13]
 ```
 
-`r round(b5.3$criteria$loo$diagnostics$pareto_k[13], 2)` is a little high, but not high enough to cause `loo()` to return a warning message. Once a Pareto $k$ value crosses the 0.7 threshold, though, the **loo** package will bark. Before we make our version of Figure 7.10, we’ll want to compute the WAIC for `b5.3`. That will give us access to the $p_\text{WAIC}$.
+`r round(b5.3$criteria$loo$diagnostics$pareto_k[13], 2)` is a little high, but not high enough to cause `loo()` to return a warning message. Once a Pareto $k$ value crosses the 0.7 threshold, though, the **loo** package will bark. Before we make our version of Figure 7.10, we'll want to compute the WAIC for `b5.3`. That will give us access to the $p_\text{WAIC}$.
 
 ```{r, warning = F, message = F}
 b5.3 <- add_criterion(b5.3, "waic", file = "fits/b05.03")
@@ -1755,7 +1755,6 @@ bind_rows(posterior_samples(b5.3),
 Overall, the coefficients are very similar between the two models. The most notable difference is in $\sigma$. This is, in part, because $\sigma$ has a slightly different meaning for Student-$t$ models than it does for the Gaussian. For both, we can refer to $\sigma$ as the *scale* parameter, with is a measure of spread or variability around the mean. However, the scale is the same thing as the standard deviation only for the Gaussian. Kruschke walked this out nicely:
 
 > It is important to understand that the scale parameter $\sigma$ in the $t$ distribution is not the standard deviation of the distribution. (Recall that the standard deviation is the square root of the variance, which is the expected value of the squared deviation from the mean, as defined back in Equation 4.8, p. 86.) The standard deviation is actually larger than $\sigma$ because of the heavy tails. In fact, when $\nu$drops below 2 (but is still $\geq 1$), the standard deviation of the mathematical $t$ distribution goes to infinity. [-@kruschkeDoingBayesianData2015, p. 159]
-
 
 The variance for $\operatorname{Student-t}(\nu, 0, 1)$ is 
 
