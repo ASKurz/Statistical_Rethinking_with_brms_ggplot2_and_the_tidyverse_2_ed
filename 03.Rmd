@@ -121,7 +121,7 @@ Yep, that's more ideal.
 
 ### Intervals of defined boundaries.
 
-To get the proportion of water less than some value of `p_grid` within the tidyverse, you might first `filter()` by that value and then take the `sum()` within `summarise()`.
+To get the proportion of water less than some value of `p_grid` within the **tidyverse**, you might first `filter()` by that value and then take the `sum()` within `summarise()`.
 
 ```{r}
 d %>% 
@@ -209,7 +209,6 @@ p2 <-
        y = "density")
 
 library(patchwork)
-
 p1 + p2
 ```
 
@@ -342,7 +341,7 @@ mode_hdi(samples$p_grid, .width = .5)
 
 This time we used the mode as the measure of central tendency. With this family of **tidybayes** functions, you specify the measure of central tendency in the prefix (i.e., `mean`, `median`, or `mode`) and then the type of interval you'd like (i.e., `qi` or `hdi`).
 
-If all you want are the intervals without the measure of central tendency or all that other technical information, tidybayes also offers the handy `qi()` and `hdi()` functions. 
+If all you want are the intervals without the measure of central tendency or all that other technical information, tidybayes also offers the handy `qi()` and `hdi()` functions.
 
 ```{r}
 qi(samples$p_grid, .width = .5)
@@ -384,7 +383,7 @@ In the `geom_area()` line for the HPDI plot, did you notice how we replaced `d` 
 
 > So the HPDI has some advantages over the PI. But in most cases, these two types of interval are very similar. They only look so different in this case because the posterior distribution is highly skewed. If we instead used samples from the posterior distribution for six waters in nine tosses, these intervals would be nearly identical. Try it for yourself, using different probability masses, such as `prob=0.8` and `prob=0.95`. When the posterior is bell shaped, it hardly matters which type of interval you use. (p. 57)
 
-Let's try it out. First we'll update the simulation for six waters in nine tosses. 
+Let's try it out. First we'll update the simulation for six waters in nine tosses.
 
 ```{r}
 # "six waters in nine tosses"
@@ -914,7 +913,7 @@ Let's look at `rle()` again.
 rle(tosses)
 ```
 
-We can use the length of the output (i.e., 7 in this example) as the numbers of switches from, in this case, "w" and "l". 
+We can use the length of the output (i.e., 7 in this example) as the numbers of switches from, in this case, "w" and "l".
 
 ```{r}
 rle(tosses)$lengths %>% length()
@@ -962,14 +961,14 @@ b3.1 <-
       file = "fits/b03.01")
 ```
 
-We'll learn more about the beta distribution in Chapter 11. But for now, here's the posterior summary for `b_Intercept`, the probability of a "w".
+We'll learn more about the beta distribution in [Chapter 12][Monsters and Mixtures]. But for now, here's the posterior summary for `b_Intercept`, the probability of a "w".
 
 ```{r}
 posterior_summary(b3.1)["b_Intercept", ] %>% 
   round(digits = 2)
 ```
 
-As we'll fully cover in the next chapter, `Estimate` is the posterior mean, the two `Q` columns are the quantile-based 95% intervals, and `Est.Error` is the posterior standard deviation. 
+As we'll fully cover in the next chapter, `Estimate` is the posterior mean, the two `Q` columns are the quantile-based 95% intervals, and `Est.Error` is the posterior standard deviation.
 
 Much like the way we used the `samples()` function to simulate probability values, above, we can do so with the `brms::fitted()` function. But we will have to specify `scale = "linear"` in order to return results in the probability metric. By default, `brms::fitted()` will return summary information. Since we want actual simulation draws, we'll specify `summary = F`.
 
