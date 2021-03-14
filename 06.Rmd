@@ -215,9 +215,9 @@ sim <-
 ```
 
 ```{r, echo = F}
-# save(sim, file = "sims/sim_6.1.1.rda")
+# save(sim, file = "sims/06.sim_1.1.rda")
 # rm(sim)
-load("sims/sim_6.1.1.rda")
+load("sims/06.sim_1.1.rda")
 ```
 
 Take a look at what we did.
@@ -246,7 +246,7 @@ sim %>%
   facet_wrap(~ seed, ncol = 1)
 ```
 
-Though the results varied across iterations, the overall pattern was massive uncertainty in the two $\beta$ parameters. You may be wondering, 
+Though the results varied across iterations, the overall pattern was massive uncertainty in the two $\beta$ parameters. You may be wondering,
 
 > Did the posterior approximation work correctly?
 >
@@ -778,7 +778,7 @@ dag %>%
   gg_simple_dag()
 ```
 
-Anyway, the DAG clarifies 
+Anyway, the DAG clarifies
 
 > that learning the treatment tells us nothing about the outcome, once we know the fungus status.
 >
@@ -979,7 +979,7 @@ Here's the likelihood for the simple Gaussian multivariable model predicting hap
 \mu_i              & = \alpha_{\text{married} [i]} + \beta_1 \text{age}_i ,\\
 \end{align*}
 
-where $\text{married}[i]$ is the marriage status of individual $i$. Here we make `d2`, the subset of `d` containing only those 18 and up. We then make a new `age` variable, `a`, which is scaled such that $18 = 0$, $65 = 1$, and so on. 
+where $\text{married}[i]$ is the marriage status of individual $i$. Here we make `d2`, the subset of `d` containing only those 18 and up. We then make a new `age` variable, `a`, which is scaled such that $18 = 0$, $65 = 1$, and so on.
 
 ```{r}
 d2 <-
