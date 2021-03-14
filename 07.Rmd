@@ -1359,7 +1359,7 @@ The WAIC estimate and its standard error are on the bottom row. The $p_\text{WAI
 Following the version 2.8.0 update, part of the suggested workflow for using information criteria with **brms** (i.e., execute `?loo.brmsfit`) is to add the estimates to the `brm()` fit object itself. You do that with the `add_criterion()` function. Here's how we'd do so with `b6.7`.
 
 ```{r}
-b6.7 <- add_criterion(b6.7, "waic", file = "fits/b06.07.rds") 
+b6.7 <- add_criterion(b6.7, criterion = "waic") 
 ```
 
 With that in place, here's how you'd extract the WAIC information from the fit object.
@@ -1372,8 +1372,8 @@ b6.7$criteria$waic
 
 ```{r w_b6.12_through_b6.14, message = F}
 # compute and save the WAIC information for the next three models
-b6.6 <- add_criterion(b6.6, "waic", file = "fits/b06.06.rds")
-b6.8 <- add_criterion(b6.8, "waic", file = "fits/b06.08.rds")
+b6.6 <- add_criterion(b6.6, criterion = "waic")
+b6.8 <- add_criterion(b6.8, criterion = "waic")
 
 # compare the WAIC estimates
 w <- loo_compare(b6.6, b6.7, b6.8, criterion = "waic")
@@ -1410,9 +1410,9 @@ The results are quite analogous to those from `rethinking::compare()`. Again, th
 Okay, we've deviated a bit from the text. Let's reign things back in and note that right after McElreath's **R** code 7.26, he wrote: "PSIS will give you almost identical values. You can add `func=PSIS` to the `compare` call to check" (p. 227). Our `brms::loo_compare()` function has a similar argument, but it's called `criterion`. We set it to `criterion = "waic"` to compare the models by the WAIC. What McElreath is calling `func=PSIS`, we'd call `criterion = "loo"`. Either way, we're asking the software the compare the models using leave-one-out cross-validation with Pareto-smoothed importance sampling.
 
 ```{r}
-b6.6 <- add_criterion(b6.6, "loo", file = "fits/b06.06.rds")
-b6.7 <- add_criterion(b6.7, "loo", file = "fits/b06.07.rds")
-b6.8 <- add_criterion(b6.8, "loo", file = "fits/b06.08.rds")
+b6.6 <- add_criterion(b6.6, criterion = "loo")
+b6.7 <- add_criterion(b6.7, criterion = "loo")
+b6.8 <- add_criterion(b6.8, criterion = "loo")
 
 # compare the WAIC estimates
 loo_compare(b6.6, b6.7, b6.8, criterion = "loo") %>% 
@@ -1566,9 +1566,9 @@ b5.3 <-
 Compute and save the LOO estimates for each.
 
 ```{r}
-b5.1 <- add_criterion(b5.1, "loo", file = "fits/b05.01")
-b5.2 <- add_criterion(b5.2, "loo", file = "fits/b05.02")
-b5.3 <- add_criterion(b5.3, "loo", file = "fits/b05.03")
+b5.1 <- add_criterion(b5.1, criterion = "loo")
+b5.2 <- add_criterion(b5.2, criterion = "loo")
+b5.3 <- add_criterion(b5.3, criterion = "loo")
 ```
 
 Now compare the models by the PSIS-LOO-CV.
@@ -1699,7 +1699,7 @@ print(b5.3t)
 Here we use the `add_criterion()` function compute both the LOO-CV and the WAIC and add them to the model fit object.
 
 ```{r, warning = F, message = F}
-b5.3t <- add_criterion(b5.3t, c("loo", "waic"), file = "fits/b05.03t")
+b5.3t <- add_criterion(b5.3t, criterion = c("loo", "waic"))
 ```
 
 Now we might remake the plot from Figure 7.10, this time based on the $t$ model.
