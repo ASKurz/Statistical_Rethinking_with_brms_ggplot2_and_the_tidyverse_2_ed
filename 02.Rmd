@@ -75,12 +75,16 @@ As a quick aside, check out Suzan Baert's blog post [*Data wrangling part 2: Tra
 
 Here's the basic structure of the possibilities per marble draw.
 
-```{r}
+```{r, warning = F, message = F}
+library(flextable)
+
 tibble(draw    = 1:3,
        marbles = 4) %>% 
   mutate(possibilities = marbles ^ draw) %>% 
-  knitr::kable()
+  flextable()
 ```
+
+Note our use of the **flextable** package [@R-flextable; @gohelUsingFlextable2021] to format the output into a nice table. We'll get more practice with this throughout this chapter.
 
 If you walk that out a little, you can structure the data required to approach Figure 2.2.
 
@@ -275,27 +279,29 @@ d %>%
 Letting "w" = a white dot and "b" = a blue dot, we might recreate the table in the middle of page 23 like so.
 
 ```{r}
-# if we make two custom functions, here, it will simplify the code within `mutate()`, below
-n_blue <- function(x) {
-  rowSums(x == "b")
-}
+# if we make two custom functions, here, 
+# it will simplify the `mutate()` code, below
+n_blue  <- function(x) rowSums(x == "b")
+n_white <- function(x) rowSums(x == "w")
 
-n_white <- function(x) {
-  rowSums(x == "w")
-}
-
+# make the data
 t <-
-  # for the first four columns, `p_` indexes position
-  tibble(p_1 = rep(c("w", "b"), times = c(1, 4)),
-         p_2 = rep(c("w", "b"), times = c(2, 3)),
-         p_3 = rep(c("w", "b"), times = c(3, 2)),
-         p_4 = rep(c("w", "b"), times = c(4, 1))) %>% 
-  mutate(`draw 1: blue`  = n_blue(.),
-         `draw 2: white` = n_white(.),
-         `draw 3: blue`  = n_blue(.)) %>% 
-  mutate(`ways to produce` = `draw 1: blue` * `draw 2: white` * `draw 3: blue`)
-t %>% 
-  knitr::kable()
+  tibble(d1 = rep(c("w", "b"), times = c(1, 4)),
+         d2 = rep(c("w", "b"), times = c(2, 3)),
+         d3 = rep(c("w", "b"), times = c(3, 2)),
+         d4 = rep(c("w", "b"), times = c(4, 1))) %>% 
+  mutate(blue1 = n_blue(.),
+         white = n_white(.),
+         blue2 = n_blue(.)) %>% 
+  mutate(product = blue1 * white * blue2)
+
+# format the table
+t %>%
+  transmute(conjecture = str_c("[", d1, " ", d2, " ", d3, " ", d4, "]"),
+            `Ways to produce [w b w]` = str_c(blue1, " * ", white, " * ", blue2, " = ", product)) %>% 
+  flextable() %>% 
+  width(j = 1:2, width = c(1, 2)) %>% 
+  align(align = "center", part = "all")
 ```
 
 We'll need new data for Figure 2.4. Here's the initial primary data, `d`.
@@ -463,32 +469,48 @@ d %>%
 
 > We may have additional information about the relative plausibility of each conjecture. This information could arise from knowledge of how the contents of the bag were generated. It could also arise from previous data. Whatever the source, it would help to have a way to combine different sources of information to update the plausibilities. Luckily there is a natural solution: Just multiply the counts. (p. 25)
 
-Here's a quick version of the table in the middle of page 25.
+Here's how to make a version of the table in the middle of page 25.
 
 ```{r}
+# update t
 t <-
   t %>% 
-  rename(`previous counts` = `ways to produce`,
-         `ways to produce` = `draw 1: blue`) %>% 
-  select(p_1:p_4, `ways to produce`, `previous counts`) %>% 
-  mutate(`new count` = `ways to produce` * `previous counts`)
+  mutate(nc = blue1 * product)
 
-t %>% 
-  knitr::kable()
+# format the table
+t %>%
+  transmute(Conjecture            = str_c("[", d1, " ", d2, " ", d3, " ", d4, "]"),
+            `Ways to produce [b]` = blue1,
+            `Prior counts`        = product,
+            `New count`           = str_c(blue1, " * ", product, " = ", nc)) %>% 
+  flextable() %>% 
+  width(width = c(1, 1, 0.8, 1)) %>% 
+  align(align = "center", part = "all") %>% 
+  align(j = 4, align = "left", part = "all") %>% 
+  valign(valign = "bottom", part = "header")
 ```
 
 We might update to reproduce the table a the top of page 26, like this.
 
 ```{r}
+# update t
 t <-
   t %>% 
-  select(p_1:p_4, `new count`) %>% 
-  rename(`prior count`   = `new count`) %>% 
-  mutate(`factory count` = c(0, 3:0)) %>% 
-  mutate(`new count`     = `prior count` * `factory count`)
+  rename(pc = nc) %>% 
+  mutate(fc = c(0, 3:0)) %>% 
+  mutate(nc = pc * fc) 
 
+# format the table
 t %>% 
-  knitr::kable()
+  transmute(Conjecture      = str_c("[", d1, " ", d2, " ", d3, " ", d4, "]"),
+            `Prior count`   = pc,
+            `Factory count` = fc,
+            `New count`     = str_c(pc, " * ", fc, " = ", nc)) %>% 
+  flextable() %>% 
+  width(width = c(1, 1, 0.8, 1)) %>% 
+  align(align = "center", part = "all") %>% 
+  align(j = 4, align = "left", part = "all") %>% 
+  valign(valign = "bottom", part = "header")
 ```
 
 To learn more about `dplyr::select()` and `dplyr::rename()`, check out Baert's exhaustive blog post, [*Data wrangling part 1: Basic to advanced ways to select columns*](https://suzan.rbind.io/2018/01/dplyr-tutorial-1/).
@@ -532,11 +554,22 @@ $$\text{plausibility of } p \text{ after } D_\text{new} = \frac{\text{ ways } p 
 You might make a version of the table in the middle of page 27 like this.
 
 ```{r}
+# update t
 t %>% 
-  select(p_1:p_4) %>% 
-  mutate(p                      = seq(from = 0, to = 1, by = .25),
-         `ways to produce data` = c(0, 3, 8, 9, 0)) %>% 
-  mutate(plausibility = `ways to produce data` / sum(`ways to produce data`))
+  rename(ways = product) %>% 
+  mutate(p = blue1 / 4) %>% 
+  mutate(pl = ways / sum(ways)) %>% 
+  transmute(`Possible composition` = str_c("[", d1, " ", d2, " ", d3, " ", d4, "]"),
+            p                      = p,
+            `Ways to produce data` = ways,
+            `Plausibility`         = pl) %>% 
+  
+  # format for the table
+  flextable() %>% 
+  width(width = c(1.8, 1, 1.2, 1)) %>% 
+  align(align = "center", part = "all") %>% 
+  valign(valign = "bottom", part = "header") %>% 
+  italic(j = 2, part = "header")
 ```
 
 We just computed the plausibilities, but here's McElreath's **R** code 2.1.
@@ -614,7 +647,7 @@ If it wasn't clear in the code, the dashed curves are normalized prior densities
 
 To learn more about `dplyr::group_by()` and its opposite `dplyr::ungroup()`, check out [*R4DS*, Chapter 5](http://r4ds.had.co.nz/transform.html). To learn about `tidyr::expand()`, go [here](https://tidyr.tidyverse.org/reference/expand.html).
 
-#### Rethinking: Sample size and reliable inference. 
+#### Rethinking: Sample size and reliable inference.
 
 > It is common to hear that there is a minimum number of observations for a useful statistical estimate. For example, there is a widespread superstition that 30 observations are needed before one can use a Gaussian distribution. Why? In non-Bayesian statistical inference, procedures are often justified by the method's behavior at very large sample sizes, so-called asymptotic behavior. As a result, performance at small samples sizes is questionable.
 >
@@ -675,7 +708,7 @@ tibble(prob = seq(from = 0, to = 1, by = .01)) %>%
   theme(panel.grid = element_blank())
 ```
 
-##### Overthinking: Names and probability distributions. 
+##### Overthinking: Names and probability distributions.
 
 > The "`d`" in `dbinom` stands for *density*. Functions named in this way almost always have corresponding partners that begin with "`r`" for random samples and that begin with "`p`" for cumulative probabilities. See for example the help `?dbinom`. (p. 34, *emphasis* in the original)
 
@@ -741,7 +774,7 @@ where $n = w + l$. Our binomial likelihood contains a parameter for an unobserve
 
 $$p \sim \operatorname{Uniform}(0, 1),$$
 
-which expresses the model assumption that the entire range of possible values for $p$, $[0, 1$, are equally plausible. 
+which expresses the model assumption that the entire range of possible values for $p$, $[0, 1$, are equally plausible.
 
 ## Making the model go
 
@@ -749,11 +782,11 @@ which expresses the model assumption that the entire range of possible values fo
 
 ### Bayes' theorem.
 
-We already know about our values for $w$, $l$, and, by logical necessity, $n$. Bayes' theorem will allow us to determine the plausability of various values of $p$, given $w$ and $l$, which we can express formally as $\operatorname{Pr}(p | w, l)$. Building on some of the earlier equations on page 37, Bayes' theorem tells us that
+We already know about our values for $w$, $l$, and, by logical necessity, $n$. Bayes' theorem will allow us to determine the plausibility of various values of $p$, given $w$ and $l$, which we can express formally as $\operatorname{Pr}(p | w, l)$. Building on some of the earlier equations on page 37, Bayes' theorem tells us that
 
 $$\operatorname{Pr}(p | w, l) = \frac{\operatorname{Pr}(w, l | p) \operatorname{Pr}(p )}{\operatorname{Pr}(w, l)}.$$
 
-> And this is Bayes' theorem. It says that the probability of any particular value of $p$, considering the data, is equal to the product of the relative plausibility of the data, conditional on $p$, and the prior plausibility of $p$, divided by this thing $\operatorname{Pr}(W, L)$, which I’ll call the *average probability of the data*. (p. 37, *emphasis* in the original) 
+> And this is Bayes' theorem. It says that the probability of any particular value of $p$, considering the data, is equal to the product of the relative plausibility of the data, conditional on $p$, and the prior plausibility of $p$, divided by this thing $\operatorname{Pr}(W, L)$, which I’ll call the *average probability of the data*. (p. 37, *emphasis* in the original)
 
 We can express this in words as
 
@@ -819,8 +852,8 @@ p3 <-
         strip.text = element_blank()) +
   facet_wrap(~ name, scales = "free_y")
 
+# combine
 library(patchwork)
-
 p1 / p2 / p3
 ```
 
@@ -1012,7 +1045,7 @@ tibble(w = c(6, 12, 24),
 
 > This phenomenon, where the quadratic approximation improves with the amount of data, is very common. It's one of the reasons that so many classical statistical procedures are nervous about small samples: Those procedures use quadratic (or other) approximations that are only known to be safe with infinite data. Often, these approximations are useful with less than infinite data, obviously. But the rate of improvement as sample size increases varies greatly depending upon the details. In some models, the quadratic approximation can remain terrible even with thousands of samples. (p. 44)
 
-#### Rethinking: Maximum likelihood estimation. 
+#### Rethinking: Maximum likelihood estimation.
 
 > The quadratic approximation, either with a uniform prior or with a lot of data, is often equivalent to a **maximum likelihood estimate** (MLE) and its **standard error**. The MLE is a very common non-Bayesian parameter estimate. This correspondence between a Bayesian approximation and a common non-Bayesian estimator is both a blessing and a curse. It is a blessing, because it allows us to re-interpret a wide range of published non-Bayesian model fits in Bayesian terms. It is a curse, because maximum likelihood estimates have some curious drawbacks, and the quadratic approximation can share them. (p. 44, **emphasis**, in the original)
 
