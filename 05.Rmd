@@ -1160,7 +1160,7 @@ b5.5_draft <-
       file = "fits/b05.05_draft")
 ```
 
-Similar to the **rethinking** example in the text, **brms** warned that "Rows containing NAs were excluded from the model." This isn't necessarily a problem; the model fit just fine. But we should be ashamed of ourselves and look eagerly forward to Chapter 14 where we'll learn how to do better.
+Similar to the **rethinking** example in the text, **brms** warned that "Rows containing NAs were excluded from the model." This isn't necessarily a problem; the model fit just fine. But we should be ashamed of ourselves and look eagerly forward to [Chapter 15][Missing Data and Other Opportunities] where we'll learn how to do better.
 
 To compliment how McElreath removed cases with missing values on our variables of interest with base **R** `complete.cases()`, here we'll do so with `tidyr::drop_na()` and a little help with `ends_with()`.
 
@@ -1669,7 +1669,7 @@ fixef(b5.6_sim) %>% round(digits = 2)
 fixef(b5.7_sim) %>% round(digits = 2)
 ```
 
-Due to space considerations, I'm not going to show the code corresponding to the other two DAGs from the **R** code 5.43 block. Rather, I'll leave that as an exercise for the interested reader. 
+Due to space considerations, I'm not going to show the code corresponding to the other two DAGs from the **R** code 5.43 block. Rather, I'll leave that as an exercise for the interested reader.
 
 Let's do the preliminary work to making our DAGs.
 
@@ -2242,7 +2242,7 @@ Check the results.
 print(b5.9b)
 ```
 
-The 'Group-Level Effects:' section in that output won't make much sense until we cover the material in Chapter 13. Here's how one might wrangle the posterior samples to make a coefficient plot similar to the one we made for the original `b5.9`.
+The 'Group-Level Effects:' section in that output won't make much sense until we cover the material in [Chapter 13][Models With Memory]. Here's how one might wrangle the posterior samples to make a coefficient plot similar to the one we made for the original `b5.9`.
 
 ```{r, message = F, warning = F, fig.width = 6, fig.height = 1.33}
 posterior_samples(b5.9b) %>% 
