@@ -798,7 +798,7 @@ b4.1_hc <-
       file = "fits/b04.01_hc")
 ```
 
-This leads to an important point. After running a model fit with HMC, it's a good idea to inspect the chains. As we'll see, McElreath covered visual chain diagnostics in Chapter 9. Here's a typical way to do so with **brms**.
+This leads to an important point. After running a model fit with HMC, it's a good idea to inspect the chains. As we'll see, McElreath covered visual chain diagnostics in [Chapter 9][Markov Chain Monte Carlo]. Here's a typical way to do so with **brms**.
 
 ```{r, fig.width = 6, fig.height = 2.5}
 plot(b4.1_hc)
@@ -1000,11 +1000,11 @@ Like we did for our first model without a predictor, we'll use font color to hel
 
 Do note that $(\text{weight}_i - \overline{\text{weight}})$ part. As we'll see, it's often advantageous to mean center our predictors.
 
-#### Probability of the data
+#### Probability of the data.
 
 > Let's begin with just the probability of the observed height, the first line of the model. This is nearly identical to before, except now there is a little index $i$ on the $\mu$ as well as the [$\text{height}$]. You can read [$\text{height}_i$] as "each [$\text{height}$]" and $\mu_i$ as "each $\mu$." The mean $\mu$ now depends upon unique values on each row $i$. So the little $i$ on $\mu_i$ indicates that *the mean depends upon the row*. (p. 93, *emphasis* in the original)
 
-#### Linear model
+#### Linear model.
 
 > The mean $\mu$ is no longer a parameter to be estimated. Rather, as seen in the second line of the model, $\mu_i$ is constructed from other parameters, $\alpha$ and $\beta$, and the observed variable [$\text{weight}$]. This line is not a stochastic relationship--there is no $\sim$ in it, but rather an $=$ in it--because the definition of $\mu_i$ is deterministic. That is to say that, once we know $\alpha$ and $\beta$ and [$\text{weight}_i$], we know $\mu_i$ with certainty.
 >
@@ -1020,7 +1020,7 @@ Do note that $(\text{weight}_i - \overline{\text{weight}})$ part. As we'll see, 
 >
 > This does not define a linear regression, but it does define a regression model. The linear relationship we are using instead is conventional, but nothing requires that you use it. (p. 94)
 
-#### Priors
+#### Priors.
 
 > The remaining lines in the model define distributions for the unobserved variables. These variables are commonly known as parameters, and their distributions as priors. There are three parameters: $\alpha$, $\beta$, and $\sigma$. You've seen priors for $\alpha$ and $\sigma$ before, although $\alpha$ was called $\mu$ back then.
 >
@@ -1154,7 +1154,7 @@ Good luck with that question. Hang around on academic Twitter long enough and yo
 
 > This is a mistake. There is no more a uniquely correct prior than there is a uniquely correct likelihood. Statistical models are machines for inference. Many machines will work, but some work better than others. Priors can be wrong, but only in the same sense that a kind of hammer can be wrong for building a table. (p. 96)
 
-##### Rethinking: Prior predictive simulation and $p$-hacking
+##### Rethinking: Prior predictive simulation and $p$-hacking.
 
 "We don't pay any attention to $p$-values in this book" (p. 97). Off hand, I'm not sure of the exact origin of the term $p$-hacking. But the paper by Simmons, Nelson and Simonsohn [-@simmonsFalsepositivePsychologyUndisclosed2011], [*False-positive psychology: Undisclosed flexibility in data collection and analysis allows presenting anything as significant*](https://doi.org/10.1177/0956797611417632), is often cited as an introduction to the problem.
 
@@ -1615,7 +1615,7 @@ Even though our statistical model (omitting priors for the sake of simplicity) i
 
 $$\text{height}_i \sim \operatorname{Normal}(\mu_i = \alpha + \beta x_, \sigma),$$
 
-we've only been plotting the $\mu$ part. In order to bring in the variability expressed by $\sigma$, we'll have to switch to the `predict()` function. Much as `brms::fitted()` was our analogue to `rethinking::link()`, `brms::predict()` is our analogue to `rethinking::sim()`. 
+we've only been plotting the $\mu$ part. In order to bring in the variability expressed by $\sigma$, we'll have to switch to the `predict()` function. Much as `brms::fitted()` was our analogue to `rethinking::link()`, `brms::predict()` is our analogue to `rethinking::sim()`.
 
 We can reuse our `weight_seq` data from before. But in case you forgot, here's that code again.
 
@@ -2080,7 +2080,7 @@ d2 <-
   drop_na(doy)
 ```
 
-On page 117 in the text, McElreath indirectly explained how to make Figure 4.12 by walking through the workflow for making Figure 4.13. Here we mimic that ordering. 
+On page 117 in the text, McElreath indirectly explained how to make Figure 4.12 by walking through the workflow for making Figure 4.13. Here we mimic that ordering.
 
 > First, we choose the knots. Remember, the knots are just values of year that serve as pivots for our spline. Where should the knots go? There are different ways to answer this question. You can, in principle, put the knots wherever you like. Their locations are part of the model, and you are responsible for them. Let's do what we did in the simple example above, place the knots at different evenlyspaced quantiles of the predictor variable. This gives you more knots where there are more observations. We used only 5 knots in the first example. Now let’s go for 15:
 
@@ -2201,8 +2201,6 @@ tibble(x = seq(from = 0, to = 10, by = 0.1)) %>%
   theme(panel.background = element_rect(fill = "#4f455c"),
         panel.grid = element_blank())
 ```
-
-"We'll use exponential priors for the rest of the book, in place of uniform priors. It is much more common to have a sense of the average deviation than of the maximum" (p. 119). `r emo::ji("tada")`
 
 "We'll use exponential priors for the rest of the book, in place of uniform priors. It is much more common to have a sense of the average deviation than of the maximum" (p. 119). `r emo::ji("tada")`
 
@@ -2429,7 +2427,7 @@ Now combine the subplots with **patchwork** syntax and behold their glory.
         panel.grid = element_blank())
 ```
 
-### Smooth functions for a rough world. 
+### Smooth functions for a rough world.
 
 > The splines in the previous section are just the beginning. A entire class of models, **generalized additive models** (GAMs), focuses on predicting an outcome variable using smooth functions of some predictor variables. The topic is deep enough to deserve its own book. (p. 120, **emphasis** in the original)
 
