@@ -38,7 +38,7 @@ However, the beta density is often defined in terms of $\alpha$ and $\beta$. If 
 
 $$\operatorname{Beta}(y | \alpha, \beta) = \frac{y^{\alpha - 1} (1 - y)^{\beta - 1}}{\text B (\alpha, \beta)},$$
 
-which you can verify in the [*Continuous distributions on [0, 1]* section](https://mc-stan.org/docs/2_24/functions-reference/continuous-distributions-on-0-1.html) of the [Stan functions reference](https://mc-stan.org/docs/2_24/functions-reference/index.html) [@standevelopmentteamStanFunctionsReference2020]. In the formula, $\text B$ stands for the Beta function, which computes a normalizing constant, which you can learn about in the [*Mathematical functions* chapter](https://mc-stan.org/docs/2_24/functions-reference/math-functions.html) of the Stan functions reference. If you look at the base **R** `dbeta()` function, you'll learn it takes two parameters, `shape1` and `shape2`. Those uncreatively-named parameters are the same $\alpha$ and $\beta$ from the density, above. They do not correspond to the `pbar` and `theta` parameters of McEreath's `rethinking::dbeta2()` function.
+which you can verify in the [*Continuous distributions on [0, 1]* section](https://mc-stan.org/docs/2_24/functions-reference/continuous-distributions-on-0-1.html) of the [Stan functions reference](https://mc-stan.org/docs/2_26/functions-reference/index.html) [@standevelopmentteamStanFunctionsReference2021]. In the formula, $\text B$ stands for the Beta function, which computes a normalizing constant, which you can learn about in the [*Mathematical functions* chapter](https://mc-stan.org/docs/2_26/functions-reference/math-functions.html) of the Stan functions reference. If you look at the base **R** `dbeta()` function, you'll learn it takes two parameters, `shape1` and `shape2`. Those uncreatively-named parameters are the same $\alpha$ and $\beta$ from the density, above. They do not correspond to the `pbar` and `theta` parameters of McEreath's `rethinking::dbeta2()` function.
 
 McElreath had good reason for using `dbeta2()`. Beta's typical $\alpha$ and $\beta$ parameters aren't the most intuitive to use; the parameters in McElreath's `dbeta2()` are much nicer. If you dive a little deeper, it turns out you can find the mean of a beta distribution in terms of $\alpha$ and $\beta$ like this:
 
@@ -156,7 +156,7 @@ But remember, we're not fitting a beta model. We're using the beta-binomial. "We
 
 Here the size, $n$, is defined in the `applications` column in the data we'll load in just a moment. In case you're confused, yes, our statistical model is not quite the same as the one McElreath presented on page 371 in the text. If you look closely, we dropped all mention of $\theta$ and jumped directly to $\phi$. Instead of implementing McElreath's $\theta = \phi + 2$ trick, we're going to set the lower bound for $\phi$ directly. Which brings us to the next issue:
 
-We have an additional complication. The beta-binomial likelihood is not natively supported in **brms** at this time (see [GitHub issue #144](https://github.com/paul-buerkner/brms/issues/144)). However, **brms** versions 2.2.0 and above allow users to define custom distributions. To get all the details, you might check out Bürkner's [-@Bürkner2020Define] vignette, [*Define custom response distributions with brms*](https://CRAN.R-project.org/package=brms/vignettes/brms_customfamilies.html). Happily, Bürkner even used the [beta-binomial distribution as the exemplar](https://cran.r-project.org/package=brms/vignettes/brms_customfamilies.html#the-beta-binomial-distribution) in the vignette.
+We have an additional complication. The beta-binomial likelihood is not natively supported in **brms** at this time (see [GitHub issue #144](https://github.com/paul-buerkner/brms/issues/144)). However, **brms** versions 2.2.0 and above allow users to define custom distributions. To get all the details, you might check out Bürkner's [-@Bürkner2021Define] vignette, [*Define custom response distributions with brms*](https://CRAN.R-project.org/package=brms/vignettes/brms_customfamilies.html). Happily, Bürkner even used the [beta-binomial distribution as the exemplar](https://cran.r-project.org/package=brms/vignettes/brms_customfamilies.html#the-beta-binomial-distribution) in the vignette.
 
 Before we get carried away, let's load the data and **brms**.
 
@@ -707,7 +707,7 @@ Because we used predictors in the model, this time the posterior predictive dist
 
 #### Rethinking: Breaking the law.
 
-McElreath discussed how advances in computing have made it possible for working scientists to define their own data generating models. If you'd like to dive deeper into the topic, check out Bürkner's [-@Bürkner2020Define] vignette, [*Define custom response distributions with brms*](https://CRAN.R-project.org/package=brms/vignettes/brms_customfamilies.html).
+McElreath discussed how advances in computing have made it possible for working scientists to define their own data generating models. If you'd like to dive deeper into the topic, check out Bürkner's [-@Bürkner2021Define] vignette, [*Define custom response distributions with brms*](https://CRAN.R-project.org/package=brms/vignettes/brms_customfamilies.html).
 
 ### Example: Zero-inflated Poisson.
 
@@ -772,7 +772,7 @@ y_i & \sim \operatorname{ZIPoisson}(\color{#5a5f37}{p_i}, \color{#524a3a}{\lambd
 \color{#524a3a}{\log (\lambda_i)} & \color{#524a3a}= \color{#524a3a}{\alpha_\lambda + \beta_\lambda x_i},
 \end{align*}
 
-where both parameters in the likelihood, $p_i$ and $\lambda_i$ might get their own statistical model, making this a special case of what Bürkner [-@Bürkner2020Distributional] calls distributional models. One last thing to note is that in **brms**, $p_i$ is denoted `zi`. To fit a zero-inflated Poisson model with **brms**, make sure to specify the correct likelihood with `family = zero_inflated_poisson`. To use a non-default prior for `zi`, make sure to indicate `class = zi` within the `prior()` function.
+where both parameters in the likelihood, $p_i$ and $\lambda_i$ might get their own statistical model, making this a special case of what Bürkner [-@Bürkner2021Distributional] calls distributional models. One last thing to note is that in **brms**, $p_i$ is denoted `zi`. To fit a zero-inflated Poisson model with **brms**, make sure to specify the correct likelihood with `family = zero_inflated_poisson`. To use a non-default prior for `zi`, make sure to indicate `class = zi` within the `prior()` function.
       
 ```{r b12.3}
 b12.3 <- 
@@ -790,7 +790,7 @@ b12.3 <-
 print(b12.3)
 ```
 
-If you look at the [*Zero-inflated and hurdle models* section](https://cran.r-project.org/package=brms/vignettes/brms_families.html#zero-inflated-and-hurdle-models) of Bürkner's [-@Bürkner2020Parameterization] [*Parameterization of response distributions in brms*](https://cran.r-project.org/package=brms/vignettes/brms_families.html) document, you'll see the zero-inflated Poisson is set up a little differently in **brms** than it is in **rethinking**. The difference did not influence the estimate for the intercept, $\lambda$. In both here and in the text, $\lambda$ was about zero. However, it did influence the summary of `zi`. Note how McElreath's `mean( inv_logit( post$ap ) )` returned 0.2241255, which seems rather close to our `zi` estimate of `r round(posterior_summary(b12.3)[2, 1], 3)`. Hopefully it's clear that `zi` in **brms** is already in the probability metric. There's no need to convert it. You can further confirm this by looking at the second line from the `print()` output, `Links: mu = log; zi = identity`. When there are no predictors for `zi`, the **brms** default is to use the identity link. In the text, however, McElreath used the logit link for `p`.
+If you look at the [*Zero-inflated and hurdle models* section](https://cran.r-project.org/package=brms/vignettes/brms_families.html#zero-inflated-and-hurdle-models) of Bürkner's [-@Bürkner2021Parameterization] [*Parameterization of response distributions in brms*](https://cran.r-project.org/package=brms/vignettes/brms_families.html) document, you'll see the zero-inflated Poisson is set up a little differently in **brms** than it is in **rethinking**. The difference did not influence the estimate for the intercept, $\lambda$. In both here and in the text, $\lambda$ was about zero. However, it did influence the summary of `zi`. Note how McElreath's `mean( inv_logit( post$ap ) )` returned 0.2241255, which seems rather close to our `zi` estimate of `r round(posterior_summary(b12.3)[2, 1], 3)`. Hopefully it's clear that `zi` in **brms** is already in the probability metric. There's no need to convert it. You can further confirm this by looking at the second line from the `print()` output, `Links: mu = log; zi = identity`. When there are no predictors for `zi`, the **brms** default is to use the identity link. In the text, however, McElreath used the logit link for `p`.
 
 In the `prior` argument, we used `beta(2, 6)` for `zi` and also mentioned in the margin that the **brms** default is `beta(1, 1)`. The beta distribution ranges from 0 to 1, making it a natural distribution to use for priors on probabilities when using the identity link. To give you a sense of what those two versions of the beta look like, let's plot.
 
@@ -1526,7 +1526,7 @@ brms::rdirichlet(n = 1e4,
   facet_wrap(~ alpha, labeller = label_parsed, nrow = 2)
 ```
 
-When using **brms**, the issue of treating a predictor in the way McElreath covered in this section is referred to as **monotonic effects**. Bürkner outlined the issue in his [-@Bürkner2020Monotonic] vignette, [*Estimating monotonic effects with with brms*](https://CRAN.R-project.org/package=brms/vignettes/brms_monotonic.html), and in his [-@burknerModellingMonotonicEffects2020] article with Emmanuel Charpentier, *Modelling monotonic effects of ordinal predictors in Bayesian regression models* (click [here](https://psyarxiv.com/9qkhj/) for the freely-available  preprint). From the introduction in Bürkner's vignette, we read:
+When using **brms**, the issue of treating a predictor in the way McElreath covered in this section is referred to as **monotonic effects**. Bürkner outlined the issue in his [-@Bürkner2021Monotonic] vignette, [*Estimating monotonic effects with with brms*](https://CRAN.R-project.org/package=brms/vignettes/brms_monotonic.html), and in his [-@burknerModellingMonotonicEffects2021] article with Emmanuel Charpentier, *Modelling monotonic effects of ordinal predictors in Bayesian regression models* (click [here](https://psyarxiv.com/9qkhj/) for the freely-available  preprint). From the introduction in Bürkner's vignette, we read:
 
 > For a single monotonic predictor, $x$, the linear predictor term of observation $n$ looks as follows:
 > 
@@ -1567,7 +1567,7 @@ If you compare our results to those in the text, you may be surprised by how sma
 >
 > where $\text{E}_i$ is the completed education level of individual $i$. Now the sum of every $\delta_j$ is 1, and we can interpret the maximum education effect by looking at $\beta_\text{E}$.
 
-The current version of **brms** takes expresses $\beta_\text{E}$ as an average effect. From @burknerModellingMonotonicEffects2020, we read:
+The current version of **brms** takes expresses $\beta_\text{E}$ as an average effect. From @burknerModellingMonotonicEffects2021, we read:
 
 > If the monotonic effect is used in a linear model, $b$ can be interpreted as the expected average difference between two adjacent categories of $x$, while $\zeta_i$ describes the expected difference between the categories $i$ and $i - 1$ in the form of a proportion of the overall difference between lowest and highest categories. Thus, this parameterization has an intuitive interpretation while guaranteeing the monotonicity of the effect (p. 6)
 
@@ -1582,7 +1582,7 @@ posterior_samples(b12.6) %>%
 
 This parameterization difference between **brms** and **rethinking** is also the reason why we set `prior(normal(0, 0.143), class = b, coef = moedu_new)` within `b12.6` where as McElreath used a $\operatorname{Normal}(0, 1)$ prior for all his $\beta$ coefficients, including for his `bE`. Because our `moedu_new` (i.e., $\beta_\text{E}$) is parameterized as the average of seven $\delta$ parameters, it made sense to divide our hyperparameter for $\sigma$ by 7. That is, $1 / 7 \approx 0.143$.
 
-This might be a good place to practice expressing our model in formal statistical notation. Here we'll complement McElreath's formula from page 392 by mixing in a little notation from @burknerModellingMonotonicEffects2020:
+This might be a good place to practice expressing our model in formal statistical notation. Here we'll complement McElreath's formula from page 392 by mixing in a little notation from @burknerModellingMonotonicEffects2021:
 
 \begin{align*}
 \text{response}_i & \sim \operatorname{Categorical} (\mathbf p) \\

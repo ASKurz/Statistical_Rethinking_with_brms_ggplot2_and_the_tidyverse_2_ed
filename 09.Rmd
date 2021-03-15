@@ -640,7 +640,7 @@ b9.1 <-
       file = "fits/b09.01")
 ```
 
-This was another instance of the **brms** non-linear syntax, We've already introduced this in [Section 4.4.2.1][Overthinking: Logs and exps, oh my.], [Section 5.3.2][Many categories.], and [Section 6.2.1][A prior is born.]. For even more details, you can always peruse Bürkner's [-@Bürkner2020Non_linear] vignette, [*Estimating non-linear models with brms*](https://CRAN.R-project.org/package=brms/vignettes/brms_nonlinear.html).
+This was another instance of the **brms** non-linear syntax, We've already introduced this in [Section 4.4.2.1][Overthinking: Logs and exps, oh my.], [Section 5.3.2][Many categories.], and [Section 6.2.1][A prior is born.]. For even more details, you can always peruse Bürkner's [-@Bürkner2021Non_linear] vignette, [*Estimating non-linear models with brms*](https://CRAN.R-project.org/package=brms/vignettes/brms_nonlinear.html).
 
 Here is a summary of the posterior.
 
@@ -718,7 +718,7 @@ I am not aware of a convenient way to pull the information on how long each chai
 
 > no mistake. The adaptive sampler that Stan uses is so good, it can actually produce sequential samples that are better than uncorrelated. They are anti-correlated. This means it can explore the posterior distribution so efficiently that it can beat random. (p. 282)
 
-In addition to sampling HMC chains in parallel, the Stan team have been working on within-chain parallelization, too. This is a new development and was just made available to **brms** users with the release of **brms** version 2.14.0. I don't plan on covering within-chain parallelization in this ebook, but you can learn more in Weber and Bürkner's [-@Weber2020WithinChainParallelization] vignette, [*Running brms models with within-chain parallelization*](https://CRAN.R-project.org/package=brms/vignettes/brms_threading.html), or Weber's guest post on Gelman's blog, [*Stan's within-chain parallelization now available with brms*](https://statmodeling.stat.columbia.edu/2020/10/14/stans-within-chain-parallelization-in-brms/#comments). If you have some large rough model that's taking hours upon hours to fit, it might be worth your while.
+In addition to sampling HMC chains in parallel, the Stan team have been working on within-chain parallelization, too. This is a new development and was just made available to **brms** users with the release of **brms** version 2.14.0. I don't plan on covering within-chain parallelization in this ebook, but you can learn more in Weber and Bürkner's [-@Weber2021WithinChainParallelization] vignette, [*Running brms models with within-chain parallelization*](https://CRAN.R-project.org/package=brms/vignettes/brms_threading.html), or Weber's guest post on Gelman's blog, [*Stan's within-chain parallelization now available with brms*](https://statmodeling.stat.columbia.edu/2020/10/14/stans-within-chain-parallelization-in-brms/#comments). If you have some large rough model that's taking hours upon hours to fit, it might be worth your while.
 
 ### Visualization.
 
@@ -929,7 +929,7 @@ And remember, with changes from **brms** version 2.10.0, we now have both `Bulk_
 
 We've already covered how **brms** has expanded the traditional notion of effective samples (i.e., `n_eff`) to `Bulk_ESS` and `Tail_ESS`. Times are changing for the $\widehat R$, too. However, it turns out the Stan team has found some deficiencies with the $\widehat R$, for which they've made recommendations that will be implemented in the Stan ecosystem sometime soon (see [here](https://discourse.mc-stan.org/t/new-r-hat-and-ess/8165) for a related thread on the Stan Forums). In the meantime, you can read all about it in @vehtariRanknormalizationFoldingLocalization2019 and in one of Dan Simpson's [blog posts](https://statmodeling.stat.columbia.edu/2019/03/19/maybe-its-time-to-let-the-old-ways-die-or-we-broke-r-hat-so-now-we-have-to-fix-it/). If you learn best by sassy twitter banter, [click through this interchange](https://twitter.com/betanalpha/status/1108185746870030336) among some of our Stan team all-stars.
 
-For more on these topics, you might also check out Gabry and Modrák's [-@gabryVisualMCMCDiagnostics2020] vignette, [*Visual MCMC diagnostics using the bayesplot package*](https://CRAN.R-project.org/package=bayesplot/vignettes/visual-mcmc-diagnostics.html).
+For more on these topics, you might also check out Gabry and Modrák's [-@gabryVisualMCMCDiagnostics2021] vignette, [*Visual MCMC diagnostics using the bayesplot package*](https://CRAN.R-project.org/package=bayesplot/vignettes/visual-mcmc-diagnostics.html).
 
 ### Taming a wild chain.
 

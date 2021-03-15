@@ -675,7 +675,7 @@ p2 <-
 >
 > In this model, the mean $\mu$ is constant, but the standard deviation scales with the value $x_i$. (p. 318, **emphasis** in the original)
 
-This kind of model is trivial in the **brms** framework, which you can learn more about in Bürkner's [-@Bürkner2020Distributional] vignette, [*Estimating distributional models with brms*](https://cran.r-project.org/package=brms/vignettes/brms_distreg.html). Before moving on with the text, let's detour and see how we might fit such a model. First, we'll simulate some continuous data `y` for which the $SD$ is affected by a dummy variable `x`.
+This kind of model is trivial in the **brms** framework, which you can learn more about in Bürkner's [-@Bürkner2021Distributional] vignette, [*Estimating distributional models with brms*](https://cran.r-project.org/package=brms/vignettes/brms_distreg.html). Before moving on with the text, let's detour and see how we might fit such a model. First, we'll simulate some continuous data `y` for which the $SD$ is affected by a dummy variable `x`.
 
 ```{r}
 set.seed(10)
