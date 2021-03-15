@@ -270,7 +270,7 @@ post %>%
   geom_point(color = "forestgreen", alpha = 1/10, size = 1/2)
 ```
 
-While we're at it, you can make a similar plot with the `mcmc_scatter()` function [see @gabryPlottingMCMCDraws2019, [*Plotting MCMC draws using the bayesplot package*](https://CRAN.R-project.org/package=bayesplot/vignettes/plotting-mcmc-draws.html)].
+While we're at it, you can make a similar plot with the `mcmc_scatter()` function [see @gabryPlottingMCMCDraws2021, [*Plotting MCMC draws using the bayesplot package*](https://CRAN.R-project.org/package=bayesplot/vignettes/plotting-mcmc-draws.html)].
 
 ```{r, fig.width = 3, fig.height = 3}
 color_scheme_set("green")
@@ -664,7 +664,7 @@ With just a little algebra, we can re-express that as
 
 $$\mu_i = h_{0i} \times (\alpha + \beta_1 \text{treatment}_i + \beta_2 \text{fungus}_i).$$
 
-With **brms**, we fit models like that using the [non-linear syntax](https://CRAN.R-project.org/package=brms/vignettes/brms_nonlinear.html) [@Bürkner2020Non_linear], which we briefly introduced in [Section 4.4.2.1][Overthinking: Logs and exps, oh my.] and [Section 5.3.2][Many categories.]. Yes friends, it's now time we discuss the non-linear **brms** syntax in detail. Bur first, here's what it looks like for `b6.7`.
+With **brms**, we fit models like that using the [non-linear syntax](https://CRAN.R-project.org/package=brms/vignettes/brms_nonlinear.html) [@Bürkner2021Non_linear], which we briefly introduced in [Section 4.4.2.1][Overthinking: Logs and exps, oh my.] and [Section 5.3.2][Many categories.]. Yes friends, it's now time we discuss the non-linear **brms** syntax in detail. Bur first, here's what it looks like for `b6.7`.
 
 ```{r b6.7}
 b6.7 <- 
@@ -682,7 +682,7 @@ b6.7 <-
       file = "fits/b06.07")
 ```
 
-To explain what's going on with our `formula `syntax, it's probably best to quote Bürkner's [-@Bürkner2020Non_linear] [vignette](https://CRAN.R-project.org/package=brms/vignettes/brms_nonlinear.html) at length:
+To explain what's going on with our `formula `syntax, it's probably best to quote Bürkner's [-@Bürkner2021Non_linear] [vignette](https://CRAN.R-project.org/package=brms/vignettes/brms_nonlinear.html) at length:
 
 > When looking at the above code, the first thing that becomes obvious is that we changed the `formula` syntax to display the non-linear formula including predictors (i.e., [`h0`, `treatment`, and `fungus`]) and parameters (i.e., [`a`, `t`, and `f`]) wrapped in a call to [the `bf()` function]. This stands in contrast to classical **R** formulas, where only predictors are given and parameters are implicit. The argument [`a + t + f ~ 1`] serves two purposes. First, it provides information, which variables in `formula` are parameters, and second, it specifies the linear predictor terms for each parameter. In fact, we should think of non-linear parameters as placeholders for linear predictor terms rather than as parameters themselves (see also the following examples). In the present case, we have no further variables to predict [`a`,  `t`, and `f`] and thus we just fit intercepts that represent our estimates of [$\alpha$, $t$, and  $f$]. The formula [`a + t + f ~ 1`] is a short form of [`a ~ 1, t ~ 1, f ~ 1`] that can be used if multiple non-linear parameters share the same formula. Setting `nl = TRUE` tells **brms** that the formula should be treated as non-linear.
 

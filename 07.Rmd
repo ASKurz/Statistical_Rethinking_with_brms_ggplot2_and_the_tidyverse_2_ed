@@ -118,7 +118,7 @@ Fire up **brms**.
 library(brms)
 ```
 
-A careful study of McElreath's **R** code 7.3 will show he is modeling `log_sigma`, rather than $\sigma$. There are ways to do this with **brms** [see @Bürkner2020Distributional], but I'm going to keep things simple, here. Our approach will be to follow the above equation more literally and just slap the $\operatorname{Log-Normal}(0, 1)$ prior directly onto $\sigma$.
+A careful study of McElreath's **R** code 7.3 will show he is modeling `log_sigma`, rather than $\sigma$. There are ways to do this with **brms** [see @Bürkner2021Distributional], but I'm going to keep things simple, here. Our approach will be to follow the above equation more literally and just slap the $\operatorname{Log-Normal}(0, 1)$ prior directly onto $\sigma$.
 
 ```{r b7.1}
 b7.1 <- 
@@ -212,7 +212,7 @@ Now returning to the text,
 
 > That last model, `m7.6`, has one trick in it. The standard deviation is replaced with a constant value 0.001. The model will not work otherwise, for a very important reason that will become clear as we plot these monsters. (p. 198)
 
-By "last model, `m7.6`," McElreath was referring to the sixth-order polynomial, fit on page 199. McElreath's **rethinking** package is set up so the syntax is simple to replacing $\sigma$ with a constant value. We can do this with **brms**, too, but it'll take more effort. If we want to fix $\sigma$ to a constant, we'll need to define a custom likelihood. Bürkner explained how to do so in his [-@Bürkner2020Define] vignette, [*Define custom response distributions with brms*](https://CRAN.R-project.org/package=brms/vignettes/brms_customfamilies.html). I'm not going to explain this in great detail, here. In brief, first we use the `custom_family()` function to define the name and parameters of a `custom_normal()` likelihood that will set $\sigma$ to a constant value, 0.001. Second, we'll define some functions for Stan which are not defined in Stan itself and save them as `stan_funs`. Third, we make a `stanvar()` statement which will allow us to pass our `stan_funs` to `brm()`.
+By "last model, `m7.6`," McElreath was referring to the sixth-order polynomial, fit on page 199. McElreath's **rethinking** package is set up so the syntax is simple to replacing $\sigma$ with a constant value. We can do this with **brms**, too, but it'll take more effort. If we want to fix $\sigma$ to a constant, we'll need to define a custom likelihood. Bürkner explained how to do so in his [-@Bürkner2021Define] vignette, [*Define custom response distributions with brms*](https://CRAN.R-project.org/package=brms/vignettes/brms_customfamilies.html). I'm not going to explain this in great detail, here. In brief, first we use the `custom_family()` function to define the name and parameters of a `custom_normal()` likelihood that will set $\sigma$ to a constant value, 0.001. Second, we'll define some functions for Stan which are not defined in Stan itself and save them as `stan_funs`. Third, we make a `stanvar()` statement which will allow us to pass our `stan_funs` to `brm()`.
 
 ```{r, warning = F, message = F}
 custom_normal <- custom_family(
@@ -247,7 +247,7 @@ b7.6 <-
       file = "fits/b07.06")
 ```
 
-Before we can do our variant of Figure 7.3, we'll need to define a few more custom functions to work with `b7.6`. The `posterior_epred_custom_normal()` function is required for `brms::fitted()` to work with our `family = custom_normal` `brmsfit` object. Same thing for `posterior_predict_custom_normal()` and `brms::predict()`. Though we won't need it until [Section 7.2.5][Scoring the right data.], we'll also define `log_lik_custom_normal` so we can use the `log_lik()` function for any models fit with `family = custom_normal`. Before all that, we need to throw in a line with the `expose_functions()` function. If you want to understand why, read up in Bürkner's [-@Bürkner2020Define] vignette. For now, just go with it.
+Before we can do our variant of Figure 7.3, we'll need to define a few more custom functions to work with `b7.6`. The `posterior_epred_custom_normal()` function is required for `brms::fitted()` to work with our `family = custom_normal` `brmsfit` object. Same thing for `posterior_predict_custom_normal()` and `brms::predict()`. Though we won't need it until [Section 7.2.5][Scoring the right data.], we'll also define `log_lik_custom_normal` so we can use the `log_lik()` function for any models fit with `family = custom_normal`. Before all that, we need to throw in a line with the `expose_functions()` function. If you want to understand why, read up in Bürkner's [-@Bürkner2021Define] vignette. For now, just go with it.
 
 ```{r, message = F, warning = F, results = "hide"}
 expose_functions(b7.6, vectorize = TRUE)
@@ -1081,7 +1081,7 @@ I found this connection difficult to grasp for a long time. Practice now and hop
 
 #### Rethinking: Ridge regression.
 
-Within the **brms** framework, you can do something like this with the horseshoe prior via the `horseshoe()` function. You can learn all about it from the `horseshoe` section of the [**brms** reference manual](https://cran.r-project.org/package=brms/brms.pdf) [@brms2020RM]. Here's an extract from the section:
+Within the **brms** framework, you can do something like this with the horseshoe prior via the `horseshoe()` function. You can learn all about it from the `horseshoe` section of the [**brms** reference manual](https://cran.r-project.org/package=brms/brms.pdf) [@brms2021RM]. Here's an extract from the section:
 
 > The horseshoe prior is a special shrinkage prior initially proposed by @carvalho2009handling. It is symmetric around zero with fat tails and an infinitely large spike at zero. This makes it ideal for sparse models that have many regression coefficients, although only a minority of them is non-zero. The horseshoe prior can be applied on all population-level effects at once (excluding the intercept) by using `set_prior("horseshoe(1)")`. (p. 93)
 

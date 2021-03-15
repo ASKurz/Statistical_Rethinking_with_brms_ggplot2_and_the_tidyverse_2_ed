@@ -476,7 +476,7 @@ fitted(b8.2,
 
 ### Adding an interaction does work.
 
-The `0 + ...` syntax works fine when we just want to use an index variable to fit a model with multiple intercepts, this approach will not work for fitting **brms** models that apply the index variable to slopes. Happily, we have alternatives. If we'd like to use the `cid` index to make intercepts and slopes as in McElreath's `m8.3`, we can use the **brms** [non-linear syntax](https://CRAN.R-project.org/package=brms/vignettes/brms_nonlinear.html) [@Bürkner2020Non_linear]. Here it is for `b8.3`.
+The `0 + ...` syntax works fine when we just want to use an index variable to fit a model with multiple intercepts, this approach will not work for fitting **brms** models that apply the index variable to slopes. Happily, we have alternatives. If we'd like to use the `cid` index to make intercepts and slopes as in McElreath's `m8.3`, we can use the **brms** [non-linear syntax](https://CRAN.R-project.org/package=brms/vignettes/brms_nonlinear.html) [@Bürkner2021Non_linear]. Here it is for `b8.3`.
 
 ```{r b8.3}
 b8.3 <- 
@@ -1101,7 +1101,7 @@ plot(p1,
   facet_wrap(~ shade_cent, labeller = label_both)
 ```
 
-I tend to prefer using other plotting methods when visualizing models, so we won't be seeing much more from the `conditional_effects()` function in this ebook. But if you like method, you can find more ideas by checking out the `conditional_effects` section of the [**brms** reference manual](https://cran.r-project.org/package=brms/brms.pdf) [@brms2020RM] or searching for "conditional_effects" under the ["brms" tag on the Stan Forums](https://discourse.mc-stan.org/c/interfaces/brms/36).
+I tend to prefer using other plotting methods when visualizing models, so we won't be seeing much more from the `conditional_effects()` function in this ebook. But if you like method, you can find more ideas by checking out the `conditional_effects` section of the [**brms** reference manual](https://cran.r-project.org/package=brms/brms.pdf) [@brms2021RM] or searching for "conditional_effects" under the ["brms" tag on the Stan Forums](https://discourse.mc-stan.org/c/interfaces/brms/36).
 
 ## Session info {-}
 
