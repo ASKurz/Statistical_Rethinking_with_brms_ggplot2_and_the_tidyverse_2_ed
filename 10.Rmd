@@ -477,7 +477,7 @@ tibble(x = seq(from = -1, to = 3, by = .01)) %>%
   annotate(geom = "text",
            x = 1.28, y = 1.04, hjust = 1,
            label = "This is why we need link functions",
-           color = ghibli_palette("MononokeMedium")[4], size = 2.5) + 
+           color = ghibli_palette("MononokeMedium")[4], size = 2.6) + 
   scale_color_manual(values = c(ghibli_palette("MononokeMedium")[3:4])) +
   scale_y_continuous(breaks = c(0, .5, 1)) +
   coord_cartesian(xlim = c(0, 2),
