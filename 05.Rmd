@@ -650,7 +650,7 @@ p1 <-
 p1
 ```
 
-We get the residuals with the well-named `residuals()` function. Much like with `brms::fitted()`, `brms::residuals()` returns a four-vector matrix with the number of rows equal to the number of observations in the original data (by default, anyway). The vectors have the familiar names: `Estimate`, `Est.Error`, `Q2.5`, and `Q97.5`. See the [**brms** reference manual](https://CRAN.R-project.org/package=brms/brms.pdf) [@brms2020RM] for details.
+We get the residuals with the well-named `residuals()` function. Much like with `brms::fitted()`, `brms::residuals()` returns a four-vector matrix with the number of rows equal to the number of observations in the original data (by default, anyway). The vectors have the familiar names: `Estimate`, `Est.Error`, `Q2.5`, and `Q97.5`. See the [**brms** reference manual](https://CRAN.R-project.org/package=brms/brms.pdf) [@brms2021RM] for details.
 
 With our residuals in hand, we just need a little more data processing to make lower left panel of Figure 5.4.
 
@@ -914,7 +914,7 @@ dagify(M ~ A,
   theme(panel.grid = element_blank())
 ```
 
-The full statistical model implied in this DAG requires we have two criterion variables, $D$ and $M$. To simultaneously model the effects of $A$ on $M$ and $D$ AND the effects of $A$ on $M$ with **brms**, we'll need to invoke the multivariate syntax. There are several ways to do this with **brms**, which Bürkner outlines in his [-@Bürkner2020Multivariate] vignette, [*Estimating multivariate models with brms*](https://CRAN.R-project.org/package=brms/vignettes/brms_multivariate.html). At this point, it's important to recognize we have two regression models. As a first step, we might specify each model separately in a `bf()` function and save them as objects.
+The full statistical model implied in this DAG requires we have two criterion variables, $D$ and $M$. To simultaneously model the effects of $A$ on $M$ and $D$ AND the effects of $A$ on $M$ with **brms**, we'll need to invoke the multivariate syntax. There are several ways to do this with **brms**, which Bürkner outlines in his [-@Bürkner2021Multivariate] vignette, [*Estimating multivariate models with brms*](https://CRAN.R-project.org/package=brms/vignettes/brms_multivariate.html). At this point, it's important to recognize we have two regression models. As a first step, we might specify each model separately in a `bf()` function and save them as objects.
 
 ```{r}
 d_model <- bf(d ~ 1 + a + m)
@@ -1920,7 +1920,7 @@ post %>%
         panel.grid = element_blank())
 ```
 
-Because **bayesplot** returns a **ggplot2** object, the plot was adjustable with familiar **ggplot2** syntax. For more ideas, check out Gabry's [-@gabryPlottingMCMCDraws2019] vignette, [*Plotting MCMC draws using the bayesplot package*](https://CRAN.R-project.org/package=bayesplot/vignettes/plotting-mcmc-draws.html).
+Because **bayesplot** returns a **ggplot2** object, the plot was adjustable with familiar **ggplot2** syntax. For more ideas, check out Gabry's [-@gabryPlottingMCMCDraws2021] vignette, [*Plotting MCMC draws using the bayesplot package*](https://CRAN.R-project.org/package=bayesplot/vignettes/plotting-mcmc-draws.html).
 
 The `tidybayes::stat_pointinterval()` function offers a third way, this time with a more ground-up **ggplot2** workflow.
 
@@ -1996,7 +1996,7 @@ where there is an $\alpha_\text{clade}$ "intercept" for each of the four levels 
 
 When we use the typical `formula` syntax with **brms**, we can suppress the overall intercept when for a single index variable with the `<criterion> ~ 0 + <index variable>` syntax. That's exactly what we did with our `b5.9` model. The catch is this approach only works with one index variable within **brms**. Even though we suppressed the default intercept with our `b5.10` formula, `kcal.per.g_s ~ 0 + clade + house`, we ended up loosing the first category of the second variable, `house`.
 
-Fortunately, we have a fix, which I learned about from one of Bürkner's [answers](https://discourse.mc-stan.org/t/indexing-approach-to-predictors/7898/9) to [Paul Dong](https://discourse.mc-stan.org/u/paul_dong)'s thread in the Stan Forums, [*Indexing approach to predictors*](https://discourse.mc-stan.org/t/indexing-approach-to-predictors/7898). The solution is the use the non-linear syntax. If you recall, our first encounter with the **brms** non-linear syntax was with model `b4.3b` in [Section 4.4.2.1][Overthinking: Logs and exps, oh my.] where we used it to model the exponent of a parameter. Here we'll use it to model our two index variables while excluding an overall or reference-category intercept. I'm still going to wait until [Section 6.2.1][A prior is born.] before walking out the non-linear syntax in detail. But if you're burning with curiosity, check out Bürkner's [-@Bürkner2020Non_linear] vignette, [*Estimating non-linear models with brms*](https://CRAN.R-project.org/package=brms/vignettes/brms_nonlinear.html). For now, we focus on how to faithfully replicate McElreath's `m510` with `brms::brm()`. In the code below, we defined our two model parameters, `a` and `h`, in the first `bf()` line, connected each to a index variable in the next two lines, and closed out the `bf()` statement with `nl = TRUE` to alert `brm()` we were using the non-linear syntax.
+Fortunately, we have a fix, which I learned about from one of Bürkner's [answers](https://discourse.mc-stan.org/t/indexing-approach-to-predictors/7898/9) to [Paul Dong](https://discourse.mc-stan.org/u/paul_dong)'s thread in the Stan Forums, [*Indexing approach to predictors*](https://discourse.mc-stan.org/t/indexing-approach-to-predictors/7898). The solution is the use the non-linear syntax. If you recall, our first encounter with the **brms** non-linear syntax was with model `b4.3b` in [Section 4.4.2.1][Overthinking: Logs and exps, oh my.] where we used it to model the exponent of a parameter. Here we'll use it to model our two index variables while excluding an overall or reference-category intercept. I'm still going to wait until [Section 6.2.1][A prior is born.] before walking out the non-linear syntax in detail. But if you're burning with curiosity, check out Bürkner's [-@Bürkner2021Non_linear] vignette, [*Estimating non-linear models with brms*](https://CRAN.R-project.org/package=brms/vignettes/brms_nonlinear.html). For now, we focus on how to faithfully replicate McElreath's `m510` with `brms::brm()`. In the code below, we defined our two model parameters, `a` and `h`, in the first `bf()` line, connected each to a index variable in the next two lines, and closed out the `bf()` statement with `nl = TRUE` to alert `brm()` we were using the non-linear syntax.
 
 ```{r}
 b5.11 <- 
