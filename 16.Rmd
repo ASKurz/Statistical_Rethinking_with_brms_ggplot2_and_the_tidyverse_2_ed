@@ -604,7 +604,7 @@ k      & \sim \operatorname{Log-Normal}(\log 2, 0.25) \\
 \theta & \sim \operatorname{Log-Normal}(\log 5, 0.25),
 \end{align*}
 
-all of which were Log-Normal to ensure the parameters were positive and continuous. To get a sense of what these priors implied, he simulated. Here's our version of his simulations, which make up Figure 16.4. 
+all of which were Log-Normal to ensure the parameters were positive and continuous. To get a sense of what these priors implied, he simulated. Here's our version of his simulations, which make up Figure 16.4.
 
 ```{r, fig.width = 6, fig.height = 3.5}
 n <- 1e4
@@ -955,7 +955,7 @@ The $\operatorname{Beta}(40, 200)$ prior suggests an average trapping rate near 
 
 `r emo::ji("warning")` The content to follow is going to diverge from the text, a bit. As you can see from the equation, above, McElreath's statistical model is a beast. We can fit this model with **brms**, but the workflow is more complicated than usual. To make this material more approachable, I am going to divide the remainder of this section into two subsections. In the first subsection, we'll fit a simplified version of McElreath's `m16.5`, which does not contain the measurement-error portion. In the second subsection, we'll tack on the measurement-error portion and fit the full model. `r emo::ji("warning")`
 
-#### The simple Lotka-Volterra model
+#### The simple Lotka-Volterra model.
 
 Before we get into it, I should acknowledge that this **brms** approach to fitting ODE's is a direct result of the generous contributions from [Markus Gesmann](https://twitter.com/MarkusGesmann). It was one of his older blog posts, [*PK/PD reserving models*](https://magesblog.com/post/2018-01-30-pkpd-reserving-models/), that led me to believe one could fit an ODE model with **brms**. When I reached out to Gesmann on GitHub (see [Issue #18](https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed/issues/18)), he went so far as to write a new blog post on exactly this model: [*Fitting multivariate ODE models with brms*](https://magesblog.com/post/2021-02-08-fitting-multivariate-ode-models-with-brms/). The workflow to follow is something of a blend of the methods in his blog post, McElreath's model in the text, and the [original post](https://mc-stan.org/users/documentation/case-studies/lotka-volterra-predator-prey.html) by Carpenter that started this all.
 
@@ -1081,7 +1081,7 @@ lv_priors <- c(
 )
 ```
 
-We're finally ready to fit our model with **brms**! Are you excited? Notice our `stanvars` and `backend` settings[^1]. For the current version of **brms**, these are crucial. Also, I find these models benefit from setting `inits = 0`. Happily, this model fit in just about four minutes on my 2019 MacBook Pro.
+Now whether you can fit this model in **brms** may depend on which version you're using. For details, see the endnote[^1]. In short, just update to the [current version](https://CRAN.R-project.org/package=brms). Within our `brm()` code, notice our `stanvars` settings. Also, I find these models benefit from setting `inits = 0`. Happily, this model fit in just about four minutes on my 2019 MacBook Pro.
 
 ```{r b16.5a}
 b16.5a <- 
@@ -1092,7 +1092,6 @@ b16.5a <-
       iter = 2000, warmup = 1000, chains = 4, cores = 4,
       inits = 0,
       stanvars = stanvar(scode = LotkaVolterra, block = "functions"),
-      backend = "cmdstan",
       file = "fits/b16.05a")
 ```
 
@@ -1123,20 +1122,10 @@ They look like a dream. Now inspect the parameter summary.
 print(b16.5a)
 ```
 
-As Gesmann [covered in his blog](https://magesblog.com/post/2021-02-08-fitting-multivariate-ode-models-with-brms/#plot-posterior-simulations), we need to use the `brms::expose_functions()` function to expose Stan functions to **R** before we use some of our favorite post-processing functions. But the current version of **brms** will not allow one to do so for a model fit with `backend = "cmdstan"`. So we need an intermediary step where we compile the model with `backend = "rstan"`. Note the `chains = 0` setting.
+As Gesmann [covered in his blog](https://magesblog.com/post/2021-02-08-fitting-multivariate-ode-models-with-brms/#plot-posterior-simulations), we need to use the `brms::expose_functions()` function to expose Stan functions to **R** before we use some of our favorite post-processing functions.
 
-```{r b16.5a_rstan, warning = F, message = F, results = "hide"}
-b16.5a_rstan <- 
-  brm(data = Lynx_Hare_long, 
-      family = brmsfamily("lognormal", link_sigma = "identity"),
-      formula = lv_formula, 
-      prior = lv_priors, 
-      chains = 0,
-      stanvars = stanvar(scode = LotkaVolterra, block = "functions"),
-      backend = "rstan",
-      file = "fits/b16.05a_rstan")
-
-expose_functions(b16.5a_rstan, vectorize = TRUE)
+```{r, warning = F, message = F}
+expose_functions(b16.5a, vectorize = TRUE)
 ```
 
 Now we're ready to plot our results like McElreath did in Figure 16.9a. Our first step will be to use `predict()`.
@@ -1189,7 +1178,7 @@ p %>%
 
 Since this version of the model didn't include a measurement-error process, we don't have a clear way to make an analogue of Figure 16.9b. We'll contend with that in the next section.
 
-#### 16.4.2.2 Add a measurement-error process to the Lotka-Volterra model
+#### 16.4.2.2 Add a measurement-error process to the Lotka-Volterra model.
 
 Now we have a sense of what the current Lotka-Volterra workflow looks like for **brms**, we're ready to complicate our model a bit. Happily, we won't need to update our `LotkaVolterra` code. That's good as it is. But we will need to make a couple minor adjustments to our model `formula` object, which we now call `lv_formula_error`. Make special note of the first `bf()` line and the last line before we set `nl = TRUE`. That's where all the measurement-error action is at.
 
@@ -1235,7 +1224,6 @@ b16.5b <-
       iter = 2000, warmup = 1000, chains = 4, cores = 4,
       inits = 0,
       stanvars = stanvar(scode = LotkaVolterra, block = "functions"),
-      backend = "cmdstan",
       file = "fits/b16.05b")
 ```
 
@@ -1547,11 +1535,13 @@ sessionInfo()
 ```
 
 ```{r, warning = F, echo = F}
-rm(d, b16.1, my_lower, my_diag, my_upper, nd, p, n, Boxes_model, dat_list, m16.2, label, at, n_samples, prior, p1, p2, b16.4, Lynx_Hare, text, sim_lynx_hare, theta, z, Ht, Lynx_Hare_long, LotkaVolterra, LV, ode_LV, lv_formula, lv_priors, b16.5a, col_names, b16.5a_rstan, lv_formula_error, lv_priors_error, b16.5b, post, f, b16.6, b16.7, b16.8, b16.9)
+rm(d, b16.1, my_lower, my_diag, my_upper, nd, p, n, Boxes_model, dat_list, m16.2, label, at, n_samples, prior, p1, p2, b16.4, Lynx_Hare, text, sim_lynx_hare, theta, z, Ht, Lynx_Hare_long, LotkaVolterra, LV, ode_LV, lv_formula, lv_priors, b16.5a, col_names, lv_formula_error, lv_priors_error, b16.5b, post, f, b16.6, b16.7, b16.8, b16.9)
 ```
 
 ```{r, echo = F, message = F, warning = F, results = "hide"}
 ggplot2::theme_set(ggplot2::theme_grey())
 # pacman::p_unload(pacman::p_loaded(), character.only = TRUE)
 ```
+
+[^1]: We first fit this model with **brms** version 2.14.4. At that time, the only way to get it to run successfully was by using `backend = "cmdstan"`. I'm not really interested in tackling what that setting means, but rest assured that exciting things are happening for **brms** and Stan. If you'd like to learn more, check out the [-@Weber2021WithinChainParallelization] vignette by Webber and Bürkner, [*Running brms models with within-chain parallelization*](https://CRAN.R-project.org/package=brms/vignettes/brms_threading.html). But anyways, the current version of **brms** (2.15.0) no longer requires that `backend` setting and the complications it entails. The default works fine.
 
