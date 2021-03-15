@@ -752,7 +752,7 @@ With these data, the likelihood of observing zero on `y`, (i.e., the likelihood 
                                    & = p + (1 - p) \exp (- \lambda).
 \end{align*}
 
-And 
+And
 
 > since the Poisson likelihood of $y$ is $\operatorname{Pr}(y | \lambda) = \lambda^y \exp (- \lambda) / y!$, the likelihood of $y = 0$ is just $\exp (- \lambda)$. The above is just the mathematics for:
 >
