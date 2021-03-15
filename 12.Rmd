@@ -1526,7 +1526,7 @@ brms::rdirichlet(n = 1e4,
   facet_wrap(~ alpha, labeller = label_parsed, nrow = 2)
 ```
 
-When using **brms**, the issue of treating a predictor in the way McElreath covered in this section is referred to as **monotonic effects**. Bürkner outlined the issue in his [-@Bürkner2021Monotonic] vignette, [*Estimating monotonic effects with with brms*](https://CRAN.R-project.org/package=brms/vignettes/brms_monotonic.html), and in his [-@burknerModellingMonotonicEffects2021] article with Emmanuel Charpentier, *Modelling monotonic effects of ordinal predictors in Bayesian regression models* (click [here](https://psyarxiv.com/9qkhj/) for the freely-available  preprint). From the introduction in Bürkner's vignette, we read:
+When using **brms**, the issue of treating a predictor in the way McElreath covered in this section is referred to as **monotonic effects**. Bürkner outlined the issue in his [-@Bürkner2021Monotonic] vignette, [*Estimating monotonic effects with with brms*](https://CRAN.R-project.org/package=brms/vignettes/brms_monotonic.html), and in his [-@burknerModellingMonotonicEffects2020] article with Emmanuel Charpentier, *Modelling monotonic effects of ordinal predictors in Bayesian regression models* (click [here](https://psyarxiv.com/9qkhj/) for the freely-available  preprint). From the introduction in Bürkner's vignette, we read:
 
 > For a single monotonic predictor, $x$, the linear predictor term of observation $n$ looks as follows:
 > 
