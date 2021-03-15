@@ -1754,7 +1754,7 @@ bind_rows(posterior_samples(b5.3),
 
 Overall, the coefficients are very similar between the two models. The most notable difference is in $\sigma$. This is, in part, because $\sigma$ has a slightly different meaning for Student-$t$ models than it does for the Gaussian. For both, we can refer to $\sigma$ as the *scale* parameter, with is a measure of spread or variability around the mean. However, the scale is the same thing as the standard deviation only for the Gaussian. Kruschke walked this out nicely:
 
-> It is important to understand that the scale parameter $\sigma$ in the $t$ distribution is not the standard deviation of the distribution. (Recall that the standard deviation is the square root of the variance, which is the expected value of the squared deviation from the mean, as defined back in Equation 4.8, p. 86.) The standard deviation is actually larger than $\sigma$ because of the heavy tails. In fact, when $\nu$drops below 2 (but is still $\geq 1$), the standard deviation of the mathematical $t$ distribution goes to infinity. [-@kruschkeDoingBayesianData2015, p. 159]
+> It is important to understand that the scale parameter $\sigma$ in the $t$ distribution is not the standard deviation of the distribution. (Recall that the standard deviation is the square root of the variance, which is the expected value of the squared deviation from the mean, as defined back in Equation 4.8, p. 86.) The standard deviation is actually larger than $\sigma$ because of the heavy tails. In fact, when $\nu$ drops below 2 (but is still $\geq 1$), the standard deviation of the mathematical $t$ distribution goes to infinity. [-@kruschkeDoingBayesianData2015, p. 159]
 
 The variance for $\operatorname{Student-t}(\nu, 0, 1)$ is 
 
