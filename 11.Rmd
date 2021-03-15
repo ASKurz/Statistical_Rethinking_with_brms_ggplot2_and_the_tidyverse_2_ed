@@ -2530,7 +2530,7 @@ sessionInfo()
 ```
 
 ```{r, echo = F}
-rm(d, b11.1, b11.1b, b11.2, b11.3, prior, b11.4, post, tx, p1, nd, p2, b11.5, d_aggregated, b11.6, text, b11.7, p, b11.8, dag_coords, my_upper, my_diag, my_lower, n, b11.9, b11.10, cultures, f, b11.11, num_days, y, num_weeks, y_new, b11.12, income, score, career, i, code_m11.13, dat_list, m11.13, s1, s2_orig, s2_new, p_orig, p_new, p_diff, b11.13io, b11.13io_verbose, b11.13io_nonlinear, b11.13a, b11.13b, b11.13c, b11.13d, family_income, b, b11.14, b11.binom, b11.pois, k, b11.15, medians)
+rm(d, b11.1, b11.1b, b11.2, b11.3, prior, b11.4, post, tx, p1, nd, p2, b11.5, d_aggregated, b11.6, text, b11.7, p, b11.8, dag_coords, my_upper, my_diag, my_lower, n, b11.9, b11.10, cultures, f, b11.11, num_days, y, num_weeks, y_new, b11.12, income, score, career, i, code_m11.13, dat_list, m11.13, s1, s2_orig, s2_new, p_orig, p_new, p_diff, b11.13io, b11.13a, b11.13b, b11.13c, b11.13d, family_income, b, b11.14, b11.binom, b11.pois, k, b11.15, medians)
 ```
 
 ```{r, echo = F, message = F, warning = F, results = "hide"}
