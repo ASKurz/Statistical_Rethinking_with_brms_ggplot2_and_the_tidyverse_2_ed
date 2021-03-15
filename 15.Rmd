@@ -757,7 +757,7 @@ Starting with [version 2.2.0](https://cran.r-project.org/package=brms/news/news.
 
 ### DAG ate my homework.
 
-We'll start this section off with our versio of Figure 15.4. It's going to take a bit of effort on our part to make a nice representation those four DAGs. Here we make panels a, b, and d.
+We'll start this section off with our version of Figure 15.4. It's going to take a bit of effort on our part to make a nice representation those four DAGs. Here we make panels a, b, and d.
 
 ```{r}
 # panel a
@@ -938,7 +938,7 @@ Fit the model using the data with no missingness.
 b15.3 <-
   brm(data = d,
       family = binomial,
-      h ~ 1 + s,
+      h | trials(10) ~ 1 + s,
       prior = c(prior(normal(0, 1), class = Intercept),
                 prior(normal(0, 0.5), class = b)),
       iter = 2000, warmup = 1000, chains = 4, cores = 4,
@@ -958,7 +958,7 @@ Since this is not the data-generating model, we shouldn't be all that surprised 
 b15.4 <-
   brm(data = d %>% filter(d == 0),
       family = binomial,
-      h ~ 1 + s,
+      h | trials(10) ~ 1 + s,
       prior = c(prior(normal(0, 1), class = Intercept),
                 prior(normal(0, 0.5), class = b)),
       iter = 2000, warmup = 1000, chains = 4, cores = 4,
@@ -1009,7 +1009,7 @@ McElreath didn't fit this model in the text, but he encouraged us to do so on ou
 b15.4b <-
   brm(data = d %>% filter(d == 0),
       family = binomial,
-      h ~ 1 + s,
+      h | trials(10) ~ 1 + s,
       prior = c(prior(normal(0, 1), class = Intercept),
                 prior(normal(0, 0.5), class = b)),
       iter = 2000, warmup = 1000, chains = 4, cores = 4,
