@@ -1839,7 +1839,8 @@ b11.13io_verbose <-
       prior = c(prior(normal(0, 1), class = Intercept, dpar = mu1),
                 prior(normal(0, 1), class = Intercept, dpar = mu2)),
       iter = 2000, warmup = 1000, cores = 4, chains = 4,
-      seed = 11)
+      seed = 11,
+      file = "fits/b11.13io_verbose")
 
 # nonlinear syntax
 b11.13io_nonlinear <-
@@ -1852,7 +1853,8 @@ b11.13io_nonlinear <-
       prior = c(prior(normal(0, 1), class = b, nlpar = a1),
                 prior(normal(0, 1), class = b, nlpar = a2)),
       iter = 2000, warmup = 1000, cores = 4, chains = 4,
-      seed = 11)
+      seed = 11,
+      file = "fits/b11.13io_nonlinear")
 ```
 
 For the sake of space, I'm not going to show the results for those two models. If you fit them yourself, you'll see the results for `b11.13io` and `b11.13io_verbose` are exactly the same and `b11.13io_nonlinear` differs from them only within simulation variation. I point this out because it's the nonlinear approach that will allow us to fit a model like McElreath's `m11.13`. My hope is the syntax we used in the `b11.13io_verbose` model will help clarify what's going on with the non-linear syntax. When we fit multinomial models with **brms**, the terse conventional `formula` syntax might not make clear how there are actually $K - 1$ formulas. The more verbose syntax of our `b11.13io_verbose` model shows how we can specify those models directly. In our case, that was with those `mu1 ~ 1, mu2 ~ 1` lines. Had we used the **brms** default and used the first level of `career` as the pivot, those lines would have instead been `mu2 ~ 1, mu3 ~ 1`. So anyway, when we switch to the non-linear syntax, we explicitly model `mu1` and `mu2` and, as is typical of the non-linear syntax, we name our parameters. You can see another comparison of these three ways of fitting a multinomial model at the [Nonlinear syntax with a multinomial model?](https://discourse.mc-stan.org/t/nonlinear-syntax-with-a-multinomial-model/16122) thread on the Stan Forums.
