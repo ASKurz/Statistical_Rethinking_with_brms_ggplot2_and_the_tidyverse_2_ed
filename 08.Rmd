@@ -21,7 +21,7 @@ options(width = 100)
 >
 > More generally, interactions are central to most statistical models beyond the cozy world of Gaussian outcomes and linear models of the mean. In generalized linear models (GLMs, [Chapter 10][Big Entropy and the Generalized Linear Model] and onwards), even when one does not explicitly define variables as interacting, they will always interact to some degree. Multilevel models induce similar effects. [@mcelreathStatisticalRethinkingBayesian2020, p. 238, **emphasis** in the original]
 
-## Building an interaction.
+## Building an interaction
 
 "Africa is special" (p. 239). Let's load the `rugged` data [@nunn2012ruggedness] to see one of the reasons why.
 
@@ -537,7 +537,7 @@ Yep, no big issues, here.
 
 #### Bonus: Give me Student-$t$.
 
-McElreath remarked: "This is possibly a good context for robust regression, like the Student-t regression we did in [Chapter 7][Ulysses' Compass]" (p. 249). Let's practice fitting the alternative model using the Student-t likelihood for which $\nu = 2$.
+McElreath remarked: "This is possibly a good context for robust regression, like the Student-t regression we did in [Chapter 7][Ulysses' Compass]" (p. 249). Let's practice fitting the alternative model using the Student-$t$ likelihood for which $\nu = 2$.
 
 ```{r b8.3t}
 b8.3t <- 
