@@ -43,6 +43,7 @@ The data include two experimental conditions, `prosoc_left` and `condition`, eac
 
 ```{r, message = F, warning = F}
 library(tidyverse)
+library(flextable)
 
 d %>% 
   distinct(prosoc_left, condition) %>% 
@@ -50,7 +51,8 @@ d %>%
                          "Two food items on left and no partner",
                          "Two food items on right and partner present",
                          "Two food items on left and partner present")) %>% 
-  knitr::kable()
+  flextable() %>% 
+  width(width = c(1, 1, 4))
 ```
 
 It would be conventional to include these two variables and their interaction using dummy variables. We're going to follow McElreath and use an index variable approach, instead. If you'd like to see what this would look like using the dummy variable approach, check out my [-@kurzStatisticalRethinkingBrms2020] [translation of the corresponding section](https://bookdown.org/content/3890/counting-and-classification.html#logistic-regression-prosocial-chimpanzees.) from McElreath's first [-@mcelreathStatisticalRethinkingBayesian2015] edition. For now, make the index, which we'll be saving as a factor.
@@ -109,7 +111,7 @@ wes_palette("Moonrise2")
 wes_palette("Moonrise2")[1:4]
 ```
 
-We'll also take a few formatting cues from Edward Tufte [-@tufteVisualDisplayQuantitative2001], courtesy of the [**ggthemes package**](https://cran.r-project.org/package=ggthemes). The `theme_tufte()` function will change the default font and remove some chart junk. The `theme_set()` function, below, will make these adjustments the default for all subsequent ggplot2 plots. To undo this, just execute `theme_set(theme_default())`.
+We'll also take a few formatting cues from Edward Tufte [-@tufteVisualDisplayQuantitative2001], courtesy of the [**ggthemes package**](https://cran.r-project.org/package=ggthemes). The `theme_tufte()` function will change the default font and remove some chart junk. The `theme_set()` function, below, will make these adjustments the default for all subsequent **ggplot2** plots. To undo this, just execute `theme_set(theme_default())`.
 
 ```{r, message = F, warning = F}
 library(ggthemes)
@@ -969,7 +971,7 @@ my_lower <- function(data, mapping, ...) {
 }
 ```
 
-To learn more about the nature of the code for the `my_upper()` function, check out [Issue #139](https://github.com/ggobi/ggally/issues/139) in the [GGally GitHub repository](https://github.com/ggobi/ggally). Here is the plot.
+To learn more about the nature of the code for the `my_upper()` function, check out [Issue #139](https://github.com/ggobi/ggally/issues/139) in the [**GGally** GitHub repository](https://github.com/ggobi/ggally). Here is the plot.
 
 ```{r, fig.height = 5, fig.width = 5.5, warning = F, message = F}
 library(GGally)
@@ -1858,11 +1860,13 @@ Now it's time to focus on the **brms** version of McElreath's `m11.13`. To my ey
 With the **brms** non-linear syntax, we can fit the model with one $\beta$ parameter or allow the one $\beta$ parameter to differ for `mu1` and `mu2`. As to setting a lower bound to the `b` parameter[s], we can do that with the `lb` argument within the `prior()` function. If we fit our version of `m11.13` by systemically varying these two features, we'll end up with the four versions listed in the table below.
 
 ```{r}
-crossing(b  = factor(c("b1 + b2", "b"), levels = c("b1 + b2", "b")),
+crossing(b  = factor(c("b1 & b2", "b"), levels = c("b1 & b2", "b")),
          lb = factor(c("NA", 0), levels = c("NA", 0))) %>% 
   mutate(fit = str_c("b11.13", letters[1:n()])) %>% 
   select(fit, everything()) %>% 
-  knitr::kable()
+  
+  flextable() %>% 
+  width(width = 1.25)
 ```
 
 Fit `b11.13a` through `b11.13d`, the four variants on the model.
