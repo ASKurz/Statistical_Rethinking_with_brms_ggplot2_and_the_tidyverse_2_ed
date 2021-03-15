@@ -1567,7 +1567,7 @@ If you compare our results to those in the text, you may be surprised by how sma
 >
 > where $\text{E}_i$ is the completed education level of individual $i$. Now the sum of every $\delta_j$ is 1, and we can interpret the maximum education effect by looking at $\beta_\text{E}$.
 
-The current version of **brms** takes expresses $\beta_\text{E}$ as an average effect. From @burknerModellingMonotonicEffects2021, we read:
+The current version of **brms** takes expresses $\beta_\text{E}$ as an average effect. From @burknerModellingMonotonicEffects2020, we read:
 
 > If the monotonic effect is used in a linear model, $b$ can be interpreted as the expected average difference between two adjacent categories of $x$, while $\zeta_i$ describes the expected difference between the categories $i$ and $i - 1$ in the form of a proportion of the overall difference between lowest and highest categories. Thus, this parameterization has an intuitive interpretation while guaranteeing the monotonicity of the effect (p. 6)
 
@@ -1582,7 +1582,7 @@ posterior_samples(b12.6) %>%
 
 This parameterization difference between **brms** and **rethinking** is also the reason why we set `prior(normal(0, 0.143), class = b, coef = moedu_new)` within `b12.6` where as McElreath used a $\operatorname{Normal}(0, 1)$ prior for all his $\beta$ coefficients, including for his `bE`. Because our `moedu_new` (i.e., $\beta_\text{E}$) is parameterized as the average of seven $\delta$ parameters, it made sense to divide our hyperparameter for $\sigma$ by 7. That is, $1 / 7 \approx 0.143$.
 
-This might be a good place to practice expressing our model in formal statistical notation. Here we'll complement McElreath's formula from page 392 by mixing in a little notation from @burknerModellingMonotonicEffects2021:
+This might be a good place to practice expressing our model in formal statistical notation. Here we'll complement McElreath's formula from page 392 by mixing in a little notation from @burknerModellingMonotonicEffects2020:
 
 \begin{align*}
 \text{response}_i & \sim \operatorname{Categorical} (\mathbf p) \\
