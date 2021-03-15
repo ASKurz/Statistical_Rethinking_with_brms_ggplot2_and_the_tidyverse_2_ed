@@ -667,6 +667,8 @@ fitted(b14.3,
 
 > These chimpanzees simply did not behave in any consistently different way in the partner treatments. The model we've used here does have some advantages, though. Since it allows for some individuals to differ in how they respond to the treatments, it could reveal a situation in which a treatment has no effect on average, even though some of the individuals respond strongly. That wasn't the case here. But often we are more interested in the distribution of responses than in the average response, so a model that estimates the distribution of treatment effects is very useful. (p. 452)
 
+For more practice with models of this kind, check out my blog post, [*Multilevel models and the index-variable approach*](https://solomonkurz.netlify.app/post/2020-12-09-multilevel-models-and-the-index-variable-approach/).
+
 ## Instruments and causal designs
 
 > Of course sometimes it won't be possible to close all of the non-causal paths or rule of unobserved confounds. What can be done in that case? More than nothing. If you are lucky, there are ways to exploit a combination of natural experiments and clever modeling that allow causal inference even when non-causal paths cannot be closed. (p. 455)
