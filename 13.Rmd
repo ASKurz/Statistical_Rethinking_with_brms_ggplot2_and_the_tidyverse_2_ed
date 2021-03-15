@@ -802,7 +802,7 @@ model_weights(b13.4, b13.5, weights = "waic") %>%
 
 The two models yield nearly-equivalent WAIC estimates. Just as in the text, our `p_waic` column shows the models differ by about 2 effective parameters due to the shrinkage from the multilevel partial pooling. Yet recall what McElreath wrote:
 
-> There is nothing to gain here by selecting either model. The comparison of the two models tells a richer story... Since this is an experiment, there is nothing to really select. The experimental design tells us the relevant causal model to inspect. (pp. 418--419).
+> There is nothing to gain here by selecting either model. The comparison of the two models tells a richer story... Since this is an experiment, there is nothing to really select. The experimental design tells us the relevant causal model to inspect. (pp. 418--419)
 
 ### Even more clusters.
 
@@ -918,7 +918,7 @@ tibble(v = rnorm(1e3, mean = 0, sd = 3)) %>%
 
 The distribution looks something like a Student-$t$ with a very low $\nu$ parameter. We can express the joint likelihood of $p(v, x)$ as
 
-$$p(v, x) = p(x | v) \; p(v).$$
+$$p(v, x) = p(x | v)\ p(v).$$
 
 Here that is in a plot.
 
@@ -955,7 +955,7 @@ x & = z \exp(v),
 
 where $x$ is now the product of two independent distributions, $v$ and $z$. With this parameterization, we can express the joint likelihood $p(v, z)$ as
 
-$$p(v, z) = p(z) \; p(v),$$
+$$p(v, z) = p(z) \ p(v),$$
 
 where $p(z)$ is not conditional on $v$ and $p(v)$ is not conditional on $z$. Here's what that looks like in a plot.
 
