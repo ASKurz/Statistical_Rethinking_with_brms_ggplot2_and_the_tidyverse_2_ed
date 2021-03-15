@@ -1124,11 +1124,11 @@ tibble(`sigma[italic(g)]`          = post$sigma_gr[, 1],
   
   ggplot(aes(x = value, y = name, fill = name)) +
   geom_vline(xintercept = 0, color = "#FCF9F0", alpha = 1/3) +
-  stat_halfeye(.width = .89, color = "#FCF9F0") + 
+  stat_halfeye(.width = .89, color = "#FCF9F0", height = 1.5) + 
   scale_fill_manual(values = c("#80A0C7", "#EEDA9D", "#DCA258")) +
   scale_y_discrete(NULL, labels = ggplot2:::parse_safe) +
   xlab("marginal posterior") +
-  coord_cartesian(ylim = c(1.5, 3.5)) +
+  coord_cartesian(ylim = c(1.5, 3.9)) +
   theme(legend.position = "none")
 ```
 
@@ -1330,7 +1330,7 @@ d %>% glimpse()
 
 The `brms::gp()` function takes a handful of arguments. The first and most important argument, `...`, accepts the names of one or more predictors from the data. When fitting a spatial Gaussian process of this kind, we'll enter in the latitude and longitude data for each of levels of `culture`. This will be an important departure from the text. For his `m14.8`, McElreath directly entered in the `Dmat` distance matrix data into `ulam()`. In so doing, he defined $D_{ij}$, the matrix of distances between each of the societies. When using **brms**, we instead *estimate* the distance matrix from the latitude and longitude variables.
 
-Before we practice fitting a Gaussian process with the `brms::gp()` function, we'll first need to think a little bit about our data. McElreath's `Dmat` measured the distances in thousands of km. However, the `lat` and `lon2` variables in the data above are in decimal degrees, which means they need to be transformed to keep our model in the same metric as McElreath's. Turns out that [one decimal degree is 111.32km (at the equator)](https://en.wikipedia.org/wiki/Decimal_degrees#:~:text=A%20value%20in%20decimal%20degrees,1.1132%20m%20at%20the%20equator.). Thus, we can turn both `lat` and `lon2` into 1000 km units by multiplying each by 0.11132. Here's the conversion.
+Before we practice fitting a Gaussian process with the `brms::gp()` function, we'll first need to think a little bit about our data. McElreath's `Dmat` measured the distances in thousands of km. However, the `lat` and `lon2` variables in the data above are in decimal degrees, which means they need to be transformed to keep our model in the same metric as McElreath's. Turns out that [one decimal degree is 111.32km (at the equator)](https://en.wikipedia.org/wiki/Decimal_degrees#:~:text=A%20value%20in%20decimal%20degrees,1.1132%20m%20at%20the%20equator.). Thus, we can turn both `lat` and `lon2` into 1,000 km units by multiplying each by 0.11132. Here's the conversion.
 
 ```{r}
 d <-
