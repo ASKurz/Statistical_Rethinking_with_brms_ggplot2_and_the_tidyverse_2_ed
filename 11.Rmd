@@ -1383,11 +1383,13 @@ print(b11.11)
 Compute and check the PSIS-LOO estimates along with their diagnostic Pareto $k$ values.
 
 ```{r, message = F}
-b11.11 <- add_criterion(b11.11, "loo")
+b11.11 <- add_criterion(b11.11, criterion = "loo", moment_match = T)
 loo(b11.11)
 ```
 
-We still have Pareto high $k$ values. Recall that due to the very small sample size, this isn't entirely surprising. Okay, it's time to make Figure 11.10.
+The first time through, we still had Pareto high $k$ values. Recall that due to the very small sample size, this isn't entirely surprising. Newer versions of **brms** might prompt you to set `moment_match = TRUE`, which is what I did, here. You might perform the operation both ways to get a sense of the difference.
+
+Okay, it's time to make Figure 11.10.
 
 ```{r, fig.width = 3.5, fig.height = 3.25}
 # for the annotation
