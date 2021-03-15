@@ -107,9 +107,9 @@ The Gibbs sampler [@gemanStochasticRelaxationGibbs1984; @casellaExplainingGibbsS
 
 ### High-dimensional problems.
 
-The Gibbs sampler is limited in that (a) you might not want to use conjugate priors and (b) it can be quite inefficient with complex hierarchical models, which we'll be fitting soon. 
+The Gibbs sampler is limited in that (a) you might not want to use conjugate priors and (b) it can be quite inefficient with complex hierarchical models, which we'll be fitting soon.
 
-Earlier versions of this ebook did not focus on McElreath's example of the pathology high autocorrelations can create when using the Metropolis algorithm, which is depicted in Figure 9.3. However, [James Henegan](https://gist.github.com/jameshenegan) kindly reached out with a [**tidyverse** workflow for reproducing this example](https://gist.github.com/jameshenegan/2048c8cb19f54b917e4fcd740a7031b9). Here is a slightly amended version of that workflow. 
+Earlier versions of this ebook did not focus on McElreath's example of the pathology high autocorrelations can create when using the Metropolis algorithm, which is depicted in Figure 9.3. However, [James Henegan](https://gist.github.com/jameshenegan) kindly reached out with a [**tidyverse** workflow for reproducing this example](https://gist.github.com/jameshenegan/2048c8cb19f54b917e4fcd740a7031b9). Here is a slightly amended version of that workflow.
 
 The first step is to simulate a bivariate distribution "with a strong negative correlation of -0.9" (p. 268). Henagen simulated the from a distribution where the two variables $\text a_1$ and $\text a_2$ followed the bivariate normal distribution
 
@@ -729,7 +729,7 @@ pairs(b9.1b,
       off_diag_args = list(size = 1/5, alpha = 1/5))
 ```
 
-Our output is a little different in that we don't get a lower-triangle of Pearson's correlation coefficients. If you'd like those values, use `vcov().`
+Our output is a little different in that we don't get a lower-triangle of Pearson's correlation coefficients. If you'd like those values, use `vcov()`.
 
 ```{r}
 vcov(b9.1b, correlation = T) %>% round(digits = 2)
@@ -816,6 +816,7 @@ post %>%
 ```
 
 That's just what we like to see--nice L-shaped autocorrelation plots. Those are the kinds of shapes you'd expect when you have reasonably large effective samples.
+
 Before we move on, there's an important difference between the trace plots McElreath showed in the text and the ones we just made. McElreath's trace plots include the warmup iterations. Ours did not. To my knowledge, neither the `brms::plot()` nor the `bayesplot::mcmc_trace()` functions support including warmups in their trace plots. One quick way to get them is with the [**ggmcmc** package](https://cran.rstudio.com/package=ggmcmc) [@R-ggmcmc; @marinGgmcmcAnalysisMCMC2016].
 
 ```{r, message = F, warning = F}
@@ -898,7 +899,7 @@ brms::stancode(b9.1b)
 
 You can also get that information by executing `b9.1b$model` or `b9.1b$fit@stanmodel`.
 
-## Care and feeding of your Markov chain.
+## Care and feeding of your Markov chain
 
 > Markov chain Monte Carlo is a highly technical and usually automated procedure. You might write your own MCMC code, for the sake of learning. But it is very easy to introduce subtle biases. A package like Stan, in contrast, is continuously tested against expected output. Most people who use Stan don't really understand what it is doing, under the hood. That's okay. Science requires division of labor, and if every one of us had to write our own Markov chains from scratch, a lot less research would get done in the aggregate. (p. 287)
 
