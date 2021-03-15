@@ -27,7 +27,7 @@ The basic binomial model follows the form
 
 $$y \sim \operatorname{Binomial}(n, p),$$
 
-where $y$ is some count variable, $n$ is the number of trials, and $p$ it the probability a given trial was a 1, which is sometimes termed a *success*. When $n = 1$, then $y$ is a vector of 0's and 1's. Presuming the logit link[^1], which we just covered in [Chapter 10][Linking linear models to distributions.], models of this type are commonly termed logistic regression. When $n > 1$, and still presuming the logit link, we might call our model an aggregated logistic regression model, or more generally an aggregated binomial regression model.
+where $y$ is some count variable, $n$ is the number of trials, and $p$ it the probability a given trial was a 1, which is sometimes termed a *success*. When $n = 1$, then $y$ is a vector of 0's and 1's. Presuming the logit link[^3], which we just covered in [Chapter 10][Linking linear models to distributions.], models of this type are commonly termed logistic regression. When $n > 1$, and still presuming the logit link, we might call our model an aggregated logistic regression model, or more generally an aggregated binomial regression model.
 
 ### Logistic regression: Prosocial chimpanzees.
 
@@ -1657,7 +1657,7 @@ tibble(income        = c(1, 2, 5),
 
 Now keeping that in mind, recall how McElreath said that though we have $K$ categories, $K = 3$ in this case, we only estimate $K - 1$ linear models. "In a multinomial (or categorical) GLM, you need $K - 1$ linear models for $K$ types of events. One of the outcome values is chosen as a 'pivot' and the others are modeled relative to it." (p. 360). You could also think of the pivot category as the reference category.
 
-Before we practice fitting multinomial models with **brms**, it'll be helpful if we first follow along with the text and fit the model directly in Stan. We will be working directly with Stan very infrequently in this ebook. If you're interested in learning more about modeling directly with Stan, you might check out the [*Stan user's guide3*](https://mc-stan.org/docs/2_26/stan-users-guide/index.html) [@standevelopmentteamStanUserGuide2021], the [*Stan reference manual*](https://mc-stan.org/docs/2_26/reference-manual/) [@standevelopmentteamStanReferenceManual2021], and the [*Stan functions reference*](https://mc-stan.org/docs/2_26/functions-reference/index.html) [@standevelopmentteamStanFunctionsReference2021]. Fit the model with Stan.
+Before we practice fitting multinomial models with **brms**, it'll be helpful if we first follow along with the text and fit the model directly in Stan. We will be working directly with Stan very infrequently in this ebook. If you're interested in learning more about modeling directly with Stan, you might check out the [*Stan user's guide*](https://mc-stan.org/docs/2_26/stan-users-guide/index.html) [@standevelopmentteamStanUserGuide2021], the [*Stan reference manual*](https://mc-stan.org/docs/2_26/reference-manual/) [@standevelopmentteamStanReferenceManual2021], and the [*Stan functions reference*](https://mc-stan.org/docs/2_26/functions-reference/index.html) [@standevelopmentteamStanFunctionsReference2021]. Fit the model with Stan.
 
 ```{r m11.13, echo = F}
 # save(list = c("code_m11.13", "dat_list", "m11.13"), file = "fits/m11.13.rda")
@@ -2539,4 +2539,4 @@ bayesplot::color_scheme_set("blue")
 # pacman::p_unload(pacman::p_loaded(), character.only = TRUE)
 ```
 
-[^1]: Though McElreath didn't cover it, here, it's also fine to fit binomial models using the probit link. @gelmanRegressionOtherStories2020 covered probit regression in Section 15.4. With **brms**, it's simply a matter of setting `family = binomial(link = "probit")` within `brm()`.
+[^3]: Though McElreath didn't cover it, here, it's also fine to fit binomial models using the probit link. @gelmanRegressionOtherStories2020 covered probit regression in Section 15.4. With **brms**, it's simply a matter of setting `family = binomial(link = "probit")` within `brm()`.
