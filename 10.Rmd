@@ -240,14 +240,18 @@ tibble(sequence = 1:3,
 Here's the pre-Figure 10.3 data McElreath presented on page 308.
 
 ```{r}
-(
-  d <-
+# data
+d <-
   tibble(distribution = letters[1:4],
          ww = c(1/4, 2/6, 1/6, 1/8),
          bw = c(1/4, 1/6, 2/6, 4/8),
          wb = c(1/4, 1/6, 2/6, 2/8),
          bb = c(1/4, 2/6, 1/6, 1/8))
-)
+
+# table
+d %>% 
+  mutate_if(is.numeric, ~MASS::fractions(.) %>% as.character()) %>% 
+  flextable::flextable()
 ```
 
 Those data take just a tiny bit of wrangling before they're ready to plot in our version of Figure 10.3.
@@ -816,6 +820,7 @@ p2 <-
 # combine the ggplots
 p1 | p2
 ```
+
 > Using a log link for a linear model (left) implies an exponential scaling of the outcome with the predictor variable (right). Another way to think of this relationship is to remember that logarithms are *magnitudes*. An increase of one unit on the log scale means an increase of an order of magnitude on the untransformed scale. And this fact is reflected in the widening intervals between the horizontal lines in the right-hand plot of Figure 10.8. (p. 319, *emphasis* in the original)
 
 #### Rethinking: When in doubt, play with assumptions.
