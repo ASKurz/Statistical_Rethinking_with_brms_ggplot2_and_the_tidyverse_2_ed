@@ -1,10 +1,3 @@
----
-title: "Ch 17. ~~Horoscopes~~ Insights"
-author: "A Solomon Kurz"
-date: "`r format(Sys.Date())`"
-output:
-  html_document
----
 
 ```{r, echo = F, cache = F}
 knitr::opts_chunk$set(fig.retina = 2.5)
@@ -22,7 +15,7 @@ In this final chapter, there are no models for us to fit and no figures for use 
 
 OMG
 
-I first started using R in the winter of 2015/2016. Right from the start, I learned how to code from within the [RStudio](https://www.rstudio.com) environment. But within RStudio I was using simple scripts. No longer. I now use [R Notebooks](http://rmarkdown.rstudio.com/r_notebooks.html) for just about everything, including my scientific projects, this [bookdown](https://bookdown.org)-powered ebook, and even my academic [webpage](https://solomonkurz.netlify.com) and [blog](https://solomonkurz.netlify.com/post/). Nathan Stephens wrote a nice blog post, [*Why I love R Notebooks*](https://rviews.rstudio.com/2017/03/15/why-i-love-r-notebooks/). I agree. This has fundamentally changed my workflow as a scientist. I only wish I'd learned about this before starting my dissertation project. So it goes...
+I first started using **R** in the winter of 2015/2016. Right from the start, I learned how to code from within the [RStudio](https://www.rstudio.com) environment. But within RStudio I was using simple scripts. No longer. I now use [R Notebooks](http://rmarkdown.rstudio.com/r_notebooks.html) for just about everything, including my scientific projects, this [bookdown](https://bookdown.org)-powered ebook, and even my academic [webpage](https://solomonkurz.netlify.com) and [blog](https://solomonkurz.netlify.com/post/). Nathan Stephens wrote a nice blog post, [*Why I love R Notebooks*](https://rviews.rstudio.com/2017/03/15/why-i-love-r-notebooks/). I agree. This has fundamentally changed my workflow as a scientist. I only wish I'd learned about this before starting my dissertation project. So it goes...
 
 Do yourself a favor, adopt R Notebooks into your workflow. Do it today. If you prefer to learn with videos, here's a [nice intro](https://www.youtube.com/watch?v=TJmNvfhLCoI&t=195s) by [Kristine Yu](https://twitter.com/linguist_krisyu) and [another one](https://www.youtube.com/watch?v=GG4pgtfDpWY&t=324s) by [JJ Allaire](https://twitter.com/fly_upside_down). Try it out for like one afternoon and you'll be hooked.
 
@@ -266,7 +259,7 @@ But if you're new to the world of asking for help with your code online, you mig
 
 ## Extra *Rethinking*-related resources
 
-You may have noticed I don't offer solutions to the homework problems. Happily, [David Salazar](https://twitter.com/DavidSalazarVir) has a blog series on the homework problems highlighting a **tiydverse**- and **rethinking**-oriented workflow; find his first post [here](https://david-salazar.github.io/2020/04/19/statistical-rethinking-week-1/). [Ania Kawiecki](https://twitter.com/aniakawiecki) made a beautiful website solving the homework problems using the **tiydverse** and [**INLA**](https://www.r-inla.org/home) [@rue2009approximate], which you can find [here](https://akawiecki.github.io/statistical_rethinking_inla/). Also, [Vincent Arel-Bundock](https://twitter.com/VincentAB) has a nice website where we worked through the primary material in the book chapters using **rstan** and the **tidyverse**, which you can find [here](https://vincentarelbundock.github.io/rethinking2/04.html).
+You may have noticed I don't offer solutions to the homework problems. Happily, [David Salazar](https://twitter.com/DavidSalazarVir) has a blog series on the homework problems highlighting a **tiydverse**- and **rethinking**-oriented workflow; find his first post [here](https://david-salazar.github.io/2020/04/19/statistical-rethinking-week-1/). [Ania Kawiecki](https://twitter.com/aniakawiecki) made a beautiful website solving the homework problems using the **tiydverse** and [**INLA**](https://www.r-inla.org/home) [@rue2009approximate], which you can find [here](https://akawiecki.github.io/statistical_rethinking_inla/). Also, [Vincent Arel-Bundock](https://twitter.com/VincentAB) has a nice website where we worked through the primary material in the book chapters using **rstan** and the **tidyverse**, which you can find [here](https://vincentarelbundock.github.io/rethinking2).
 
 If you find other resources along these lines, please tell me about it in a [GitHub issue](https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed/issues).
 
@@ -274,7 +267,7 @@ If you find other resources along these lines, please tell me about it in a [Git
 
 McElreath's text and my ebook are designed to teach you how to *get started doing* applied Bayesian statistics. Neither does a great job teaching you *how to write them up* for a professional presentation, like a peer-reviewed journal article. What I will do, however, is give you some places to look. Just before releasing the 0.2.0 version of this ebook, I asked the good people on twitter to share their favorite examples of applied Bayesian statistics in the scientific literature. 
 
-```{r, echo = F}
+```{r, echo = F, fig.align = "center"}
 tweetrmd::include_tweet("https://twitter.com/SolomonKurz/status/1371547835737444355")
 ```
 

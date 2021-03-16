@@ -1,10 +1,3 @@
----
-title: "Ch. 4 Geocentric Models"
-author: "A Solomon Kurz"
-date: "`r format(Sys.Date())`"
-output:
-  html_document
----
 
 ```{r, echo = F, cache = F}
 knitr::opts_chunk$set(fig.retina = 2.5)
@@ -2477,7 +2470,7 @@ fitted(b4.10) %>%
   geom_hline(yintercept = fixef(b4.10)[1, 1], color = "white", linetype = 2) +
   geom_point(color = "#ffb7c5", alpha = 1/2) +
   geom_ribbon(fill = "white", alpha = 2/3) +
-  labs(subtitle = "b4.7 useing s(year)",
+  labs(subtitle = "b4.7 using s(year)",
        y = "day in year") +
   theme_bw() +
   theme(panel.background = element_rect(fill = "#4f455c"), 
@@ -2516,7 +2509,7 @@ fitted(b4.11) %>%
   geom_hline(yintercept = fixef(b4.11)[1, 1], color = "white", linetype = 2) +
   geom_point(color = "#ffb7c5", alpha = 1/2) +
   geom_ribbon(fill = "white", alpha = 2/3) +
-  labs(subtitle = 'b4.7_bs useing s(year, bs = "bs")',
+  labs(subtitle = 'b4.7_bs using s(year, bs = "bs")',
        y = "day in year") +
   theme_bw() +
   theme(panel.background = element_rect(fill = "#4f455c"), 

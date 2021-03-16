@@ -1,10 +1,3 @@
----
-title: "Chapter 03. Sampling the Imaginary"
-author: "A Solomon Kurz"
-date: "`r format(Sys.Date())`"
-output:
-  html_document
----
 
 ```{r, echo = F, cache = F}
 knitr::opts_chunk$set(fig.retina = 2.5)
@@ -939,7 +932,7 @@ samples %>%
         panel.grid = element_blank())
 ```
 
-## ~~Summary~~ Let's practice with brms
+## ~~Summary~~ Let's practice with **brms**
 
 Open **brms**.
 

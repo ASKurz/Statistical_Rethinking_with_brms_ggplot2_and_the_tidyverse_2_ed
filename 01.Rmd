@@ -1,9 +1,4 @@
 ---
-title: "Chapter 01. The Golem of Prague"
-author: "A Solomon Kurz"
-date: "`r format(Sys.Date())`"
-output:
-  github_document
 always_allow_html: true
 ---
 
