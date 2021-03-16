@@ -3,11 +3,7 @@ title: "Ch. 14 Adventures in Covariance"
 author: "A Solomon Kurz"
 date: "`r format(Sys.Date())`"
 output:
-  github_document
-bibliography: bib.bib
-biblio-style: apalike
-csl: apa.csl
-link-citations: yes
+  html_document
 ---
 
 ```{r, echo = F, cache = F}

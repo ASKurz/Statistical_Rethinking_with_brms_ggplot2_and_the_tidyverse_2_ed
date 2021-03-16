@@ -3,7 +3,7 @@ title: "Ch. 13 Models With Memory"
 author: "A Solomon Kurz"
 date: "`r format(Sys.Date())`"
 output:
-  github_document
+  html_document
 ---
 
 ```{r, echo = F, cache = F}

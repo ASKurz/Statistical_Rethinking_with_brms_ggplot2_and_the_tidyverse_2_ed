@@ -3,7 +3,7 @@ title: "Ch. 12 Monsters and Mixtures"
 author: "A Solomon Kurz"
 date: "`r format(Sys.Date())`"
 output:
-  github_document
+  html_document
 ---
 
 ```{r, echo = F, cache = F}

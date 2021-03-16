@@ -3,11 +3,7 @@ title: "Ch 17. ~~Horoscopes~~ Insights"
 author: "A Solomon Kurz"
 date: "`r format(Sys.Date())`"
 output:
-  github_document
-bibliography: bib.bib
-biblio-style: apalike
-csl: apa.csl
-link-citations: yes
+  html_document
 ---
 
 ```{r, echo = F, cache = F}
@@ -268,11 +264,34 @@ Also, do check out the [Stan Forums](https://discourse.mc-stan.org). They have a
 
 But if you're new to the world of asking for help with your code online, you might acquaint yourself with the notion of a [minimally reproducible example](https://stackoverflow.com/questions/5963269/how-to-make-a-great-r-reproducible-example). In short, a good minimally reproducible example helps others help you. If you fail to do this, prepare for some snark.
 
-## Extra rethinking-related resources
+## Extra *Rethinking*-related resources
 
-You may have noticed I don't offer solutions to the homework problems. Happily, [David Salazar](https://twitter.com/DavidSalazarVir) has a blog series on the homework problems highlighting a **tiydverse**- and **rethinking**-oriented workflow; find his first post ([here](https://david-salazar.github.io/2020/04/19/statistical-rethinking-week-1/)). [Ania Kawiecki](https://twitter.com/aniakawiecki) made a beautiful website solving the homework problems using the **tiydverse** and [**INLA**](https://www.r-inla.org/home) [@rue2009approximate], which you can find [here](https://akawiecki.github.io/statistical_rethinking_inla/). Also, [Vincent Arel-Bundock](https://twitter.com/VincentAB) has a nice website where we worked through the primary material in the book chapters using **rstan** and the **tidyverse**, which you can find [here](https://vincentarelbundock.github.io/rethinking2/04.html).
+You may have noticed I don't offer solutions to the homework problems. Happily, [David Salazar](https://twitter.com/DavidSalazarVir) has a blog series on the homework problems highlighting a **tiydverse**- and **rethinking**-oriented workflow; find his first post [here](https://david-salazar.github.io/2020/04/19/statistical-rethinking-week-1/). [Ania Kawiecki](https://twitter.com/aniakawiecki) made a beautiful website solving the homework problems using the **tiydverse** and [**INLA**](https://www.r-inla.org/home) [@rue2009approximate], which you can find [here](https://akawiecki.github.io/statistical_rethinking_inla/). Also, [Vincent Arel-Bundock](https://twitter.com/VincentAB) has a nice website where we worked through the primary material in the book chapters using **rstan** and the **tidyverse**, which you can find [here](https://vincentarelbundock.github.io/rethinking2/04.html).
 
 If you find other resources along these lines, please tell me about it in a [GitHub issue](https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed/issues).
+
+## *But, like, how do I do this for real?*
+
+McElreath's text and my ebook are designed to teach you how to *get started doing* applied Bayesian statistics. Neither does a great job teaching you *how to write them up* for a professional presentation, like a peer-reviewed journal article. What I will do, however, is give you some places to look. Just before releasing the 0.2.0 version of this ebook, I asked the good people on twitter to share their favorite examples of applied Bayesian statistics in the scientific literature. 
+
+```{r, echo = F}
+tweetrmd::include_tweet("https://twitter.com/SolomonKurz/status/1371547835737444355")
+```
+
+At first, folks were a little shy, but eventually the crowd came through in spades! For a full list, feel free to peruse my tweet thread. For your convenience, here's a list of a good bunch of the works people shared[^7]:
+
+* @allen2020outside  [, PDF [link](https://scholarworks.boisestate.edu/cgi/viewcontent.cgi?article=1197&context=polsci_facpubs)]
+* @amlie2020risk  [, PDF [link](https://www.ahajournals.org/doi/epub/10.1161/STROKEAHA.119.027225)]
+* @casillas2021interlingual  [, PDF [link](https://www.mdpi.com/2226-471X/6/1/9/pdf)]
+* @davis2020genetic  [, PDF [link](https://elifesciences.org/articles/50901.pdf)]
+* @girard2021reconsidering  [, PDF [link](https://doi.org/10.1007/s42761-020-00030-w)]
+* @haines2018outcome  [, PDF [link](http://haines-lab.com/pdf/Haines_Cog_Sci_2018.pdf)]
+* @kale2020visual  [, PDF [link](https://mucollective.northwestern.edu/files/2020%20-%20Kale,%20Visual%20Reasoning%20Strategies%20for%20Effect%20Size%20Judgements.pdf)]
+* @nogueira2018thrombectomy  [, PDF [link](https://www.nejm.org/doi/full/10.1056/nejmoa1706442)]
+* @ross2020racial  [, PDF [link](https://journals.sagepub.com/doi/pdf/10.1177/1948550620916071)]
+* @silbiger2019comparative  [, PDF [link](https://par.nsf.gov/servlets/purl/10148484)]
+
+At a quick glance, these papers cover a reasonably broad range of topics. I hope they give you a sense of how to write up your work.
 
 ## Parting wisdom
 
@@ -297,4 +316,6 @@ rm(BTdata, b17.1, b17.2, b17.0)
 ```{r, echo = F, warning = F, message = F, results = "hide"}
 # pacman::p_unload(pacman::p_loaded(), character.only = TRUE)
 ```
+
+[^7]: This list is not exhaustive of the links people shared on twitter. My basic inclusion criteria were that they were (a) peer-reviewed articles (b) with a substantive focus that I could (c) easily find a PDF link for. When someone shared several of their works, I simply pulled the first one that fulfilled those criteria. Also, inclusion on this list is **not a personal endorsement**. I haven't read most of them. You get what you pay for, friends.
 

@@ -3,7 +3,7 @@ title: "Chapter 02. Small Worlds and Large Worlds"
 author: "A Solomon Kurz"
 date: "`r format(Sys.Date())`"
 output:
-  github_document
+  html_document
 ---
 
 ```{r, echo = F, cache = F}
