@@ -67,12 +67,12 @@ overthinking-start-values-for-quap-brm.
 overthinking-under-the-hood-with-multivariate-sampling.
 linear-prediction
 the-linear-model-strategy.
-probability-of-the-data
-linear-model
+probability-of-the-data.
+linear-model.
 rethinking-nothing-special-or-natural-about-linear-models.
-priors
+priors.
 rethinking-whats-the-correct-prior
-rethinking-prior-predictive-simulation-and-p-hacking
+rethinking-prior-predictive-simulation-and-p-hacking.
 finding-the-posterior-distribution.
 overthinking-logs-and-exps-oh-my.
 interpreting-the-posterior-distribution.
@@ -90,7 +90,8 @@ polynomial-regression.
 overthinking-converting-back-to-natural-scale.
 splines.
 smooth-functions-for-a-rough-world.
-summary-b-splines-with-brms
+summary-first-bonus-smooth-functions-with-brmss
+second-bonus-group-predictors-with-matrix-columns
 the-many-variables-the-spurious-waffles
 rethinking-causal-inference.
 spurious-associations
@@ -110,7 +111,7 @@ counterfactual-plots.
 overthinking-simulating-counterfactuals.
 masked-relationship
 overthinking-simulating-a-masking-relationship.
-categorical-varaibles
+categorical-variables
 binary-categories.
 many-categories.
 rethinking-differences-and-statistical-significance.
@@ -171,7 +172,7 @@ outliers-and-other-illusions.
 rethinking-the-curse-of-tippecanoe.
 summary-bonus-r2-talk
 conditional-manatees
-building-an-interaction.
+building-an-interaction
 overthinking-not-so-simple-causation.
 making-a-rugged-model.
 adding-an-indicator-variable-isnt-enough.
@@ -204,7 +205,7 @@ sampling-again-in-parallel.
 visualization.
 checking-the-chain.
 overthinking-raw-stan-model-code.
-care-and-feeding-of-your-markov-chain.
+care-and-feeding-of-your-markov-chain
 how-many-samples-do-you-need
 rethinking-warmup-is-not-burn-in.
 how-many-chains-do-you-need
@@ -361,6 +362,8 @@ statistical-model.
 population-dynamics
 the-scientific-model.-2
 the-statistical-model.-2
+the-simple-lotka-volterra-model.
+add-a-measurement-error-process-to-the-lotka-volterra-model.
 lynx-lessons-bonus-practice-with-the-autoregressive-model.
 horoscopes-insights
 use-r-notebooks
@@ -373,4 +376,6 @@ annotate-your-code
 break-up-your-workflow
 code-in-public
 check-out-social-media
+extra-rethinking-related-resources
+but-like-how-do-i-do-this-for-real
 parting-wisdom
