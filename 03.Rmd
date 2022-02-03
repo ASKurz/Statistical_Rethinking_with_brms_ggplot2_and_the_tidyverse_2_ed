@@ -162,8 +162,8 @@ Just multiply that value by 100 to get a percent.
 ```{r}
 samples %>% 
   filter(p_grid > .5 & p_grid < .75) %>% 
-  summarise(sum     =       n() / n_samples,
-            percent = 100 * n() / n_samples)
+  summarise(sum     = n() / n_samples,
+            percent = n() / n_samples * 100)
 ```
 
 And, of course, you can do that with our `mean()` trick, too.
@@ -201,6 +201,7 @@ p2 <-
   labs(x = "proportion of water (p)",
        y = "density")
 
+# combine
 library(patchwork)
 p1 + p2
 ```
@@ -269,6 +270,7 @@ p2 <-
   labs(x = "proportion of water (p)",
        y = "density")
 
+# combine
 p1 + p2
 ```
 
@@ -334,7 +336,7 @@ mode_hdi(samples$p_grid, .width = .5)
 
 This time we used the mode as the measure of central tendency. With this family of **tidybayes** functions, you specify the measure of central tendency in the prefix (i.e., `mean`, `median`, or `mode`) and then the type of interval you'd like (i.e., `qi` or `hdi`).
 
-If all you want are the intervals without the measure of central tendency or all that other technical information, tidybayes also offers the handy `qi()` and `hdi()` functions.
+If all you want are the intervals without the measure of central tendency or all that other technical information, **tidybayes** also offers the handy `qi()` and `hdi()` functions.
 
 ```{r}
 qi(samples$p_grid, .width = .5)
@@ -349,8 +351,9 @@ p1 <-
   d %>% 
   ggplot(aes(x = p_grid, y = posterior)) +
   # check out our sweet `qi()` indexing
-  geom_area(data = d %>% filter(p_grid > qi(samples$p_grid, .width = .5)[1] & 
-                                  p_grid < qi(samples$p_grid, .width = .5)[2]),
+  geom_area(data = d %>% 
+              filter(p_grid > qi(samples$p_grid, .width = .5)[1] & 
+                       p_grid < qi(samples$p_grid, .width = .5)[2]),
             fill = "grey75") +
   geom_line() +
   labs(subtitle = "50% Percentile Interval",
@@ -361,13 +364,15 @@ p1 <-
 p2 <-
   d %>% 
   ggplot(aes(x = p_grid, y = posterior)) +
-  geom_area(data = . %>% filter(p_grid > hdi(samples$p_grid, .width = .5)[1] & 
-                                  p_grid < hdi(samples$p_grid, .width = .5)[2]),
+  geom_area(data = . %>% 
+              filter(p_grid > hdi(samples$p_grid, .width = .5)[1] & 
+                       p_grid < hdi(samples$p_grid, .width = .5)[2]),
             fill = "grey75") +
   geom_line() +
   labs(subtitle = "50% HPDI",
        x = "proportion of water (p)",
        y = "density")
+
 # combine!
 p1 | p2
 ```
@@ -661,8 +666,7 @@ d %>%
   ggplot(aes(x = draws)) +
   geom_histogram(binwidth = 1, center = 0,
                  color = "grey92", size = 1/10) +
-  scale_x_continuous("dummy water count",
-                     breaks = seq(from = 0, to = 9, by = 2)) +
+  scale_x_continuous("dummy water count", breaks = 0:4 * 2) +
   ylab("frequency") +
   coord_cartesian(xlim = c(0, 9)) +
   theme(panel.grid = element_blank())
@@ -697,8 +701,7 @@ d %>%
   ggplot(aes(x = draws)) +
   geom_histogram(binwidth = 1, center = 0,
                  color = "grey92", size = 1/10) +
-  scale_x_continuous("dummy water count",
-                     breaks = seq(from = 0, to = 9, by = 2)) +
+  scale_x_continuous("dummy water count", breaks = 0:4 * 2) +
   ylab("frequency") +
   coord_cartesian(xlim = c(0, 9)) +
   theme(panel.grid = element_blank()) +
@@ -759,7 +762,7 @@ d %>%
            x = .08, y = .0025,
            label = "Posterior probability") +
   scale_size_continuous(range = c(0, 1)) +
-  scale_x_continuous("probability of water", breaks = c(0:10) / 10) +
+  scale_x_continuous("probability of water", breaks = 0:10 / 10) +
   scale_y_continuous(NULL, breaks = NULL) +
   theme(panel.grid = element_blank())
 ```
@@ -792,7 +795,7 @@ d_small %>%
   ggplot(aes(x = draws)) +
   geom_histogram(binwidth = 1, center = 0,
                  color = "grey92", size = 1/10) +
-  scale_x_continuous(NULL, breaks = seq(from = 0, to = 9, by = 3)) +
+  scale_x_continuous(NULL, breaks = 0:3 * 3) +
   scale_y_continuous(NULL, breaks = NULL) +
   labs(subtitle = "Sampling distributions") +
   coord_cartesian(xlim = c(0, 9)) +
@@ -825,7 +828,7 @@ samples %>%
   geom_histogram(binwidth = 1, center = 0,
                  color = "grey92", size = 1/10) +
   scale_x_continuous("number of water samples",
-                     breaks = seq(from = 0, to = 9, by = 3)) +
+                     breaks = 0:3 * 3) +
   scale_y_continuous(NULL, breaks = NULL) +
   ggtitle("Posterior predictive distribution") +
   coord_cartesian(xlim = c(0, 9),
@@ -892,8 +895,7 @@ samples %>%
                  binwidth = 1, center = 0,
                  color = "grey92", size = 1/10) +
   scale_fill_viridis_d(option = "D", end = .9) +
-  scale_x_continuous("longest run length",
-                     breaks = seq(from = 0, to = 9, by = 3)) +
+  scale_x_continuous("longest run length", breaks = 0:3 * 3) +
   ylab("frequency") +
   coord_cartesian(xlim = c(0, 9)) +
   theme(legend.position = "none",
@@ -924,8 +926,7 @@ samples %>%
                  binwidth = 1, center = 0,
                  color = "grey92", size = 1/10) +
   scale_fill_viridis_d(option = "D", end = .9) +
-  scale_x_continuous("number of switches",
-                     breaks = seq(from = 0, to = 9, by = 3)) +
+  scale_x_continuous("number of switches", breaks = 0:3 * 3) +
   ylab("frequency") +
   coord_cartesian(xlim = c(0, 9)) +
   theme(legend.position = "none",
@@ -970,13 +971,13 @@ f <-
   fitted(b3.1, 
          summary = F,
          scale = "linear") %>% 
-  as_tibble() %>% 
+  data.frame() %>% 
   set_names("p")
 
 glimpse(f)
 ```
 
-By default, we have a generically-named vector `V1` of 4,000 samples. We'll explain the defaults in later chapters. For now, notice we can view these in a density.
+By default, we have a generically-named vector of 4,000 samples. We'll explain the defaults in later chapters. For now, notice we can view these in a density.
 
 ```{r, fig.width = 7, fig.height = 2, message = F}
 f %>% 
@@ -1006,8 +1007,7 @@ f %>%
   ggplot(aes(x = w)) +
   geom_histogram(binwidth = 1, center = 0,
                  color = "grey92", size = 1/10) +
-  scale_x_continuous("number of water samples",
-                     breaks = seq(from = 0, to = 9, by = 3)) +
+  scale_x_continuous("number of water samples", breaks = 0:3 * 3) +
   scale_y_continuous(NULL, breaks = NULL, limits = c(0, 5000)) +
   ggtitle("Posterior predictive distribution") +
   coord_cartesian(xlim = c(0, 9)) +
