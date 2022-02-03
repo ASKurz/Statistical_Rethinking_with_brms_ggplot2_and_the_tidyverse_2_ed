@@ -54,7 +54,7 @@ ggplot(data = pos,
   geom_line(aes(color = person < 2, alpha  = person < 2)) +
   scale_color_manual(values = c("skyblue4", "black")) +
   scale_alpha_manual(values = c(1/5, 1)) +
-  scale_x_continuous("step number", breaks = c(0, 4, 8, 12, 16)) +
+  scale_x_continuous("step number", breaks = 0:4 * 4) +
   theme(legend.position = "none")
 ```
 
@@ -96,9 +96,9 @@ p3 <-
   labs(title = "16 steps",
        y = "density")
 
+# combine the ggplots
 library(patchwork)
 
-# combine the ggplots
 (p1 | p2 | p3) & coord_cartesian(xlim = c(-6, 6))
 ```
 
@@ -133,7 +133,7 @@ Same result. Rather than using base **R** `replicate()` to do this many times, l
 set.seed(4)
 
 growth <- 
-  tibble(growth = map_dbl(1:10000, ~ prod(1 + runif(12, 0, 0.1))))
+  tibble(growth = map_dbl(1:10000, ~ prod(1 + runif(12, min = 0, max = 0.1))))
 
 ggplot(data = growth, aes(x = growth)) +
   geom_density()
@@ -146,8 +146,8 @@ ggplot(data = growth, aes(x = growth)) +
 set.seed(4)
 
 samples <-
-  tibble(big   = map_dbl(1:10000, ~ prod(1 + runif(12, 0, 0.5))),
-         small = map_dbl(1:10000, ~ prod(1 + runif(12, 0, 0.01))))
+  tibble(big   = map_dbl(1:10000, ~ prod(1 + runif(12, min = 0, max = 0.5))),
+         small = map_dbl(1:10000, ~ prod(1 + runif(12, min = 0, max = 0.01))))
 
 # wrangle
 samples %>% 
@@ -269,8 +269,8 @@ d <-
   tibble(p_grid = seq(from = 0, to = 1, length.out = n_points),
          w      = 6, 
          n      = 9) %>% 
-  mutate(prior      = dunif(p_grid, 0, 1),
-         likelihood = dbinom(w, n, p_grid)) %>% 
+  mutate(prior      = dunif(p_grid, min = 0, max = 1),
+         likelihood = dbinom(w, size = n, prob = p_grid)) %>%
   mutate(posterior = likelihood * prior / sum(likelihood * prior))
 
 head(d)
@@ -776,7 +776,7 @@ b4.1 <-
       file = "fits/b04.01")
 ```
 
-McElreath's uniform prior for $\sigma$ was rough on **brms**. It took an unusually-large number of warmup iterations before the chains sampled properly. As McElreath covered in [Chapter 9][Markov Chain Monte Carlo], Hamiltonian Monte Carlo (HMC) tends to work better when you default to an exponential or half Cauchy for $\sigma$. Here's how to do so with the half Cauchy [^1].
+McElreath's uniform prior for $\sigma$ was rough on **brms**. It took an unusually-large number of warmup iterations before the chains sampled properly. As McElreath covered in [Chapter 9][Markov Chain Monte Carlo], Hamiltonian Monte Carlo (HMC) tends to work better when you default to an exponential or half Cauchy for $\sigma$. Here's how to do so with the half Cauchy[^1].
 
 ```{r b4.1_hc}
 b4.1_hc <- 
@@ -830,7 +830,7 @@ b4.2 <-
 ```
 
 ```{r, fig.width = 6, fig.height = 2.5}
-plot(b4.2)
+plot(b4.2, widths = c(1, 2))
 ```
 
 I had to increase the `warmup` due to convergence issues. After doing so, everything looks to be on the up and up. The chains look great. Here's the model `summary()`.
@@ -854,24 +854,24 @@ rbind(summary(b4.1_hc)$fixed,
 vcov(b4.1_hc)
 ```
 
-This only returns the first element in the matrix it did for **rethinking**. That is, it appears `brms::vcov()` only returns the variance/covariance matrix for the single-level $\beta$ parameters. However, if you really wanted this information, you could get it after putting the HMC chains in a data frame. We do that with the `posterior_samples()`, which we'll be using a lot of as we go along.
+This only returns the first element in the matrix it did for **rethinking**. That is, it appears `brms::vcov()` only returns the variance/covariance matrix for the single-level $\beta$ parameters. However, if you really wanted this information, you could get it after putting the HMC chains in a data frame. We do that with the `as_draws_df()` function, which we'll be using a lot of as we go along.
 
 ```{r}
-post <- posterior_samples(b4.1_hc)
+post <- as_draws_df(b4.1_hc)
 
 head(post)
 ```
 
 Now `select()` the columns containing the draws from the desired parameters and feed them into `cov()`.
 
-```{r}
+```{r, warning = F}
 select(post, b_Intercept:sigma) %>% 
   cov()
 ```
 
 That was "(1) a vector of variances for the parameters and (2) a correlation matrix" for them (p. 90). Here are just the variances (i.e., the diagonal elements) and the correlation matrix.
 
-```{r}
+```{r, warning = F}
 # variances
 select(post, b_Intercept:sigma) %>%
   cov() %>%
@@ -879,27 +879,27 @@ select(post, b_Intercept:sigma) %>%
 
 # correlation
 post %>%
-select(b_Intercept, sigma) %>%
+  select(b_Intercept, sigma) %>%
   cor()
 ```
 
-With our `post <- posterior_samples(b4.1_hc)` code from a few lines above, we've already produced the **brms** version of what McElreath achieved with `extract.samples()` on page 90. However, what happened under the hood was different. Whereas **rethinking** used the `mvnorm()` function from the [**MASS** package](https://cran.r-project.org/package=MASS) [@R-MASS; @MASS2002], with **brms** we just extracted the iterations of the HMC chains and put them in a data frame.
+With our `post <- as_draws_df(b4.1_hc)` code from a few lines above, we've already produced the **brms** version of what McElreath achieved with `extract.samples()` on page 90. However, what happened under the hood was different. Whereas **rethinking** used the `mvnorm()` function from the [**MASS** package](https://cran.r-project.org/package=MASS) [@R-MASS; @MASS2002], with **brms** we just extracted the iterations of the HMC chains and put them in a data frame. It's also noteworthy that the `as_draws_df()` is part of a larger class of `as_draws()` functions **brms** currently imports from the [**posterior** package](https://github.com/stan-dev/posterior) [@R-posterior].
 
 ```{r}
 str(post)
 ```
 
-Notice how our data frame, `post`, includes a third vector named `lp__`. That's the log posterior. For details, see the [**brms** reference manual](https://CRAN.R-project.org/package=brms/brms.pdf) [@brms2021RM], the "[The Log-Posterior (function and gradient)](https://cran.r-project.org/package=rstan/vignettes/rstan.html#the-log-posterior-function-and-gradient)" section of the Stan Development Team's [-@standevelopmentteamRStanInterfaceStan2020] vignette, [*RStan: the R interface to Stan*](https://cran.r-project.org/package=rstan/vignettes/rstan.htmlt), or [Stephen Martin](https://twitter.com/smartin2018)'s [nice explanation](https://discourse.mc-stan.org/t/basic-question-what-is-lp-in-posterior-samples-of-a-brms-regression/17567/2) of the log posterior on the Stan Forums. The log posterior will largely be outside of our focus in this ebook.
+Thus, our `post` object is not just a data frame, but also of class draws_df, which means it contains three metadata variables--`.chain`, `.iteration`, and `.draw`--which will are often hidden from view, but are there in the background when needed. As you'll see, we'll make good use of the `.draw` variable in the future. Notice how our `post` data frame also includes a third vector named `lp__`. That's the log posterior. For details, see the [**brms** reference manual](https://CRAN.R-project.org/package=brms/brms.pdf) [@brms2021RM], the "[The Log-Posterior (function and gradient)](https://cran.r-project.org/package=rstan/vignettes/rstan.html#the-log-posterior-function-and-gradient)" section of the Stan Development Team's [-@standevelopmentteamRStanInterfaceStan2020] vignette, [*RStan: the R interface to Stan*](https://cran.r-project.org/package=rstan/vignettes/rstan.htmlt), or [Stephen Martin](https://twitter.com/smartin2018)'s [nice explanation](https://discourse.mc-stan.org/t/basic-question-what-is-lp-in-posterior-samples-of-a-brms-regression/17567/2) of the log posterior on the Stan Forums. The log posterior will largely be outside of our focus in this ebook.
 
 The `summary()` function doesn't work for **brms** posterior data frames quite the way `precis()` does for posterior data frames from the **rethinking package**. Behold the results.
 
-```{r}
+```{r, warning = F}
 summary(post[, 1:2])
 ```
 
 Here's one option using the transpose of a `quantile()` call nested within `apply()`, which is a very general function you can learn more about [here](https://www.datacamp.com/community/tutorials/r-tutorial-apply-family#gs.f7fyw2s) or [here](https://www.r-bloggers.com/r-tutorial-on-the-apply-family-of-functions/).
 
-```{r}
+```{r, warning = F}
 t(apply(post[, 1:2], 2, quantile, probs = c(.5, .025, .75)))
 ```
 
@@ -924,9 +924,9 @@ posterior_summary(b4.1_hc)
 
 And if you're willing to drop the posterior $SD$s, you can use `tidybayes::mean_hdi()`, too.
 
-```{r}
+```{r, warning = F}
 post %>% 
-  pivot_longer(-lp__) %>% 
+  pivot_longer(b_Intercept:sigma) %>% 
   group_by(name) %>%
   mean_qi(value)
 ```
@@ -940,9 +940,9 @@ rbind(histospark(post$b_Intercept),
 
 Hell, you can even tack those onto the output from our verbose **tidyverse** code from a few blocks up.
 
-```{r, message = F}
+```{r, message = F, warning = F}
 post %>%
-  pivot_longer(-lp__) %>% 
+  pivot_longer(b_Intercept:sigma) %>% 
   group_by(name) %>%
   summarise(mean = mean(value),
             sd   = sd(value),
@@ -1187,7 +1187,7 @@ b4.3 <-
 This was another example of how using a uniform prior for $\sigma$ was a major pain. As you'll see in later chapters, you usually only need to set `iter = 2000, warmup = 1000` when using even moderately better priors. But for now, we'll continue to find ways to stick close to the text. Here are the trace plots.
 
 ```{r, fig.width = 6, fig.height = 3.5}
-plot(b4.3)
+plot(b4.3, widths = c(1, 2))
 ```
 
 ```{r, eval = F, echo = F}
@@ -1261,9 +1261,9 @@ vcov(b4.3) %>%
 
 No $\sigma$, however. To get that, we'll have to extract the posterior draws and use the `cov()` function, instead.
 
-```{r, fig.width = 4, fig.height = 3.5}
-posterior_samples(b4.3) %>%
-  select(-lp__) %>%
+```{r, fig.width = 4, fig.height = 3.5, warning = F}
+as_draws_df(b4.3) %>%
+  select(b_Intercept:sigma) %>%
   cov() %>%
   round(digits = 3)
 ```
@@ -1278,7 +1278,7 @@ pairs(b4.3)
 
 "It's almost always much more useful to plot the posterior inference against the data. Not only does plotting help in interpreting the posterior, but it also provides an informal check on model assumptions" (p. 100).
 
-Here is the code for Figure 4.6. Note our use of the `fixef()` function.
+Here is the code for Figure 4.6. Note our use of the `fixef()` function within `geom_abline()`.
 
 ```{r, fig.width = 3, fig.height = 2.8}
 d2 %>%
@@ -1310,10 +1310,10 @@ d2 %>%
 
 #### Adding uncertainty around the mean.
 
-Be default, we extract all the posterior iterations with `posterior_samples()`.
+Be default, we extract all the posterior iterations with `as_draws_df()`.
 
 ```{r}
-post <- posterior_samples(b4.3)
+post <- as_draws_df(b4.3)
 
 post %>%
   slice(1:5)  # this serves a similar function as `head()`
@@ -1398,20 +1398,20 @@ print(b4.3_352)
 We'll need to put the chains of each model into data frames.
 
 ```{r} 
-post010 <- posterior_samples(b4.3_010)
-post050 <- posterior_samples(b4.3_050)
-post150 <- posterior_samples(b4.3_150)
-post352 <- posterior_samples(b4.3_352)
+post010 <- as_draws_df(b4.3_010)
+post050 <- as_draws_df(b4.3_050)
+post150 <- as_draws_df(b4.3_150)
+post352 <- as_draws_df(b4.3_352)
 ```
 
 Here is the code for the four individual plots.
 
-```{r}
+```{r, warning = F}
 p1 <- 
   ggplot(data =  d2[1:10, ], 
          aes(x = weight_c, y = height)) +
-  geom_abline(intercept = post010[1:20, 1], 
-              slope     = post010[1:20, 2],
+  geom_abline(data = post010 %>% slice(1:20),
+              aes(intercept = b_Intercept, slope = b_weight_c),
               size = 1/3, alpha = .3) +
   geom_point(shape = 1, size = 2, color = "royalblue") +
   coord_cartesian(xlim = range(d2$weight_c),
@@ -1421,8 +1421,8 @@ p1 <-
 p2 <-
   ggplot(data =  d2[1:50, ], 
          aes(x = weight_c, y = height)) +
-  geom_abline(intercept = post050[1:20, 1], 
-              slope     = post050[1:20, 2],
+  geom_abline(data = post050 %>% slice(1:20),
+              aes(intercept = b_Intercept, slope = b_weight_c),
               size = 1/3, alpha = .3) +
   geom_point(shape = 1, size = 2, color = "royalblue") +
   coord_cartesian(xlim = range(d2$weight_c),
@@ -1432,8 +1432,8 @@ p2 <-
 p3 <-
   ggplot(data =  d2[1:150, ], 
          aes(x = weight_c, y = height)) +
-  geom_abline(intercept = post150[1:20, 1], 
-              slope     = post150[1:20, 2],
+  geom_abline(data = post150 %>% slice(1:20),
+              aes(intercept = b_Intercept, slope = b_weight_c),
               size = 1/3, alpha = .3) +
   geom_point(shape = 1, size = 2, color = "royalblue") +
   coord_cartesian(xlim = range(d2$weight_c),
@@ -1443,16 +1443,14 @@ p3 <-
 p4 <- 
   ggplot(data =  d2[1:352, ], 
          aes(x = weight_c, y = height)) +
-  geom_abline(intercept = post352[1:20, 1], 
-              slope     = post352[1:20, 2],
+  geom_abline(data = post352 %>% slice(1:20),
+              aes(intercept = b_Intercept, slope = b_weight_c),
               size = 1/3, alpha = .3) +
   geom_point(shape = 1, size = 2, color = "royalblue") +
   coord_cartesian(xlim = range(d2$weight_c),
                   ylim = range(d2$height)) +
   labs(subtitle = "N = 352")
 ```
-
-Note how we used the good old bracket syntax (e.g., ` d2[1:10 , ]`) to index rows from our `d2` data. With **tidyverse**-style syntax, we could have done `slice(d2, 1:10)` or `d2 %>% slice(1:10)` instead.
 
 Now we can combine the ggplots with **patchwork** syntax to make the full version of Figure 4.7.
 
@@ -1476,7 +1474,7 @@ mean(d2$weight)
 
 Just a hair under 45. If we're interested in $\mu$ at `weight` = 50, that implies we're also interested in $\mu$ at `weight_c` + 5.01.
 
-```{r}
+```{r, warning = F}
 mu_at_50 <- 
   post %>% 
   transmute(mu_at_50 = b_Intercept + b_weight_c + 5.01)
@@ -1775,7 +1773,7 @@ ggmcmc::ggs(b4.5) %>%
 Note our use of the `coef` argument within our prior statements. Since $\beta_1$ and $\beta_2$ are both parameters of `class = b` within the **brms** set-up, we need to use the `coef` argument in cases when we want their priors to differ.
 
 ```{r, fig.width = 6, fig.height = 4.5}
-plot(b4.5)
+plot(b4.5, widths = c(1, 2))
 print(b4.5)
 ```
 
@@ -2273,14 +2271,14 @@ bind_rows(
 ```
 
 ```{r}
-post <- posterior_samples(b4.8)
+post <- as_draws_df(b4.8)
 
 glimpse(post)
 ```
 
 With a little wrangling, we can use summary information from `post` to make our version of the middle panel of Figure 4.13.
 
-```{r, fig.width = 6, fig.height = 1.5, message = F}
+```{r, fig.width = 6, fig.height = 1.5, message = F, warning = F}
 post %>% 
   select(b_B1:b_B17) %>% 
   set_names(c(str_c(0, 1:9), 10:17)) %>% 
@@ -2357,7 +2355,7 @@ print(b4.9)
 
 Here we do all the work in bulk to make and save the three subplots for Figure 4.12.
 
-```{r, message = F}
+```{r, message = F, warning = F}
 ## top
 # wrangle a bit
 b <-
@@ -2378,7 +2376,7 @@ p1 <-
 ## middle
 # wrangle
 p2 <-
-  posterior_samples(b4.9) %>% 
+  as_draws_df(b4.9) %>% 
   select(b_B1:b_B5) %>% 
   set_names(str_c("B.", 1:5)) %>% 
   pivot_longer(everything(), names_to = "bias_function") %>% 
