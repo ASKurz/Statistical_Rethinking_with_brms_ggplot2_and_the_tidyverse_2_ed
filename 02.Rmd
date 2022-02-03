@@ -113,7 +113,7 @@ To my mind, the easiest way to connect the dots in the appropriate way is to mak
 # these will connect the dots from the first and second draws
 (
   lines_1 <-
-  tibble(x    = rep((1:4), each = 4),
+  tibble(x    = rep(1:4, each = 4),
          xend = ((1:4^2) / 4),
          y    = 1,
          yend = 2)
@@ -122,7 +122,7 @@ To my mind, the easiest way to connect the dots in the appropriate way is to mak
 # these will connect the dots from the second and third draws
 (
   lines_2 <-
-  tibble(x    = rep(((1:4^2) / 4), each = 4),
+  tibble(x    = rep((1:4^2) / 4, each = 4),
          xend = (1:4^3) / (4^2),
          y    = 2,
          yend = 3)
@@ -146,7 +146,7 @@ d %>%
              shape = 21, size = 3) +
   scale_fill_manual(values  = c("navy", "white")) +
   scale_y_continuous(breaks = 1:3) +
-  theme(legend.position  = "none",
+  theme(legend.position = "none",
         panel.grid.minor = element_blank())
 ```
 
@@ -198,7 +198,7 @@ d %>%
              shape = 21, size = 3) +
   scale_fill_manual(values  = c("navy", "white")) +
   scale_y_continuous(breaks = 1:3) +
-  theme(legend.position  = "none",
+  theme(legend.position = "none",
         panel.grid.minor = element_blank())
 ```
 
@@ -350,8 +350,8 @@ Anyway, now we'll make our new `lines_1` and `lines_2` data, for which we'll use
 ```{r}
 (
   lines_1 <-
-  tibble(x    = rep((1:4), each = 4) %>% rep(., times = 3),
-         xend = ((1:4^2) / 4)        %>% rep(., times = 3),
+  tibble(x    = rep(1:4, each = 4) %>% rep(., times = 3),
+         xend = ((1:4^2) / 4)      %>% rep(., times = 3),
          y    = 1,
          yend = 2) %>% 
   mutate(x    = x - .5,
@@ -365,8 +365,8 @@ Anyway, now we'll make our new `lines_1` and `lines_2` data, for which we'll use
 
 (
   lines_2 <-
-  tibble(x    = rep(((1:4^2) / 4), each = 4)  %>% rep(., times = 3),
-         xend = (1:4^3 / 4^2)                 %>% rep(., times = 3),
+  tibble(x    = rep((1:4^2) / 4, each = 4) %>% rep(., times = 3),
+         xend = (1:4^3 / 4^2)              %>% rep(., times = 3),
          y    = 2,
          yend = 3) %>% 
   mutate(x    = x - .5 / 4^1,
@@ -508,7 +508,7 @@ t %>%
 
 To learn more about `dplyr::select()` and `dplyr::rename()`, check out Baert's exhaustive blog post, [*Data wrangling part 1: Basic to advanced ways to select columns*](https://suzan.rbind.io/2018/01/dplyr-tutorial-1/).
 
-#### Rethinking: Original ignorance. 
+#### Rethinking: Original ignorance.
 
 > Which assumption should we use, when there is no previous information about the conjectures? The most common solution is to assign an equal number of ways that each conjecture could be correct, before seeing any data. This is sometimes known as the **principle of indifference**: When there is no reason to say that one conjecture is more plausible than another, weigh all of the conjectures equally. This book does not use nor endorse "ignorance" priors. As we'll see in later chapters, the structure of the model and the scientific context always provide information that allows us to do better than ignorance. (p. 26, **emphasis** in the original)
 
@@ -724,7 +724,8 @@ I like to verify things with plots.
 ```{r, fig.width = 8, fig.height = 2}
 tibble(a = 0,
        b = c(1, 1.5, 2, 3, 9)) %>% 
-  expand(nesting(a, b), parameter_space = seq(from = 0, to = 9, length.out = 500)) %>% 
+  expand(nesting(a, b), 
+         parameter_space = seq(from = 0, to = 9, length.out = 500)) %>% 
   mutate(prob = dunif(parameter_space, a, b),
          b    = str_c("b = ", b)) %>% 
   
@@ -806,7 +807,7 @@ d <-
          row  = factor(row, levels = c("flat", "stepped", "Laplace")))
 ```
 
-To learn more about `dplyr::arrange()`, chech out [*R4DS*, Chapter 5.3](http://r4ds.had.co.nz/transform.html#arrange-rows-with-arrange).
+To learn more about `dplyr::arrange()`, check out [*R4DS*, Chapter 5.3](http://r4ds.had.co.nz/transform.html#arrange-rows-with-arrange).
 
 In order to avoid unnecessary facet labels for the rows, it was easier to just make each column of the plot separately. We can then use the elegant and powerful syntax from [Thomas Lin Pedersen](https://twitter.com/thomasp85)'s [-@R-patchwork] [**patchwork** package](https://patchwork.data-imaginist.com/) to combine them.
 
@@ -1074,7 +1075,7 @@ The model output from **brms** looks like so.
 print(b2.1)
 ```
 
-There's a lot going on in that output, which we'll start to clarify in [Chapter 4][Geocentric Models]. For now, focus on the 'Intercept' line. As we'll also learn in Chapter 4, the intercept of a regression model with no predictors is the same as its mean. In the special case of a model using the binomial likelihood, the mean is the probability of a 1 in a given trial, $\theta$.
+There's a lot going on in that output, which we'll start to clarify in [Chapter 4][Geocentric Models]. For now, focus on the 'Intercept' line. As we'll also learn in Chapter 4, the intercept of a typical regression model with no predictors is the same as its mean. In the special case of a model using the binomial likelihood, the mean is the probability of a 1 in a given trial, $\theta$.
  
 Also, with **brms**, there are many ways to summarize the results of a model. The `brms::posterior_summary()` function is an analogue to `rethinking::precis()`. We will, however, need to use `round()` to reduce the output to a reasonable number of decimal places.
 
@@ -1086,7 +1087,7 @@ posterior_summary(b2.1) %>%
 The `b_Intercept` row is the probability. Don't worry about the second line, for now. We'll cover the details of **brms** model fitting in later chapters. To finish up, why not plot the results of our model and compare them with those from `rethinking::quap()`, above?
 
 ```{r, fig.width = 3, fig.height = 2.75}
-posterior_samples(b2.1) %>% 
+as_draws_df(b2.1) %>% 
   mutate(n = "n = 36") %>%
   
   ggplot(aes(x = b_Intercept)) +
