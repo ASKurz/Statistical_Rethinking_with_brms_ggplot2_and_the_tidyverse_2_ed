@@ -725,16 +725,16 @@ Do note our use of the `dpar` arguments in the `prior()` functions Here's the su
 print(b10.1)
 ```
 
-Now we get an intercept for both $\mu$ and $\sigma$, with the intercept for sigma labeled as `sigma_Intercept`. And note the $\beta$ coefficient for $\sigma$ was named `sigma_x`. Also notice the scale the `sigma_i` coefficients are on. These are not in the original metric, but rather based on a logarithmic transformation of $\sigma$. You can confirm that by the second line of the `print()` output: `Links: mu = identity; sigma = log`. So if you want to get a sense of the effects of `x` on the $\sigma$ for `y`, you have to exponentiate the formula. Here we'll do so with the `posterior_samples()`.
+Now we get an intercept for both $\mu$ and $\sigma$, with the intercept for sigma labeled as `sigma_Intercept`. And note the $\beta$ coefficient for $\sigma$ was named `sigma_x`. Also notice the scale the `sigma_i` coefficients are on. These are not in the original metric, but rather based on a logarithmic transformation of $\sigma$. You can confirm that by the second line of the `print()` output: `Links: mu = identity; sigma = log`. So if you want to get a sense of the effects of `x` on the $\sigma$ for `y`, you have to exponentiate the formula. Here we'll do so with the output from `as_draws_df()`.
 
 ```{r}
-post <- posterior_samples(b10.1)
+post <- as_draws_df(b10.1)
 head(post)
 ```
 
 With the samples in hand, we’ll use the model formula to compute the model-implied standard deviations of `y` based on the `x` dummy and then examine them in a plot.
 
-```{r, fig.width = 3.75, fig.height = 2.5}
+```{r, fig.width = 3.75, fig.height = 2.5, warning = F}
 post %>% 
   mutate(`x == 0` = exp(b_sigma_Intercept + b_sigma_x * 0),
          `x == 1` = exp(b_sigma_Intercept + b_sigma_x * 1)) %>% 
