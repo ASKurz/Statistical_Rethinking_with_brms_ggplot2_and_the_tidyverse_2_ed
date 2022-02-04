@@ -189,7 +189,7 @@ print(b13.2)
 This time we don't get a list of 48 separate `tank`-level parameters. However, we do get a description of their distribution in terms of $\bar \alpha$ (i.e., `Intercept`) and $\sigma$ (i.e., `sd(Intercept)`). If you'd like the actual `tank`-level parameters, don't worry; they're coming in Figure 13.1. We'll need to do a little prep work, though.
 
 ```{r}
-post <- posterior_samples(b13.2)
+post <- as_draws_df(b13.2)
 
 post_mdn <- 
   coef(b13.2, robust = T)$tank[, , ] %>% 
@@ -227,13 +227,12 @@ set.seed(13)
 
 p1 <-
   post %>% 
-  mutate(iter = 1:n()) %>% 
   slice_sample(n = 100) %>% 
-  expand(nesting(iter, b_Intercept, sd_tank__Intercept),
+  expand(nesting(.draw, b_Intercept, sd_tank__Intercept),
          x = seq(from = -4, to = 5, length.out = 100)) %>%
   mutate(density = dnorm(x, mean = b_Intercept, sd = sd_tank__Intercept)) %>% 
     
-  ggplot(aes(x = x, y = density, group = iter)) +
+  ggplot(aes(x = x, y = density, group = .draw)) +
   geom_line(alpha = .2, color = "orange2") +
   scale_y_continuous(NULL, breaks = NULL) +
   labs(title = "Population survival distribution",
@@ -304,10 +303,10 @@ text <-
          prior        = "Exponential(1)")
 
 # gather and wrangle the prior and posterior draws
-tibble(`prior_Exponential(1)`        = prior_samples(b13.2) %>% pull(sd_tank),
-       `posterior_Exponential(1)`    = posterior_samples(b13.2) %>% pull(sd_tank__Intercept),
-       `prior_Half-Normal(0, 1)`     = prior_samples(b13.2b) %>% pull(sd_tank),
-       `posterior_Half-Normal(0, 1)` = posterior_samples(b13.2b) %>% pull(sd_tank__Intercept)) %>% 
+tibble(`prior_Exponential(1)`        = prior_draws(b13.2)  %>% pull(sd_tank),
+       `posterior_Exponential(1)`    = as_draws_df(b13.2)  %>% pull(sd_tank__Intercept),
+       `prior_Half-Normal(0, 1)`     = prior_draws(b13.2b) %>% pull(sd_tank),
+       `posterior_Half-Normal(0, 1)` = as_draws_df(b13.2b) %>% pull(sd_tank__Intercept)) %>% 
   pivot_longer(everything(),
                names_sep = "_",
                names_to = c("distribution", "prior")) %>% 
@@ -552,7 +551,7 @@ b13.3_new <-
          newdata = new_dsim,
          chains = 4, cores = 4,
          seed = 13,
-      file = "fits/b13.03_new")
+         file = "fits/b13.03_new")
 ```
 
 ```{r}
@@ -562,8 +561,8 @@ print(b13.3_new)
 Why not plot the first simulation versus the second one?
 
 ```{r, fig.width = 8, fig.height = 5}
-bind_rows(posterior_samples(b13.3),
-          posterior_samples(b13.3_new)) %>%
+bind_rows(as_draws_df(b13.3),
+          as_draws_df(b13.3_new)) %>%
   mutate(model = rep(c("b13.3", "b13.3_new"), each = n() / 2)) %>% 
   ggplot(aes(x = b_Intercept, y = sd_pond__Intercept)) +
   stat_density_2d(geom = "raster", 
@@ -673,10 +672,8 @@ library(bayesplot)
 
 color_scheme_set("orange")
 
-post <- posterior_samples(b13.4, add_chain = T)
-
-post %>% 
-  mcmc_trace(pars = vars(-iter, -lp__),
+as_draws_array(b13.4) %>% 
+  mcmc_trace(pars = vars(-lp__),
              facet_args = list(ncol = 4), 
              size = .15) +
   theme(legend.position = "none")
@@ -699,13 +696,17 @@ posterior_summary(b13.4) %>% round(digits = 2)
 We might make the coefficient plot of Figure 13.4.a with `bayesplot::mcmc_plot()`.
 
 ```{r, fig.width = 3.75, fig.height = 4}
-mcmc_plot(b13.4, pars = c("^r_", "^b_", "^sd_")) +
+b13.4 %>% 
+  mcmc_plot(variable = c("^r_", "^b_", "^sd_"), regex = T) +
   theme(axis.text.y = element_text(hjust = 0))
 ```
 
 For a little more control, we might switch to a **tidybayes**-oriented approach.
 
-```{r, fig.width = 3.75, fig.height = 4}
+```{r, fig.width = 3.75, fig.height = 4, warning = F}
+# extract the posterior draws
+post <- as_draws_df(b13.4) 
+
 # this is all stylistic fluff
 levels <- 
   c("sd_block__a_Intercept", "sd_actor__a_Intercept", 
@@ -728,7 +729,7 @@ arrow <-
 
 # here's the main event
 post %>% 
-  pivot_longer(-(iter:lp__)) %>% 
+  pivot_longer(b_a_Intercept:`r_block__a[6,Intercept]`)%>% 
   mutate(name = factor(name, levels = levels)) %>% 
   
   ggplot(aes(x = value, y = name)) +
@@ -748,7 +749,7 @@ Regardless of whether we use a **bayesplot**- or **tidybayes**-oriented workflow
 
 Now use `post` to compare the group-level $\sigma$ parameters as in Figure 13.4.b.
 
-```{r, fig.width = 3, fig.height = 3}
+```{r, fig.width = 3, fig.height = 3, warning = F}
 post %>%
   pivot_longer(starts_with("sd")) %>% 
   
@@ -824,8 +825,8 @@ tibble(parameter = str_c("b[", 1:4, "]"),
 
 Like in the text, "these are not identical, but they are very close" (p. 419). We might compare the group-level $\sigma$ parameters with a plot.
 
-```{r, fig.width = 5.25, fig.height = 3}
-posterior_samples(b13.6) %>% 
+```{r, fig.width = 5.25, fig.height = 3, warning = F}
+as_draws_df(b13.6) %>% 
   pivot_longer(starts_with("sd")) %>% 
   mutate(group = str_remove(name, "sd_") %>% str_remove(., "__Intercept")) %>% 
   mutate(parameter = str_c("sigma[", group,"]")) %>% 
@@ -980,30 +981,19 @@ Recall that due to how **brms** only supports the non-centered parameterization,
 print(b13.4)
 ```
 
-Because we only fit this model using the non-centered parameterization, we won't be able to fully reproduce McElreath's Figure 13.6. But we can still plot our effective sample sizes. Recall that unlike the way **rethinking** only reports `n_eff`, **brms** now reports both `Bulk_ESS` and `Tail_ESS` [see @vehtariRanknormalizationFoldingLocalization2019]. At the moment, **brms** does not offer a convenience function that allows users to collect those values in a data frame. However you can do so with help from the [**posterior** package](https://github.com/stan-dev/posterior) [@R-posterior], which has not made its way to CRAN, yet, but can be downloaded directly from GitHub.
-
-```{r, eval = F}
-# install the beta release with this
-install.packages("posterior", repos = c("https://mc-stan.org/r-packages/", getOption("repos")))
-
-# install the latest development version with this instead
-install.packages("remotes")
-remotes::install_github("stan-dev/posterior")
-```
-
-For our purposes, the function of interest is `summarise_draws()`, which will take the output from `posterior_samples()` as input.
+Because we only fit this model using the non-centered parameterization, we won't be able to fully reproduce McElreath's Figure 13.6. But we can still plot our effective sample sizes. Recall that unlike the way **rethinking** only reports `n_eff`, **brms** now reports both `Bulk_ESS` and `Tail_ESS` [see @vehtariRanknormalizationFoldingLocalization2019]. At the moment, **brms** does not offer a convenience function that allows users to collect those values in a data frame. However you can do so with help from the [**posterior** package](https://github.com/stan-dev/posterior). For our purposes, the function of interest is `summarise_draws()`, which will take the output from `as_draws_df()` as input.
 
 ```{r, warning = F, message = F}
 library(posterior)
 
-posterior_samples(b13.4) %>% 
+as_draws_df(b13.4) %>% 
   summarise_draws()
 ```
 
 Note how the last three columns are the `rhat`, the `ess_bulk`, and the `ess_tail`. Here we summarize those two effective sample size columns in a scatter plot similar to Figure 13.6, but based only on our `b13.4`, which used the non-centered parameterization.
 
 ```{r, fig.width = 3.5, fig.height = 3.5, warning = F}
-posterior_samples(b13.4) %>% 
+as_draws_df(b13.4) %>% 
   summarise_draws() %>% 
 
   ggplot(aes(x = ess_bulk, y = ess_tail)) +
@@ -1091,17 +1081,17 @@ f %>%
   theme(plot.subtitle = element_text(size = 10))
 ```
 
-Do note how severely we've restricted the $y$-axis range. But okay, now let's do things by hand. We'll need to extract the posterior samples and look at the structure of the data.
+Do note how severely we've restricted the $y$-axis range. But okay, now let's do things by hand. We'll need to extract the posterior draws and look at the structure of the data.
 
 ```{r}
-post <- posterior_samples(b13.4)
+post <- as_draws_df(b13.4)
 
 glimpse(post)
 ```
 
 McElreath didn't show what his **R** code 13.33 `dens( post$a[,5] )` would look like. But here's our analogue.
 
-```{r, fig.width = 4, fig.height = 2.5}
+```{r, fig.width = 4, fig.height = 2.5, warning = F}
 post %>%
   transmute(actor_5 = `r_actor__a[5,Intercept]`) %>% 
   
@@ -1115,7 +1105,7 @@ And because we made the density only using the `r_actor__a[5,Intercept]` values 
 
 McElreath built his own `link()` function in **R** code 13.34. With this particular model, it will be easiest for us to just work directly with `post`.
 
-```{r}
+```{r, warning = F}
 f <-
   post %>% 
   pivot_longer(b_b_treatment1:b_b_treatment4) %>% 
@@ -1174,7 +1164,7 @@ Not bad.
 
 By average actor, McElreath referred to a chimp with an intercept exactly at the population mean $\bar \alpha$. Given our non-centered parameterization for `b13.4`, this means we'll leave out the random effects for `actor`. Since we're predicting what might happen in new experimental blocks, we'll leave out the random effects for `block`, too. When doing this by hand, the workflow is much like is was before, just with fewer columns added together within the first `mutate()` line.
 
-```{r}
+```{r, warning = F}
 f <-
   post %>% 
   pivot_longer(b_b_treatment1:b_b_treatment4) %>% 
@@ -1210,7 +1200,7 @@ $$\text{simulated chimpanzees} \sim \operatorname{Normal}(\bar \alpha, \sigma_\a
 
 As before, we are also averaging over `block`.
 
-```{r}
+```{r, warning = F}
 set.seed(13)
 
 f <-
@@ -1245,7 +1235,7 @@ p2
 
 The big difference between this workflow and the last is now we start of by marking off the rows in `post` with an `iter` index and then use `slice_sample()` to randomly sample 100 posterior rows. We also omit the `group_by()` and `mean_qi()` lines at the end.
 
-```{r}
+```{r, warning = F}
 # how many simulated chimps would you like?
 n_chimps <- 100
 
@@ -1253,7 +1243,6 @@ set.seed(13)
 
 f <-
   post %>% 
-  mutate(iter = 1:n()) %>% 
   slice_sample(n = n_chimps) %>% 
   # simulated chimpanzees
   mutate(a_sim = rnorm(n(), mean = b_a_Intercept, sd = sd_actor__a_Intercept)) %>% 
@@ -1261,7 +1250,7 @@ f <-
   mutate(fitted = inv_logit_scaled(a_sim + value)) %>% 
   mutate(treatment = factor(str_remove(name, "b_b_treatment"),
                             labels = labels)) %>% 
-  select(iter:treatment)
+  select(.draw:treatment)
 
 f
 ```
@@ -1271,7 +1260,7 @@ Make Figure 13.7.c.
 ```{r, fig.width = 2.5, fig.height = 3.25}
 p3 <-
   f %>%
-  ggplot(aes(x = treatment, y = fitted, group = iter)) +
+  ggplot(aes(x = treatment, y = fitted, group = .draw)) +
   geom_line(alpha = 1/2, color = "orange3") +
   ggtitle("100 simulated actors") +
   coord_cartesian(ylim = 0:1) +
@@ -1290,7 +1279,7 @@ p1 | p2 | p3
 
 #### Bonus: Let's use `fitted()` this time.
 
-We just made those plots using various wrangled versions of `post`, the data frame returned by `posterior_samples(b.13.4)`. If you followed along closely, part of what made that a great exercise is that it forced you to consider what the various vectors in `post` meant with respect to the model formula. But it's also handy to see how to do that from a different perspective. So in this section, we'll repeat that process by relying on the `fitted()` function, instead. We'll go in the same order, starting with the average actor.
+We just made those plots using various wrangled versions of `post`, the data frame returned by `as_draws_df(b.13.4)`. If you followed along closely, part of what made that a great exercise is that it forced you to consider what the various vectors in `post` meant with respect to the model formula. But it's also handy to see how to do that from a different perspective. So in this section, we'll repeat that process by relying on the `fitted()` function, instead. We'll go in the same order, starting with the average actor.
 
 ```{r, warning = F, message = F}
 nd <- distinct(d, treatment)
@@ -1307,7 +1296,7 @@ nd <- distinct(d, treatment)
 )
 ```
 
-You should notice a few things. Since `b13.4` is a cross-classified multilevel model, it had three predictors: `treatment`, `block`, and `actor`. However, our `nd` data only included the first of those three. The reason `fitted()` permitted that was because we set `re_formula = NA`. When you do that, you tell `fitted()` to ignore group-level effects (i.e., focus only on the fixed effects). This was our `fitted()` version of ignoring the `r_` vectors returned by `posterior_samples()`. Here's the plot.
+You should notice a few things. Since `b13.4` is a cross-classified multilevel model, it had three predictors: `treatment`, `block`, and `actor`. However, our `nd` data only included the first of those three. The reason `fitted()` permitted that was because we set `re_formula = NA`. When you do that, you tell `fitted()` to ignore group-level effects (i.e., focus only on the fixed effects). This was our `fitted()` version of ignoring the `r_` vectors returned by `as_draws_df()`. Here's the plot.
 
 ```{r, fig.width = 2.5, fig.height = 3.25}
 p4 <-
@@ -1376,12 +1365,12 @@ f <-
          allow_new_levels = T,
          sample_new_levels = "gaussian",
          summary = F,
-         nsamples = n_chimps)
+         ndraws = n_chimps)
 ```
 
 Our `f` object will need a lot of wrangling. Before I walk out the wrangling steps, we should reiterate what McElreath originally did in the text (pp. 429--430). He based the new actors on the deviation scores from `post$sigma_a`. That was the first working line in his **R** code 13.38. In the remaining lines in that code block, he used the model formula to compute the actor-level trajectories. Then in his plot code in **R** code 13.39, he just used the first 100 rows from that output.
 
-In our `fitted()` code, above, we saved a little time and computer memory by setting `nsamples = n_chimps`, which equaled 100. That's functionally the same as when McElreath used the first 100 posterior draws in the plot. A difficulty for us is the way `brms::fitted()` returns the output, the 100 new levels of `actor` and the four levels of `treatment` are confounded in the 400 columns. In the code block, below, the `data.frame()` through `left_join()` lines are meant to disentangle those two. After that, we'll make an `actor_number` variable, which which we'll filter the data such that the first row returned by `fitted()` is only assigned to the new actor #1, the second row is only assigned to the new actor #2, and so on. The result is that we have 100 new simulated actors, each of which corresponds to a different iteration of the posterior draws from the fixed effects[^4].
+In our `fitted()` code, above, we saved a little time and computer memory by setting `ndraws = n_chimps`, which equaled 100. That's functionally the same as when McElreath used the first 100 posterior draws in the plot. A difficulty for us is the way `brms::fitted()` returns the output, the 100 new levels of `actor` and the four levels of `treatment` are confounded in the 400 columns. In the code block, below, the `data.frame()` through `left_join()` lines are meant to disentangle those two. After that, we'll make an `actor_number` variable, which which we'll filter the data such that the first row returned by `fitted()` is only assigned to the new actor #1, the second row is only assigned to the new actor #2, and so on. The result is that we have 100 new simulated actors, each of which corresponds to a different iteration of the posterior draws from the fixed effects[^4].
 
 ```{r, fig.width = 2.5, fig.height = 3.25}
 p6 <-
@@ -1390,16 +1379,16 @@ p6 <-
   # name the columns by the `row` values in `nd`
   set_names(pull(nd, row)) %>% 
   # add an iteration index
-  mutate(iter = 1:n()) %>% 
+  mutate(draw = 1:n()) %>% 
   # make it long
-  pivot_longer(-iter, names_to = "row") %>% 
+  pivot_longer(-draw, names_to = "row") %>% 
   mutate(row = as.double(row)) %>% 
   # add the new data
   left_join(nd, by = "row") %>% 
   # extract the numbers from the names of the new actors
   mutate(actor_number = str_extract(actor, "\\d+") %>% as.double()) %>% 
   # only keep the posterior iterations that match the `actor_number` values
-  filter(actor_number == iter) %>% 
+  filter(actor_number == draw) %>% 
   # add the `treatment` labels
   mutate(treatment = factor(treatment, labels = labels)) %>% 
   
@@ -1481,7 +1470,7 @@ Like in the earlier examples in this chapter, we will model the data with multil
 ```{r, fig.width = 4, fig.height = 2.25}
 set.seed(13)
 
-tibble(n = rnorm(1e6, -1, 1)) %>% 
+tibble(n = rnorm(1e6, mean = -1, sd = 1)) %>% 
   mutate(p = inv_logit_scaled(n)) %>% 
   
   ggplot(aes(x = p)) +
@@ -1512,8 +1501,8 @@ print(b13.7)
 
 Even with 4,373 cases in the data, the uncertainty around $\bar \alpha$ is massive, `r str_c(round(fixef(b13.7)[, 1], 2), " [", round(fixef(b13.7)[, 3], 2), ", ", round(fixef(b13.7)[, 4], 2), "]")`, suggesting a lot of the action is lurking in the $\sigma_\text{<group>}$ parameters. It might be easier to compare the $\sigma_\text{<group>}$ parameters with an interval plot.
 
-```{r, fig.width = 6, fig.height = 2}
-posterior_samples(b13.7) %>% 
+```{r, fig.width = 6, fig.height = 2, warning = F}
+as_draws_df(b13.7) %>% 
   select(starts_with("sd_")) %>% 
   set_names(str_c("sigma[", c("age", "decade~married", "education", "state"), "]")) %>% 
   pivot_longer(everything()) %>% 
@@ -1779,7 +1768,7 @@ bayesplot::color_scheme_set("blue")
 # pacman::p_unload(pacman::p_loaded(), character.only = TRUE)
 ```
 
-[^4]: The `fitted()` version of the code for the third panel is cumbersome. Indeed, this in one of those cases where it seems more straightforward to work directly with the `posterior_samples()` output, rather than with `fitted()`. The workflow in this section from previous editions of this ebook was more streamlined and superficially seemed to work. However, fellow researcher [Ladislas Nalborczyk](https://twitter.com/lnalborczyk) kindly pointed out I was taking 100 draws from one new simulated `actor`, rather than one simulated draw from 100 new levels of `actor`. To my knowledge, if you want 100 new levels of `actor` AND want each one to be from a different posterior iteration, you'll need a lot of post-processing code when working with `fitted()`.
+[^4]: The `fitted()` version of the code for the third panel is cumbersome. Indeed, this in one of those cases where it seems more straightforward to work directly with the `as_draws_df()` output, rather than with `fitted()`. The workflow in this section from previous editions of this ebook was more streamlined and superficially seemed to work. However, fellow researcher [Ladislas Nalborczyk](https://twitter.com/lnalborczyk) kindly pointed out I was taking 100 draws from one new simulated `actor`, rather than one simulated draw from 100 new levels of `actor`. To my knowledge, if you want 100 new levels of `actor` AND want each one to be from a different posterior iteration, you'll need a lot of post-processing code when working with `fitted()`.
 
 ```{r, eval = F, echo = F}
 # For all you super nerds, here is my data wrangling code for the MRP example
