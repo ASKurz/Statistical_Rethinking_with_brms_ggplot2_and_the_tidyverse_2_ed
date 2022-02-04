@@ -34,7 +34,7 @@ for (i in 1:num_weeks) {
   if (proposal < 1) proposal <- 10
   if (proposal > 10) proposal <- 1
   # move?
-  prob_move <- proposal/current
+  prob_move <- proposal / current
   current <- ifelse(runif(1) < prob_move, proposal, current)
   
 }  
@@ -225,7 +225,7 @@ metropolis <- function(num_proposals = 50,
   # Initialize vectors where we will keep track of relevant
   candidate_x_history <- rep(-Inf, num_proposals)
   candidate_y_history <- rep(-Inf, num_proposals)
-  did_move_history <- rep(FALSE, num_proposals)
+  did_move_history    <- rep(FALSE, num_proposals)
   
   # Prepare to begin the algorithm...
   current_point <- starting_point
@@ -321,8 +321,8 @@ round_2 <- metropolis(num_proposals = 50,
 p2 <-
   contour_plot + 
   geom_point(data = round_2$results,
-             mapping = aes(x = candidate_x, y = candidate_y, 
-                           color = accept, shape = accept)) +
+             aes(x = candidate_x, y = candidate_y, 
+                 color = accept, shape = accept)) +
   scale_shape_manual(values = c(21, 19)) +
   scale_color_manual(values = pomological_palette[8:9]) +
   scale_y_continuous(NULL, breaks = NULL, expand = c(0, 0)) +
@@ -348,7 +348,7 @@ metropolis_with_seed <- function(seed, step_size = 0.1) {
   met <-
     metropolis(num_proposals = 50,
                step_size = step_size,
-               starting_point = c(-1,1))
+               starting_point = c(-1, 1))
   
   return(met$acceptance_rate)
   
@@ -648,10 +648,10 @@ Also of note, McElreath's `rethinking::precis()` returns highest posterior densi
 ```{r, warning = F, message = F}
 library(tidybayes)
 
-post <- posterior_samples(b9.1)
+post <- as_draws_df(b9.1)
 
 post %>% 
-  pivot_longer(-lp__) %>% 
+  pivot_longer(b_a_cid1:sigma) %>% 
   group_by(name) %>% 
   mean_hdi(value, .width = .89)  # note our rare use of 89% intervals
 ```
@@ -728,10 +728,10 @@ Our output is a little different in that we don't get a lower-triangle of Pearso
 vcov(b9.1b, correlation = T) %>% round(digits = 2)
 ```
 
-Note, however, that this will only return the correlations among the 'Population-Level Effects'. Within **brms**, $\sigma$ is classified among the 'Family Specific Parameters'. We have more options still. As a first step, use the `brms::posterior_samples()` function to extract the posterior samples within a data frame.
+Note, however, that this will only return the correlations among the 'Population-Level Effects'. Within **brms**, $\sigma$ is classified among the 'Family Specific Parameters'. We have more options still. As a first step, use the `brms::as_draws_df()` function to extract the posterior samples within a data frame.
 
 ```{r}
-post <- posterior_samples(b9.1b)
+post <- as_draws_df(b9.1b)
 
 glimpse(post)
 ```
@@ -742,7 +742,7 @@ Another nice way to customize your pairs plot is with the [**GGally** package](h
 library(GGally)
 
 post %>%
-  select(-lp__ ) %>%
+  select(b_a_cid1:sigma) %>%
   ggpairs()
 ```
 
@@ -765,7 +765,7 @@ my_upper <- function(data, mapping, ...) {
 
 # plot!
 post %>%
-  select(-lp__ ) %>%
+  select(b_a_cid1:sigma) %>%
   ggpairs(lower = list(continuous = wrap("cor", family = "Marck Script", color = "black")),
           diag = list(continuous = my_diag),
           upper = list(continuous = my_upper)) +
@@ -780,31 +780,29 @@ For more ideas on customizing a `ggpairs()` plot, go [here](https://ggobi.github
 Using `plot()` for a `brm()` fit returns both density and trace lots for the parameters.
 
 ```{r, fig.width = 7, fig.height = 6}
-plot(b9.1b)
+plot(b9.1b, widths = c(1, 2))
 ```
 
-The [**bayesplot**](https://cran.r-project.org/package=bayesplot) package allows a little more control. Here, we use the `bayesplot::mcmc_trace()` function to show only trace plots with our custom theme. Note that `mcmc_trace()` works with data frames, not brmfit objects. There's a further complication. Recall how we made `post` (i.e., `post <- posterior_samples(b8.1)`). Our `post` data frame carries no information on chains. To retain that information, we'll need to add an `add_chain = T` argument to our `posterior_samples()` function.
+The [**bayesplot**](https://cran.r-project.org/package=bayesplot) package allows a little more control. Here, we use the `bayesplot::mcmc_trace()` function to show only trace plots with our custom theme. Note that `mcmc_trace()` does not work with brmfit objects, but it will accept input from `as_draws_array()`.
 
 ```{r, fig.width = 8, fig.height = 4, message = F, warning = F}
 library(bayesplot)
 
-post <- posterior_samples(b9.1b, add_chain = T)
-
-mcmc_trace(post[, c(1:5, 7)],  # we need to include column 7 because it contains the chain info 
-           facet_args = list(ncol = 3), 
-           size = .15) +
+as_draws_array(b9.1b)[, , 1:5] %>% 
+  mcmc_trace(facet_args = list(ncol = 3), 
+             size = .15) +
   scale_color_pomological() +
   labs(title = "My custom trace plots") +
   theme_pomological_fancy(base_family = "Marck Script") +
   theme(legend.position = c(.95, .2))
 ```
 
+
 The **bayesplot** package offers a variety of diagnostic plots. Here we make autocorrelation plots for all model parameters, one for each HMC chain.
 
 ```{r, fig.width = 8, fig.height = 4.5}
-post %>% 
-  mcmc_acf(pars = vars(b_a_cid1:sigma),
-           lags = 5) +
+as_draws_array(b9.1b)[, , 1:5] %>% 
+  mcmc_acf(lags = 5) +
   theme_pomological_fancy(base_family = "Marck Script") 
 ```
 
@@ -869,10 +867,11 @@ For each parameter, the all four chains had moved away from their starting value
 But anyway, we've veered a bit from the text. McElreath pointed out a second way to visualize the chains is by the distribution of the ranked samples, which he called a **trank plot** (short for trace rank plot). I'm not aware that **brms** has a built-in function for that. Happily, we can make them with `mcmc_rank_overlay()`.
 
 ```{r, fig.width = 8, fig.height = 4, message = F, warning = F}
-post %>% 
+as_draws_array(b9.1b)%>%
   mcmc_rank_overlay(pars = vars(b_a_cid1:sigma)) +
   scale_color_pomological() +
-  ggtitle("My custom trank plots") +
+  labs(title = "My custom trank plots",
+       x = NULL) +
   coord_cartesian(ylim = c(25, NA)) +
   theme_pomological_fancy(base_family = "Marck Script") +
   theme(legend.position = c(.95, .2))
@@ -974,15 +973,13 @@ That `np = nuts_params(b9.2)` trick will work in a similar way with **bayesplot*
 Let's further inspect the damage by making the top two rows of Figure 9.9.
 
 ```{r, message = F, fig.width = 6.5, fig.height = 3.75}
-post <- posterior_samples(b9.2, add_chain = T)
-
 p1 <-
-  post %>% 
+  as_draws_array(b9.2) %>% 
   mcmc_trace(pars = vars(b_Intercept:sigma),
              size = .25)
 
 p2 <-
-  post %>% 
+  as_draws_array(b9.2) %>% 
   mcmc_rank_overlay(pars = vars(b_Intercept:sigma))
 
 (
@@ -1024,15 +1021,13 @@ print(b9.3)
 As in the text, no more warning signs and no more silly estimates. The trace and trank plots look better, too.
 
 ```{r, message = F, fig.width = 6.5, fig.height = 3.75}
-post <- posterior_samples(b9.3, add_chain = T)
-
 p1 <-
-  post %>% 
+  as_draws_array(b9.3) %>% 
   mcmc_trace(pars = vars(b_Intercept:sigma),
              size = .25)
 
 p2 <-
-  post %>% 
+  as_draws_array(b9.3) %>% 
   mcmc_rank_overlay(pars = vars(b_Intercept:sigma)) +
   ylim(35, NA)
 
@@ -1047,7 +1042,9 @@ p2 <-
 
 Now behold our version of Figure 9.10.
 
-```{r, fig.height = 3.5, fig.width = 6}
+```{r, fig.height = 3.5, fig.width = 6, warning = F}
+post <- as_draws_df(b9.3)
+
 # left
 p1 <-
   post %>%
@@ -1174,14 +1171,14 @@ Now use our custom `trace_rank()` function to make the six rows one at a time an
 
 ```{r, fig.height = 10, fig.width = 7, warning = F, message = F}
 # b9.4
-post <- posterior_samples(b9.4, add_chain = T)
+post <- as_draws_array(b9.4)
 
 p1 <-  trace_rank(data = post, var = "b_a1", subtitle = "b9.4 (bad priors)")
 p2 <-  trace_rank(data = post, var = "b_a2")
 p3 <-  trace_rank(data = post, var = "sigma")
 
 # b9.5
-post <- posterior_samples(b9.5, add_chain = T)
+post <- as_draws_array(b9.5)
 
 p4 <-  trace_rank(data = post, var = "b_a1", subtitle = "b9.5 (good priors)", ymin = 30)
 p5 <-  trace_rank(data = post, var = "b_a2", ymin = 30)
