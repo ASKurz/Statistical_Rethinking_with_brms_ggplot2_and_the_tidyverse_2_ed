@@ -206,10 +206,10 @@ b8.1 <-
       file = "fits/b08.01")
 ```
 
-Did you notice the `sample_prior = T` argument? Because of that, we can now use the `prior_samples()` function to help us plot the prior predictive distribution for `m8.1` and make our version of the left panel of Figure 8.3.
+Did you notice the `sample_prior = T` argument? Because of that, we can now use the `prior_draws()` function to help us plot the prior predictive distribution for `m8.1` and make our version of the left panel of Figure 8.3.
 
 ```{r, fig.width = 3, fig.height = 3.25}
-prior <- prior_samples(b8.1)
+prior <- prior_draws(b8.1)
 
 set.seed(8)
 
@@ -269,13 +269,13 @@ b8.1b <-
       file = "fits/b08.01b")
 ```
 
-Now we'll use `prior_samples(b8.1b)` to make the left panel of Figure 8.3 and present both panels together with a little **patchwork** syntax.
+Now we'll use `prior_draws(b8.1b)` to make the left panel of Figure 8.3 and present both panels together with a little **patchwork** syntax.
 
 ```{r, fig.width = 6, fig.height = 3.25}
 set.seed(8)
 
 p2 <-
-  prior_samples(b8.1b) %>% 
+  prior_draws(b8.1b) %>% 
   slice_sample(n = 50) %>% 
   rownames_to_column() %>% 
   expand(nesting(rowname, Intercept, b),
@@ -351,7 +351,7 @@ Use `add_criterion()` and `loo_compare()` to compare `b8.1b` and `b8.2` with the
 
 ```{r, message = F}
 b8.1b <- add_criterion(b8.1b, "waic")
-b8.2 <- add_criterion(b8.2, "waic")
+b8.2  <- add_criterion(b8.2, "waic")
 
 loo_compare(b8.1b, b8.2, criterion = "waic") %>% print(simplify = F)
 ```
@@ -372,7 +372,7 @@ Now extract the posterior draws, make a difference score for the two intercepts,
 
 ```{r, warning = F, message = F}
 post <- 
-  posterior_samples(b8.2) %>% 
+  as_draws_df(b8.2) %>% 
   mutate(diff = b_cid1 - b_cid2)
 
 library(tidybayes)
@@ -443,7 +443,7 @@ fitted(b8.2,
   pivot_longer(everything()) %>% 
   bind_cols(
     expand(nd, 
-           iter = 1:4000,
+           draws = 1:4000,
            nesting(cid, rugged_std))
   ) %>%
   mutate(cont_africa = ifelse(cid == 1, "Africa", "not Africa")) %>% 
@@ -499,8 +499,8 @@ Success! Our results look just like McElreath's. Now make haste with `add_criter
 
 ```{r, message = F}
 b8.1b <- add_criterion(b8.1b, "loo")
-b8.2 <- add_criterion(b8.2, "loo")
-b8.3 <- add_criterion(b8.3, c("loo", "waic"))
+b8.2  <- add_criterion(b8.2, "loo")
+b8.3  <- add_criterion(b8.3, c("loo", "waic"))
 
 loo_compare(b8.1b, b8.2, b8.3, criterion = "loo") %>% print(simplify = F)
 ```
@@ -654,7 +654,7 @@ fitted(b8.3,
   data.frame() %>%
   pivot_longer(everything()) %>% 
   bind_cols(expand(nd,
-                   iter = 1:4000,
+                   draws = 1:4000,
                    nesting(cid, rugged_std))) %>% 
   select(-name) %>% 
   pivot_wider(names_from = cid, values_from = value) %>% 
@@ -890,8 +890,8 @@ nd <- crossing(shade_cent = -1:1,
 # use `fitted()`
 set.seed(8)
 
-rbind(fitted(b8.4, newdata = nd, summary = F, nsamples = 20),
-      fitted(b8.5, newdata = nd, summary = F, nsamples = 20)) %>%
+rbind(fitted(b8.4, newdata = nd, summary = F, ndraws = 20),
+      fitted(b8.5, newdata = nd, summary = F, ndraws = 20)) %>%
   # wrangle
   data.frame() %>%
   set_names(mutate(nd, name = str_c(shade_cent, water_cent, sep = "_")) %>% pull()) %>%
@@ -947,8 +947,8 @@ Now we can insert `b8.4p` and `b8.5p` into the `fitted()` function and plot the 
 ```{r}
 set.seed(8)
 
-rbind(fitted(b8.4p, newdata = nd, summary = F, nsamples = 20),
-      fitted(b8.5p, newdata = nd, summary = F, nsamples = 20)) %>%
+rbind(fitted(b8.4p, newdata = nd, summary = F, ndraws = 20),
+      fitted(b8.5p, newdata = nd, summary = F, ndraws = 20)) %>%
   # wrangle
   data.frame() %>%
   set_names(mutate(nd, name = str_c(shade_cent, water_cent, sep = "_")) %>% pull()) %>%
@@ -1009,7 +1009,7 @@ We can further customize the plot. For example, we can replace the intervals wit
 ```{r, fig.height = 3, fig.width = 3.5}
 conditional_effects(b8.1b,
                     spaghetti = T, 
-                    nsamples = 200) %>% 
+                    ndraws = 200) %>% 
   plot(points = T,
        point_args = c(alpha = 1/2, size = 1),
        line_args = c(colour = "black"))
@@ -1036,7 +1036,7 @@ b8.3$formula
 conditional_effects(b8.3)
 ```
 
-The `conditional_effects()` function correctly picked up on how we used the `a` parameter to make two intercepts according to the two levels of `cid`. However, it did not pick up our intent to use the `b` parameter as a stand-in for the two levels of the slope for `rugged_std_c`. Instead, it only showed the slope for `rugged_std_c == 1`. In GitHub [issue #925](https://github.com/paul-buerkner/brms/issues/925#issuecomment-641840494), Bürkner clarified this is because "brms will only display interactions by default if the interactions are explictely provided within linear formulas. brms has no way of knowing what variables in non-linear models actually interact." However, the `effects` argument provides a workaround.
+The `conditional_effects()` function correctly picked up on how we used the `a` parameter to make two intercepts according to the two levels of `cid`. However, it did not pick up our intent to use the `b` parameter as a stand-in for the two levels of the slope for `rugged_std_c`. Instead, it only showed the slope for `rugged_std_c == 1`. In GitHub [issue #925](https://github.com/paul-buerkner/brms/issues/925#issuecomment-641840494), Bürkner clarified this is because "brms will only display interactions by default if the interactions are explicitly provided within linear formulas. brms has no way of knowing what variables in non-linear models actually interact." However, the `effects` argument provides a workaround.
 
 ```{r, fig.height = 3, fig.width = 3.5}
 conditional_effects(b8.3, effects = "rugged_std_c:cid")
