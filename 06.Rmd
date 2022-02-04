@@ -203,8 +203,8 @@ Now use `sim_and_fit()` to make our simulations which correspond to seed values 
 ```{r, eval = F}
 sim <-
   tibble(seed = 1:4) %>% 
-  mutate(post = map(seed, ~sim_and_fit(.) %>% 
-                      posterior_samples()))
+  mutate(post = map(seed, ~ sim_and_fit(.) %>% 
+                      as_draws_df()))
 ```
 
 ```{r, echo = F}
@@ -219,7 +219,7 @@ Take a look at what we did.
 head(sim)
 ```
 
-We have a tibble with four rows and two columns. Hopefully it's unsurprising the first column shows our four `seed` values. The second column, `post`, might look odd. If you look back up at the code we used to make `sim`, you'll notice we fed the results from `sim_and_fit()` into the `brms::posterior_samples()` function. Each model object contained 4,000 poster draws. There are four parameters in the model and, by **brms** default, the `posterior_samples()` function also returns the `lp__`, which we generally ignore in this project. Anyway, that's why you see each of the four rows of `post` containing `<data.frame [4,000 × 5]>`. Each cell contains an entire $4,000 × 5$ data frame--the results from `posterior_samples()`. When you have data frames nested within data frames, this is called a nested data structure. To unpack the contents of those four nested data frames, you simply call `nest(d, post)`. In the next code block, we'll do that within the context of a larger work low designed to plot the results of each in a faceted coefficient plot. For data of this kind of structure, the `tidybayes::stat_pointinterval()` function will be particularly useful.
+We have a tibble with four rows and two columns. Hopefully it's unsurprising the first column shows our four `seed` values. The second column, `post`, might look odd. If you look back up at the code we used to make `sim`, you'll notice we fed the results from `sim_and_fit()` into the `brms::as_draws_df()` function. Each model object contained 4,000 poster draws. There are four parameters in the model and, by **brms** default, the `as_draws_df()` function also returns the `lp__`, which we generally ignore in this project. Anyway, that's why you see each of the four rows of `post` containing `<data.frame [4,000 × 5]>`. Each cell contains an entire $4,000 × 5$ data frame--the results from `as_draws_df()`. When you have data frames nested within data frames, this is called a nested data structure. To unpack the contents of those four nested data frames, you simply call `nest(d, post)`. In the next code block, we'll do that within the context of a larger work low designed to plot the results of each in a faceted coefficient plot. For data of this kind of structure, the `tidybayes::stat_pointinterval()` function will be particularly useful.
 
 ```{r, fig.width = 6.5, fig.height = 5, warning = F, message = F}
 library(tidybayes)
@@ -250,13 +250,13 @@ Though the results varied across iterations, the overall pattern was massive unc
 To further answer this weird question, we might start making the panels from Figure 6.2. Starting with the left panel, this is perhaps the simplest way to plot the bivariate posterior of our two predictor coefficients.
 
 ```{r, fig.width = 3, fig.height = 3}
-pairs(b6.1, pars = parnames(b6.1)[2:3])
+pairs(b6.1, variable = variables(b6.1)[2:3])
 ```
 
-If you'd like a nicer and more focused attempt, you might have to revert to the `posterior_samples()` function and a little **ggplot2** code.
+If you'd like a nicer and more focused attempt, you might have to revert to the `as_draws_df()` function and a little **ggplot2** code.
 
 ```{r, fig.width = 3, fig.height = 3}
-post <- posterior_samples(b6.1)
+post <- as_draws_df(b6.1)
   
 post %>% 
   ggplot(aes(x = b_leg_left, y = b_leg_right)) +
@@ -276,10 +276,9 @@ post %>%
 
 But wow, those coefficients look about as highly correlated as the predictors, just with the reversed sign.
 
-```{r}
+```{r, warning = F}
 post %>% 
-  select(b_leg_left:b_leg_right) %>% 
-  cor()
+  summarise(rho = cor(b_leg_left, b_leg_right))
 ```
 
 On page 165, McElreath clarified that from the perspective of **brms**, this model may as well be
@@ -323,7 +322,7 @@ print(b6.2)
 That posterior $SD$ for `leg_left` looks much better. Compare this density to the one in Figure 6.2.b.
 
 ```{r, fig.width = 3, fig.height = 3}
-posterior_samples(b6.2) %>% 
+as_draws_df(b6.2) %>% 
   
   ggplot(aes(x = b_leg_left, y = 0)) +
   stat_halfeye(point_interval = median_qi, 
@@ -1418,7 +1417,7 @@ b6.17 <-
 
 If we extract the posterior draws from each model, the column corresponding to $W \rightarrow D$ will be `b_w`. Here we extract those columns, wrangle, and compare the posteriors in a coefficient plot.
 
-```{r, fig.width = 6, fig.height = 1.33}
+```{r, fig.width = 6, fig.height = 1.33, warning = F}
 formula <- c("d ~ 1 + w", 
              "d ~ 1 + w + s", 
              "d ~ 1 + w + a + m", 
@@ -1427,8 +1426,8 @@ formula <- c("d ~ 1 + w",
 
 tibble(fit = str_c("b6.1", 3:7)) %>% 
   mutate(y    = str_c(fit, " (", formula, ")"),
-         post = purrr::map(fit, ~get(.) %>% 
-                               posterior_samples() %>% 
+         post = purrr::map(fit, ~ get(.) %>% 
+                               as_draws_df() %>% 
                                select(b_w))) %>% 
   unnest(post) %>% 
   
