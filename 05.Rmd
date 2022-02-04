@@ -80,7 +80,7 @@ d %>%
   theme(panel.grid = element_blank())
 ```
 
-Since these are geographically-based data, we might plot our three major variables in a map format. The [**tigris** package](https://github.com/UrbanInstitute/urbnmapr) [@R-urbnmapr] provides latitude and longitude data for the 50 states and we can plot then with the `ggplot2::geom_sf()` function. We'll use the `right_join()` function to combine those data with our primary data `d`.
+Since these are geographically-based data, we might plot our three major variables in a map format. The [**tigris** package](https://github.com/UrbanInstitute/urbnmapr) [@R-urbnmapr] provides functions for retrieving latitude and longitude data for the 50 states and we can plot then with the `ggplot2::geom_sf()` function. We'll use the `right_join()` function to combine those data with our primary data `d`.
 
 ```{r, fig.width = 8, fig.height = 2, warning = F, message = F}
 library(tigris)
@@ -181,15 +181,15 @@ b5.1 <-
       file = "fits/b05.01")
 ```
 
-Did you notice the `sample_prior = T` line? This told **brms** to take draws from both the posterior distribution (as usual) and from the prior predictive distribution. If you look at McElreath's **R** code 5.4, you'll see he plotted 50 draws from the prior predictive distribution of his `m5.1`. For our **brms** workflow, our first step is the extract our prior draws with `prior_samples()`.
+Did you notice the `sample_prior = T` line? This told **brms** to take draws from both the posterior distribution (as usual) and from the prior predictive distribution. If you look at McElreath's **R** code 5.4, you'll see he plotted 50 draws from the prior predictive distribution of his `m5.1`. For our **brms** workflow, our first step is the extract our prior draws with the well-named `prior_draws()` function.
 
 ```{r}
-prior <- prior_samples(b5.1)
+prior <- prior_draws(b5.1)
 
 prior %>% glimpse()
 ```
 
-We ended up with 4,000 draws from the prior predictive distribution, much like `posterior_samples()` would return 4,000 draws from the posterior. Next we'll use `slice_sample()` to take a random sample from our `prior` object. After just a little more wrangling, we'll be in good shape to plot our version of Figure 5.3.
+We ended up with 4,000 draws from the prior predictive distribution, much like `as_draws_df()` would return 4,000 draws from the posterior. Next we'll use `slice_sample()` to take a random sample from our `prior` object. After just a little more wrangling, we'll be in good shape to plot our version of Figure 5.3.
 
 ```{r, fig.width = 3, fig.height = 3}
 set.seed(5)
@@ -476,11 +476,11 @@ The **brms** package doesn't have a convenience function like `rethinking::coeft
 ```{r, fig.width = 4, fig.height = 2.25, warning = F, message = F}
 # first, extract and rename the necessary posterior parameters
 bind_cols(
-  posterior_samples(b5.1) %>% 
+  as_draws_df(b5.1) %>% 
     transmute(`b5.1_beta[A]` = b_a),
-  posterior_samples(b5.2) %>% 
+  as_draws_df(b5.2) %>% 
     transmute(`b5.2_beta[M]` = b_m),
-  posterior_samples(b5.3) %>% 
+  as_draws_df(b5.3) %>% 
     transmute(`b5.3_beta[M]` = b_m,
               `b5.3_beta[A]` = b_a)
   ) %>% 
@@ -572,11 +572,11 @@ The steps for our homemade `coefplot()` plot are basically the same. Just switch
 
 ```{r, fig.width = 4, fig.height = 2.25, warning = F, message = F}
 bind_cols(
-  posterior_samples(b5.1_sim) %>% 
+  as_draws_df(b5.1_sim) %>% 
     transmute(`b5.1_beta[A]` = b_age),
-  posterior_samples(b5.2_sim) %>% 
+  as_draws_df(b5.2_sim) %>% 
     transmute(`b5.2_beta[M]` = b_mar),
-  posterior_samples(b5.3_sim) %>% 
+  as_draws_df(b5.3_sim) %>% 
     transmute(`b5.3_beta[M]` = b_mar,
               `b5.3_beta[A]` = b_age)
   ) %>% 
@@ -1086,8 +1086,7 @@ Just like McElreath showed how to compute the counterfactuals without his `sim()
 
 ```{r}
 post <-
-  posterior_samples(b5.3_A) %>% 
-  mutate(iter = 1:n())
+  as_draws_df(b5.3_A)
 ```
 
 Here we use `expand()` elongate the output from above by a factor of thirty, each time corresponding to one of the levels of `a = seq(from = -2, to = 2, length.out = 30)`. In the two `mutate()` lines that follow, we plug the model formulas into the `rnorm()` function to take random draws from posterior predictive distribution. The rest is just wrangling and summarizing.
@@ -1095,7 +1094,7 @@ Here we use `expand()` elongate the output from above by a factor of thirty, eac
 ```{r, warning = F, message = F}
 post <-
   post %>% 
-  expand(nesting(iter, b_m_Intercept, b_m_a, sigma_m, b_d_Intercept, b_d_a, b_d_m, sigma_d),
+  expand(nesting(.draw, b_m_Intercept, b_m_a, sigma_m, b_d_Intercept, b_d_a, b_d_m, sigma_d),
          a = seq(from = -2, to = 2, length.out = 30)) %>% 
   mutate(m_sim = rnorm(n(), mean = b_m_Intercept + b_m_a * a, sd = sigma_m)) %>% 
   mutate(d_sim = rnorm(n(), mean = b_d_Intercept + b_d_a * a + b_d_m * m_sim, sd = sigma_d)) %>% 
@@ -1132,7 +1131,7 @@ post %>%
 
 > A second reason to use more than one predictor variable is to measure the direct influences of multiple factors on an outcome, when none of those influences is apparent from bivariate relationships. This kind of problem tends to arise when there are two predictor variables that are correlated with one another. However, one of these is positively correlated with the outcome and the other is negatively correlated with it. (p. 144)
 
-Let's load the @hindePrimateMilkProximate2011 milk data.
+Let's load the @hindePrimateMilkProximate2011 `milk` data.
 
 ```{r, message = F}
 data(milk, package = "rethinking")
@@ -1205,7 +1204,7 @@ b5.5_draft <-
 ```{r, fig.width = 3, fig.height = 3.25}
 set.seed(5)
 
-prior_samples(b5.5_draft) %>% 
+prior_draws(b5.5_draft) %>% 
   slice_sample(n = 50) %>% 
   rownames_to_column() %>% 
   expand(nesting(rowname, Intercept, b),
@@ -1249,7 +1248,7 @@ Now make our version of Figure 5.8.b.
 
 ```{r, fig.width = 3, fig.height = 3.25}
 set.seed(5)
-prior_samples(b5.5) %>% 
+prior_draws(b5.5) %>% 
   slice_sample(n = 50) %>% 
   rownames_to_column() %>% 
   expand(nesting(rowname, Intercept, b),
@@ -1277,8 +1276,8 @@ The results are very similar to those returned earlier from `print(b5.5_draft)`.
 ```{r, fig.width = 4, fig.height = 2.5, warning = F, message = F}
 # wrangle
 bind_rows(
-  posterior_samples(b5.5_draft) %>% select(b_Intercept:sigma),
-  posterior_samples(b5.5) %>% select(b_Intercept:sigma)
+  as_draws_df(b5.5_draft) %>% select(b_Intercept:sigma),
+  as_draws_df(b5.5) %>% select(b_Intercept:sigma)
   )  %>% 
   mutate(fit = rep(c("b5.5_draft", "b5.5"), each = n() / 2)) %>% 
   pivot_longer(-fit) %>% 
@@ -1302,7 +1301,7 @@ bind_rows(
   facet_wrap(~ name, ncol = 1)
 ```
 
-The results were quite similar, but the estimates from `b5.5` are more precise. Let's get back on track with the text and make the top left panel of Figure 5.9. Just for kicks, we'll superimpose 50% intervals atop 95% intervals for the next few plots. Here's Figure 5.9, top left.
+The results were quite similar, but the posteriors from `b5.5` are more precise. Let's get back on track with the text and make the top left panel of Figure 5.9. Just for kicks, we'll superimpose 50% intervals atop 95% intervals for the next few plots. Here's Figure 5.9, top left.
 
 ```{r, fig.width = 3, fig.height = 2.75}
 nd <- tibble(neocortex.perc_s = seq(from = -2.5, to = 2, length.out = 30))
@@ -1414,11 +1413,11 @@ Once again, let's roll out our homemade `coefplot()` plot code.
 
 ```{r, fig.width = 4, fig.height = 2.25, warning = F, message = F}
 bind_cols(
-  posterior_samples(b5.5) %>% 
+  as_draws_df(b5.5) %>% 
     transmute(`b5.5_beta[N]` = b_neocortex.perc_s),
-  posterior_samples(b5.6) %>% 
+  as_draws_df(b5.6) %>% 
     transmute(`b5.6_beta[M]` = b_log_mass_s),
-  posterior_samples(b5.7) %>% 
+  as_draws_df(b5.7) %>% 
     transmute(`b5.7_beta[N]` = b_neocortex.perc_s,
               `b5.7_beta[M]` = b_log_mass_s)
   ) %>% 
@@ -1845,10 +1844,10 @@ Note that for us, there was no `depth=2` argument to get all the model output. W
 ```{r, warning = F, message = F}
 library(tidybayes)
 
-posterior_samples(b5.8) %>% 
+as_draws_df(b5.8) %>% 
   mutate(diff_fm = b_sex1 - b_sex2) %>% 
-  gather(key, value, -`lp__`) %>% 
-  group_by(key) %>% 
+  pivot_longer(cols = c(b_sex1:sigma, diff_fm)) %>% 
+  group_by(name) %>% 
   mean_qi(value, .width = .89)
 ```
 
@@ -1915,17 +1914,17 @@ Up to this point, all of our coefficient plots have been of a rather complicated
 The `mcmc_plot()` function is an easy way to get a default coefficient plot. You just put the **brms** fit object into the function.
 
 ```{r, fig.width = 6, fig.height = 1.25}
-mcmc_plot(b5.9, pars = "^b_")
+mcmc_plot(b5.9, variable = "^b_", regex = TRUE)
 ```
 
-There are numerous ways to make a coefficient plot. Another is with the `mcmc_intervals()` function from the [**bayesplot** package](https://mc-stan.org/bayesplot/) [@R-bayesplot; @gabry2019visualization]. A nice feature of the **bayesplot** package is its convenient way to alter the color scheme with the `color_scheme_set()` function. Here, for example, we'll make the theme `red`. But note how the `mcmc_intervals()` function requires you to work with the `posterior_samples()` instead of the brmsfit object.
+There are numerous ways to make a coefficient plot. Another is with the `mcmc_intervals()` function from the [**bayesplot** package](https://mc-stan.org/bayesplot/) [@R-bayesplot; @gabry2019visualization]. A nice feature of the **bayesplot** package is its convenient way to alter the color scheme with the `color_scheme_set()` function. Here, for example, we'll make the theme `red`. But note how the `mcmc_intervals()` function requires you to work with the `as_draws_df()` instead of the brmsfit object.
 
 ```{r, message = F, warning = F, fig.width = 6, fig.height = 1.25}
 library(bayesplot)
 
 color_scheme_set("red")
 
-post <- posterior_samples(b5.9)
+post <- as_draws_df(b5.9)
 
 post %>% 
   select(starts_with("b_")) %>% 
@@ -2040,8 +2039,8 @@ print(b5.11)
 
 Finally, here's how we might visualize the results in a faceted coefficient plot.
 
-```{r, fig.width = 8, fig.height = 1.33}
-posterior_samples(b5.11) %>% 
+```{r, fig.width = 8, fig.height = 1.33, warning = F}
+as_draws_df(b5.11) %>% 
   pivot_longer(starts_with("b_")) %>% 
   mutate(name = str_remove(name, "b_") %>% 
            str_remove(., "clade") %>% 
@@ -2196,8 +2195,8 @@ d %>%
 
 Anyway, here's how we might wrangle the posterior samples to make our marginal posteriors for males, females, and their difference.
 
-```{r, fig.width = 7, fig.height = 2.5}
-posterior_samples(b5.8c) %>% 
+```{r, fig.width = 7, fig.height = 2.5, warning = F}
+as_draws_df(b5.8c) %>% 
   mutate(male            = b_Intercept - b_sex_c * 0.5,
          female          = b_Intercept + b_sex_c * 0.5,
          `female - male` = b_sex_c) %>% 
@@ -2263,7 +2262,7 @@ print(b5.9b)
 The 'Group-Level Effects:' section in that output won't make much sense until we cover the material in [Chapter 13][Models With Memory]. Here's how one might wrangle the posterior samples to make a coefficient plot similar to the one we made for the original `b5.9`.
 
 ```{r, message = F, warning = F, fig.width = 6, fig.height = 1.33}
-posterior_samples(b5.9b) %>% 
+as_draws_df(b5.9b) %>% 
   mutate(Ape                = b_Intercept + `r_clade[Ape,Intercept]`,
          `New World Monkey` = b_Intercept + `r_clade[New.World.Monkey,Intercept]`,
          `Old World Monkey` = b_Intercept + `r_clade[Old.World.Monkey,Intercept]`,
