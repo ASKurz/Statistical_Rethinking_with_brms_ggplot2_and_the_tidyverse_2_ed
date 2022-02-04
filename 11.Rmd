@@ -81,7 +81,7 @@ We start with the simple intercept-only logistic regression model, which follows
 \alpha & \sim \operatorname{Normal}(0, w),
 \end{align*}
 
-where $w$ is the hyperparameter for $\sigma$ the value for which we have yet to choose. To start things off, we'll set $w = 10$, fit a model with where we set `sample_prior = T`, and get a sense of the prior on a plot.
+where $w$ is the hyperparameter for $\sigma$ the value for which we have yet to choose. To start things off, we'll set $w = 10$, fit a model with where we set `sample_prior = TRUE`, and get a sense of the prior on a plot.
 
 In the `brm()` `formula` syntax, including a `|` bar on the left side of a formula indicates we have extra supplementary information about our criterion. In this case, that information is that each `pulled_left` value corresponds to a single trial (i.e., `trials(1)`), which itself corresponds to the $n = 1$ portion of the statistical formula, above.
 
@@ -117,10 +117,10 @@ theme_set(
 )
 ```
 
-Now we're ready to plot. We'll extract the prior draws with `prior_samples()`, convert them from the log-odds metric to the probability metric with the `brms::inv_logit_scaled()` function, and adjust the bandwidth of the density plot with the `adjust` argument within `geom_density()`.
+Now we're ready to plot. We'll extract the prior draws with `prior_draws()`, convert them from the log-odds metric to the probability metric with the `brms::inv_logit_scaled()` function, and adjust the bandwidth of the density plot with the `adjust` argument within `geom_density()`.
 
 ```{r, fig.height = 2.75, fig.width = 3, warning = F, message = F}
-prior_samples(b11.1) %>% 
+prior_draws(b11.1) %>% 
   mutate(p = inv_logit_scaled(Intercept)) %>% 
   
   ggplot(aes(x = p)) +
@@ -147,8 +147,8 @@ Now we can make the full version of the left panel of Figure 11.3.
 
 ```{r, fig.height = 2.75, fig.width = 3, warning = F, message = F}
 # wrangle
-bind_rows(prior_samples(b11.1),
-          prior_samples(b11.1b)) %>% 
+bind_rows(prior_draws(b11.1),
+          prior_draws(b11.1b)) %>% 
   mutate(p = inv_logit_scaled(Intercept),
          w = factor(rep(c(10, 1.5), each = n() / 2),
                     levels = c(10, 1.5))) %>% 
@@ -202,15 +202,15 @@ b11.3 <-
       file = "fits/b11.03")
 ```
 
-If all you want to do is fit the models, you wouldn't have to add a separate `prior()` statement for each level of `treatment`. You could have just included a single line, `prior(normal(0, 0.5), nlpar = b)`, that did not include a `coef` argument. The problem with this approach is we'd only get one column for `treatment` when using the `prior_samples()` function to retrieve the prior samples. To get separate columns for the prior samples of each of the levels of `treatment`, you need to take the verbose approach, above.
+If all you want to do is fit the models, you wouldn't have to add a separate `prior()` statement for each level of `treatment`. You could have just included a single line, `prior(normal(0, 0.5), nlpar = b)`, that did not include a `coef` argument. The problem with this approach is we'd only get one column for `treatment` when using the `prior_draws()` function to retrieve the prior samples. To get separate columns for the prior samples of each of the levels of `treatment`, you need to take the verbose approach, above.
 
 Anyway, here's how to make a version of the right panel of Figure 11.3.
 
 ```{r, fig.height = 2.75, fig.width = 3, warning = F, message = F}
 # wrangle
 prior <-
-  bind_rows(prior_samples(b11.2),
-            prior_samples(b11.3)) %>% 
+  bind_rows(prior_draws(b11.2),
+            prior_draws(b11.3)) %>% 
   mutate(w  = factor(rep(c(10, 0.5), each = n() / 2),
                      levels = c(10, 0.5)),
          p1 = inv_logit_scaled(b_a + b_b_treatment1),
@@ -260,7 +260,7 @@ Now here’s the summary of $\alpha$ after transforming it back into the probabi
 ```{r, warning = F, message = F}
 library(tidybayes)
 
-posterior_samples(b11.3) %>% 
+as_draws_df(b11.3) %>% 
   transmute(alpha = inv_logit_scaled(b_a_Intercept)) %>% 
   mean_qi()
 ```
@@ -275,8 +275,8 @@ d %>%
 
 Here are the corresponding posteriors.
 
-```{r}
-posterior_samples(b11.3) %>% 
+```{r, warning = F}
+as_draws_df(b11.3) %>% 
   pivot_longer(b_b_treatment1:b_b_treatment4) %>% 
   mutate(treatment = str_remove(name, "b_b_treatment"),
          mean      = inv_logit_scaled(b_a_Intercept + value)) %>%
@@ -326,10 +326,10 @@ print(b11.4)
 
 Here's how we might make our version of McElreath's coefficient plot of the $\alpha$ parameters.
 
-```{r, fig.width = 4.5, fig.height = 1.33}
+```{r, fig.width = 4.5, fig.height = 1.33, warning = F}
 library(tidybayes)
 
-post <- posterior_samples(b11.4)
+post <- as_draws_df(b11.4)
 
 post %>% 
   pivot_longer(contains("actor")) %>%
@@ -348,7 +348,7 @@ post %>%
 
 Here's the corresponding coefficient plot of the $\beta$ parameters.
 
-```{r, fig.width = 3.5, fig.height = 1}
+```{r, fig.width = 3.5, fig.height = 1, warning = F}
 tx <- c("R/N", "L/N", "R/P", "L/P")
 
 post %>% 
@@ -370,7 +370,7 @@ post %>%
 
 Now make the coefficient plot for the primary contrasts of interest.
 
-```{r, fig.width = 3, fig.height = .8}
+```{r, fig.width = 3, fig.height = .8, warning = F}
 post %>% 
   mutate(db13 = b_b_treatment1 - b_b_treatment3,
          db24 = b_b_treatment2 - b_b_treatment4) %>% 
@@ -542,7 +542,7 @@ log_lik(b11.5) %>% str()
 Based on the full model, `b11.4`, here's how you might compute the posterior mean and 95% intervals for the proportional odds of switching from `treatment == 2` to `treatment == 4`.
 
 ```{r}
-posterior_samples(b11.4) %>% 
+as_draws_df(b11.4) %>% 
   mutate(proportional_odds = exp(b_b_treatment4 - b_b_treatment2)) %>% 
   mean_qi(proportional_odds)
 ```
@@ -603,7 +603,7 @@ print(b11.6)
 
 It might be easiest to compare `b11.4` and `b11.6` with a coefficient plot.
 
-```{r, fig.width = 7, fig.height = 2.5}
+```{r, fig.width = 7, fig.height = 2.5, warning = F}
 # this is just for fancy annotation
 text <-
   tibble(value = c(1.4, 2.6),
@@ -611,8 +611,8 @@ text <-
          fit   = c("b11.6", "b11.4"))
 
 # rope in the posterior draws and wrangle
-bind_rows(posterior_samples(b11.4),
-          posterior_samples(b11.6)) %>% 
+bind_rows(as_draws_df(b11.4),
+          as_draws_df(b11.6)) %>% 
   mutate(fit = rep(c("b11.4", "b11.6"), each = n() / 2)) %>% 
   pivot_longer(b_a_actor1:b_b_treatment4) %>% 
   
@@ -734,7 +734,7 @@ Our results are very similar to those in the text. But notice how our two rows h
 Anyway, here we'll compute the difference score in two metrics and summarize them with a little help from `mean_qi()`.
 
 ```{r}
-posterior_samples(b11.7) %>% 
+as_draws_df(b11.7) %>% 
   mutate(diff_a = b_gidmale - b_gidfemale,
          diff_p = inv_logit_scaled(b_gidmale) - inv_logit_scaled(b_gidfemale)) %>% 
   pivot_longer(contains("diff")) %>% 
@@ -811,8 +811,8 @@ print(b11.8)
 
 Like with the earlier model, here we compute the difference score for $\alpha$ in two metrics.
 
-```{r}
-posterior_samples(b11.8) %>% 
+```{r, warning = F}
+as_draws_df(b11.8) %>% 
   mutate(diff_a = b_a_gidmale - b_a_gidfemale,
          diff_p = inv_logit_scaled(b_a_gidmale) - inv_logit_scaled(b_a_gidfemale)) %>% 
   pivot_longer(contains("diff")) %>% 
@@ -969,8 +969,8 @@ To learn more about the nature of the code for the `my_upper()` function, check 
 ```{r, fig.height = 5, fig.width = 5.5, warning = F, message = F}
 library(GGally)
 
-posterior_samples(b11.8) %>% 
-  select(-lp__) %>% 
+as_draws_df(b11.8) %>% 
+  select(starts_with("b_")) %>% 
   set_names(c("alpha[male]", "alpha[female]", str_c("delta[", LETTERS[1:6], "]"))) %>%
   ggpairs(upper = list(continuous = my_upper),
           diag  = list(continuous = my_diag),
@@ -1807,8 +1807,8 @@ tibble(income = c(1, 2, 5)) %>%
 
 Now here's how to make use of the formula from the last `mutate()` line, $\frac{\exp (s_k)}{\sum_{i = 1}^K \exp (s_i)}$, to compute the marginal probabilities from `b11.13io` by hand.
 
-```{r}
-posterior_samples(b11.13io) %>% 
+```{r, warning = F}
+as_draws_df(b11.13io) %>% 
   mutate(b_mu3_Intercept = 0) %>% 
   mutate(p1 = exp(b_mu1_Intercept) / (exp(b_mu1_Intercept) + exp(b_mu2_Intercept) + exp(b_mu3_Intercept)),
          p2 = exp(b_mu2_Intercept) / (exp(b_mu1_Intercept) + exp(b_mu2_Intercept) + exp(b_mu3_Intercept)),
@@ -1941,7 +1941,7 @@ I'm not going to exhaustively show the `print()` output for each. If you check, 
 
 ```{r, fig.width = 7, fig.height = 1.25}
 tibble(fit = str_c("b11.13", letters[1:4])) %>% 
-  mutate(fixef = purrr::map(fit, ~get(.) %>% 
+  mutate(fixef = purrr::map(fit, ~ get(.) %>% 
                               fixef() %>%
                               data.frame() %>% 
                               rownames_to_column("parameter"))) %>% 
@@ -1994,8 +1994,8 @@ model_weights(b11.13io, b11.13a, b11.13b, b11.13c, b11.13d, weights = "loo") %>%
 
 They're all the same. Each model effectively has 2 parameters. Though it doesn't do much by way of cross-validation, McElreath's extra $\beta$ parameter will let us perform a counterfactual simulation. Here is a **brms**/**tidyverse** workflow to make a counterfactual simulation for two levels of `income` based on our `b11.13d`, the **brms** model most closely corresponding to our **rethinking**-based `m11.13`.
 
-```{r}
-posterior_samples(b11.13d) %>% 
+```{r, warning = F}
+as_draws_df(b11.13d) %>% 
   transmute(s1      = b_a1_Intercept + b_b_Intercept * income[1],
             s2_orig = b_a2_Intercept + b_b_Intercept * income[2],
             s2_new  = b_a2_Intercept + b_b_Intercept * income[2] * 2) %>% 
@@ -2214,9 +2214,9 @@ b11.pois <-
 
 Note, the `mvbind()` syntax made `b11.pois` a multivariate Poisson model. Starting with version 2.0.0, **brms** supports a variety of multivariate models, which you might learn more about with Bürkner's [-@Bürkner2021Multivariate] vignette, [*Estimating multivariate models with brms*](https://cran.r-project.org/package=brms/vignettes/brms_multivariate.html). Anyway, here are the implications of `b11.pois`.
 
-```{r, fig.height = 2.5, fig.width = 6.5}
+```{r, fig.height = 2.5, fig.width = 6.5, warning = F}
 # extract the samples
-post <- posterior_samples(b11.pois)
+post <- as_draws_df(b11.pois)
 # wrangle
 post %>%
   mutate(admit  = exp(b_admit_Intercept), 
@@ -2268,12 +2268,12 @@ To get a better appreciation on how well the two model types converge on the sam
 ```{r, fig.width = 4.5, fig.height = 2.5, warning = F, message = F}
 # wrangle
 bind_cols(
-  posterior_samples(b11.pois) %>% 
-    mutate(`the Poisson`  = exp(b_admit_Intercept) / (exp(b_admit_Intercept) + exp(b_rej_Intercept))),
-  posterior_samples(b11.binom) %>% 
-    mutate(`the binomial` = inv_logit_scaled(b_Intercept))
+  as_draws_df(b11.pois) %>% 
+    transmute(`the Poisson`  = exp(b_admit_Intercept) / (exp(b_admit_Intercept) + exp(b_rej_Intercept))),
+  as_draws_df(b11.binom) %>% 
+    transmute(`the binomial` = inv_logit_scaled(b_Intercept))
   ) %>% 
-  pivot_longer(starts_with("the")) %>% 
+  pivot_longer(everything()) %>% 
   
   # plot
   ggplot(aes(x = value, y = name, fill = name)) +
@@ -2485,10 +2485,10 @@ qexp(p = .5, rate = 1 / exp(fixef(b11.15)[1, 1]))
 
 But that's just using one of the posterior means. Here's that information using the full posterior distributions for our two levels of `black`.
 
-```{r, message = F, fig.width = 5, fig.height = 3}
+```{r, fig.width = 5, fig.height = 3, message = F, warning = F}
 # wrangle
 post <-
-  posterior_samples(b11.15) %>% 
+  as_draws_df(b11.15) %>% 
   pivot_longer(starts_with("b_")) %>% 
   mutate(color = str_remove(name, "b_black"),
          days  = qexp(p = .5, rate = 1 / exp(value))) 
