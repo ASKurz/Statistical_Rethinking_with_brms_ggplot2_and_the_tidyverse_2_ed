@@ -76,7 +76,7 @@ pbar  <- .5
 theta <- 5
 
 ggplot(data = tibble(x = seq(from = 0, to = 1, by = .01)),
-       aes(x = x, y = rethinking::dbeta2(x, pbar, theta))) +
+       aes(x = x, y = rethinking::dbeta2(x, prob = pbar, theta = theta))) +
   geom_area(fill = canva_pal("Green fields")(4)[1]) +
   scale_x_continuous("probability space", breaks = c(0, .5, 1)) +
   scale_y_continuous(NULL, breaks = NULL) +
@@ -106,7 +106,7 @@ And finally, we can double check that all of this works. Here's the same distrib
 
 ```{r, fig.width = 4, fig.height = 3}
 ggplot(data = tibble(x = seq(from = 0, to = 1, by = .01)),
-       aes(x = x, y = dbeta(x, 2.5, 2.5))) +
+       aes(x = x, y = dbeta(x, shape1 = 2.5, shape2 = 2.5))) +
   geom_area(fill = canva_pal("Green fields")(4)[4]) +
   scale_x_continuous("probability space", breaks = c(0, .5, 1)) +
   scale_y_continuous(NULL, breaks = NULL) +
@@ -121,7 +121,7 @@ McElreath encouraged us to "explore different values for `pbar` and `theta`" (p.
 crossing(pbar  = c(.25, .5, .75),
          theta = c(5, 15, 30)) %>% 
   expand(nesting(pbar, theta), x = seq(from = 0, to = 1, length.out = 100)) %>% 
-  mutate(density = rethinking::dbeta2(x, pbar, theta),
+  mutate(density = rethinking::dbeta2(x, prob = pbar, theta = theta),
          mu      = str_c("mu == ", pbar %>% str_remove(., "0")),
          kappa   = factor(str_c("kappa == ", theta), 
                           levels = c("kappa == 30", "kappa == 15", "kappa == 5"))) %>% 
@@ -213,10 +213,10 @@ Success, our results look a lot like those in the text!
 print(b12.1)
 ```
 
-Just remember that, perhaps confusingly, what McElreath's output called `theta`, our **brms** output is calling `phi`. I know; this section is a lot. Keep your chin up! Here's what the corresponding `posterior_samples()` data object looks like.
+Just remember that, perhaps confusingly, what McElreath's output called `theta`, our **brms** output is calling `phi`. I know; this section is a lot. Keep your chin up! Here's what the corresponding `as_draws_df()` data object looks like.
 
 ```{r}
-post <- posterior_samples(b12.1)
+post <- as_draws_df(b12.1)
 head(post)
 ```
 
@@ -240,10 +240,9 @@ set.seed(12)
 
 lines <-
   post %>% 
-  mutate(iter  = 1:n(),
-         p_bar = inv_logit_scaled(b_gid2)) %>% 
+  mutate(p_bar = inv_logit_scaled(b_gid2)) %>% 
   slice_sample(n = 100) %>% 
-  expand(nesting(iter, p_bar, phi),
+  expand(nesting(.draw, p_bar, phi),
          x = seq(from = 0, to = 1, by = .005)) %>% 
   mutate(density = pmap_dbl(list(x, p_bar, phi), rethinking::dbeta2))
 
@@ -256,10 +255,10 @@ All that was just for the thin lines. To make the thicker line for the posterior
 lines %>% 
   ggplot(aes(x = x, y = density)) + 
   stat_function(fun = rethinking::dbeta2,
-                args = list(prob = mean(inv_logit_scaled(post[, "b_gid2"])),
-                            theta = mean(post[, "phi"])),
+                args = list(prob = mean(inv_logit_scaled(post %>% pull(b_gid2))),
+                            theta = mean(post %>% pull(phi))),
                 size = 1.5, color = canva_pal("Green fields")(4)[4]) +
-  geom_line(aes(group = iter),
+  geom_line(aes(group = .draw),
             alpha = .2, color = canva_pal("Green fields")(4)[4]) +
   scale_y_continuous(NULL, breaks = NULL, limits = c(0, 3)) +
   labs(subtitle = "distribution of female admission rates",
@@ -394,7 +393,7 @@ get_prior(data = d,
 
 ```{r, fig.width = 3.5, fig.height = 3}
 ggplot(data = tibble(x = seq(from = 0, to = 60, by = .1)),
-       aes(x = x, y = dgamma(x, 0.01, 0.01))) +
+       aes(x = x, y = dgamma(x, shape = 0.01, rate = 0.01))) +
   geom_area(color = "transparent", 
             fill = canva_pal("Green fields")(4)[2]) +
   scale_x_continuous(NULL) +
@@ -460,8 +459,8 @@ As a reminder, the "rate" for the Poisson distribution is just another word for 
 
 After exponentiating the intercept parameter ($\log \mu$), here are the posterior distributions for those two gamma parameters.
 
-```{r, fig.width = 5.5, fig.height = 2.5}
-post <- posterior_samples(b12.2a)
+```{r, fig.width = 5.5, fig.height = 2.5, warning = F}
+post <- as_draws_df(b12.2a)
 
 post %>% 
   mutate(mu    = exp(b_Intercept),
@@ -503,17 +502,16 @@ set.seed(12)
 
 # wrangle to get 200 draws
 post %>% 
-  mutate(iter  = 1:n(),
-         alpha = shape,
+  mutate(alpha = shape,
          theta = exp(b_Intercept) / shape) %>%
   slice_sample(n = 200) %>% 
-  expand(nesting(iter, alpha, theta),
+  expand(nesting(.draw, alpha, theta),
          x = 0:250) %>% 
   mutate(density = dgamma(x, shape = alpha, scale = theta)) %>% 
   
   # plot
   ggplot(aes(x = x, y = density)) +
-  geom_line(aes(group = iter),
+  geom_line(aes(group = .draw),
             alpha = .1, color = canva_pal("Green fields")(4)[4]) +
   scale_y_continuous(NULL, breaks = NULL) +
   labs(subtitle = expression("200 credible gamma densities for "*lambda),
@@ -670,7 +668,7 @@ predict(b12.2b,
   pivot_longer(everything(),
                names_to = "culture",
                values_to = "lambda") %>% 
-  left_join(d) %>% 
+  left_join(d, by = "culture") %>% 
   
   ggplot(aes(x = lambda, y = 0)) +
   stat_halfeye(point_interval = mean_qi, .width = .5,
@@ -1065,11 +1063,11 @@ b12.4 %>%
   round(digits = 3)
 ```
 
-But recall that the posterior $SD$ (i.e., the 'Est.Error' values) are not valid using that approach. If you really care about them, you'll need to work with the `posterior_samples()`.
+But recall that the posterior $SD$ (i.e., the 'Est.Error' values) are not valid using that approach. If you really care about them, you'll need to work with the `as_draws_df()`.
 
-```{r, message = F}
-posterior_samples(b12.4) %>% 
-  mutate_all(inv_logit_scaled) %>% 
+```{r, message = F, warning = F}
+as_draws_df(b12.4) %>% 
+  mutate_at(vars(starts_with("b_")), inv_logit_scaled) %>% 
   pivot_longer(starts_with("b_")) %>% 
   group_by(name) %>% 
   summarise(mean = mean(value),
@@ -1133,18 +1131,17 @@ logistic <- function(x) {
   
 }
 # now we get down to it
-dordlogit <- 
-  function(x, phi, a, log = FALSE) {
-    
-    a  <- c(as.numeric(a), Inf)
-    p  <- logistic(a[x] - phi)
-    na <- c(-Inf, a)
-    np <- logistic(na[x] - phi)
-    p  <- p - np
-    if (log == TRUE) p <- log(p)
-    p
-    
-  }
+dordlogit <- function(x, phi, a, log = FALSE) {
+  
+  a  <- c(as.numeric(a), Inf)
+  p  <- logistic(a[x] - phi)
+  na <- c(-Inf, a)
+  np <- logistic(na[x] - phi)
+  p  <- p - np
+  if (log == TRUE) p <- log(p)
+  p
+  
+}
 ```
 
 The `dordlogit()` function works like this:
@@ -1182,7 +1179,7 @@ Now we'll try it by subtracting .5 from each.
  
 ```{r}
 # the probabilities of a given response
-pk <- dordlogit(1:7, 0, fixef(b12.4)[, 1] - .5)
+pk <- dordlogit(1:7, phi = 0, a = fixef(b12.4)[, 1] - .5)
 
 pk %>% 
   round(digits = 2)
@@ -1227,10 +1224,10 @@ print(b12.5)
 
 For a little variety, we'll make our coefficient plot with a little help from the `tidybayes::stat_gradientinterval()` function.
 
-```{r, fig.width = 7, fig.height = 1.5}
+```{r, fig.width = 7, fig.height = 1.5, warning = F}
 labs <- str_c("beta[", 1:5, "]")
 
-posterior_samples(b12.5) %>% 
+as_draws_df(b12.5) %>% 
   select(b_action:`b_contact:intention`) %>% 
   set_names(labs) %>% 
   pivot_longer(everything()) %>% 
@@ -1279,8 +1276,8 @@ f <-
   data.frame() %>% 
   set_names(pull(nd, combination)) %>% 
   mutate(response = rep(1:7, each = n() / 7),
-         iter     = rep(1:4000, times = 7)) %>% 
-  pivot_longer(-c(iter, response),
+         draw     = rep(1:4000, times = 7)) %>% 
+  pivot_longer(-c(draw, response),
                names_to = c("action", "contact", "intention"),
                names_sep = "_",
                values_to = "pk") %>% 
@@ -1304,18 +1301,18 @@ p1 <-
   mutate(facet = factor(str_c("action=", action, ", contact=", contact),
                         levels = levels)) %>% 
   # these next three lines allow us to compute the cumulative probabilities
-  group_by(iter, facet, intention) %>% 
-  arrange(iter, facet, intention, response) %>% 
+  group_by(draw, facet, intention) %>% 
+  arrange(draw, facet, intention, response) %>% 
   mutate(probability = cumsum(pk)) %>% 
   ungroup() %>% 
   # these next three lines are how we randomly selected 50 posterior draws
-  nest(data = -iter) %>% 
+  nest(data = -draw) %>% 
   slice_sample(n = 50) %>%
   unnest(data) %>% 
   
   # plot!
   ggplot(aes(x = intention, y = probability)) +
-  geom_line(aes(group = interaction(iter, response), color = probability),
+  geom_line(aes(group = interaction(draw, response), color = probability),
             alpha = 1/10) +
   geom_point(data = d %>%  # wrangle the original data to make the dots
                group_by(intention, contact, action) %>% 
@@ -1339,14 +1336,14 @@ We will look at the results of our code in just a bit. For now, we'll focus on t
 p <-
   predict(b12.5,
           newdata = nd,
-          nsamples = 1000,
+          ndraws = 1000,
           scale = "response",
           summary = F)
 
 p %>% str()
 ```
 
-This time we have a simple two-dimensional array. There are only 1,000 rows because we set `nsamples = 1000`. Much like with `fitted()`, above, the six columns correspond to the six unique combinations of our three predictor variables. With the `scale = "response"` argument, we requested our results were in the metric of the original data, which were `response` values ranging from `1` to `7`. Compared to the last plot, the post-`predict()` data wrangling for this triptych is low-key. We just need the data in a long tibble format that includes a variable with which we might facet.
+This time we have a simple two-dimensional array. There are only 1,000 rows because we set `ndraws = 1000`. Much like with `fitted()`, above, the six columns correspond to the six unique combinations of our three predictor variables. With the `scale = "response"` argument, we requested our results were in the metric of the original data, which were `response` values ranging from `1` to `7`. Compared to the last plot, the post-`predict()` data wrangling for this triptych is low-key. We just need the data in a long tibble format that includes a variable with which we might facet.
 
 ```{r}
 p2 <-
@@ -1381,15 +1378,15 @@ p1 <-
   f %>% 
   mutate(facet = factor(str_c("action=", action, ", contact=", contact),
                         levels = levels)) %>% 
-  group_by(iter, facet, intention) %>% 
+  group_by(draw, facet, intention) %>% 
   summarise(mean_response = sum(pk * response)) %>% 
   ungroup() %>% 
-  nest(data = -iter) %>% 
+  nest(data = -draw) %>% 
   slice_sample(n = 50) %>%
   unnest(data) %>%
 
   ggplot(aes(x = intention, y = mean_response)) +
-  geom_line(aes(group = iter, color = mean_response),
+  geom_line(aes(group = draw, color = mean_response),
             alpha = 1/10) +
   scale_color_gradient(low = canva_pal("Green fields")(4)[4],
                        high = canva_pal("Green fields")(4)[1]) +
@@ -1497,8 +1494,7 @@ The **brms** package has a `rdirichlet()` function, too. Here we use that to mak
 ```{r, fig.width = 6, fig.height = 3}
 set.seed(12)
 
-brms::rdirichlet(n = 1e4,
-                 alpha = rep(2, 7)) %>% 
+brms::rdirichlet(n = 1e4, alpha = rep(2, 7)) %>% 
   data.frame() %>% 
   set_names(1:7) %>% 
   pivot_longer(everything()) %>% 
@@ -1566,8 +1562,8 @@ The current version of **brms** takes expresses $\beta_\text{E}$ as an average e
 
 To clarify, the $b$ in this section is what we're calling $\beta_\text{E}$ in the current example and Bürkner and Charpentier used $\zeta_i$ in place of McElreath's $\delta_j$. The upshot of all this is that if we'd like to compare the summary of our `b12.6` to the results McElreath reported for his `m12.6`, we'll need to multiply our `moedu_new` by 7.
 
-```{r}
-posterior_samples(b12.6) %>% 
+```{r, warning = F}
+as_draws_df(b12.6) %>% 
   transmute(bE = bsp_moedu_new * 7) %>% 
   median_qi(.width = .89) %>% 
   mutate_if(is.double, round, digits = 2)
@@ -1637,7 +1633,7 @@ library(GGally)
 
 delta_labels <- c("Elem", "MidSch", "SHS", "HSG", "SCol", "Bach", "Mast", "Grad")
 
-posterior_samples(b12.6) %>% 
+as_draws_df(b12.6) %>% 
   select(contains("simo_moedu_new1")) %>% 
   set_names(str_c(delta_labels[2:8], "~(delta[", 1:7, "])")) %>% 
   ggpairs(upper = list(continuous = my_upper),
@@ -1768,15 +1764,15 @@ model_weights(b12.6, b12.7, weights = "loo") %>% round(digits = 2)
 
 We might explore the monotonic effects of `b12.6` in one more way. If you were reading closely along in the text, you may have noticed that "the sum of every $\delta_j$ is 1" (p. 392). When using HMC, this is true for each posterior draw. We can exploit that information to visualize the $\delta_j$ parameters in a cumulative fashion.
 
-```{r, fig.width = 4.5, fig.height = 2.75}
-posterior_samples(b12.6) %>% 
+```{r, fig.width = 4.5, fig.height = 2.75, warning = F}
+as_draws_df(b12.6) %>% 
   select(contains("new1")) %>% 
   set_names(1:7) %>% 
-  mutate(iter = 1:n(), 
+  mutate(draw = 1:n(), 
          `0`  = 0) %>% 
-  pivot_longer(-iter, names_to = "delta") %>% 
+  pivot_longer(-draw, names_to = "delta") %>% 
   arrange(delta) %>% 
-  group_by(iter) %>% 
+  group_by(draw) %>% 
   mutate(cum_sum = cumsum(value)) %>% 
   
   ggplot(aes(x = delta, y = cum_sum)) +
