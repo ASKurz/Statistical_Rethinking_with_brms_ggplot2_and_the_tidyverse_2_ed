@@ -525,7 +525,7 @@ If you let rain = 1 and sun = 0, here's a way to make a plot of the first table 
 weatherperson <-
   tibble(day        = 1:10,
          prediction = rep(c(1, 0.6), times = c(3, 7)),
-         observed   = rep(c(1, 0), times = c(3, 7))) 
+         observed   = rep(1:0, times = c(3, 7))) 
 
 weatherperson %>% 
   pivot_longer(-day) %>%
@@ -547,7 +547,7 @@ Here's how the newcomer fared:
 newcomer <-
   tibble(day        = 1:10,
          prediction = 0,
-         observed   = rep(c(1, 0), times = c(3, 7)))
+         observed   = rep(1:0, times = c(3, 7)))
 
 newcomer %>% 
   pivot_longer(-day) %>%
@@ -856,7 +856,7 @@ Here's a **tidyverse**-style approach for computing the lppd for each of our six
 ```{r, message = F}
 tibble(name = str_c("b7.", 1:6)) %>% 
   mutate(brms_fit = purrr::map(name, get)) %>% 
-  mutate(lppd = purrr::map(brms_fit, ~my_lppd(.))) %>% 
+  mutate(lppd = purrr::map(brms_fit, ~ my_lppd(.))) %>% 
   unnest(lppd)
 ```
 
@@ -1724,9 +1724,9 @@ For both criteria, the standard error for the difference was about the same size
 
 Just for kicks and giggles, let's compare the parameter summaries for the two models in a coefficient plot.
 
-```{r, fig.width = 4.5, fig.height = 3.75}
-bind_rows(posterior_samples(b5.3),
-          posterior_samples(b5.3t)) %>% 
+```{r, fig.width = 4.5, fig.height = 3.75, warning = F}
+bind_rows(as_draws_df(b5.3),
+          as_draws_df(b5.3t)) %>% 
   mutate(fit = rep(c("Gaussian (b5.3)", "Student-t (b5.3t)"), each = n() / 2)) %>% 
   pivot_longer(b_Intercept:sigma) %>% 
   mutate(name = factor(name,
@@ -1758,8 +1758,8 @@ and the standard deviation is the square of that. To give a sense of how that fo
 ```{r, fig.width = 3.25, fig.height = 3}
 # for the annotation
 text <-
-  tibble(nu = c(1.35, 20),
-         sd = c(sqrt(2.1 / (2.1 - 2)), 0.875),
+  tibble(nu    = c(1.35, 20),
+         sd    = c(sqrt(2.1 / (2.1 - 2)), 0.875),
          angle = c(90, 0),
          hjust = 1,
          label = "asymptote")
