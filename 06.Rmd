@@ -926,18 +926,69 @@ In this made-up example,
 >
 > To convince you of this, let’s do another simulation. (pp. 176--177)
 
-Here's the code for McElreath's `rethinking::sim_happiness()` function.
-
-```{r}
+```{r, eval = F, echo = F}
 rethinking::sim_happiness
 ```
 
-Quite frankly, I can't make sense of it. So we'll just have to move forward and use the convenience function rather than practicing a **tidyverse** alternative. If you have a handle on what's going on and have a **tidyverse** alternative, [please share your code](https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed/issues).
+McElreath simulated the data for this section using his custom `rethinking::sim_happiness()` function. If you'd like to see the guts of the function, execute `rethinking::sim_happiness`. Our approach will be to simulate the data from the ground up. The workflow to follow is based on help from the great [Randall Pruim](https://github.com/rpruim); I was initially stumped and he [lent a helping hand](https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed/issues/26). The first step is to make a simple `new_borns()` function, which returns a tibble with `n` unmarried one-year-old's who have different levels of happiness. We'll set the default for `n` at `20`.
 
 ```{r}
-d <- rethinking::sim_happiness(seed = 1977, N_years = 1000)
+new_borns <- function(n = 20) {
+  tibble(a = 1,                                       # 1 year old
+         m = 0,                                       # not married
+         h = seq(from = -2, to = 2, length.out = n))  # range of happiness scores
+}
+```
 
-head(d)
+Here's how it works.
+
+```{r}
+new_borns()
+```
+
+The second step is to make another custom function, `update_population()`, which takes the input from `new_borns()`. This function will age up the simulated one-year-old's from `new_borns()`, add another cohort of `new_borns()`, and append the cohorts. As you iterate, the initial cohort of `new_borns()` will eventually hit the age of 18, which is also the age they're first eligible to marry (`aom = 18`). At that age and up, the happier people are more likely to get married than the less happy folks. You'll also see that our simulation follows McElreath's in that we remove people from the population after the age of 65. `r emo::ji("shrug")`
+
+```{r}
+update_population <- function(pop, n_births = 20, aom = 18, max_age = 65) {
+  
+  pop %>%
+    mutate(a = a + 1,  # everyone gets one year older
+           # some people get married
+           m = ifelse(m >= 1, 1, (a >= aom) * rbinom(n(), 1, rethinking::inv_logit(h - 4)))) %>%
+    filter(a <= max_age) %>%        # old people die
+    bind_rows(new_borns(n_births))  # new people are born
+  
+}
+```
+
+Here's what it looks like if we start with an initial `new_borns()` and pump them into `update_population()`.
+
+```{r}
+new_borns() %>% 
+  update_population()
+```
+
+For our final step, we run the population simulation for 1,000 years. On my 2-year-old laptop, this took less than a minute.
+
+```{r}
+# this was McElreath's seed
+set.seed(1977)
+
+# year 1
+d <- new_borns(n = 20)
+
+# years 2 through 1000
+for(i in 2:1000) {
+  d <- update_population(d, n_births = 20, aom = 18, max_age = 65)
+}
+
+# now rename()
+d <- 
+  d %>% 
+  rename(age = a, married = m, happiness = h)
+
+# take a look
+glimpse(d)
 ```
 
 Summarize the variables.
@@ -950,12 +1001,12 @@ d %>%
   mutate_if(is.double, round, digits = 2)
 ```
 
+
 Here's our version of Figure 6.5.
 
 ```{r, fig.width = 8, fig.height = 2.5}
 d %>% 
-  mutate(married = factor(married,
-                          labels = c("unmarried", "married"))) %>% 
+  mutate(married = factor(married, labels = c("unmarried", "married"))) %>% 
   
   ggplot(aes(x = age, y = happiness, color = married)) +
   geom_point(size = 1.75) +
@@ -987,6 +1038,8 @@ With respect to priors,
 > happiness is on an arbitrary scale, in these data, from $-2$ to $+2$. So our imaginary strongest relationship, taking happiness from maximum to minimum, has a slope with rise over run of $(2 - (-2))/1 = 4$. Remember that 95% of the mass of a normal distribution is contained within 2 standard deviations. So if we set the standard deviation of the prior to half of 4, we are saying that we expect 95% of plausible slopes to be less than maximally strong. That isn't a very strong prior, but again, it at least helps bound inference to realistic ranges. Now for the intercepts. Each $\alpha$ is the value of $\mu_i$ when $A_i = 0$. In this case, that means at age 18. So we need to allow $\alpha$ to cover the full range of happiness scores. $\operatorname{Normal}(0, 1)$ will put 95% of the mass in the $-2$ to $+2$ interval. (p. 178)
 
 Here we'll take one last step before fitting our model with **brms**. Saving `mid` as a factor will make it easier to interpret the model results.
+
+Here we'll take one last step before fitting our model with **brms**. Saving the `mid` index variable as a factor will make it easier to interpret the model results. To see what I mean, skip this step, fit the model, and compare your results with mine, below.
 
 ```{r}
 d2 <-
@@ -1455,7 +1508,7 @@ sessionInfo()
 ```
 
 ```{r, echo = F}
-rm(n, p, d, text, b6.1, sim_and_fit, sim, post, b6.2, b6.3, b6.4, b6.5, my_diag, my_lower, dag_coords, sim_coll, n_seed, n_rho, sim_p, b6.6, b6.7, b6.8, dag, gg_simple_dag, gg_fancy_dag, d2, b6.7b, b6.8b, b6.9, b6.10, b_gp, b_gc, b_pc, b_u, b6.11, b6.12, d1, d3, d4, p1, p2, p3, p4, dag_6.1, dag_6.2, b6.13, b6.14, b6.15, b6.16, b6.17, formula)
+rm(n, p, d, text, b6.1, sim_and_fit, sim, post, b6.2, b6.3, b6.4, b6.5, my_diag, my_lower, dag_coords, sim_coll, n_seed, n_rho, sim_p, b6.6, b6.7, b6.8, dag, gg_simple_dag, gg_fancy_dag, d2, b6.7b, b6.8b, new_borns, update_population, i, b6.9, b6.10, b_gp, b_gc, b_pc, b_u, b6.11, b6.12, d1, d3, d4, p1, p2, p3, p4, dag_6.1, dag_6.2, b6.13, b6.14, b6.15, b6.16, b6.17, formula)
 ```
 
 ```{r, echo = F, message = F, warning = F, results = "hide"}
