@@ -370,7 +370,7 @@ p1 <-
                   size = 3, seed = 15, color = "white") 
 ```
 
-We'll use a little `posterior_samples()` + `expand()` magic to help with our version of Figure 15.2.b.
+We'll use a little `as_draws_df()` + `expand()` magic to help with our version of Figure 15.2.b.
 
 ```{r, warning = F, message = F}
 library(tidybayes)
@@ -380,7 +380,7 @@ states <- c("AR", "ME", "RI", "ID", "WY", "ND", "MN")
 color <- viridis_pal(option = "C")(7)[4]
 
 p2 <-
-  posterior_samples(b15.1) %>% 
+  as_draws_df(b15.1) %>% 
   expand(nesting(b_Intercept, b_A),
          A = seq(from = -3.5, to = 3.5, length.out = 50)) %>% 
   mutate(fitted = b_Intercept + b_A * A) %>% 
@@ -505,7 +505,7 @@ sigma ~ dexp( 1 )
 precis(m15.2, depth = 2)
 ```
 
-We'll use `posterior_smmary()`, again, to get a sense of those `depth=2` summaries.
+We'll use `posterior_summary()`, again, to get a sense of those `depth=2` summaries.
 
 ```{r, results = 'hide'}
 posterior_summary(b15.2) %>%
@@ -574,8 +574,8 @@ dagify(M    ~ A,
        D    ~ A + M,
        Mobs ~ M + eM,
        Dobs ~ D + eD,
-       eM ~ P,
-       eD ~ P,
+       eM   ~ P,
+       eD   ~ P,
        coords = dag_coords) %>%
   tidy_dagitty() %>% 
   mutate(color = ifelse(name %in% c("A", "Mobs", "Dobs", "P"), "b", "a")) %>% 
@@ -603,7 +603,7 @@ dagify(M    ~ A,
        D    ~ A + M,
        Mobs ~ M + eM,
        Dobs ~ D + eD,
-       eD ~ M,
+       eD   ~ M,
        coords = dag_coords) %>%
   tidy_dagitty() %>% 
   mutate(color = ifelse(name %in% c("A", "Mobs", "Dobs"), "b", "a")) %>% 
@@ -1229,8 +1229,8 @@ The imputed `b` values are indexed by occasion number from the original data. Th
 
 Before we move on to the next model, let's plot to get a sense of what we've done.
 
-```{r, fig.width = 5, fig.height = 2.5}
-posterior_samples(b15.5) %>% 
+```{r, fig.width = 5, fig.height = 2.5, warning = F}
+as_draws_df(b15.5) %>% 
   select(starts_with("Ymi_b")) %>% 
   set_names(filter(d, is.na(b)) %>% pull(species)) %>% 
   pivot_longer(everything(),
@@ -1613,9 +1613,9 @@ I strongly agree with McElreath on this point. When doing peer-reviews, I regula
 
 ## Categorical errors and discrete absences
 
-> Discrete unobserved variables require discrete parameters. There are two issues with discrete parameters. First, a discrete variable will not produce a smooth surface for Hamiltonian Monte Carlo to glide around on. HMC just doesn’t do discrete variables. Second, other estimation approaches also have problems with discrete parameter spaces, because discrete jumps are difficult to calibrate. Chains tend to get stuck for long periods.
+> Discrete unobserved variables require discrete parameters. There are two issues with discrete parameters. First, a discrete variable will not produce a smooth surface for Hamiltonian Monte Carlo to glide around on. HMC just doesn't do discrete variables. Second, other estimation approaches also have problems with discrete parameter spaces, because discrete jumps are difficult to calibrate. Chains tend to get stuck for long periods.
 >
-> But that doesn’t mean we are stuck. In almost every case, we don’t need to sample discrete parameters at all. Instead we can use a special technique, known to experts as a "weighted average," to remove discrete parameters from the model. After sampling the other parameters, we can then use their samples to compute the posterior distribution of any dis- crete parameter that we removed. So no information is given up. (pp. 516--517)
+> But that doesn’t mean we are stuck. In almost every case, we don't need to sample discrete parameters at all. Instead we can use a special technique, known to experts as a "weighted average," to remove discrete parameters from the model. After sampling the other parameters, we can then use their samples to compute the posterior distribution of any dis- crete parameter that we removed. So no information is given up. (pp. 516--517)
 
 ### Discrete cats.
 
@@ -2098,19 +2098,19 @@ post %>%
 
 You may have noticed this plot is based on the results of our multilevel model, `b15.11`. We could have done the same basic thing with the results from the more conventional meta-analysis model, `b15.10`, too.
 
-I'm not aware this it typical in random effect meta-analyses, but it might be useful to further clarify the meaning of the two primary parameters, $\mu$ and $\tau$. Like with the forest plot, above, we could examine these with either `b15.10` or `b15.11`. For kicks, we'll use `b15.10` (the conventional Bayesian meta-analysis). In the output from `posterior_samples(b15.10)`, $\mu$ and $\tau$ are in the columns named `b_Intercept` and `sd_loc__Intercept`, respectively.
+I'm not aware this it typical in random effect meta-analyses, but it might be useful to further clarify the meaning of the two primary parameters, $\mu$ and $\tau$. Like with the forest plot, above, we could examine these with either `b15.10` or `b15.11`. For kicks, we'll use `b15.10` (the conventional Bayesian meta-analysis). In the output from `as_draws_df(b15.10)`, $\mu$ and $\tau$ are in the columns named `b_Intercept` and `sd_loc__Intercept`, respectively.
 
-```{r}
-post <- posterior_samples(b15.10)
+```{r, warning = F}
+post <- as_draws_df(b15.10)
 
 post %>% 
   select(b_Intercept:sd_loc__Intercept) %>% 
   head()
 ```
 
-If you scroll back above, you'll see our random effect meta-analysis explicitly presumed our empirical effect-size estimates $y_j$ are approximations of the true effect sizes $\theta_j$, which are themselves normally distributed in the population of possible effect sizes from similar studies: $\theta_j \sim \operatorname{Normal}(\mu, \tau)$. Why not use our posterior samples to simulate draws from $\operatorname{Normal}(\mu, \tau)$ to get a sense of what this distribution might look like? Recall that the parameters are in the log-odds metric. We'll present the distribution in that metric and as odds ratios.
+If you scroll back above, you'll see our random effect meta-analysis explicitly presumed our empirical effect-size estimates $y_j$ are approximations of the true effect sizes $\theta_j$, which are themselves normally distributed in the population of possible effect sizes from similar studies: $\theta_j \sim \operatorname{Normal}(\mu, \tau)$. Why not use our posterior draws to simulate draws from $\operatorname{Normal}(\mu, \tau)$ to get a sense of what this distribution might look like? Recall that the parameters are in the log-odds metric. We'll present the distribution in that metric and as odds ratios.
 
-```{r, fig.width = 7, fig.height = 3.25}
+```{r, fig.width = 7, fig.height = 3.25, warning = F}
 color <- viridis_pal(option = "C")(7)[6]
 set.seed(15)
 
@@ -2136,15 +2136,15 @@ Both panels show 1,000 draws, each of which is depicted by a single dot. If we w
 
 Although the Bayesian meta-analysis and multilevel models produced very similar results for the effect size, the two are not equivalent. Because the meta-analysis was based on summary information from the effect sizes along, it does not offer all of the insights available from the multilevel model. Other than the random effects, the only population parameters offered by the meta-analysis are the effect size, $\mu$, and the standard deviation around that effect size, $\tau$. These parameters are equivalent to our multilevel model parameters $\beta$ and $\sigma_\beta$, respectively. In addition, the multilevel model added group-level parameter for the average performance in the control condition, $\alpha$, the population-level standard deviation around that mean, $\sigma_\alpha$, and the correlation between the group-specific $\alpha_j$'s and $\beta_j$'s, which we called $\rho_{\alpha \beta}$.
 
-To build a sense of why we might to want these parameters, too, we'll extract the posterior samples for the multilevel model `b15.11`.
+To build a sense of why we might to want these parameters, too, we'll extract the posterior draws for the multilevel model `b15.11`.
 
 ```{r}
-post <- posterior_samples(b15.11)
+post <- as_draws_df(b15.11)
 ```
 
 Here we'll make a scatter plot the posterior means of the random intercepts, $\alpha_j$'s, and the random slopes, $\beta_j$'s.
 
-```{r, fig.width = 3.25, fig.height = 3, message = F}
+```{r, fig.width = 3.25, fig.height = 3, message = F, warning = F}
 color <- viridis_pal(option = "C")(7)[7]
 
 c <-
@@ -2192,7 +2192,7 @@ c %>%
 
 The small semitransparent ellipses depict the inner-most 5% of each of the $j$-level bivariate posteriors. The larger ellipse is the 95% boundary, collapsing across all levels of $j$. Both kinds of summaries help depict the negative correlation between the $\alpha_j$'s and $\beta_j$'s. That negative correlation means suggests the studies which had larger effect sizes for the control condition tended to have smaller effect sizes for the experimental condition. There's no way you would know that from the meta-analysis approach.
 
-Another way to explore the relation between the model intercepts and slopes is to plot their implications on the probability scale. The way we parameterized the model, the greater-good condition is expressed the $\alpha_j$ and the side-effect condition is expressed as $\alpha_j + \beta_j$. If we were working directly with the `posteior_samples()`, we'd have to do fancy conversions with the `inv_logit_scaled()` function. An easier way is to just use `fitted()`.
+Another way to explore the relation between the model intercepts and slopes is to plot their implications on the probability scale. The way we parameterized the model, the greater-good condition is expressed the $\alpha_j$ and the side-effect condition is expressed as $\alpha_j + \beta_j$. If we were working directly with the `as_draws_df()` output, we'd have to do fancy conversions with the `inv_logit_scaled()` function. An easier way is to just use `fitted()`.
 
 ```{r, fig.width = 3, fig.height = 2.75}
 breaks <- c(0, inv_logit_scaled(c(fixef(b15.11)[1, 1], fixef(b15.11)[1, 1] + fixef(b15.11)[2, 1])), 1)
