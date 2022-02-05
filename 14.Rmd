@@ -308,7 +308,7 @@ As defined above, our first model has both varying intercepts and `afternoon` sl
 With Figure 14.4, we assess how the posterior for the correlation of the random effects compares to its prior.
 
 ```{r, fig.width = 3, fig.height = 3}
-post <- posterior_samples(b14.1)
+post <- as_draws_df(b14.1)
 
 post %>%
   ggplot() +
@@ -536,7 +536,7 @@ b14.3 <-
       file = "fits/b14.03")
 ```
 
-Happily, we got no warnings about divergent transitions. Since it's been a while, we'll use `bayesplotmcmc_rank_overlay()` to examine the primary parameters with a trank plot.
+Happily, we got no warnings about divergent transitions. Since it's been a while, we'll use `bayesplot::mcmc_rank_overlay()` to examine the primary parameters with a trank plot.
 
 ```{r, message = F, warning = F, fig.width = 8, fig.height = 7.5}
 library(bayesplot)
@@ -548,18 +548,19 @@ names <-
     str_c("sigma['block[", 1:4, "]']"), 
     str_c("rho['actor:treatment[", c(1, 1:2, 1:3), ",", rep(2:4, times = 1:3), "]']"), 
     str_c("rho['block:treatment[", c(1, 1:2, 1:3), ",", rep(2:4, times = 1:3), "]']"), 
-    "chain")
+    "Chain")
 
 # wrangle
-posterior_samples(b14.3, add_chain = T) %>% 
-  select(b_treatment1:`cor_block__treatment3__treatment4`, chain) %>% 
+as_draws_df(b14.3) %>% 
+  select(b_treatment1:`cor_block__treatment3__treatment4`, .chain) %>% 
   set_names(names) %>% 
   
   # plot
   mcmc_rank_overlay() +
   scale_color_manual(values = c("#80A0C7", "#B1934A", "#A65141", "#EEDA9D")) +
-  scale_x_continuous(breaks = 0:4 * 1e3, labels = c(0, str_c(1:4, "K"))) +
+  scale_x_continuous(NULL, breaks = 0:4 * 1e3, labels = c(0, str_c(1:4, "K"))) +
   coord_cartesian(ylim = c(30, NA)) +
+  ggtitle("McElreath would love this trank plot.") +
   theme(legend.position = "bottom") +
   facet_wrap(~ parameter, labeller = label_parsed, ncol = 4)
 ```
@@ -569,7 +570,7 @@ Because we only fit a non-centered version of the model, we aren't able to make 
 ```{r, fig.width = 6, fig.height = 2.5, warning = F, message = F}
 library(posterior)
 
-posterior_samples(b14.3) %>% 
+as_draws_df(b14.3) %>% 
   summarise_draws() %>% 
   pivot_longer(starts_with("ess")) %>% 
   
@@ -1025,7 +1026,8 @@ kl_dyads %>%
 Here's the overall Pearson's correlation coefficient, collapsing across grouping levels.
 
 ```{r}
-cor(kl_dyads$giftsAB, kl_dyads$giftsBA) %>% round(digits = 3)
+kl_dyads %>% 
+  summarise(rho = cor(giftsAB, giftsBA))
 ```
 
 However, it would be a mistake to take this correlation seriously. It is a disentangled mixture of various kinds of associations, none of which are guaranteed to be even close to $r = .24$. Remember this as we move along with the analyses and let the consequences burn a methodological mark into your soul.
@@ -1396,7 +1398,7 @@ Importantly, what McElreath called $\eta$, Bürkner called $sdgp$. While McElrea
 
 ```{r}
 post <-
-  posterior_samples(b14.8) %>% 
+  as_draws_df(b14.8) %>% 
   mutate(etasq = sdgp_a_gplat_adjlon2_adj^2)
 
 post %>% 
@@ -1470,7 +1472,7 @@ That is, we used the **brms** default prior for $lscale$. In a [GitHub exchange]
   
 ```{r, fig.width = 4, fig.height = 2.5}
 tibble(lscale = seq(from = 0.01, to = 9, by = 0.01)) %>% 
-  mutate(density = invgamma::dinvgamma(lscale, 2.874624, 2.941204)) %>% 
+  mutate(density = invgamma::dinvgamma(lscale, shape = 2.874624, rate = 2.941204)) %>% 
   
   ggplot(aes(x = lscale, y = density)) +
   geom_area(fill = "#80A0C7") +
@@ -1490,18 +1492,18 @@ set.seed(14)
 
 # wrangle
 p1 <-
-  prior_samples(b14.8) %>% 
-  mutate(iter  = 1:n(),
+  prior_draws(b14.8) %>% 
+  mutate(draw  = 1:n(),
          etasq = sdgp_a_gplat_adjlon2_adj^2,
          rhosq = 1 / (2 * lscale_a_1_gplat_adjlon2_adj^2)) %>% 
   slice_sample(n = 100) %>%
-  expand(nesting(iter, etasq, rhosq),
+  expand(nesting(draw, etasq, rhosq),
          x = seq(from = 0, to = 10, by = .05)) %>% 
   mutate(covariance = etasq * exp(-rhosq * x^2)) %>% 
   
   # plot
   ggplot(aes(x = x, y = covariance)) +
-  geom_line(aes(group = iter),
+  geom_line(aes(group = draw),
             size = 1/4, alpha = 1/4, color = "#EEDA9D") +
   scale_x_continuous("distance (thousand km)", expand = c(0, 0),
                      breaks = 0:5 * 2) +
@@ -1519,17 +1521,16 @@ set.seed(14)
 # wrangle
 p2 <-
   post %>% 
-  transmute(iter  = 1:n(),
-            etasq = sdgp_a_gplat_adjlon2_adj^2,
+  mutate(etasq = sdgp_a_gplat_adjlon2_adj^2,
          rhosq = 1 / (2 * lscale_a_gplat_adjlon2_adj^2)) %>% 
   slice_sample(n = 50) %>% 
-  expand(nesting(iter, etasq, rhosq),
+  expand(nesting(.draw, etasq, rhosq),
          x = seq(from = 0, to = 10, by = .05)) %>% 
   mutate(covariance = etasq * exp(-rhosq * x^2)) %>% 
   
   # plot
   ggplot(aes(x = x, y = covariance)) +
-  geom_line(aes(group = iter),
+  geom_line(aes(group = .draw),
             size = 1/4, alpha = 1/4, color = "#EEDA9D") +
   stat_function(fun = function(x) mean(post$sdgp_a_gplat_adjlon2_adj)^2 *
                   exp(-(1 / (2 * mean(post$lscale_a_gplat_adjlon2_adj)^2)) * x^2),
@@ -1731,7 +1732,7 @@ print(b14.8_nb)
 This resulted in a slightly less pronounced correlation matrix.
 
 ```{r}
-post <- posterior_samples(b14.8_nb)
+post <- as_draws_df(b14.8_nb)
 
 # compute posterior median covariance among societies
 k <- matrix(0, nrow = 10, ncol = 10)
@@ -1851,7 +1852,7 @@ p1 + p2 +
 There is very little difference. Finish off by comparing the two models with the WAIC.
 
 ```{r, warning = F, message = F}
-b14.8 <- add_criterion(b14.8, "waic")
+b14.8    <- add_criterion(b14.8, "waic")
 b14.8_nb <- add_criterion(b14.8_nb, "waic")
 
 loo_compare(b14.8, b14.8_nb, criterion = "waic") %>% print(simplify = F)
@@ -1971,7 +1972,7 @@ print(b14.9)
 If you want $\sigma$ in the $\sigma^2$ metric, you can square that by hand.
 
 ```{r}
-posterior_samples(b14.9) %>% 
+as_draws_df(b14.9) %>% 
   mutate(sigma_sq = sigma^2) %>% 
   mean_qi(sigma_sq) %>% 
   mutate_if(is.double, round, digits = 2)
@@ -2083,8 +2084,8 @@ print(b14.10)
 Since our residual variance is still in the $\sigma$ metric, it will be easier to compare it to McElreath's `sigma_sq` parameter after transforming the posterior samples.
 
 ```{r}
-posterior_samples(b14.10) %>% 
-  transmute(sigma_sq = sigma^2) %>% 
+as_draws_df(b14.10) %>% 
+  mutate(sigma_sq = sigma^2) %>% 
   mean_hdi(sigma_sq, .width = .89) %>% 
   mutate_if(is.double, round, 2)
 ```
@@ -2150,8 +2151,8 @@ left_join(
   post %>% 
     data.frame() %>% 
     slice_sample(n = 30) %>% 
-    mutate(iter = 1:n()) %>% 
-    tidyr::expand(nesting(iter, etasq, rhosq),
+    mutate(draw = 1:n()) %>% 
+    tidyr::expand(nesting(draw, etasq, rhosq),
                   d_seq = seq(from = 0, to = 1, length.out = 50)),
   # prior
   tibble(eta = abs(rnorm(1e5, mean = 1, sd = 0.25)),
@@ -2166,9 +2167,9 @@ left_join(
   
   # plot!
   ggplot(aes(x = d_seq)) +
-  geom_line(aes(y = etasq * exp(-rhosq * d_seq), group = iter),
+  geom_line(aes(y = etasq * exp(-rhosq * d_seq), group = draw),
             color = "#80A0C7", alpha = 1/2) +
-  geom_lineribbon(data = . %>% filter(iter == 1),
+  geom_lineribbon(data = . %>% filter(draw == 1),
             aes(y = k, ymin = .lower, ymax = .upper),
             color = "#A65141", fill = "#E7CDC2") +
   annotate(geom = "text",
@@ -2195,11 +2196,27 @@ All the models in this bonus section are based on the preprint by @williamsBayes
 
 Load the data.
 
-```{r, warning = F, message = F}
-dat <- 
-  readr::read_csv("/Users/solomonkurz/Dropbox/Recoding Statistical Rethinking 2nd ed/data/m_melsm_dat.csv") %>% 
+```{r, eval = F, echo = F}
+# hide this
+m_melsm_dat <- read_table2("data/m_melsm_dat.txt") 
+
+dat <- m_melsm_dat
+
+save(dat, file = "data/m_melsm_dat.rda")
+
+rm(m_melsm_dat, dat)
+```
+
+```{r}
+# load the data from GitHub
+load(url("https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed/raw/master/data/m_melsm_dat.rda"))
+
+# add a scaled time variable
+dat <-
+  dat %>% 
   mutate(day01 = (day - 2) / max((day - 2)))
 
+# take a look
 glimpse(dat)
 ```
 
@@ -2238,7 +2255,7 @@ Our primary variables of interest were taken from the Positive and Negative Affe
 set.seed(14)
 
 dat %>% 
-  nest(data = c(X1, P_A.std, day, P_A.lag, N_A.lag, steps.pm, steps.pmd, N_A.std, day01)) %>% 
+  nest(data = c(P_A.std, day, P_A.lag, N_A.lag, steps.pm, steps.pmd, N_A.std, day01)) %>% 
   slice_sample(n = 16) %>% 
   unnest(data) %>% 
   
@@ -2337,11 +2354,11 @@ nd <-
   select(record_id, N_A.std, day01)
 
 bind_cols(
-  fitted(b14.12,
-         newdata = nd) %>% 
+  # fitted
+  fitted(b14.12, newdata = nd) %>% 
     data.frame(),
-  predict(b14.12,
-          newdata = nd) %>% 
+  # predict
+  predict(b14.12, newdata = nd) %>% 
     data.frame() %>% 
     select(Q2.5:Q97.5) %>% 
     set_names("p_lower", "p_upper")
@@ -2447,11 +2464,9 @@ nd <-
   select(record_id, N_A.std, day01)
 
 bind_cols(
-  fitted(b14.13,
-         newdata = nd) %>% 
+  fitted(b14.13, newdata = nd) %>% 
     data.frame(),
-  predict(b14.13,
-          newdata = nd) %>% 
+  predict(b14.13, newdata = nd) %>% 
     data.frame() %>% 
     select(Q2.5:Q97.5) %>% 
     set_names("p_lower", "p_upper")
@@ -2599,11 +2614,9 @@ nd <-
   select(record_id, N_A.std, day01)
 
 bind_cols(
-  fitted(b14.14,
-         newdata = nd) %>% 
+  fitted(b14.14, newdata = nd) %>% 
     data.frame(),
-  predict(b14.14,
-          newdata = nd) %>% 
+  predict(b14.14, newdata = nd) %>% 
     data.frame() %>% 
     select(Q2.5:Q97.5) %>% 
     set_names("p_lower", "p_upper")
@@ -2788,16 +2801,16 @@ As fond as I am with that last correlation plot, it has a glaring defect: there 
 
 Fortunately for us, [Matthew Kay](https://twitter.com/mjskay) (creator of the [**tidybayes** package](http://mjskay.github.io/tidybayes)) has already tried his hand at a few approaches. For all the deets, check out the [multivariate-regression.md](https://github.com/mjskay/uncertainty-examples/blob/master/multivariate-regression.md) file in his [uncertainty-examples](https://github.com/mjskay/uncertainty-examples) GitHub repo. One of his more imaginative approaches is to use what he calls dithering. Imagine breaking each of the cells in our correlation plot, above, into a $50 \times 50 = 2{,}500$-cell grid. Now assign each of the cells within that grid one of the values from the HMC draws of that correlation's posterior distribution. Then color code each of those cells by that value in the same basic way we color coded our previous correlation plots. Simultaneously do that for all of the correlations within the $\mathbf R$ matrix and plot them in a faceted plot. That's the essence of the dithering approach. This is all probably hard to make sense of in words. Hopefully it will all come together with a little code and the resulting plot. Hold on to your hat.
 
-```{r, fig.width = 6.25, fig.height = 5.25}
+```{r, fig.width = 6.25, fig.height = 5.25, warning = F}
 levels <- c("beta[0]^'NA'", "beta[1]^'NA'", "eta[0]^'NA'", "eta[1]^'NA'",
             "beta[0]^'PA'", "beta[1]^'PA'", "eta[0]^'PA'", "eta[1]^'PA'")
 
 rho <-
-  posterior_samples(b14.15) %>% 
+  as_draws_df(b14.15) %>% 
   select(starts_with("cor_")) %>% 
   slice_sample(n = 50 * 50) %>% 
   bind_cols(crossing(x = 1:50, y = 1:50)) %>% 
-  pivot_longer(-c(x:y)) %>% 
+  pivot_longer(cols = -c(x:y)) %>% 
   mutate(name = str_remove(name, "cor_record_id__")) %>% 
   separate(name, into = c("col", "row"), sep = "__") %>% 
   mutate(
