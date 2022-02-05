@@ -232,8 +232,8 @@ Now we make our version of Figure 16.2.a.
 ```{r, warning = F, message = F, fig.width = 4.5, fig.height = 4}
 library(GGally)
 
-posterior_samples(b16.1) %>% 
-  select(-lp__) %>% 
+as_draws_df(b16.1) %>% 
+  select(b_k_Intercept:sigma) %>% 
   set_names(c("italic(k)", "italic(p)", "sigma")) %>% 
   ggpairs(upper = list(continuous = my_upper),
           diag = list(continuous = my_diag),
@@ -602,7 +602,7 @@ n <- 1e4
 at <- 0:6 / 4
 
 # how many prior draws would you like?
-n_samples <- 50
+n_draws <- 50
 
 # simulate
 set.seed(16)
@@ -612,7 +612,7 @@ prior <-
          phi   = rlnorm(n, meanlog = log(1), sdlog = 0.1),
          k     = rlnorm(n, meanlog = log(2), sdlog = 0.25),
          theta = rlnorm(n, meanlog = log(5), sdlog = 0.25)) %>% 
-  slice_sample(n = n_samples) %>% 
+  slice_sample(n = n_draws) %>% 
   expand(nesting(index, phi, k, theta),
          age = seq(from = 0, to = 1.5, length.out = 1e2)) %>% 
   mutate(bm = 1 - exp(-k * age),
@@ -685,15 +685,14 @@ print(b16.4)
 No we might get a sense of what this posterior means by plotting nuts per second as a function of `age` in our version of Figure 16.5.
 
 ```{r, fig.width = 4, fig.height = 3.2}
-posterior_samples(b16.4) %>% 
-  mutate(iter = 1:n()) %>% 
-  slice_sample(n = n_samples) %>% 
-  expand(nesting(iter, b_phi_Intercept, b_k_Intercept, b_theta_Intercept),
+as_draws_df(b16.4) %>% 
+  slice_sample(n = n_draws) %>% 
+  expand(nesting(.draw, b_phi_Intercept, b_k_Intercept, b_theta_Intercept),
          age = seq(from = 0, to = 1.5, length.out = 1e2)) %>% 
   mutate(ns = b_phi_Intercept * (1 - exp(-b_k_Intercept * age))^b_theta_Intercept) %>% 
   
   ggplot() +
-  geom_line(aes(x = age, y = ns, group = iter),
+  geom_line(aes(x = age, y = ns, group = .draw),
             size = 1/4, alpha = 1/2) +
   geom_jitter(data = d,
               aes(x = age_s, y = n / seconds, size = seconds),
@@ -1092,13 +1091,13 @@ library(bayesplot)
 color_scheme_set("gray")
 
 col_names <- c("italic(H)[1]", "italic(L)[1]", str_c("italic(", c("b[H]", "m[H]", "b[L]", "m[L]"), ")"), 
-               "sigma[italic(H)]", "sigma[italic(L)]", "lp__", "chain", "iter")
+               "sigma[italic(H)]", "sigma[italic(L)]", "Chain")
 
-posterior_samples(b16.5a, add_chain = T) %>% 
+as_draws_df(b16.5a) %>% 
+  select(b_H1_Intercept:b_sigma_populationLynx, .chain) %>%
   set_names(col_names) %>% 
   
-  mcmc_trace(pars = vars(-iter, -lp__),
-             facet_args = list(labeller = label_parsed), 
+  mcmc_trace(facet_args = list(labeller = label_parsed), 
              size = .15) +
   scale_x_continuous(breaks = NULL) +
   theme(legend.key.size = unit(0.15, 'in'),
@@ -1124,7 +1123,7 @@ p <-
   predict(b16.5a, 
           summary = F, 
           # how many posterior predictive draws would you like?
-          nsamples = 21)
+          ndraws = 21)
 
 str(p)
 ```
@@ -1220,13 +1219,13 @@ Once again, check the quality of the chains.
 
 ```{r, fig.width = 8, fig.height = 4, warning = F, message = F}
 col_names <- c("italic(H)[1]", "italic(L)[1]", str_c("italic(", c("b[H]", "m[H]", "b[L]", "m[L]"), ")"), 
-               "italic(p[H])", "italic(p[L])", "sigma[italic(H)]", "sigma[italic(L)]", "lp__", "chain", "iter")
+               "italic(p[H])", "italic(p[L])", "sigma[italic(H)]", "sigma[italic(L)]", "Chain")
 
-posterior_samples(b16.5b, add_chain = T) %>% 
+as_draws_df(b16.5b) %>% 
+  select(b_H1_Intercept:b_sigma_populationLynx, .chain) %>% 
   set_names(col_names) %>% 
   
-  mcmc_trace(pars = vars(-iter, -lp__),
-             facet_args = list(labeller = label_parsed), 
+  mcmc_trace(facet_args = list(labeller = label_parsed), 
              size = .15) +
   scale_x_continuous(breaks = NULL) +
   theme(legend.key.size = unit(0.15, 'in'),
@@ -1247,7 +1246,7 @@ p1 <-
   predict(b16.5b, 
           summary = F, 
           # how many posterior predictive draws would you like?
-          nsamples = 21) %>%
+          ndraws = 21) %>%
   # wrangle
   data.frame() %>% 
   set_names(1:42) %>% 
@@ -1274,10 +1273,10 @@ p1 <-
   coord_cartesian(ylim = c(0, 120))
 ```
 
-Our workflow for the second panel will differ a bit from above and a lot from McElreath's **rethinking**-based workflow. In essence, we won't get the same kind of output McElreath got when he executed `post <- extract.samples(m16.5)`. Our `post <- posterior_samples(b16.5b)` call only get's us part of the way there. So we'll have to be tricky and supplement those results with a little `fitted()` magic.
+Our workflow for the second panel will differ a bit from above and a lot from McElreath's **rethinking**-based workflow. In essence, we won't get the same kind of output McElreath got when he executed `post <- extract.samples(m16.5)`. Our `post <- as_draws_df(b16.5b)` call only get's us part of the way there. So we'll have to be tricky and supplement those results with a little `fitted()` magic.
 
 ```{r}
-post <- posterior_samples(b16.5b)
+post <- as_draws_df(b16.5b)
 
 f <-
   fitted(b16.5b,
@@ -1416,7 +1415,7 @@ set.seed(16)
 
 fitted(b16.6,
        summary = F,
-       nsamples = 21) %>% 
+       ndraws = 21) %>% 
   data.frame() %>% 
   set_names(1900:1920) %>% 
   mutate(iter = 1:n()) %>% 
@@ -1524,7 +1523,7 @@ sessionInfo()
 ```
 
 ```{r, warning = F, echo = F}
-rm(d, b16.1, my_lower, my_diag, my_upper, nd, p, n, Boxes_model, dat_list, m16.2, label, at, n_samples, prior, p1, p2, b16.4, Lynx_Hare, text, sim_lynx_hare, theta, z, Ht, Lynx_Hare_long, LotkaVolterra, LV, ode_LV, lv_formula, lv_priors, b16.5a, col_names, lv_formula_error, lv_priors_error, b16.5b, post, f, b16.6, b16.7, b16.8, b16.9)
+rm(d, b16.1, my_lower, my_diag, my_upper, nd, p, n, Boxes_model, dat_list, m16.2, label, at, n_draws, prior, p1, p2, b16.4, Lynx_Hare, text, sim_lynx_hare, theta, z, Ht, Lynx_Hare_long, LotkaVolterra, LV, ode_LV, lv_formula, lv_priors, b16.5a, col_names, lv_formula_error, lv_priors_error, b16.5b, post, f, b16.6, b16.7, b16.8, b16.9)
 ```
 
 ```{r, echo = F, message = F, warning = F, results = "hide"}
