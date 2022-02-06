@@ -1069,7 +1069,7 @@ lv_priors <- c(
 )
 ```
 
-Now whether you can fit this model in **brms** may depend on which version you're using. For details, see the endnote[^6]. In short, just update to the [current version](https://CRAN.R-project.org/package=brms). Within our `brm()` code, notice our `stanvars` settings. Also, I find these models benefit from setting `inits = 0`. Happily, this model fit in just about four minutes on my 2019 MacBook Pro.
+Now whether you can fit this model in **brms** may depend on which version you're using. For details, see the endnote[^7]. In short, just update to the [current version](https://CRAN.R-project.org/package=brms). Within our `brm()` code, notice our `stanvars` settings. Also, I find these models benefit from setting `inits = 0`. Happily, this model fit in just about four minutes on my 2019 MacBook Pro.
 
 ```{r b16.5a}
 b16.5a <- 
@@ -1531,5 +1531,5 @@ ggplot2::theme_set(ggplot2::theme_grey())
 # pacman::p_unload(pacman::p_loaded(), character.only = TRUE)
 ```
 
-[^6]: We first fit this model with **brms** version 2.14.4. At that time, the only way to get it to run successfully was by using `backend = "cmdstan"`. I'm not really interested in tackling what that setting means, but rest assured that exciting things are happening for **brms** and Stan. If you'd like to learn more, check out the [-@Weber2021WithinChainParallelization] vignette by Webber and Bürkner, [*Running brms models with within-chain parallelization*](https://CRAN.R-project.org/package=brms/vignettes/brms_threading.html). But anyways, the current version of **brms** (2.15.0) no longer requires that `backend` setting and the complications it entails. The default works fine.
+[^7]: We first fit this model with **brms** version 2.14.4. At that time, the only way to get it to run successfully was by using `backend = "cmdstan"`. I'm not really interested in tackling what that setting means, but rest assured that exciting things are happening for **brms** and Stan. If you'd like to learn more, check out the [-@Weber2021WithinChainParallelization] vignette by Webber and Bürkner, [*Running brms models with within-chain parallelization*](https://CRAN.R-project.org/package=brms/vignettes/brms_threading.html). But anyways, the current version of **brms** (2.15.0) no longer requires that `backend` setting and the complications it entails. The default works fine.
 
