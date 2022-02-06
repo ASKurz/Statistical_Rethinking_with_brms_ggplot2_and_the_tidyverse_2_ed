@@ -1361,7 +1361,6 @@ b11.11 <-
                 prior(exponential(1), nlpar = g, lb = 0)),
       iter = 2000, warmup = 1000, chains = 4, cores = 4,
       seed = 11,
-      control = list(adapt_delta = .95),
       file = "fits/b11.11") 
 ```
 
@@ -1392,7 +1391,7 @@ text <-
          total_tools = c(59, 68),
          label       = str_c(cid, " contact"))
 
-# redifine the new data
+# redefine the new data
 nd <-
   distinct(d, cid) %>% 
   expand(cid, 
