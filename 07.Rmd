@@ -139,7 +139,8 @@ R2_is_bad <- function(brm_fit, seed = 7, ...) {
   
   set.seed(seed)
   p <- predict(brm_fit, summary = F, ...)
-  r <- apply(p, 2, mean) - d$brain_std
+  # in my experience, it's more typical to define residuals as the criterion minus the predictions
+  r <- d$brain_std - apply(p, 2, mean)
   1 - rethinking::var2(r) / rethinking::var2(d$brain_std)
   
 }
@@ -1867,7 +1868,7 @@ sessionInfo()
 ```
 
 ```{r, echo = F}
-rm(d, b7.1, R2_is_bad, b7.2, b7.3, b7.4, b7.5, custom_normal, stan_funs, custom_normal_lpdf, custom_normal_rng, stanvars, b7.6, posterior_epred_custom_normal, posterior_predict_custom_normal, log_lik_custom_normal, nd, make_figure7.3, p1, p2, p3, p4, p5, p6, b7.1.1, brain_loo_lines, b7.1_fits, b7.4_fits, weatherperson, newcomer, p, t, log_prob, prob, my_lppd, make_sim, n_sim, n_cores, kseq, s, n, dev_20, dev_100, dev_tibble, text, cars, b7.m, n_cases, ll, log_mu_l, lppd, v_i, pwaic, b6.6, b6.7, b6.8, w, b5.1, b5.2, b5.3, b5.3t, r2_b5.1, r2)
+rm(d, b7.1, R2_is_bad, b7.2, b7.3, b7.4, b7.5, custom_normal, stan_funs, custom_normal_lpdf, custom_normal_rng, stanvars, b7.6, posterior_epred_custom_normal, posterior_predict_custom_normafl, log_lik_custom_normal, nd, make_figure7.3, p1, p2, p3, p4, p5, p6, b7.1.1, brain_loo_lines, b7.1_fits, b7.4_fits, weatherperson, newcomer, p, t, log_prob, prob, my_lppd, make_sim, n_sim, n_cores, kseq, s, n, dev_20, dev_100, dev_tibble, text, cars, b7.m, n_cases, ll, log_mu_l, lppd, v_i, pwaic, b6.6, b6.7, b6.8, w, b5.1, b5.2, b5.3, b5.3t, r2_b5.1, r2)
 ```
 
 ```{r, echo = F, message = F, warning = F, results = "hide"}
