@@ -358,7 +358,11 @@ where $\alpha$ and $\Gamma$ are still the shape and gamma function, respectively
 
 $$y_i \sim \operatorname{Gamma-Poisson}(\mu, \alpha),$$
 
-where $\mu$ is the mean or rate, taking the place of $\lambda$ from the Poisson distribution, and $\alpha$ is the shape.
+where $\mu$ is the mean or rate, taking the place of $\lambda$ from the Poisson distribution, and $\alpha$ is the shape. I should warn you that this notation is a little different from the notation McElreath used in the text (p. 374), where he used $\lambda$ in place of our $\mu$ and $\phi$ in place of our $\alpha$. The meaning is really the same. The reason I have diverged from McElreath's notation is to emphasize the connection with the walk-out, above. If you want to add injury to insult, compare both of these notations with the notation Bürkner used in his [-@Bürkner2021Parameterization] vignette, [*Parameterization of response distributions in brms*](https://cran.r-project.org/package=brms/vignettes/brms_families.html#ordinal-and-categorical-models).
+
+Since this all is already a pedagogical nightmare, let's throw in one more technical tidbit before we start fitting models. I don't believe McElreath plainly explained this in the text, but when we talk about the gamma-Poisson model as having two parameters, the $\lambda$ parameter (a.k.a. $\mu$) is doing double duty. As with conventional Poisson models, $\lambda$ is the mean for the criterion. What might not be as clear is that $\lambda$ is also the mean of the gamma mixture distribution. So when you want to get a sense of the overall shape of the gamma-Poisson model-implied distribution of $\lambda$ parameters—one for each variable in the data set--, the distribution is gamma with a mean of $\lambda$ and shape of $\phi$ (a.k.a. $\alpha$). For a more detailed walk out of this, see Section 8.2 in @hilbeNegativeBinomialRegression2011.
+
+Okay, that's enough technical background. Let's load the `Kline` data and bring this down to Earth with some models.
 
 ```{r, warning = F, message = F}
 data(Kline, package = "rethinking")
