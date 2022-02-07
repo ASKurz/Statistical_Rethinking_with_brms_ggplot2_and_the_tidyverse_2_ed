@@ -34,7 +34,7 @@ data(WaffleDivorce, package = "rethinking")
 d <- WaffleDivorce
 ```
 
-Did you notice how we used the `package` argument within the `data()` function, there? That allowed us to load the `WaffleDivorce` without actually loading the **rethinking** package. Since we generally don't want to have both **rethinking** and **brms** loaded up at the same time, using the `package` function will save us a line of code.
+Did you notice how we used the `package` argument within the `data()` function, there? That allowed us to load the `WaffleDivorce` without actually loading the **rethinking** package. Since we generally don't want to have both **rethinking** and **brms** loaded up at the same time, using the `package` argument will save us a line of code.
 
 Now standardize the focal variables with the `rethinking::standardize()` function.
 
