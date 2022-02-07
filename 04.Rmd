@@ -750,7 +750,7 @@ d_grid_samples %>%
 
 That `labeller = label_parsed` bit in the `facet_wrap()` function is what converted our subplot strip labels into Greek. You can learn more about `labeller` [here](https://ggplot2.tidyverse.org/reference/labeller.html). Anyway, our posterior for $\sigma$ isn't so Gaussian with that small $n$.
 
-This is the point in the project where we hop off the grid-approximation train. On the one hand, I think this is a great idea. Most of y'all reading this will never use grid approximation in a real-world applied data analysis. On the other hand, there is some pedagogical utility in practicing with it. It can help you grasp what it is we're dong when we apply Bayes' theorem. If you'd like more practice, check out the first several chapters in John Kruschke's [-@kruschkeDoingBayesianData2015] [textbook](https://sites.google.com/site/doingbayesiandataanalysis/) and the corresponding chapters in my [-@kurzDoingBayesianData2020] [ebook](https://bookdown.org/content/3686/) translating it into **brms** and **tidyverse**.
+This is the point in the project where we hop off the grid-approximation train. On the one hand, I think this is a great idea. Most of y'all reading this will never use grid approximation in a real-world applied data analysis. On the other hand, there is some pedagogical utility in practicing with it. It can help you grasp what it is we're doing when we apply Bayes' theorem. If you'd like more practice, check out the first several chapters in John Kruschke's [-@kruschkeDoingBayesianData2015] [textbook](https://sites.google.com/site/doingbayesiandataanalysis/) and the corresponding chapters in my [-@kurzDoingBayesianData2020] [ebook](https://bookdown.org/content/3686/) translating it into **brms** and **tidyverse**.
 
 ### Finding the posterior distribution with ~~`quap`~~ `brm()`.
 
@@ -1087,7 +1087,7 @@ They are the same within simulation variance. Also, did you notice how we simula
 \text{standard deviation} & = \sqrt{[\exp(\sigma ^{2})-1] \; \exp(2\mu +\sigma ^{2})}.
 \end{align*}
 
-If we follow those formulas through, there are the mean and standard deviation for $\operatorname{Log-Normal}(0, 1)$.
+Let's try our hand at those formulas and compute the mean and standard deviation for $\operatorname{Log-Normal}(0, 1)$.
 
 ```{r}
 mu    <- 0
@@ -1161,7 +1161,7 @@ d2 <-
   mutate(weight_c = weight - mean(weight))
 ```
 
-Unlike with McElreath's **rethinking** package, the `brms::brm()` syntax doesn't mirror the statistical notation. But here are the analogues to the exposition at the bottom of page 97:
+Unlike with McElreath's **rethinking** package, the conventional `brms::brm()` syntax doesn't mirror the statistical notation. But here are the analogues to the exposition at the bottom of page 97:
 
 * $\text{height}_i \sim \operatorname{Normal}(\mu_i, \sigma)$: `family = gaussian`,
 * $\mu_i = \alpha + \beta \text{weight}_i$: `height ~ 1 + weight_c`,
@@ -1208,7 +1208,7 @@ ggmcmc::ggs(b4.3) %>%
 
 #### Overthinking: Logs and exps, oh my.
 
-**brms** does not allow users to insert coefficients into functions like $\exp()$ within the conventional `formula` syntax. We can fit a **brms** model like McElreath's `m4.3b` if we adopt what's called the non-linear syntax [@Bürkner2021Non_linear]. The non-linear syntax is a lot like the syntax McElreath uses in **rethinking** in that it typically includes both predictor and variable names in the `formula`. Since this is so early in the book and we're just working through a problem in an **Overthinking** tangent, I won't go into a full-blow explanation, here. There will be many more opportunities to practice with the non-linear syntax in the chapters to come (e.g., [Section 5.3.2][Many categories.], [Section 6.2.1][A prior is born.]). For now, here's how we might fit the model.
+**brms** does not allow users to insert coefficients into functions like $\exp()$ within the conventional `formula` syntax. We can fit a **brms** model like McElreath's `m4.3b` if we adopt what's called the non-linear syntax [@Bürkner2021Non_linear]. The non-linear syntax is a lot like the syntax McElreath uses in **rethinking** in that it typically includes both predictor and variable names in the `formula`. Since this is so early in the book and we're just working through a problem in an **Overthinking** tangent, I won't go into a full-blown explanation, here. There will be many more opportunities to practice with the non-linear syntax in the chapters to come (e.g., [Section 5.3.2][Many categories.], [Section 6.2.1][A prior is born.]). For now, here's how we might fit the model.
 
 ```{r b4.3b}
 b4.3b <- 
@@ -2317,7 +2317,7 @@ f %>%
         panel.grid = element_blank())
 ```
 
-If it wasn't clear, the dashed horizontal line intersecting a little above 100 on the $y$-axis is the poster mean for the intercept. Now let's use our skills to remake the simpler model expressed in Figure 4.12. This model, recall, is based on 5 knots.
+If it wasn't clear, the dashed horizontal line intersecting a little above 100 on the $y$-axis is the posterior mean for the intercept. Now let's use our skills to remake the simpler model expressed in Figure 4.12. This model, recall, is based on 5 knots.
 
 ```{r b4.9}
 # redo the `B` splines
