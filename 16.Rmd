@@ -1166,7 +1166,7 @@ p %>%
 
 Since this version of the model didn't include a measurement-error process, we don't have a clear way to make an analogue of Figure 16.9b. We'll contend with that in the next section.
 
-#### 16.4.2.2 Add a measurement-error process to the Lotka-Volterra model.
+#### Add a measurement-error process to the Lotka-Volterra model.
 
 Now we have a sense of what the current Lotka-Volterra workflow looks like for **brms**, we're ready to complicate our model a bit. Happily, we won't need to update our `LotkaVolterra` code. That's good as it is. But we will need to make a couple minor adjustments to our model `formula` object, which we now call `lv_formula_error`. Make special note of the first `bf()` line and the last line before we set `nl = TRUE`. That's where all the measurement-error action is at.
 
