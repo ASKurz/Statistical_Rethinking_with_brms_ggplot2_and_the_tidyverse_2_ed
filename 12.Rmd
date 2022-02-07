@@ -459,7 +459,7 @@ Because this model had no predictors, we have similar posterior-predictive distr
 
 > A **negative-binomial** model, more usefully called a **gamma-Poisson** model, assumes that each Poisson count observation has its own rate. It estimates the shape of the gamma distribution to describe the Poisson rates across cases. (p. 373, **emphasis** in the original)
 
-As a reminder, the "rate" for the Poisson distribution is just another word for the mean, also called $\lambda$. So unlike a simple Poisson model where we use the individual cases to estimate one overall $\lambda$, here we're presuming each case has it's own $\lambda_i$. There are 10 $\lambda_i$ values that generated our data and if we look at those $\lambda_i$ values on the whole, their distribution can be described with a gamma distribution. And again, this is not a gamma distribution for our data. This is a gamma distribution of the $\lambda_i$ values from the 10 separate Poisson distributions that presumably made our data.
+As a reminder, the "rate" for the Poisson distribution is just another word for the mean, also called $\lambda$. So unlike a simple Poisson model where we use the individual cases to estimate one overall $\lambda$, here we're presuming each case has its own $\lambda_i$. There are 10 $\lambda_i$ values that generated our data and if we look at those $\lambda_i$ values on the whole, their distribution can be described with a gamma distribution. And again, this is not a gamma distribution for our data. This is a gamma distribution of the $\lambda_i$ values from the 10 separate Poisson distributions that presumably made our data.
 
 After exponentiating the intercept parameter ($\log \mu$), here are the posterior distributions for those two gamma parameters.
 
@@ -479,7 +479,7 @@ post %>%
   facet_wrap(~ parameter, scales = "free", labeller = label_parsed)
 ```
 
-We might want to use these parameters estimates to visualize the model-implied gamma distribution of $\lambda$ parameters. But recall that the base **R** `dgamma()` function doesnt' take the mean. It is based on either the `shape` and `rate` or the `shape and `scale`. Since we already have the shape ($\alpha$), we need a way to compute the scale or rate. Happily, we can define the scale in terms of the mean and the shape with the equation
+We might want to use these parameters estimates to visualize the model-implied gamma distribution of $\lambda$ parameters. But recall that the base **R** `dgamma()` function doesn't take the mean. It is based on either the `shape` and `rate` or the `shape and `scale`. Since we already have the shape ($\alpha$), we need a way to compute the scale or rate. Happily, we can define the scale in terms of the mean and the shape with the equation
 
 $$\theta = \frac{\mu}{\alpha}.$$
 

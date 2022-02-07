@@ -1641,7 +1641,7 @@ Both multilevel and MRP estimates tended to be a little lower than the raw propo
 
 #### Estimates by US state.
 
-Now we turn out attention to variation across states. The workflow, here, will only deviate slightly from what we just did. This time, of course, we will be grouping the estimates by `state_name` instead of by `age_group`. The other notable difference is since we're plotting US state, it might be fun to show the results in a map format. Alexander used the `geom_statebins()` function from the [**statebins** package](https://CRAN.R-project.org/package=statebins) [@R-statebins]. I thought the results were pretty cool, we will do the same. To give you a sense of what we're building, here's the plot of the empirical proportions.
+Now we turn out attention to variation across states. The workflow, here, will only deviate slightly from what we just did. This time, of course, we will be grouping the estimates by `state_name` instead of by `age_group`. The other notable difference is since we're plotting data clustered by US states, it might be fun to show the results in a map format. Alexander used the `geom_statebins()` function from the [**statebins** package](https://CRAN.R-project.org/package=statebins) [@R-statebins]. I thought the results were pretty cool, we will do the same. To give you a sense of what we're building, here's the plot of the empirical proportions.
 
 ```{r, fig.width = 3, fig.height = 2.75, warning = F, message = F}
 library(statebins)
