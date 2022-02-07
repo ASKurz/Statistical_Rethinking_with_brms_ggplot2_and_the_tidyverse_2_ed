@@ -656,14 +656,14 @@ To learn more about `dplyr::group_by()` and its opposite `dplyr::ungroup()`, che
 
 > It may be that Bayesian inference is the best general purpose method of inference known. However, Bayesian inference is much less powerful than we'd like it to be. There is no approach to inference that provides universal guarantees. No branch of applied mathematics has unfettered access to reality, because math is not discovered, like the proton. Instead it is invented, like the shovel. (p. 32)
 
-This stance brushes up against what is sometimes called *mathematical platonism*, which is a position I suspect is causally held among many scientists and laypersons, alike. For more on the topic, check out *Platonism in the philosophy of mathematics* [@linneboPlatonismPhilosophyMathematics2018].
+This stance brushes up against what is sometimes called *mathematical platonism*, which is a position I suspect is casually held among many scientists and laypersons, alike. For more on the topic, check out *Platonism in the philosophy of mathematics* [@linneboPlatonismPhilosophyMathematics2018].
 
 ## Components of the model
 
 We can sum up the components of the model as three things:
 
 1. a likelihood function: "the number of ways each conjecture could produce an observation,"
-2. one or more parameters: "the accumulated number of ways each conjecture cold produce the entire data," and 
+2. one or more parameters: "the accumulated number of ways each conjecture could produce the entire data," and 
 3. a prior: "the initial plausibility of each conjectured cause of the data" (p. 32).
 
 ### Variables.
@@ -953,8 +953,7 @@ tibble(n_points = c(5, 20)) %>%
   ggplot(aes(x = p_grid, y = posterior)) +
   geom_line() +
   geom_point() +
-  labs(subtitle = "5 points",
-       x = "probability of water",
+  labs(x = "probability of water",
        y = "posterior probability") +
   theme(panel.grid = element_blank()) +
   facet_grid(n_points ~ priors, scales = "free")
@@ -966,7 +965,7 @@ tibble(n_points = c(5, 20)) %>%
 >
 > A Gaussian approximation is called "*quadratic approximation*" because the logarithm of a Gaussian distribution forms a parabola. And a parabola is a quadratic function. So this approximation essentially represents any log-posterior with a parabola. (p. 42, *emphasis* added)
 
-Though McElreath will use the quadratic approximation fir the first half of the text, we won't use it much past this chapter. Here, though, we'll apply the quadratic approximation to the globe tossing data with the `rethinking::quap()` function.
+Though McElreath will use the quadratic approximation for the first half of the text, we won't use it much past this chapter. Here, though, we'll apply the quadratic approximation to the globe tossing data with the `rethinking::quap()` function.
 
 ```{r, warning = F, message = F}
 library(rethinking)
@@ -1049,7 +1048,7 @@ Textbooks highlighting the maximum likelihood method for the generalized linear 
 
 > The most popular [alternative to grid approximation and the quadratic approximation] is **Markov chain Monte Carlo** (MCMC), which is a family of conditioning engines capable of handling highly complex models. It is fair to say that MCMC is largely responsible for the insurgence of Bayesian data analysis that began in the 1990s. While MCMC is older than the 1990s, affordable computer power is not, so we must also thank the engineers. ~~Much later in the book (Chapter 9)~~, you'll meet simple and precise examples of MCMC model fitting, aimed at helping you understand the technique. (p. 45, **emphasis** in the original)
 
-The **brms** package uses a version of MCMC to fit Bayesian models. Since one of the main goals of this project is to highlight **brms**, we may as fit a model. This seems like an appropriately named subsection to do so. First we'll have to load the package.
+The **brms** package uses a version of MCMC to fit Bayesian models. Since one of the main goals of this project is to highlight **brms**, we may as well fit a model. This seems like an appropriately named subsection to do so. First we'll have to load the package.
 
 ```{r, warning = F, message = F}
 library(brms)
