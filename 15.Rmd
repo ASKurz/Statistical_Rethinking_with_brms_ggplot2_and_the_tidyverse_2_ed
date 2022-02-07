@@ -1516,7 +1516,7 @@ We won't be walking through an example in this ebook, but you should know that *
 
 "Sometimes there are no statistical solutions to scientific problems. But even then, careful statistical thinking can be useful because it will tell us that there is no statistical solution" (p. 512).
 
-Let's load the `Moralizing_gods` data from @whitehouseComplexSocietiesPrecede2019[^6].
+Let's load the `Moralizing_gods` data from @whitehouseComplexSocietiesPrecede2019[^7].
 
 ```{r, message = F, warning = F}
 data(Moralizing_gods, package = "rethinking")
@@ -2239,4 +2239,4 @@ bayesplot::color_scheme_set("blue")
 # pacman::p_unload(pacman::p_loaded(), character.only = TRUE)
 ```
 
-[^6]: As it turns out, the article connected to the `Moralizing_gods` data, @whitehouseComplexSocietiesPrecede2019, has been retracted. You can find the details at [*Critique topples Nature paper on belief in gods*](https://retractionwatch.com/2021/07/07/critique-topples-nature-paper-on-belief-in-gods/), on Retraction Watch. It appears the retraction is, in part, a reaction to this [preprint](https://psyarxiv.com/jwa2n/) which, interestingly enough, questions the authors' missing data methods. The preprint has since been published as @beheim2021TreatmentOfMissingData.
+[^7]: As it turns out, the article connected to the `Moralizing_gods` data, @whitehouseComplexSocietiesPrecede2019, has been retracted. You can find the details at [*Critique topples Nature paper on belief in gods*](https://retractionwatch.com/2021/07/07/critique-topples-nature-paper-on-belief-in-gods/), on Retraction Watch. It appears the retraction is, in part, a reaction to this [preprint](https://psyarxiv.com/jwa2n/) which, interestingly enough, questions the authors' missing data methods. The preprint has since been published as @beheim2021TreatmentOfMissingData.

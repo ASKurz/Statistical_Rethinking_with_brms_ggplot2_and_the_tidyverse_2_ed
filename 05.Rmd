@@ -80,7 +80,7 @@ d %>%
   theme(panel.grid = element_blank())
 ```
 
-Since these are geographically-based data, we might plot our three major variables in a map format. The [**tigris** package](https://github.com/UrbanInstitute/urbnmapr) [@R-tigris] provides functions for retrieving latitude and longitude data for the 50 states and we can plot then with the `ggplot2::geom_sf()` function. We'll use the `right_join()` function to combine those data with our primary data `d`.
+Since these are geographically-based data, we might plot our three major variables in a map format. The [**tigris** package](https://github.com/UrbanInstitute/urbnmapr) [@R-tigris] provides functions for retrieving latitude and longitude data for the 50 states and we can plot then with the `ggplot2::geom_sf()` function. We'll use the `right_join()` function to combine those data with our primary data `d`[^3].
 
 ```{r, fig.width = 8, fig.height = 2, warning = F, message = F}
 library(tigris)
@@ -2281,4 +2281,6 @@ ggplot2::theme_set(ggplot2::theme_grey())
 bayesplot::color_scheme_set("blue")
 # pacman::p_unload(pacman::p_loaded(), character.only = TRUE)
 ```
+
+[^3]: Note, there is a small difficulty with this **tigris**-oriented workflow. The issue is that the data frame is of class sf, and objects of class sf don't pivot nicely with the `pivot_longer()` function unless you specifically refer to the columns within quotes, as in `pivot_longer(cols = c("d", "m", "a"))`. The details are in [GitHub issue #1171](https://github.com/tidyverse/tidyr/issues/1171) for the **tidyr** package. 
 
