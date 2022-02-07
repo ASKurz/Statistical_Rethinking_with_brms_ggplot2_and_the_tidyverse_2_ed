@@ -46,7 +46,7 @@ $$
 \mathbf \Sigma = \begin{bmatrix} \sigma_\alpha^2 & \sigma_\alpha \sigma_\beta \rho \\ \sigma_\alpha \sigma_\beta \rho & \sigma_\beta^2 \end{bmatrix}.
 $$
 
-Anyway, if you haven't used  the `matirx()` function before, you might get a sense of the elements like so.
+Anyway, if you haven't used  the `matrix()` function before, you might get a sense of the elements like so.
 
 ```{r}
 matrix(1:4, nrow = 2, ncol = 2)
