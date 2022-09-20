@@ -1,6 +1,6 @@
 --- 
 title: "*Statistical rethinking* with brms, ggplot2, and the tidyverse: Second edition"
-subtitle: "version 0.2.0"
+subtitle: "version 0.3.0"
 author: "A Solomon Kurz"
 date: "`r Sys.Date()`"
 site: bookdown::bookdown_site
@@ -66,7 +66,7 @@ Though not necessary, your **R** experience might be more enjoyable if done thro
 Once you have installed **R**, execute the following to install the bulk of the add-on packages. This will probably take a few minutes to finish. Go make yourself a coffee.
 
 ```{r, eval = F}
-packages <- c("ape", "bayesplot", "brms", "broom", "dagitty", "devtools", "flextable", "GGally", "ggdag", "ggdark", "ggmcmc", "ggrepel", "ggthemes", "ggtree", "ghibli", "gtools", "loo", "patchwork", "psych", "rcartocolor", "Rcpp", "remotes", "rstan", "StanHeaders", "statebins", "tidybayes", "tidyverse", "viridis", "viridisLite", "wesanderson")
+packages <- c("ape", "bayesplot", "brms", "broom", "dagitty", "devtools", "flextable", "GGally", "ggdag", "ggdark", "ggmcmc", "ggrepel", "ggthemes", "ggtree", "ghibli", "gtools", "loo", "patchwork", "posterior", "psych", "rcartocolor", "Rcpp", "remotes", "rstan", "StanHeaders", "statebins", "tidybayes", "tidyverse", "viridis", "viridisLite", "wesanderson")
 
 install.packages(packages, dependencies = T)
 ```
@@ -79,7 +79,6 @@ devtools::install_github("EdwinTh/dutchmasters")
 devtools::install_github("gadenbuie/ggpomological")
 devtools::install_github("rmcelreath/rethinking")
 devtools::install_github("UrbanInstitute/urbnmapr")
-remotes::install_github("stan-dev/posterior")
 ```
 
 It's possible you'll have problems installing some of these packages. Here are some likely suspects and where you can find help:
