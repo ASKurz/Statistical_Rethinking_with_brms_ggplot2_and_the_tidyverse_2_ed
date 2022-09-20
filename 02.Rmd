@@ -384,7 +384,7 @@ For the last data wrangling step, we add the `remain` indices to help us determi
 ```{r}
 d <- 
   d %>% 
-  mutate(remain = c(#pie_index == "a"
+  mutate(remain = c(# pie_index == "a"
                     rep(0:1, times = c(1, 3)),
                     rep(0,   times = 4),
                     rep(1:0, times = c(1, 3)) %>% rep(., times = 3),
@@ -1096,7 +1096,7 @@ as_draws_df(b2.1) %>%
   facet_wrap(~ n)
 ```
 
-If you're still confused. Cool. This is just a preview. We'll start walking through fitting models with **brms** in [Chapter 4][Geocentric models] and we'll learn a lot about regression with the binomial likelihood in [Chapter 11][God Spiked the Integers].
+If you're still confused, cool. This is just a preview. We'll start walking through fitting models with **brms** in [Chapter 4][Geocentric models] and we'll learn a lot about regression with the binomial likelihood in [Chapter 11][God Spiked the Integers].
 
 ## Session info {-}
 
