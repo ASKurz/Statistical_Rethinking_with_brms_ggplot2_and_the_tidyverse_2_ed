@@ -80,7 +80,7 @@ d %>%
   theme(panel.grid = element_blank())
 ```
 
-Since these are geographically-based data, we might plot our three major variables in a map format. The [**tigris** package](https://github.com/UrbanInstitute/urbnmapr) [@R-tigris] provides functions for retrieving latitude and longitude data for the 50 states and we can plot then with the `ggplot2::geom_sf()` function. We'll use the `right_join()` function to combine those data with our primary data `d`[^3].
+Since these are geographically-based data, we might plot our three major variables in a map format. The [**tigris** package](https://github.com/UrbanInstitute/urbnmapr) [@R-tigris] provides functions for retrieving latitude and longitude data for the 50 states and we can plot then with the `ggplot2::geom_sf()` function. We'll use the `right_join()` function to combine those data with our primary data `d`[^2].
 
 ```{r, fig.width = 8, fig.height = 2, warning = F, message = F}
 library(tigris)
@@ -1726,10 +1726,10 @@ The statistical model including a `male` dummy might follow the form
 \mu_i   & = \alpha + \beta_1 \text{male}_i \\
 \alpha  & \sim \operatorname{Normal}(178, 20) \\
 \beta_1 & \sim \operatorname{Normal}(0, 10) \\
-\sigma  & \sim \operatorname{Exponential}(1),
+\sigma  & \sim \operatorname{Uniform}(0, 50),
 \end{align*}
 
-where $\beta_1$ is the expected (i.e., average) difference between males and females for `height`. Note we're deviating from the text a little and entertaining an $\operatorname{Exponential}(1)$ prior on $\sigma$ rather than the uniform prior McElreath reverted to. As we saw in the last chapter, **brms** can accommodate uniform priors on $\sigma$, but it often causes problems for HMC and, IMO, is more trouble that it's worth. Anyway, here we simulate from our priors and `summarise()` the results.
+where $\beta_1$ is the expected (i.e., average) difference between males and females for `height`. Here we simulate from our priors and `summarise()` the results.
 
 ```{r, warning = F, message = F}
 set.seed(5)
@@ -1780,7 +1780,7 @@ We can update our statistical model to include `sex` with the formula
 \text{height}_i & \sim \operatorname{Normal}(\mu_i, \sigma) \\
 \mu_i    & = \alpha_{\text{sex}[i]} \\
 \alpha_j & \sim \operatorname{Normal}(178, 20) & \text{for } j = 1 \; \& \; 2 \\
-\sigma   & \sim \operatorname{Exponential}(1),
+\sigma   & \sim \operatorname{Uniform}(0, 50),
 \end{align*}
 
 where now we have rows indexed by $i$ and two levels of `sex` indexed by $j$. Again, for our version of this model, we will continue using the simple $\lambda = 1$ exponential prior on $\sigma$, rather than the uniform. The exponential is just much easier on Stan than the uniform. But if you prefer to go uniform, have at it.
@@ -1801,7 +1801,7 @@ b5.8 <-
       family = gaussian,
       height ~ 0 + sex,
       prior = c(prior(normal(178, 20), class = b),
-                prior(exponential(1), class = sigma)),
+                prior(uniform(0, 50), class = sigma, ub = 50)),
       iter = 2000, warmup = 1000, chains = 4, cores = 4,
       seed = 5,
       file = "fits/b05.08")
@@ -2076,7 +2076,7 @@ As with the index variable `sex`, no order is implied by the 0's and 1's in our 
 \mu_i   & = \alpha + \beta_1 \text{female}_i \\
 \alpha  & \sim \operatorname{Normal}(178, 20) \\
 \beta_1 & \sim \operatorname{Normal}(0, 10) \\
-\sigma  & \sim \operatorname{Exponential}(1),
+\sigma  & \sim \operatorname{Uniform}(0, 50),
 \end{align*}
 
 where $\alpha$ would be the intercept (i.e., the mean) for males and $\beta_1$ would be the expected change in the mean for females, relative to males. This parameterization makes males the reference category. Here's how to fit the model with **brms**.
@@ -2088,7 +2088,7 @@ b5.8b <-
       height ~ 1 + female,
       prior = c(prior(normal(178, 20), class = Intercept),
                 prior(normal(0, 10), class = b),
-                prior(exponential(1), class = sigma)),
+                prior(uniform(0, 50), class = sigma, ub = 50)),
       iter = 2000, warmup = 1000, chains = 4, cores = 4,
       seed = 5,
       file = "fits/b05.08b")
@@ -2119,7 +2119,7 @@ head(d)
 \mu_i   & = \alpha + \beta_1 \text{sex_c}_i \\
 \alpha  & \sim \operatorname{Normal}(178, 20) \\
 \beta_1 & \sim \operatorname{Normal}(0, 10) \\
-\sigma  & \sim \operatorname{Exponential}(1),
+\sigma  & \sim \operatorname{Uniform}(0, 50),
 \end{align*}
 
 where $\alpha$ is now the average of the mean heights of males and females and $\beta_1$ is the difference when subtracting the mean `height` of males from the mean `height` of females. Fit the model.
@@ -2131,7 +2131,7 @@ b5.8c <-
       height ~ 1 + sex_c,
       prior = c(prior(normal(178, 20), class = Intercept),
                 prior(normal(0, 10), class = b),
-                prior(exponential(1), class = sigma)),
+                prior(uniform(0, 50), class = sigma, ub = 50)),
       iter = 2000, warmup = 1000, chains = 4, cores = 4,
       seed = 5,
       file = "fits/b05.08c")
@@ -2190,7 +2190,7 @@ This approach can also be generalized to contexts where you have three or more g
 
 ### There's always the multilevel ANOVA approach.
 
-It's a little absurd I'm covering this, here, because (a) I'm not a fan of the ANOVA framework and (b) McElreath didn't properly introduce the multilevel framework until [Chapter 13][Models With Memory]. But we'll throw this in, anyway. For those of you who are new to the multilevel model, make a mental note of this section and then back away slowly and come back after you've worked through the later chapters in this text. For those of y'all who have some experience with the multilevel model, perhaps this will offer an application you hadn't considered.
+It's a little absurd I'm covering this, here, because (a) I'm not a fan of the ANOVA framework and (b) McElreath didn't properly introduce the multilevel framework until [Chapter 13][Models With Memory]. But we'll throw this in, anyway. For those of you who are new to the multilevel model, make a mental note of this section, back away slowly, and come back after you've worked through the later chapters in this text. For those of y'all who have some experience with the multilevel model, perhaps this will offer an application you hadn't considered.
 
 For this approach, let's consider our $K = 4$ variable `clade` from back in `b5.9`. We used `clade` as an index variable to model four means for standardized kilocalories per gram of milk `kcal.per.g_s`.
 
@@ -2282,5 +2282,5 @@ bayesplot::color_scheme_set("blue")
 # pacman::p_unload(pacman::p_loaded(), character.only = TRUE)
 ```
 
-[^3]: Note, there is a small difficulty with this **tigris**-oriented workflow. The issue is that the data frame is of class sf, and objects of class sf don't pivot nicely with the `pivot_longer()` function unless you specifically refer to the columns within quotes, as in `pivot_longer(cols = c("d", "m", "a"))`. The details are in [GitHub issue #1171](https://github.com/tidyverse/tidyr/issues/1171) for the **tidyr** package. 
+[^2]: Note, there is a small difficulty with this **tigris**-oriented workflow. The issue is that the data frame is of class sf, and objects of class sf don't pivot nicely with the `pivot_longer()` function unless you specifically refer to the columns within quotes, as in `pivot_longer(cols = c("d", "m", "a"))`. The details are in [GitHub issue #1171](https://github.com/tidyverse/tidyr/issues/1171) for the **tidyr** package. 
 
