@@ -770,49 +770,34 @@ b4.1 <-
       family = gaussian,
       height ~ 1,
       prior = c(prior(normal(178, 20), class = Intercept),
-                prior(uniform(0, 50), class = sigma)),
-      iter = 31000, warmup = 30000, chains = 4, cores = 4,
+                prior(uniform(0, 50), class = sigma, ub = 50)),
+      iter = 2000, warmup = 1000, chains = 4, cores = 4,
       seed = 4,
       file = "fits/b04.01")
 ```
 
-McElreath's uniform prior for $\sigma$ was rough on **brms**. It took an unusually-large number of warmup iterations before the chains sampled properly. As McElreath covered in [Chapter 9][Markov Chain Monte Carlo], Hamiltonian Monte Carlo (HMC) tends to work better when you default to an exponential or half Cauchy for $\sigma$. Here's how to do so with the half Cauchy[^1].
-
-```{r b4.1_hc}
-b4.1_hc <- 
-  brm(data = d2, 
-      family = gaussian,
-      height ~ 1,
-      prior = c(prior(normal(178, 20), class = Intercept),
-                # the magic lives here
-                prior(cauchy(0, 1), class = sigma)),
-      iter = 2000, warmup = 1000, chains = 4, cores = 4,
-      seed = 4,
-      file = "fits/b04.01_hc")
-```
-
-This leads to an important point. After running a model fit with HMC, it's a good idea to inspect the chains. As we'll see, McElreath covered visual chain diagnostics in [Chapter 9][Markov Chain Monte Carlo]. Here's a typical way to do so with **brms**.
+Note our use of the `ub` parameter for the uniform prior on $\sigma$. If you want to use an upper-bound prior on $\sigma$ with a `brm()` model, the `up` setting will help out a lot. We'll start to get a sense of why when we cover Hamiltonian Monte Carlo (HMC) in [Chapter 9][Markov Chain Monte Carlo]. This leads to an important point. After running a model fit with HMC, it's a good idea to inspect the chains. As we'll see, McElreath covered visual chain diagnostics in [Chapter 9][Markov Chain Monte Carlo]. Here's a typical way to do so with **brms**.
 
 ```{r, fig.width = 6, fig.height = 2.5}
-plot(b4.1_hc)
+plot(b4.1)
 ```
 
 If you want detailed diagnostics for the HMC chains, call `launch_shinystan(b4.1)`. That'll keep you busy for a while. But anyway, the chains look good. We can reasonably trust the results. Here's how to get the model summary of our `brm()` object.
 
 ```{r}
-print(b4.1_hc)
+print(b4.1)
 ```
 
 The `summary()` function works in a similar way. You can also get a Stan-like summary [see the [*RStan: the R interface to Stan*](https://CRAN.R-project.org/package=rstan/vignettes/rstan.html) vignette; @standevelopmentteamRStanInterfaceStan2020] with a little indexing.
 
 ```{r}
-b4.1_hc$fit
+b4.1$fit
 ```
 
 Whereas **rethinking** defaults to 89% intervals, using `print()` or `summary()` with **brms** models defaults to 95% intervals. Unless otherwise specified, I will stick with 95% intervals throughout. However, if you really want those 89% intervals, an easy way is with the `prob` argument within `brms::summary()` or `brms::print()`.
 
 ```{r}
-summary(b4.1_hc, prob = .89)
+summary(b4.1, prob = .89)
 ```
 
 Anyways, here's the `brms::brm()` code for the model with the very-narrow-$\mu$-prior corresponding to the `rethinking::quap()` code in McElreath's **R** code 4.31.
@@ -823,7 +808,7 @@ b4.2 <-
       family = gaussian,
       height ~ 1,
       prior = c(prior(normal(178, 0.1), class = Intercept),
-                prior(uniform(0, 50), class = sigma)),
+                prior(uniform(0, 50), class = sigma, ub = 50)),
       iter = 2000, warmup = 1000, chains = 4, cores = 4,
       seed = 4,
       file = "fits/b04.02")
@@ -833,7 +818,7 @@ b4.2 <-
 plot(b4.2, widths = c(1, 2))
 ```
 
-I had to increase the `warmup` due to convergence issues. After doing so, everything looks to be on the up and up. The chains look great. Here's the model `summary()`.
+The chains look great. Here's the model `summary()`.
 
 ```{r}
 summary(b4.2)
@@ -842,7 +827,7 @@ summary(b4.2)
 Subsetting the `summary()` output with `$fixed` provides a convenient way to compare the `Intercept` summaries between `b4.1_hc` and `b4.2`.
 
 ```{r}
-rbind(summary(b4.1_hc)$fixed,
+rbind(summary(b4.1)$fixed,
       summary(b4.2)$fixed)
 ```
 
@@ -851,13 +836,13 @@ rbind(summary(b4.1_hc)$fixed,
 **brms** doesn't seem to have a convenience function that works the way `vcov()` does for **rethinking**. For example:
 
 ```{r}
-vcov(b4.1_hc)
+vcov(b4.1)
 ```
 
 This only returns the first element in the matrix it did for **rethinking**. That is, it appears `brms::vcov()` only returns the variance/covariance matrix for the single-level $\beta$ parameters. However, if you really wanted this information, you could get it after putting the HMC chains in a data frame. We do that with the `as_draws_df()` function, which we'll be using a lot of as we go along.
 
 ```{r}
-post <- as_draws_df(b4.1_hc)
+post <- as_draws_df(b4.1)
 
 head(post)
 ```
@@ -883,13 +868,13 @@ post %>%
   cor()
 ```
 
-With our `post <- as_draws_df(b4.1_hc)` code from a few lines above, we've already produced the **brms** version of what McElreath achieved with `extract.samples()` on page 90. However, what happened under the hood was different. Whereas **rethinking** used the `mvnorm()` function from the [**MASS** package](https://cran.r-project.org/package=MASS) [@R-MASS; @MASS2002], with **brms** we just extracted the iterations of the HMC chains and put them in a data frame. It's also noteworthy that the `as_draws_df()` is part of a larger class of `as_draws()` functions **brms** currently imports from the [**posterior** package](https://github.com/stan-dev/posterior) [@R-posterior].
+With our `post <- as_draws_df(b4.1)` code from a few lines above, we've already produced the **brms** version of what McElreath achieved with `extract.samples()` on page 90. However, what happened under the hood was different. Whereas **rethinking** used the `mvnorm()` function from the [**MASS** package](https://cran.r-project.org/package=MASS) [@R-MASS; @MASS2002], with **brms** we just extracted the iterations of the HMC chains and put them in a data frame. It's also noteworthy that the `as_draws_df()` is part of a larger class of `as_draws()` functions **brms** currently imports from the [**posterior** package](https://github.com/stan-dev/posterior) [@R-posterior].
 
 ```{r}
 str(post)
 ```
 
-Thus, our `post` object is not just a data frame, but also of class draws_df, which means it contains three metadata variables--`.chain`, `.iteration`, and `.draw`--which will are often hidden from view, but are there in the background when needed. As you'll see, we'll make good use of the `.draw` variable in the future. Notice how our `post` data frame also includes a third vector named `lp__`. That's the log posterior. For details, see the [**brms** reference manual](https://CRAN.R-project.org/package=brms/brms.pdf) [@brms2021RM], the "[The Log-Posterior (function and gradient)](https://cran.r-project.org/package=rstan/vignettes/rstan.html#the-log-posterior-function-and-gradient)" section of the Stan Development Team's [-@standevelopmentteamRStanInterfaceStan2020] vignette, [*RStan: the R interface to Stan*](https://cran.r-project.org/package=rstan/vignettes/rstan.htmlt), or [Stephen Martin](https://twitter.com/smartin2018)'s [nice explanation](https://discourse.mc-stan.org/t/basic-question-what-is-lp-in-posterior-samples-of-a-brms-regression/17567/2) of the log posterior on the Stan Forums. The log posterior will largely be outside of our focus in this ebook.
+Thus, our `post` object is not just a data frame, but also of class draws_df, which means it contains three metadata variables--`.chain`, `.iteration`, and `.draw`--which will are often hidden from view, but are there in the background when needed. As you'll see, we'll make good use of the `.draw` variable in the future. Notice how our `post` data frame also includes a vector named `lp__`. That's the log posterior. For details, see the [**brms** reference manual](https://CRAN.R-project.org/package=brms/brms.pdf) [@brms2021RM], the "[The Log-Posterior (function and gradient)](https://cran.r-project.org/package=rstan/vignettes/rstan.html#the-log-posterior-function-and-gradient)" section of the Stan Development Team's [-@standevelopmentteamRStanInterfaceStan2020] vignette, [*RStan: the R interface to Stan*](https://cran.r-project.org/package=rstan/vignettes/rstan.htmlt), or [Stephen Martin](https://twitter.com/smartin2018)'s [nice explanation](https://discourse.mc-stan.org/t/basic-question-what-is-lp-in-posterior-samples-of-a-brms-regression/17567/2) of the log posterior on the Stan Forums. The log posterior will largely be outside of our focus in this ebook.
 
 The `summary()` function doesn't work for **brms** posterior data frames quite the way `precis()` does for posterior data frames from the **rethinking package**. Behold the results.
 
@@ -907,7 +892,7 @@ The base **R** code is compact, but somewhat opaque. Here's how to do something 
 
 ```{r, message = F}
 post %>%
-  pivot_longer(-lp__) %>% 
+  pivot_longer(b_Intercept:sigma) %>% 
   group_by(name) %>%
   summarise(mean = mean(value),
             sd   = sd(value),
@@ -919,7 +904,7 @@ post %>%
 You can always get pretty similar information by just putting the `brm()` fit object into `posterior_summary()`.
 
 ```{r}
-posterior_summary(b4.1_hc)
+posterior_summary(b4.1)
 ```
 
 And if you're willing to drop the posterior $SD$s, you can use `tidybayes::mean_hdi()`, too.
@@ -959,7 +944,7 @@ We won't be emphasizing start values in this ebook. But, yes, you can set start 
 
 #### Overthinking: Under the hood with multivariate sampling.
 
-Again, `brms::posterior_samples()` is not the same as `rethinking::extract.samples()`. Rather than use the `MASS::mvnorm()`, **brms** takes the draws from the HMC chains. McElreath covered all of this in [Chapter 9][Markov Chain Monte Carlo] and we will too. You might also look at the [**brms** reference manual](https://cran.r-project.org/package=brms/brms.pdf) or [GitHub page](https://github.com/paul-buerkner/brms) for details. To get documentation in a hurry, you could also just execute `?posterior_samples`.
+Again, `brms::as_draws_df()` is not the same as `rethinking::extract.samples()`. Rather than use the `MASS::mvnorm()`, **brms** takes the draws from the HMC chains. McElreath covered all of this in [Chapter 9][Markov Chain Monte Carlo] and we will too. You might also look at the [**brms** reference manual](https://cran.r-project.org/package=brms/brms.pdf) or [GitHub page](https://github.com/paul-buerkner/brms) for details. To get documentation in a hurry, you could also just execute `?as_draws_df`.
 
 ## Linear prediction
 
@@ -1178,32 +1163,16 @@ b4.3 <-
       height ~ 1 + weight_c,
       prior = c(prior(normal(178, 20), class = Intercept),
                 prior(lognormal(0, 1), class = b),
-                prior(uniform(0, 50), class = sigma)),
-      iter = 28000, warmup = 27000, chains = 4, cores = 4,
+                prior(uniform(0, 50), class = sigma, ub = 50)),
+      iter = 2000, warmup = 1000, chains = 4, cores = 4,
       seed = 4,
       file = "fits/b04.03")
 ```
 
-This was another example of how using a uniform prior for $\sigma$ was a major pain. As you'll see in later chapters, you usually only need to set `iter = 2000, warmup = 1000` when using even moderately better priors. But for now, we'll continue to find ways to stick close to the text. Here are the trace plots.
+Here are the trace plots.
 
 ```{r, fig.width = 6, fig.height = 3.5}
 plot(b4.3, widths = c(1, 2))
-```
-
-```{r, eval = F, echo = F}
-ggmcmc::ggs(b4.3) %>%
-  mutate(chain = factor(Chain)) %>% 
-  
-  ggplot(aes(x = Iteration, y = value)) +
-  # this marks off the warmups
-  annotate(geom = "rect", 
-           xmin = 0, xmax = 27000, ymin = -Inf, ymax = Inf,
-           fill = "grey80", alpha = 1/2, size = 0) +
-  geom_line(aes(color = chain),
-            size = .25) +
-  scale_color_viridis_d(end = .75) +
-  theme_classic() +
-  facet_wrap(~ Parameter, scales = "free_y", ncol = 1)
 ```
 
 #### Overthinking: Logs and exps, oh my.
@@ -1220,13 +1189,13 @@ b4.3b <-
          nl = TRUE),
       prior = c(prior(normal(178, 20), class = b, nlpar = a),
                 prior(normal(0, 1), class = b, nlpar = lb),
-                prior(uniform(0, 50), class = sigma)),
-      iter = 31000, warmup = 30000, chains = 4, cores = 4,
+                prior(uniform(0, 50), class = sigma, ub = 50)),
+      iter = 2000, warmup = 1000, chains = 4, cores = 4,
       seed = 4,
       file = "fits/b04.03b")
 ```
 
-We continue to need unusually large numbers of warmup iterations due to that pesky $\operatorname{Uniform}(0, 50)$ prior on $\sigma$. If you execute `summary(b4.3b)`, you'll see the intercept and $\sigma$ summaries for this model are about the same as those for `b4.3`, above. The difference is for the $\beta$ parameter, which we called `lb` in the `b4.3b` model. If we term that parameter from `b4.3` as $\beta^\text{b4.3}$ and the one from our new model $\beta^\text{b4.3b}$, it turns out that $\beta^\text{b4.3} = \exp \left (\beta^\text{b4.3b} \right )$.
+If you execute `summary(b4.3b)`, you'll see the intercept and $\sigma$ summaries for this model are about the same as those for `b4.3`, above. The difference is for the $\beta$ parameter, which we called `lb` in the `b4.3b` model. If we term that parameter from `b4.3` as $\beta^\text{b4.3}$ and the one from our new model $\beta^\text{b4.3b}$, it turns out that $\beta^\text{b4.3} = \exp \left (\beta^\text{b4.3b} \right )$.
 
 ```{r}
 fixef(b4.3)["weight_c", "Estimate"]
@@ -1310,7 +1279,7 @@ d2 %>%
 
 #### Adding uncertainty around the mean.
 
-Be default, we extract all the posterior iterations with `as_draws_df()`.
+Be default, we extract all the posterior draws with `as_draws_df()`.
 
 ```{r}
 post <- as_draws_df(b4.3)
@@ -1331,8 +1300,8 @@ b4.3_010 <-
       height ~ 1 + weight_c,
       prior = c(prior(normal(178, 20), class = Intercept),
                 prior(lognormal(0, 1), class = b),
-                prior(uniform(0, 50), class = sigma)),
-      iter = 11000, warmup = 10000, chains = 4, cores = 4,
+                prior(uniform(0, 50), class = sigma, ub = 50)),
+      iter = 2000, warmup = 1000, chains = 4, cores = 4,
       seed = 4,
       file = "fits/b04.03_010")
 
@@ -1345,8 +1314,8 @@ b4.3_050 <-
       height ~ 1 + weight_c,
       prior = c(prior(normal(178, 20), class = Intercept),
                 prior(lognormal(0, 1), class = b),
-                prior(uniform(0, 50), class = sigma)),
-      iter = 11000, warmup = 10000, chains = 4, cores = 4,
+                prior(uniform(0, 50), class = sigma, ub = 50)),
+      iter = 2000, warmup = 1000, chains = 4, cores = 4,
       seed = 4,
       file = "fits/b04.03_050")
 
@@ -1359,8 +1328,8 @@ b4.3_150 <-
       height ~ 1 + weight_c,
       prior = c(prior(normal(178, 20), class = Intercept),
                 prior(lognormal(0, 1), class = b),
-                prior(uniform(0, 50), class = sigma)),
-      iter = 21000, warmup = 20000, chains = 4, cores = 4,
+                prior(uniform(0, 50), class = sigma, ub = 50)),
+      iter = 2000, warmup = 1000, chains = 4, cores = 4,
       seed = 4,
       file = "fits/b04.03_150")
 
@@ -1373,8 +1342,8 @@ b4.3_352 <-
       height ~ 1 + weight_c,
       prior = c(prior(normal(178, 20), class = Intercept),
                 prior(lognormal(0, 1), class = b),
-                prior(uniform(0, 50), class = sigma)),
-      iter = 28000, warmup = 27000, chains = 4, cores = 4,
+                prior(uniform(0, 50), class = sigma, ub = 50)),
+      iter = 2000, warmup = 1000, chains = 4, cores = 4,
       seed = 4,
       file = "fits/b04.03_352")
 ```
@@ -1519,7 +1488,7 @@ mu <- fitted(b4.3, summary = F)
 str(mu)
 ```
 
-When you specify `summary = F`, `fitted()` returns a matrix of values with as many rows as there were post-warmup iterations across your HMC chains and as many columns as there were cases in your analysis. Because we had 4,000 post-warmup iterations and $n = 352$, `fitted()` returned a matrix of 4,000 rows and 352 vectors. If you omitted the `summary = F` argument, the default is `TRUE` and `fitted()` will return summary information instead.
+When you specify `summary = F`, `fitted()` returns a matrix of values with as many rows as there were post-warmup draws across your HMC chains and as many columns as there were cases in your analysis. Because we had 4,000 post-warmup draws and $n = 352$, `fitted()` returned a matrix of 4,000 rows and 352 vectors. If you omitted the `summary = F` argument, the default is `TRUE` and `fitted()` will return summary information instead.
 
 Much like **rethinking**'s `link()`, `brms::fitted()` can accommodate custom predictor values with its `newdata` argument.
 
@@ -1590,7 +1559,7 @@ d2 %>%
         panel.grid = element_blank())
 ```
 
-if you wanted to use intervals other than the default 95% ones, you'd enter a `probs` argument like this: `fitted(b4.3, newdata = weight.seq, probs = c(.25, .75))`. The resulting third and fourth vectors from the `fitted()` object would be named `Q25` and `Q75` instead of the default `Q2.5` and `Q97.5`. The [`Q` prefix](https://github.com/paul-buerkner/brms/issues/425) stands for quantile.
+If you wanted to use intervals other than the default 95% ones, you'd include the `probs` argument like this: `fitted(b4.3, newdata = weight.seq, probs = c(.25, .75))`. The resulting third and fourth vectors from the `fitted()` object would be named `Q25` and `Q75` instead of the default `Q2.5` and `Q97.5`. The [`Q` prefix](https://github.com/paul-buerkner/brms/issues/425) stands for quantile.
 
 ##### Rethinking: Overconfident intervals.
 
@@ -1748,29 +1717,13 @@ b4.5 <-
       prior = c(prior(normal(178, 20), class = Intercept),
                 prior(lognormal(0, 1), class = b, coef = "weight_s"),
                 prior(normal(0, 1), class = b, coef = "weight_s2"),
-                prior(uniform(0, 50), class = sigma)),
-      iter = 30000, warmup = 29000, chains = 4, cores = 4,
+                prior(uniform(0, 50), class = sigma, ub = 50)),
+      iter = 2000, warmup = 1000, chains = 4, cores = 4,
       seed = 4,
       file = "fits/b04.05")
 ```
 
-```{r, eval = F, echo = F}
-ggmcmc::ggs(b4.5) %>%
-  mutate(chain = factor(Chain)) %>% 
-  
-  ggplot(aes(x = Iteration, y = value)) +
-  # this marks off the warmups
-  annotate(geom = "rect", 
-           xmin = 0, xmax = 29000, ymin = -Inf, ymax = Inf,
-           fill = "grey80", alpha = 1/2, size = 0) +
-  geom_line(aes(color = chain),
-            size = .25) +
-  scale_color_viridis_d(end = .75) +
-  theme_classic() +
-  facet_wrap(~ Parameter, scales = "free_y", ncol = 1)
-```
-
-Note our use of the `coef` argument within our prior statements. Since $\beta_1$ and $\beta_2$ are both parameters of `class = b` within the **brms** set-up, we need to use the `coef` argument in cases when we want their priors to differ.
+Note our use of the `coef` argument within our prior statements. Since $\beta_1$ and $\beta_2$ are both parameters of `class = b` within the **brms** set-up, we need to use the `coef` argument when we want their priors to differ.
 
 ```{r, fig.width = 6, fig.height = 4.5}
 plot(b4.5, widths = c(1, 2))
@@ -1802,7 +1755,7 @@ Behold the code for our version of Figure 4.11.b.
 ```{r, warning = F, fig.width = 3, fig.height = 3}
 p2 <-
   ggplot(data = d, 
-       aes(x = weight_s)) +
+         aes(x = weight_s)) +
   geom_ribbon(data = pred_quad, 
               aes(ymin = Q2.5, ymax = Q97.5),
               fill = "grey83") +
@@ -1845,25 +1798,10 @@ b4.6 <-
                 prior(lognormal(0, 1), class = b, coef = "weight_s"),
                 prior(normal(0, 1), class = b, coef = "weight_s2"),
                 prior(normal(0, 1), class = b, coef = "weight_s3"),
-                prior(uniform(0, 50), class = sigma)),
-      iter = 40000, warmup = 39000, chains = 4, cores = 4,
+                prior(uniform(0, 50), class = sigma, ub = 50)),
+      iter = 2000, warmup = 1000, chains = 4, cores = 4,
       seed = 4,
       file = "fits/b04.06")
-```
-
-```{r, eval = F, echo = F}
-ggmcmc::ggs(b4.6) %>%
-  mutate(chain = factor(Chain)) %>% 
-  
-  ggplot(aes(x = Iteration, y = value)) +
-  annotate(geom = "rect", 
-           xmin = 0, xmax = 39000, ymin = -Inf, ymax = Inf,
-           fill = "grey80", alpha = 1/2, size = 0) +
-  geom_line(aes(color = chain),
-            size = .25) +
-  scale_color_viridis_d(end = .75) +
-  theme_classic() +
-  facet_wrap(~ Parameter, scales = "free_y", ncol = 1)
 ```
 
 And now we'll fit the good old linear model.
@@ -1875,25 +1813,10 @@ b4.7 <-
       height ~ 1 + weight_s,
       prior = c(prior(normal(178, 20), class = Intercept),
                 prior(lognormal(0, 1), class = b, coef = "weight_s"),
-                prior(uniform(0, 50), class = sigma)),
-      iter = 40000, warmup = 39000, chains = 4, cores = 4,
+                prior(uniform(0, 50), class = sigma, ub = 50)),
+      iter = 2000, warmup = 1000, chains = 4, cores = 4,
       seed = 4,
       file = "fits/b04.07")
-```
-
-```{r, eval = F, echo = F}
-ggmcmc::ggs(b4.7) %>%
-  mutate(chain = factor(Chain)) %>% 
-  
-  ggplot(aes(x = Iteration, y = value)) +
-  annotate(geom = "rect", 
-           xmin = 0, xmax = 39000, ymin = -Inf, ymax = Inf,
-           fill = "grey80", alpha = 1/2, size = 0) +
-  geom_line(aes(color = chain),
-            size = .25) +
-  scale_color_viridis_d(end = .75) +
-  theme_classic() +
-  facet_wrap(~ Parameter, scales = "free_y", ncol = 1)
 ```
 
 Here's the `fitted()`, `predict()`, and **ggplot2** code for Figure 4.11.c, the cubic model.
@@ -2179,7 +2102,7 @@ That last line is another indication for why we set `intercept = TRUE`. Our mode
 
 where $\alpha$ is the intercept, $B_{k, i}$ is the value of the $k^\text{th}$ bias function on the $i^\text{th}$ row of the data, and $w_k$ is the estimated regression weight for the corresponding $k^\text{th}$ bias function.
 
-Throughout this chapter, I've griped a bit about using the uniform prior for $\sigma$. Now that McElreath has introduced the exponential distribution as an alternative, those gripes are coming to an end. The exponential distribution is controlled by a single parameter, $\lambda$, which is also called the rate. As it turns out, the mean of the exponential distribution is the inverse of the rate, $1 / \lambda$. Here we use the `dexp()` function to get a sense of what that prior looks like.
+As for the new parameter type for $\sigma$, the exponential distribution is controlled by a single parameter, $\lambda$, which is also called the *rate*. As it turns out, the mean of the exponential distribution is the inverse of the rate, $1 / \lambda$. Here we use the `dexp()` function to get a sense of what that prior looks like.
       
 ```{r, fig.width = 4, fig.height = 2.5}
 tibble(x = seq(from = 0, to = 10, by = 0.1)) %>% 
@@ -2231,7 +2154,7 @@ Here's the model summary.
 print(b4.8)
 ```
 
-Look at that. Each of the 17 columns in our `B` matrix was assigned its own parameter. If you fit this model using McElreath's **rethinking** code, you'll see the results are very similar. Anyway, McElreath's comments are in line with the general consensus on spline modes: the parameter estimates are very difficult to interpret directly. It's often easier to just plot the results. First we'll use `posterior_samples()`.
+Look at that. Each of the 17 columns in our `B` matrix was assigned its own parameter. If you fit this model using McElreath's **rethinking** code, you'll see the results are very similar. Anyway, McElreath's comments are in line with the general consensus on spline modes: the parameter estimates are very difficult to interpret directly. It's often easier to just plot the results. First we'll use `as_draws_df()`.
 
 ```{r, eval = F, echo = F}
 # if you fit the model both with brms and with rethinking,
@@ -2457,7 +2380,7 @@ Check out the model summary.
 print(b4.10)
 ```
 
-Our intercept and $\sigma$ summaries are similar to those we got from `b4.8`. The rest looks different. Here's what happens when we use `brms::fitted()` to plot the implications of the model.
+Our intercept and $\sigma$ summaries are similar to those we got from `b4.8`. The rest looks different and maybe a little disorienting. Here's what happens when we use `brms::fitted()` to plot the implications of the model.
 
 ```{r, fig.width = 6, fig.height = 1.67, message = F}
 fitted(b4.10) %>% 
@@ -2520,7 +2443,7 @@ For more on the B-splines and smooths, more generally, check out the blog post b
 
 ## Second bonus: Group predictors with matrix columns
 
-When we fit `b4.8`, our direct **brms** analogue to McElreath's `m4.7`[^2], we used a compact syntax to pass a matrix column of predictors into the `formula`. If memory serves, this is one of the only places in the text where we see this. It would be easy for the casual reader to think this was only appropriate for something like a spline model. But that's not the case. One could use the matrix-column trick as a general approach. In this bonus section, we'll explore how.
+When we fit `b4.8`, our direct **brms** analogue to McElreath's `m4.7`[^1], we used a compact syntax to pass a matrix column of predictors into the `formula`. If memory serves, this is one of the only places in the text where we see this. It would be easy for the casual reader to think this was only appropriate for something like a spline model. But that's not the case. One could use the matrix-column trick as a general approach. In this bonus section, we'll explore how.
 
 In Section 11.2.6 of their [-@gelmanRegressionOtherStories2020] text, Gelman, Hill, and Vehtari worked through an example of a multiple regression model,
 
@@ -2605,7 +2528,7 @@ sessionInfo()
 ```
 
 ```{r, warning = F, echo = F}
-rm(pos, p1, p2, sd, p3, growth, samples, p_grid, d, n_points, sparks, histospark, d2, n, sim, breaks, text, p4, d_grid, grid_function, d_grid_samples, d3, b4.1, b4.1_hc, b4.2, post, n_lines, lines, mu, sigma, b4.3, b4.3b, labels, N, b4.3_010, b4.3_050, b4.3_150, b4.3_352, post010, post050, post150, post352, mu_at_50, weight_seq, mu_summary, pred_height, b4.5, fitd_quad, pred_quad, b4.6, b4.7, fitd_cub, pred_cub, fitd_line, pred_line, at, num_knots, knot_list, B, b, d3, b4.8, f, d4, b4.9, b4.10, b4.11, k, a, theta, b, b4.12)
+rm(pos, p1, p2, sd, p3, growth, samples, p_grid, d, n_points, sparks, histospark, d2, n, sim, breaks, text, p4, d_grid, grid_function, d_grid_samples, d3, b4.1, b4.2, post, n_lines, lines, mu, sigma, b4.3, b4.3b, labels, N, b4.3_010, b4.3_050, b4.3_150, b4.3_352, post010, post050, post150, post352, mu_at_50, weight_seq, mu_summary, pred_height, b4.5, fitd_quad, pred_quad, b4.6, b4.7, fitd_cub, pred_cub, fitd_line, pred_line, at, num_knots, knot_list, B, b, d3, b4.8, f, d4, b4.9, b4.10, b4.11, k, a, theta, b, b4.12)
 ```
 
 ```{r, echo = F, message = F, warning = F, results = "hide"}
@@ -2613,7 +2536,5 @@ ggplot2::theme_set(ggplot2::theme_grey())
 # pacman::p_unload(pacman::p_loaded(), character.only = TRUE)
 ```
 
-[^1]: In the first edition of his text, McElreath [-@mcelreathStatisticalRethinkingBayesian2015] started out with the uniform prior for $\sigma$ and transitioned to the half Cauchy when he introduced HMC in Chapter 8. In this edition, he largely replaced the half Cauchy with the exponential distribution. Both are fine. If you'd like to learn more about the half Cauchy, you might check out [Section 8.4.3.1](https://bookdown.org/content/3890/markov-chain-monte-carlo.html#taming-a-wild-chain.) of my [-@kurzStatisticalRethinkingBrms2020] translation of his first edition. We'll learn about the exponential distribution just a little later in this chapter.
-
-[^2]: I know. I'm sorry our model numbering diverged from the numbering in the text. The problem popped up in [Section 4.5.1.][Polynomial regression.] where McElreath fit a linear model with the `weight_s` predictor, but didn't show the code in the text and, as a consequence, didn't assign that model a number. Since we explicitly fit that linear model, we assigned it the next number in the sequence. So it goes. But yes, I am correct in comparing our `b4.8` to McElreath's `m4.7`.
+[^1]: I know. I'm sorry our model numbering diverged from the numbering in the text. The problem popped up in [Section 4.5.1.][Polynomial regression.] where McElreath fit a linear model with the `weight_s` predictor, but didn't show the code in the text and, as a consequence, didn't assign that model a number. Since we explicitly fit that linear model, we assigned it the next number in the sequence. So it goes. But yes, I am correct in comparing our `b4.8` to McElreath's `m4.7`.
 
