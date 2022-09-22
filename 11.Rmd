@@ -20,7 +20,7 @@ The basic binomial model follows the form
 
 $$y \sim \operatorname{Binomial}(n, p),$$
 
-where $y$ is some count variable, $n$ is the number of trials, and $p$ it the probability a given trial was a 1, which is sometimes termed a *success*. When $n = 1$, then $y$ is a vector of 0's and 1's. Presuming the logit link[^4], which we just covered in [Chapter 10][Linking linear models to distributions.], models of this type are commonly termed logistic regression. When $n > 1$, and still presuming the logit link, we might call our model an aggregated logistic regression model, or more generally an aggregated binomial regression model.
+where $y$ is some count variable, $n$ is the number of trials, and $p$ it the probability a given trial was a 1, which is sometimes termed a *success*. When $n = 1$, then $y$ is a vector of 0's and 1's. Presuming the logit link[^3], which we just covered in [Chapter 10][Linking linear models to distributions.], models of this type are commonly termed logistic regression. When $n > 1$, and still presuming the logit link, we might call our model an aggregated logistic regression model, or more generally an aggregated binomial regression model.
 
 ### Logistic regression: Prosocial chimpanzees.
 
@@ -40,10 +40,10 @@ library(flextable)
 
 d %>% 
   distinct(prosoc_left, condition) %>% 
-  mutate(description = c("Two food items on right and no partner",
-                         "Two food items on left and no partner",
-                         "Two food items on right and partner present",
-                         "Two food items on left and partner present")) %>% 
+  mutate(description = str_c("Two food items on ", c("right and no partner",
+                                                     "left and no partner",
+                                                     "right and partner present",
+                                                     "left and partner present"))) %>% 
   flextable() %>% 
   width(width = c(1, 1, 4))
 ```
@@ -1361,7 +1361,8 @@ b11.11 <-
                 prior(exponential(1), nlpar = g, lb = 0)),
       iter = 2000, warmup = 1000, chains = 4, cores = 4,
       seed = 11,
-      file = "fits/b11.11") 
+      control = list(adapt_delta = .85),
+      file = "fits/b11.11")
 ```
 
 Did you notice the `family = poisson(link = "identity")` part of the code? Yes, it's possible to use the Poisson likelihood without the log link. However, if you're going to buck tradition and use some other link, make sure you know what you're doing.
@@ -1788,7 +1789,7 @@ fitted(b11.13io)[1, , ] %>%
   round(digits = 2)
 ```
 
-If we take the transpose of that, it will put the results in the format we're more accustomed to.
+If we take the transpose of that, it will put the results in the format to which we've become accustomed.
 
 ```{r}
 fitted(b11.13io)[1, , ] %>% 
@@ -1847,6 +1848,13 @@ b11.13io_nonlinear <-
       iter = 2000, warmup = 1000, cores = 4, chains = 4,
       seed = 11,
       file = "fits/b11.13io_nonlinear")
+```
+
+```{r, eval = F, echo = F}
+# not shown for the sake of space
+print(b11.13io)
+print(b11.13io_verbose)
+print(b11.13io_nonlinear)
 ```
 
 For the sake of space, I'm not going to show the results for those two models. If you fit them yourself, you'll see the results for `b11.13io` and `b11.13io_verbose` are exactly the same and `b11.13io_nonlinear` differs from them only within simulation variation. I point this out because it's the nonlinear approach that will allow us to fit a model like McElreath's `m11.13`. My hope is the syntax we used in the `b11.13io_verbose` model will help clarify what's going on with the non-linear syntax. When we fit multinomial models with **brms**, the terse conventional `formula` syntax might not make clear how there are actually $K - 1$ formulas. The more verbose syntax of our `b11.13io_verbose` model shows how we can specify those models directly. In our case, that was with those `mu1 ~ 1, mu2 ~ 1` lines. Had we used the **brms** default and used the first level of `career` as the pivot, those lines would have instead been `mu2 ~ 1, mu3 ~ 1`. So anyway, when we switch to the non-linear syntax, we explicitly model `mu1` and `mu2` and, as is typical of the non-linear syntax, we name our parameters. You can see another comparison of these three ways of fitting a multinomial model at the [Nonlinear syntax with a multinomial model?](https://discourse.mc-stan.org/t/nonlinear-syntax-with-a-multinomial-model/16122) thread on the Stan Forums.
@@ -2282,7 +2290,7 @@ bind_cols(
   labs(title = "Two models, same marginal posterior",
        x = "admissions probability",
        y = NULL) +
-  coord_cartesian(ylim = c(1.5, 2.25)) +
+  coord_cartesian(ylim = c(1.5, 2.33)) +
   theme(axis.text.y = element_text(hjust = 0),
         axis.ticks.y = element_blank(),
         legend.position = "none")
@@ -2294,10 +2302,10 @@ bind_cols(
 
 ## Bonus: Survival analysis
 
-In the middle of the [thirteenth lecture of his 2019 lecture series](https://www.youtube.com/watch?v=p7g-CgGCS34&feature=youtu.be&t=1423), McElreath briefly covered continuous-time survival analysis. Sadly, the problem didn't make it into the text. Here we'll slip it in as a bonus section. To fully understand this section, do listen to this section of the lecture. It's only about ten minutes.
+In the middle of the [thirteenth lecture of his 2019 lecture series](https://youtu.be/p7g-CgGCS34?t=1423), McElreath briefly covered continuous-time survival analysis. Sadly, the problem didn't make it into the text. Here we'll slip it in as a bonus section. To fully understand this section, do listen to this section of the lecture. It's only about ten minutes.
 
 ```{r, echo = F}
-vembedr::embed_url("https://www.youtube.com/watch?v=p7g-CgGCS34&feature=youtu.be&t=1423") %>%
+vembedr::embed_url("https://youtu.be/p7g-CgGCS34?t=1423") %>%
   vembedr::use_align("center")
 ```
 
@@ -2524,7 +2532,7 @@ sessionInfo()
 ```
 
 ```{r, echo = F}
-rm(d, b11.1, b11.1b, b11.2, b11.3, prior, b11.4, post, tx, p1, nd, p2, b11.5, d_aggregated, b11.6, text, b11.7, p, b11.8, dag_coords, my_upper, my_diag, my_lower, n, b11.9, b11.10, cultures, f, b11.11, num_days, y, num_weeks, y_new, b11.12, income, score, career, i, code_m11.13, dat_list, m11.13, s1, s2_orig, s2_new, p_orig, p_new, p_diff, b11.13io, b11.13a, b11.13b, b11.13c, b11.13d, family_income, b, b11.14, b11.binom, b11.pois, k, b11.15, medians)
+rm(d, b11.1, b11.1b, b11.2, b11.3, prior, b11.4, post, tx, p1, nd, p2, b11.5, d_aggregated, b11.6, text, b11.7, p, b11.8, dag_coords, my_upper, my_diag, my_lower, n, b11.9, b11.10, cultures, f, b11.11, num_days, y, num_weeks, y_new, b11.12, income, score, career, i, code_m11.13, dat_list, m11.13, s1, s2_orig, s2_new, p_orig, p_new, p_diff, b11.13io, b11.13io_verbose, b11.13io_nonlinear, b11.13a, b11.13b, b11.13c, b11.13d, family_income, b, b11.14, b11.binom, b11.pois, k, b11.15, medians)
 ```
 
 ```{r, echo = F, message = F, warning = F, results = "hide"}
@@ -2533,5 +2541,5 @@ bayesplot::color_scheme_set("blue")
 # pacman::p_unload(pacman::p_loaded(), character.only = TRUE)
 ```
 
-[^4]: Though McElreath didn't cover it, here, it's also fine to fit binomial models using the probit link. @gelmanRegressionOtherStories2020 covered probit regression in Section 15.4. With **brms**, it's simply a matter of setting `family = binomial(link = "probit")` within `brm()`.
+[^3]: Though McElreath didn't cover it, here, it's also fine to fit binomial models using the probit link. @gelmanRegressionOtherStories2020 covered probit regression in Section 15.4. With **brms**, it's simply a matter of setting `family = binomial(link = "probit")` within `brm()`.
 
