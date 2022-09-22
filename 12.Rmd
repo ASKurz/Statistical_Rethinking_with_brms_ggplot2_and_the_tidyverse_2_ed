@@ -149,7 +149,10 @@ But remember, we're not fitting a beta model. We're using the beta-binomial. "We
 
 Here the size, $n$, is defined in the `applications` column in the data we'll load in just a moment. In case you're confused, yes, our statistical model is not quite the same as the one McElreath presented on page 371 in the text. If you look closely, we dropped all mention of $\theta$ and jumped directly to $\phi$. Instead of implementing McElreath's $\theta = \phi + 2$ trick, we're going to set the lower bound for $\phi$ directly. Which brings us to the next issue:
 
-We have an additional complication. The beta-binomial likelihood is not natively supported in **brms** at this time (see [GitHub issue #144](https://github.com/paul-buerkner/brms/issues/144)). However, **brms** versions 2.2.0 and above allow users to define custom distributions. To get all the details, you might check out Bürkner's [-@Bürkner2021Define] vignette, [*Define custom response distributions with brms*](https://CRAN.R-project.org/package=brms/vignettes/brms_customfamilies.html). Happily, Bürkner even used the [beta-binomial distribution as the exemplar](https://cran.r-project.org/package=brms/vignettes/brms_customfamilies.html#the-beta-binomial-distribution) in the vignette.
+
+beta_binomial
+
+We have an additional complication. The beta-binomial has historically not been officially supported by **brms** (see [GitHub issue #144](https://github.com/paul-buerkner/brms/issues/144))[^4]. However, **brms** versions 2.2.0 and above allow users to define custom distributions. To get all the details, you might check out Bürkner's [-@Bürkner2021Define] vignette, [*Define custom response distributions with brms*](https://CRAN.R-project.org/package=brms/vignettes/brms_customfamilies.html). Happily, Bürkner even used the [beta-binomial distribution as the exemplar](https://cran.r-project.org/package=brms/vignettes/brms_customfamilies.html#the-beta-binomial-distribution) in the vignette.
 
 Before we get carried away, let's load the data and **brms**.
 
@@ -551,7 +554,6 @@ b12.2b <-
                 prior(exponential(1), class = shape)),
       iter = 2000, warmup = 1000, chains = 4, cores = 4,
       seed = 12,
-      control = list(adapt_delta = .95),
       file = "fits/b12.02b") 
 ```
 
@@ -573,7 +575,7 @@ One of those Pareto $k$ values is still on the high side. Can you guess which on
 ```{r}
 d %>% 
   mutate(k = b12.2b$criteria$loo$diagnostics$pareto_k) %>% 
-  filter(k > .7) %>% 
+  filter(k > .5) %>% 
   select(culture, k)
 ```
 
@@ -1529,7 +1531,7 @@ When using **brms**, the issue of treating a predictor in the way McElreath cove
 
 In this context, $n$ indexes the observations in the hypothetical data and $\eta$ denotes the linear model for some outcome $y$. Unlike with **rethinking**, the **brms** syntax for fitting models with monotonic predictors is fairly simple. Just place your monotonic predictors within the `mo()` function and enter them into the `formula`.
 
-In the text, McElreath remarked it took about 20 minutes to fit this model in his computer. Using my 2019 MacBook Pro, it took just under 40 minutes. Mind you, our **brms** version of the model used twice the number of warmup and post-warmup iterations, so this isn't a knock against the sampling speed of **brms** versus **rethinking**. But either way, get ready to wait a while when fitting a model like this.
+In the text (p. 394), McElreath remarked it took about 20 minutes to fit this model in his computer. Using my 2019 MacBook Pro, it took just under 40 minutes. Mind you, our **brms** version of the model used twice the number of warmup and post-warmup iterations, so this isn't a knock against the sampling speed of **brms** versus **rethinking**. But either way, get ready to wait a while when fitting a model like this.
 
 ```{r b12.6}
 b12.6 <- 
@@ -1573,7 +1575,7 @@ as_draws_df(b12.6) %>%
   mutate_if(is.double, round, digits = 2)
 ```
 
-This parameterization difference between **brms** and **rethinking** is also the reason why we set `prior(normal(0, 0.143), class = b, coef = moedu_new)` within `b12.6` where as McElreath used a $\operatorname{Normal}(0, 1)$ prior for all his $\beta$ coefficients, including for his `bE`. Because our `moedu_new` (i.e., $\beta_\text{E}$) is parameterized as the average of seven $\delta$ parameters, it made sense to divide our hyperparameter for $\sigma$ by 7. That is, $1 / 7 \approx 0.143$.
+This parameterization difference between **brms** and **rethinking** is also the reason why we set `prior(normal(0, 0.143), class = b, coef = moedu_new)` within `b12.6` whereas McElreath used a $\operatorname{Normal}(0, 1)$ prior for all his $\beta$ coefficients, including for his `bE`. Because our `moedu_new` (i.e., $\beta_\text{E}$) is parameterized as the average of seven $\delta$ parameters, it made sense to divide our hyperparameter for $\sigma$ by 7. That is, $1 / 7 \approx 0.143$.
 
 This might be a good place to practice expressing our model in formal statistical notation. Here we'll complement McElreath's formula from page 392 by mixing in a little notation from @burknerModellingMonotonicEffects2020:
 
@@ -1816,4 +1818,6 @@ rm(pbar, theta, betaABfromMeanKappa, d, beta_binomial2, stan_funs, stanvars, b12
 ggplot2::theme_set(ggplot2::theme_grey())
 # pacman::p_unload(pacman::p_loaded(), character.only = TRUE)
 ```
+
+[^4]: Okay, it's actually a little more complicated. **brms** has officially supported family `beta_binomial` since version 2.17.0. For the official news release, see [here](https://CRAN.R-project.org/package=brms/news/news.html). However, I still think it's worth while to show how to make a custom likelihood with **brms**. But be warned that I consider this advanced. For example, I would be extremely hesitant to make a custom likelihood for my own research work. I'm just not responsible enough for that kind of power.
 
