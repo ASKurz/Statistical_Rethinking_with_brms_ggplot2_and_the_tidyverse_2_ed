@@ -281,7 +281,7 @@ d %>%
   summarise(expected_value = sum(product))
 ```
 
-We can use the same `group_by()` strategy on the way to computing the entropies.
+We can use the same `group_by()` strategy on the way to computing the entropy values.
 
 ```{r, message = F}
 d %>% 
