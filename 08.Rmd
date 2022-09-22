@@ -349,7 +349,7 @@ b8.2 <-
 
 Use `add_criterion()` and `loo_compare()` to compare `b8.1b` and `b8.2` with the WAIC.
 
-```{r, message = F}
+```{r, message = F, warning = F}
 b8.1b <- add_criterion(b8.1b, "waic")
 b8.2  <- add_criterion(b8.2, "waic")
 
@@ -518,7 +518,7 @@ loo(b8.3) %>%
   plot()
 ```
 
-Unlike in the text, our results suggest all the cases had Pareto $k$ values below the 0.5 threshold. We can confirm by rank ordering them and taking a look at the top values.
+As in the text (p. 428), our results suggest one the cases had Pareto $k$ value just above the 0.5 threshold. We can confirm by rank ordering them and taking a look at the top values.
 
 ```{r}
 tibble(k   = b8.3$criteria$loo$diagnostics$pareto_k,
@@ -526,7 +526,7 @@ tibble(k   = b8.3$criteria$loo$diagnostics$pareto_k,
   arrange(desc(k))
 ```
 
-Yep, no big issues, here.
+So the largest one is just above 5, which isn't all that bad.
 
 #### Bonus: Give me Student-$t$.
 
@@ -1045,7 +1045,8 @@ conditional_effects(b8.3, effects = "rugged_std_c:cid")
 The `conditional_effects()` function defaults to expressing interactions such that the first variable in the term--in this case, `rugged_std_c`--is on the $x$-axis and the second variable in the term--`cid`, treated as an integer--is treated as a factor using different values for the `fill` and `color` of the trajectories. See what happens when we change the ordering.
 
 ```{r, fig.height = 3, fig.width = 3.5}
-conditional_effects(b8.3, effects = "cid:rugged_std_c")
+conditional_effects(b8.3, effects = "cid:rugged_std_c") %>% 
+  plot(cat_args = list(size = 2))
 ```
 
 Now our binary index variable `cid` is on the $x$-axis and the error bars for the effects are now depicted by three levels of the continuous variable `rugged_std_c`. By default, those are the mean $\pm$ one standard deviation. We might confirm those values like this.
