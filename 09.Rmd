@@ -77,7 +77,7 @@ tibble(week   = 1:1e5,
 
 Figure 9.2.b.
 
-```{r, fig.width = 5.5, fig.height = 4.75}
+```{r, fig.width = 5.5, fig.height = 4.75, warning = F}
 tibble(week   = 1:1e5,
        island = positions) %>%
   mutate(island = factor(island)) %>%
@@ -183,7 +183,7 @@ head(contour_plot_dat)
 
 To get a sense of what we've done, here are those data as a 2D density plot.
 
-```{r, fig.height = 3.25, fig.width = 4.25}
+```{r, fig.height = 3.25, fig.width = 4.25, warning = F}
 contour_plot_dat %>% 
   ggplot(aes(x = a1, y = a2, fill = d)) +
   geom_raster(interpolate = T) +
@@ -196,7 +196,7 @@ contour_plot_dat %>%
 
 But we don't want a density plot. We want contour lines!
 
-```{r, fig.height = 3.25, fig.width = 3.5}
+```{r, fig.height = 3.25, fig.width = 3.5, warning = F}
 contour_plot <- 
   contour_plot_dat %>% 
   ggplot() + 
@@ -291,7 +291,7 @@ round_1 <- metropolis(num_proposals = 50,
 
 Use `round_1` to make Figure 9.3a.
 
-```{r, fig.height = 3.25, fig.width = 4}
+```{r, fig.height = 3.25, fig.width = 4, warning = F}
 p1 <-
   contour_plot + 
   geom_point(data = round_1$results,
@@ -309,7 +309,7 @@ p1
 
 Now run the algorithm with step size set to 0.25. Then make Figure 9.3b, combine the two ggplots, and return the our full version of Figure 9.3.
 
-```{r, fig.height = 3.75, fig.width = 6.5, message = F}
+```{r, fig.height = 3.75, fig.width = 6.5, message = F, warning = F}
 # simulate
 set.seed(9)
 
@@ -355,7 +355,7 @@ metropolis_with_seed <- function(seed, step_size = 0.1) {
 }
 ```
 
-Kick the times and iterate 500 times.
+Kick the tires and iterate 500 times.
 
 ```{r}
 ars <-
@@ -365,7 +365,7 @@ ars <-
 
 Now summarize the results in a histogram.
 
-```{r, fig.height = 2.75, fig.width = 3.5}
+```{r, fig.height = 2.75, fig.width = 3.5, warning = F}
 ars %>% 
   ggplot(aes(x = acceptance_rate)) +
   geom_histogram(binwidth = .025, fill = pomological_palette[5]) +
@@ -390,7 +390,7 @@ concentration_sim <- function(d = 1, t = 1e3, seed = 9) {
 
 Now run the simulation four times and plot.
 
-```{r, fig.width = 7.5, fig.height = 2.5}
+```{r, fig.width = 7.5, fig.height = 2.5, warning = F}
 d <-
   tibble(d = c(1, 10, 100, 1000)) %>% 
   mutate(con = map(d, concentration_sim)) %>% 
@@ -826,7 +826,7 @@ ggs(b9.1b) %>%
 
 With this in hand, we can now include those warmup draws in our trace plots. Here's how to do so without convenience functions like `bayesplot::mcmc_trace()`.
 
-```{r, fig.width = 8, fig.height = 4}
+```{r, fig.width = 8, fig.height = 4, warning = F}
 ggs(b9.1b) %>%
   mutate(chain = factor(Chain)) %>% 
   
@@ -847,7 +847,7 @@ ggs(b9.1b) %>%
 
 Following **brms** defaults, we won't include warmup iterations in the trace plots for other models in this book. A nice thing about plots that do contain them, though, is they reveal how quickly our HMC chains transition away from their start values into the posterior. To get a better sense of this, let's make those trace plots once more, but this time zooming in on the first 50 iterations.
 
-```{r, fig.width = 8, fig.height = 4}
+```{r, fig.width = 8, fig.height = 4, warning = F}
 ggs(b9.1b) %>%
   mutate(chain = factor(Chain)) %>% 
   
@@ -977,7 +977,7 @@ That `np = nuts_params(b9.2)` trick will work in a similar way with **bayesplot*
 
 Let's further inspect the damage by making the top two rows of Figure 9.9.
 
-```{r, message = F, fig.width = 6.5, fig.height = 3.75}
+```{r, message = F, fig.width = 6.5, fig.height = 3.75, warning = F}
 p1 <-
   as_draws_df(b9.2) %>% 
   mutate(chain = .chain) %>% 
@@ -1027,7 +1027,7 @@ print(b9.3)
 
 As in the text, no more warning signs and no more silly estimates. The trace and trank plots look better, too.
 
-```{r, message = F, fig.width = 6.5, fig.height = 3.75}
+```{r, message = F, fig.width = 6.5, fig.height = 3.75, warning = F}
 p1 <-
   as_draws_df(b9.3) %>% 
   mutate(chain = .chain) %>%
