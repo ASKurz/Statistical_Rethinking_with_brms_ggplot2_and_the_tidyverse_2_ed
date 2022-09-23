@@ -1069,7 +1069,7 @@ lv_priors <- c(
 )
 ```
 
-Now whether you can fit this model in **brms** may depend on which version you're using. For details, see the endnote[^8]. In short, just update to the [current version](https://CRAN.R-project.org/package=brms). Within our `brm()` code, notice our `stanvars` settings. Also, I find these models benefit from setting `inits = 0`. Happily, this model fit in just about four minutes on my 2019 MacBook Pro.
+Now whether you can fit this model in **brms** may depend on which version you're using. For details, see the endnote[^8]. In short, just update to the [current version](https://CRAN.R-project.org/package=brms). Within our `brm()` code, notice our `stanvars` settings. Also, I find these models benefit from setting `init = 0`. Happily, this model fit in just about four minutes on my 2019 MacBook Pro.
 
 ```{r b16.5a}
 b16.5a <- 
@@ -1078,7 +1078,7 @@ b16.5a <-
       formula = lv_formula, 
       prior = lv_priors, 
       iter = 2000, warmup = 1000, chains = 4, cores = 4,
-      inits = 0,
+      init = 0,
       stanvars = stanvar(scode = LotkaVolterra, block = "functions"),
       file = "fits/b16.05a")
 ```
