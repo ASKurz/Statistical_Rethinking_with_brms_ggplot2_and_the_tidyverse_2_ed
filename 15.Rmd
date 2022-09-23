@@ -324,7 +324,7 @@ b15.1 <-
       iter = 2000, warmup = 1000, cores = 4, chains = 4,
       seed = 15,
       # note this line
-      save_mevars = TRUE,
+      save_pars = save_pars(latent = TRUE),
       file = "fits/b15.01")
 ```
 
@@ -480,7 +480,7 @@ b15.2 <-
       iter = 2000, warmup = 1000, cores = 4, chains = 4,
       seed = 15,
       # note this line
-      save_mevars = TRUE,
+      save_pars = save_pars(latent = TRUE),
       file = "fits/b15.02")
 ```
 
@@ -512,7 +512,7 @@ posterior_summary(b15.2) %>%
  round(digits = 2)
 ```
 
-Due to space concerns, I'm not going to show the results, here. You can do that on your own. Basically, now in addition to the posterior summaries for the `Yl[i]` parameters (what McElreath called $D_{\text{TRUE}, i}$), we now get posterior summaries for `Xme_meM_obs[i]` (what McElreath called $M_{\text{TRUE}, i}$). Note that you'll need to specify `save_mevars = TRUE` in the `brm()` function in order to save the posterior samples of error-adjusted variables obtained by using the `me()` argument. Without doing so, functions like `predict()` may give you trouble. Here's our version of Figure 15.3.
+Due to space concerns, I'm not going to show the results, here. You can do that on your own. Basically, now in addition to the posterior summaries for the `Yl[i]` parameters (what McElreath called $D_{\text{TRUE}, i}$), we now get posterior summaries for `Xme_meM_obs[i]` (what McElreath called $M_{\text{TRUE}, i}$). Note that you'll need to specify `save_pars = save_pars(latent = TRUE)` in the `brm()` function in order to save the posterior samples of error-adjusted variables obtained by using the `me()` argument. Without doing so, functions like `predict()` may give you trouble. Here's our version of Figure 15.3.
 
 ```{r, fig.width = 3.8, fig.height = 3.675}
 color_y <- viridis_pal(option = "C")(7)[7]
@@ -673,7 +673,7 @@ b15.2b <-
       iter = 2000, warmup = 1000, cores = 4, chains = 4,
       seed = 15,
       # note this line
-      save_mevars = TRUE,
+      save_pars = save_pars(latent = TRUE),
       file = "fits/b15.02b")
 
 # The model where A has measurement error, but we ignore it
@@ -687,7 +687,7 @@ b15.2c <-
       iter = 2000, warmup = 1000, cores = 4, chains = 4,
       seed = 15,
       # note this line
-      save_mevars = TRUE,
+      save_pars = save_pars(latent = TRUE),
       file = "fits/b15.02c")
 ```
 
@@ -698,7 +698,7 @@ print(b15.2b)
 print(b15.2c)
 ```
 
-`b15.2b`, the model where `A` contains no measurement error, comes close to reproducing the data-generating parameters. The second model, `b15.2c`, which used `A` infused with measurement error (i.e., `A_obs`), is a disaster. A coefficient plot might help the comparison.
+Model `b15.2b`, where `A` contains no measurement error, comes close to reproducing the data-generating parameters. The second model, `b15.2c`, which used `A` infused with measurement error (i.e., `A_obs`), is a disaster. A coefficient plot might help the comparison.
 
 ```{r, fig.width = 6, fig.height = 3}
 # for annotation
@@ -712,6 +712,7 @@ text <-
 bind_rows(posterior_summary(b15.2b) %>% data.frame() %>% rownames_to_column("term"),
           posterior_summary(b15.2c) %>% data.frame() %>% rownames_to_column("term")) %>% 
   filter(term != "lp__") %>% 
+  filter(term != "lprior") %>% 
   mutate(term = rep(c(str_c("beta[", 0:2, "]"), "sigma"), times = 2),
          fit  = rep(c("b15.2b", "b15.2c"), each = n() / 2)) %>% 
   
@@ -1774,7 +1775,9 @@ d %>%
 Though the authors presented their overall effect size with a $p$-value, an odds-ratio (OR), and a Cohen's $d$ (i.e., a kind of standardized mean difference), we will focus on the OR. The primary data are binomial counts, which are well-handled with logistic regression. When you perform a logistic regression where a control condition is compared with some experimental condition, the difference between those conditions may be expressed as an OR. To get a sense of what that is, we'll first practice fitting a logistic regression model with the frequentist `glm()` function. Here are the results based on the subset of data from the first location.
 
 ```{r}
-glm0 <- glm(y ~ factor, family = binomial(logit), data = d %>% filter(loc == 1))
+glm0 <- glm(data = d %>% 
+              filter(loc == 1),
+            y ~ factor, family = binomial(logit))
 
 summary(glm0)
 ```
