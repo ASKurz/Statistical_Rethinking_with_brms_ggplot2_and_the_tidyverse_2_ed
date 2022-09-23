@@ -132,7 +132,7 @@ b13.2 <-
   brm(data = d, 
       family = binomial,
       surv | trials(density) ~ 1 + (1 | tank),
-      prior = c(prior(normal(0, 1.5), class = Intercept),  # bar alpha
+      prior = c(prior(normal(0, 1.5), class = Intercept),  # alpha bar
                 prior(exponential(1), class = sd)),        # sigma
       iter = 5000, warmup = 1000, chains = 4, cores = 4,
       sample_prior = "yes",
@@ -1379,7 +1379,7 @@ p6 <-
   data.frame() %>% 
   # name the columns by the `row` values in `nd`
   set_names(pull(nd, row)) %>% 
-  # add an iteration index
+  # add a draw index
   mutate(draw = 1:n()) %>% 
   # make it long
   pivot_longer(-draw, names_to = "row") %>% 
@@ -1489,12 +1489,12 @@ b13.7 <-
       prior = c(prior(normal(-1, 1), class = Intercept),
                 prior(exponential(1), class = sd)),
       iter = 2000, warmup = 1000, chains = 4, cores = 4,
-      control = list(adapt_delta = .98),
       seed = 13,
+      control = list(adapt_delta = .95),
       file = "fits/b13.07")
 ```
 
-Note how, like Alexander did in the blog, we had to set `adept_delta = .98` to stave off a few divergent transitions. In my experience, this is common when your hierarchical grouping variables have few levels. Our `decade_married` has five levels and `educ_group` has only four. Happily, `brms::brm()` came through in the end. You can see by checking the summary.
+Note how, like Alexander did in the blog, we had to adjust the `adept_delta` setting to stave off a few divergent transitions. In my experience, this is common when your hierarchical grouping variables have few levels. Our `decade_married` has five levels and `educ_group` has only four. Happily, `brms::brm()` came through in the end. You can see by checking the summary.
 
 ```{r}
 print(b13.7)
