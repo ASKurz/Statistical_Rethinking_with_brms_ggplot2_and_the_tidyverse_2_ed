@@ -46,7 +46,8 @@ load("fits/b17.01.rda")
 b17.1 <- 
   brm(data = BTdata,
       family = gaussian,
-      mvbind(tarsus, back) ~ sex + hatchdate + (1 | p | fosternest) + (1 | q | dam), 
+      bf(mvbind(tarsus, back) ~ sex + hatchdate + (1 | p | fosternest) + (1 | q | dam)) +
+        set_rescor(TRUE), 
       chains = 2, cores = 2,
       seed = 17)
 ```
@@ -79,7 +80,8 @@ The other option, which we've been using extensively throughout the earlier chap
 b17.2 <- 
   brm(data = BTdata,
       family = gaussian,
-      mvbind(tarsus, back) ~ sex * hatchdate + (1 | p | fosternest) + (1 | q | dam), 
+      bf(mvbind(tarsus, back) ~ sex * hatchdate + (1 | p | fosternest) + (1 | q | dam)) +
+        set_rescor(TRUE), 
       chains = 2, cores = 2,
       seed = 17,
       file = "fits/b17.02")
@@ -115,7 +117,8 @@ If you've fit a `brm()` model once and saved the results with `file`, executing 
 b17.2 <- 
   brm(data = BTdata,
       family = gaussian,
-      mvbind(tarsus, back) ~ sex * hatchdate + (1 | p | fosternest) + (1 | q | dam), 
+      bf(mvbind(tarsus, back) ~ sex * hatchdate + (1 | p | fosternest) + (1 | q | dam)) +
+        set_rescor(TRUE), 
       chains = 2, cores = 2,
       seed = 15,
       file = "fits/b17.02")
@@ -143,14 +146,15 @@ Even if that was the final model I was interested in as a scientist, I still wou
 
 ```{r b17.0, message = F, results = "hide"}
 b17.0 <- 
-  brm(mvbind(tarsus, back) ~ 1, 
-      data = BTdata, 
+  brm(data = BTdata, 
+      family = gaussian,
+      bf(mvbind(tarsus, back) ~ 1) + set_rescor(TRUE), 
       chains = 2, cores = 2,
       file = "fits/b17.00")
 ```
 
 ```{r, message = F, fig.width = 6.5, fig.height = 5.5}
-plot(b17.0)
+plot(b17.0, widths = c(2, 3))
 print(b17.0)
 ```
 
@@ -265,7 +269,7 @@ If you find other resources along these lines, please tell me about it in a [Git
 
 ## *But, like, how do I do this for real?*
 
-McElreath's text and my ebook are designed to teach you how to *get started doing* applied Bayesian statistics. Neither does a great job teaching you *how to write them up* for a professional presentation, like a peer-reviewed journal article. What I will do, however, is give you some places to look. Just before releasing the 0.2.0 version of this ebook, I asked the good people on twitter to share their favorite examples of applied Bayesian statistics in the scientific literature. 
+McElreath's text and my ebook are designed to teach you how to *get started doing* applied Bayesian statistics. Neither does a great job teaching you *how to write them up* for a professional presentation, like a peer-reviewed journal article. What I will do, however, is give you some places to look. Just before releasing the 0.2.0 version of this ebook, I asked the good people on twitter to share their favorite examples of applied Bayesian statistics in the scientific literature.
 
 ```{r, echo = F, fig.align = "center"}
 tweetrmd::include_tweet("https://twitter.com/SolomonKurz/status/1371547835737444355")
