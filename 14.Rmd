@@ -1495,7 +1495,7 @@ p1 <-
   prior_draws(b14.8) %>% 
   mutate(draw  = 1:n(),
          etasq = sdgp_a_gplat_adjlon2_adj^2,
-         rhosq = 1 / (2 * lscale_a_1_gplat_adjlon2_adj^2)) %>% 
+         rhosq = 1 / (2 * lscale_a__1_gplat_adjlon2_adj^2)) %>% 
   slice_sample(n = 100) %>%
   expand(nesting(draw, etasq, rhosq),
          x = seq(from = 0, to = 10, by = .05)) %>% 
@@ -1719,7 +1719,7 @@ b14.8_nb <-
                 prior(gamma(0.01, 0.01), class = shape)),
       iter = 2000, warmup = 1000, chains = 4, cores = 4,
       seed = 14,
-      control = list(adapt_delta = .9),
+      control = list(adapt_delta = .85),
       file = "fits/b14.08_nb")
 ```
 
