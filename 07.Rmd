@@ -913,8 +913,8 @@ dev_100 <-
 # Even after reducing `n_sim` by an order of magnitude, that simulation takes 20.32234 mins to
 # complete. So instead of completing it on the fly for each new version of this project, I've
 # saved the results in an external file. 
-# save(list = c("dev_100", "dev_20", "kseq", "n_sim", "n_cores"), file = "/Users/solomonkurz/Dropbox/Recoding Statistical Rethinking/2nd ed/sims/06.sim_1.rda")
-load("sims/06.sim_1.rda")
+# save(list = c("dev_100", "dev_20", "kseq", "n_sim", "n_cores"), file = "/Users/solomonkurz/Dropbox/Recoding Statistical Rethinking 2nd ed/sims/07.sim_1.rda")
+load("sims/07.sim_1.rda")
 ```
 
 If you didn't quite catch it, the simulation yields `dev_20` and `dev_100`. We'll want to convert them to tibbles, bind them together, and wrangle extensively before we're ready to plot.
@@ -1031,9 +1031,9 @@ s <-
 # complete. So instead of completing it on the fly for each new version of this project, I’ve
 # saved the results in an external file. 
 
-# save("s", file = "/Users/solomonkurz/Dropbox/Recoding Statistical Rethinking/2nd ed/sims/06.sim_2.rda")
+# save("s", file = "/Users/solomonkurz/Dropbox/Recoding Statistical Rethinking 2nd ed/sims/07.sim_2.rda")
 
-load("sims/06.sim_2.rda")
+load("sims/07.sim_2.rda")
 ```
 
 We'll follow the same principles for wrangling these data as we did those from the previous simulation, `dev_tibble`. After wrangling, we'll feed the data directly into the code for our version of Figure 7.8.
@@ -1227,13 +1227,14 @@ Here we update our `make_sim()` to accommodate the simulation for Figure 7.9.
 ```{r}
 make_sim <- function(n, k, b_sigma) {
   
-  r <- mcreplicate(n_sim, 
-                   sim_train_test(N       = n,
-                                  k       = k,
-                                  b_sigma = b_sigma,
-                                  WAIC    = T,
-                                  LOOCV   = T, 
-                                  LOOIC   = T),
+  r <- mcreplicate(n = n_sim, 
+                   expr = sim_train_test(
+                     N       = n,
+                     k       = k,
+                     b_sigma = b_sigma,
+                     WAIC    = T,
+                     LOOCV   = T, 
+                     LOOIC   = T),
                    mc.cores = n_cores)
   
   t <- 
@@ -1245,14 +1246,64 @@ make_sim <- function(n, k, b_sigma) {
       error_w     = mean(unlist(r[7, ])),
       error_p     = mean(unlist(r[15, ])),
       error_c     = mean(unlist(r[20, ]))
-      )
+    )
   
   return(t)
-
+  
 }
 ```
 
 Computing all three WAIC, PSIS-LOO-CV, and actual LOO-CV for many models across multiple combinations of `k` and `b_sigma` takes a long time--many hours. If you plan on running this code to replicate the figure on your own, take it for a spin first with `n_sim` set to something small like `10` to get a sense of the speed of your machine and the nature of the output. Alternatively, consider running the simulation for one combination of `k` and `b_sigma` at a time.
+
+```{r}
+make_sim(n = 20, k = 2, b_sigma = 0.5)
+```
+
+```{r}
+  tibble(n       = 20,
+           k       = 1:2,
+           b_sigma = 0.5) %>%
+  mutate(sim = pmap(list(n, k, b_sigma), make_sim)) %>% 
+  unnest(sim)
+```
+
+
+```{r}
+n_sim <- 1e1
+n_cores <- 8
+
+t0 <- Sys.time()
+s20_0.5 <-
+  crossing(n       = 20,
+           k       = 1:5,
+           b_sigma = 0.5) %>%
+  mutate(sim = pmap(list(n, k, b_sigma), make_sim)) %>% 
+  unnest(sim)
+t1 <- Sys.time()
+
+t2 <- Sys.time()
+s20_100 <-
+  crossing(n       = 20,
+           k       = 1:5,
+           b_sigma = 100) %>%
+  mutate(sim = pmap(list(n, k, b_sigma), make_sim)) %>% 
+  unnest(sim)
+t3 <- Sys.time()
+
+t4 <- Sys.time()
+s100_0.5 <-
+  crossing(n       = 100,
+           k       = 1:5,
+           b_sigma = 0.5) %>%
+  mutate(sim = pmap(list(n, k, b_sigma), make_sim)) %>% 
+  unnest(sim)
+t5 <- Sys.time()
+
+t1-t0
+t3-t2
+t5-t4
+```
+
 
 ```{r 06.sim_3, echo = F}
 # s20_0.5  took 2.826583 hours
