@@ -22,7 +22,7 @@ There's a lot going on in this chapter. More more practice with these ideas, che
 >
 > Whatever you think about null hypothesis significance testing in general, using it to select among structurally different models is a mistake--$p$-values are not designed to help you navigate between underfitting and overfitting. (p. 193, **emphasis** in the original).
 
-McElreath spent little time discussing $p$-values and null hypothesis testing in the text. If you'd like to learn more from a Bayesian perspective, you might check out the first several chapters (particularly 10--13) in Kruschke's [-@kruschkeDoingBayesianData2015] [text](https://sites.google.com/site/doingbayesiandataanalysis/) and my [-@kurzDoingBayesianData2020] [ebook translating it to **brms** and the tidyverse](https://bookdown.org/content/3686/). The great [Frank Harrell](https://twitter.com/f2harrell) has complied [*A Litany of Problems With p-values*](https://www.fharrell.com/post/pval-litany/).
+McElreath spent little time discussing $p$-values and null hypothesis testing in the text. If you'd like to learn more from a Bayesian perspective, you might check out the first several chapters (particularly 10--13) in Kruschke's [-@kruschkeDoingBayesianData2015] [text](https://sites.google.com/site/doingbayesiandataanalysis/) and my [-@kurzDoingBayesianDataAnalysis2022] [ebook translating it to **brms** and the tidyverse](https://bookdown.org/content/3686/). The great [Frank Harrell](https://twitter.com/f2harrell) has complied [*A Litany of Problems With p-values*](https://www.fharrell.com/post/pval-litany/).
 Also, don't miss the statement on $p$-values released by the [American Statistical Association](https://www.amstat.org/) [@wassersteinASAStatementPvalues2016].
 
 ## The problem with parameters
@@ -111,7 +111,7 @@ Fire up **brms**.
 library(brms)
 ```
 
-A careful study of McElreath's **R** code 7.3 will show he is modeling `log_sigma`, rather than $\sigma$. There are ways to do this with **brms** [see @Bürkner2021Distributional], but I'm going to keep things simple, here. Our approach will be to follow the above equation more literally and just slap the $\operatorname{Log-Normal}(0, 1)$ prior directly onto $\sigma$.
+A careful study of McElreath's **R** code 7.3 will show he is modeling `log_sigma`, rather than $\sigma$. There are ways to do this with **brms** [see @Bürkner2022Distributional], but I'm going to keep things simple, here. Our approach will be to follow the above equation more literally and just slap the $\operatorname{Log-Normal}(0, 1)$ prior directly onto $\sigma$.
 
 ```{r b7.1}
 b7.1 <- 
@@ -206,7 +206,7 @@ Now returning to the text,
 
 > That last model, `m7.6`, has one trick in it. The standard deviation is replaced with a constant value 0.001. The model will not work otherwise, for a very important reason that will become clear as we plot these monsters. (p. 198)
 
-By "last model, `m7.6`," McElreath was referring to the sixth-order polynomial, fit on page 199. McElreath's **rethinking** package is set up so the syntax is simple to replacing $\sigma$ with a constant value. We can do this with **brms**, too, but it'll take more effort. If we want to fix $\sigma$ to a constant, we'll need to define a custom likelihood. Bürkner explained how to do so in his [-@Bürkner2021Define] vignette, [*Define custom response distributions with brms*](https://CRAN.R-project.org/package=brms/vignettes/brms_customfamilies.html). I'm not going to explain this in great detail, here. In brief, first we use the `custom_family()` function to define the name and parameters of a `custom_normal()` likelihood that will set $\sigma$ to a constant value, 0.001. Second, we'll define some functions for Stan which are not defined in Stan itself and save them as `stan_funs`. Third, we make a `stanvar()` statement which will allow us to pass our `stan_funs` to `brm()`.
+By "last model, `m7.6`," McElreath was referring to the sixth-order polynomial, fit on page 199. McElreath's **rethinking** package is set up so the syntax is simple to replacing $\sigma$ with a constant value. We can do this with **brms**, too, but it'll take more effort. If we want to fix $\sigma$ to a constant, we'll need to define a custom likelihood. Bürkner explained how to do so in his [-@Bürkner2022Define] vignette, [*Define custom response distributions with brms*](https://CRAN.R-project.org/package=brms/vignettes/brms_customfamilies.html). I'm not going to explain this in great detail, here. In brief, first we use the `custom_family()` function to define the name and parameters of a `custom_normal()` likelihood that will set $\sigma$ to a constant value, 0.001. Second, we'll define some functions for Stan which are not defined in Stan itself and save them as `stan_funs`. Third, we make a `stanvar()` statement which will allow us to pass our `stan_funs` to `brm()`.
 
 ```{r, warning = F, message = F}
 custom_normal <- custom_family(
@@ -241,7 +241,7 @@ b7.6 <-
       file = "fits/b07.06")
 ```
 
-Before we can do our variant of Figure 7.3, we'll need to define a few more custom functions to work with `b7.6`. The `posterior_epred_custom_normal()` function is required for `brms::fitted()` to work with our `family = custom_normal` `brmsfit` object. Same thing for `posterior_predict_custom_normal()` and `brms::predict()`. Though we won't need it until [Section 7.2.5][Scoring the right data.], we'll also define `log_lik_custom_normal` so we can use the `log_lik()` function for any models fit with `family = custom_normal`. Before all that, we need to throw in a line with the `expose_functions()` function. If you want to understand why, read up in Bürkner's [-@Bürkner2021Define] vignette. For now, just go with it.
+Before we can do our variant of Figure 7.3, we'll need to define a few more custom functions to work with `b7.6`. The `posterior_epred_custom_normal()` function is required for `brms::fitted()` to work with our `family = custom_normal` `brmsfit` object. Same thing for `posterior_predict_custom_normal()` and `brms::predict()`. Though we won't need it until [Section 7.2.5][Scoring the right data.], we'll also define `log_lik_custom_normal` so we can use the `log_lik()` function for any models fit with `family = custom_normal`. Before all that, we need to throw in a line with the `expose_functions()` function. If you want to understand why, read up in Bürkner's [-@Bürkner2022Define] vignette. For now, just go with it.
 
 ```{r, message = F, warning = F, results = "hide"}
 expose_functions(b7.6, vectorize = TRUE)
@@ -1076,11 +1076,11 @@ I found this connection difficult to grasp for a long time. Practice now and hop
 
 #### Rethinking: Ridge regression.
 
-Within the **brms** framework, you can do something like this with the horseshoe prior via the `horseshoe()` function. You can learn all about it from the `horseshoe` section of the [**brms** reference manual](https://cran.r-project.org/package=brms/brms.pdf) [@brms2021RM]. Here's an extract from the section:
+Within the **brms** framework, you can do something like this with the horseshoe prior via the `horseshoe()` function. You can learn all about it from the `horseshoe` section of the [**brms** reference manual](https://cran.r-project.org/package=brms/brms.pdf) [@brms2022RM]. Here's an extract from the section:
 
-> The horseshoe prior is a special shrinkage prior initially proposed by @carvalho2009handling. It is symmetric around zero with fat tails and an infinitely large spike at zero. This makes it ideal for sparse models that have many regression coefficients, although only a minority of them is non-zero. The horseshoe prior can be applied on all population-level effects at once (excluding the intercept) by using `set_prior("horseshoe(1)")`. (p. 97)
+> The horseshoe prior is a special shrinkage prior initially proposed by @carvalho2009handling. It is symmetric around zero with fat tails and an infinitely large spike at zero. This makes it ideal for sparse models that have many regression coefficients, although only a minority of them is nonzero. The horseshoe prior can be applied on all population-level effects at once (excluding the intercept) by using `set_prior("horseshoe(1)")`. ()p. 105
 
-To dive even deeper into the horseshoe prior, check out Michael Betancourt's [-@betancourtBayesSparse2018] tutorial, [*Bayes sparse regression*](https://betanalpha.github.io/assets/case_studies/bayes_sparse_regression.html#35_the_horseshoe). Gelman, Hill, and Vehtari cover the horseshoe prior with **rstanarm** in Section 12.7 of their [-@gelmanRegressionOtherStories2020] text, [*Regression and other stories*](https://www.cambridge.org/core/books/regression-and-other-stories/DD20DD6C9057118581076E54E40C372C). I also have an example of the horseshoe prior (`fit18.5`) in [Section 18.3](https://bookdown.org/content/3686/metric-predicted-variable-with-multiple-metric-predictors.html#shrinkage-of-regression-coefficients) of my [-@kurzDoingBayesianData2020] ebook translation of Kruschke's [-@kruschkeDoingBayesianData2015] text.
+To dive even deeper into the horseshoe prior, check out Michael Betancourt's [-@betancourtBayesSparse2018] tutorial, [*Bayes sparse regression*](https://betanalpha.github.io/assets/case_studies/bayes_sparse_regression.html#35_the_horseshoe). Gelman, Hill, and Vehtari cover the horseshoe prior with **rstanarm** in Section 12.7 of their [-@gelmanRegressionOtherStories2020] text, [*Regression and other stories*](https://avehtari.github.io/ROS-Examples/). I also have an example of the horseshoe prior (`fit18.5`) in [Section 18.3](https://bookdown.org/content/3686/metric-predicted-variable-with-multiple-metric-predictors.html#shrinkage-of-regression-coefficients) of my [-@kurzDoingBayesianDataAnalysis2022] ebook translation of Kruschke's [-@kruschkeDoingBayesianData2015] text.
 
 ## Predicting predictive accuracy
 
@@ -1098,7 +1098,7 @@ A practical difficulty with LOO-CV is it's costly in terms of the time and memor
 
 > The second approach is the use of **information criteria** to compute an expected score out of sample. Information criteria construct a theoretical estimate of the relative out-of-sample KL divergence. (p. 219, **emphasis** in the original)
 
-The frequentist Akaike information criterion [AIC, @akaike1998information] is the oldest and most restrictive. Among Bayesians, the deviance information criterion [DIC, @spiegelhalterBayesianMeasuresModel2002] has been widely used for some time, now. For a great talk on the DIC, check out the authoritative David Spiegelhalter's [*Retrospective read paper: Bayesian measure of model complexity and fit*](https://www.youtube.com/watch?v=H-59eqmHuuQ&frags=pl%2Cwn). However, the DIC is limited in that it presumes the posterior is multivariate Gaussian, which is not always the case.
+The frequentist Akaike information criterion [AIC, @akaike1998information] is the oldest and most restrictive. Among Bayesians, the deviance information criterion [DIC, @spiegelhalterBayesianMeasuresModel2002] has been widely used for some time, now. For a great talk on the DIC, check out the authoritative David Spiegelhalter's [*Retrospective read paper: Bayesian measure of model complexity and fit*](https://youtu.be/H-59eqmHuuQ). However, the DIC is limited in that it presumes the posterior is multivariate Gaussian, which is not always the case.
 
 In this book, our focus will be on the widely applicable information criterion [WAIC, @watanabeAsymptoticEquivalenceBayes2010], which does not impose assumptions on the shape of the posterior distribution. The WAIC both provides an estimate of out-of-sample deviance and converges with LOO-CV as $N \rightarrow \infty$. The WAIC follows the formula
 
@@ -1785,7 +1785,7 @@ tibble(nu = seq(from = 2.1, to = 20, by = 0.01)) %>%
        y = expression(standard~deviation*", "*~sqrt(nu/(nu-2))))
 ```
 
-As $\nu \rightarrow \infty$, the standard deviation approaches the scale, $\sigma$. We'll have more practice with robust Student's $t$ regression later on. In the mean time, you might check out chapters [16](https://bookdown.org/content/3686/metric-predicted-variable-on-one-or-two-groups.html#outliers-and-robust-estimation-the-t-distribution), [17](https://bookdown.org/content/3686/metric-predicted-variable-with-one-metric-predictor.html#robust-linear-regression), [18](https://bookdown.org/content/3686/metric-predicted-variable-with-multiple-metric-predictors.html#the-model-and-implementation.), [19](https://bookdown.org/content/3686/metric-predicted-variable-with-one-nominal-predictor.html#the-two-group-case.), and [20](https://bookdown.org/content/3686/metric-predicted-variable-with-multiple-nominal-predictors.html#heterogeneous-variances-and-robustness-against-outliers-1) from my [-@kurzDoingBayesianData2020] ebook translation of Kruschke's text. I've also blogged on using the robust Student's $t$ for [regression](https://solomonkurz.netlify.app/post/robust-linear-regression-with-the-robust-student-s-t-distribution/) and [correlations](https://solomonkurz.netlify.app/post/bayesian-robust-correlations-with-brms-and-why-you-should-love-student-s-t/). @gelmanRegressionOtherStories2020 covered robust Student's $t$ regression in Section 15.6, too.
+As $\nu \rightarrow \infty$, the standard deviation approaches the scale, $\sigma$. We'll have more practice with robust Student's $t$ regression later on. In the mean time, you might check out chapters [16](https://bookdown.org/content/3686/metric-predicted-variable-on-one-or-two-groups.html#outliers-and-robust-estimation-the-t-distribution), [17](https://bookdown.org/content/3686/metric-predicted-variable-with-one-metric-predictor.html#robust-linear-regression), [18](https://bookdown.org/content/3686/metric-predicted-variable-with-multiple-metric-predictors.html#the-model-and-implementation.), [19](https://bookdown.org/content/3686/metric-predicted-variable-with-one-nominal-predictor.html#the-two-group-case.), and [20](https://bookdown.org/content/3686/metric-predicted-variable-with-multiple-nominal-predictors.html#heterogeneous-variances-and-robustness-against-outliers-1) from my [-@kurzDoingBayesianDataAnalysis2022] ebook translation of Kruschke's text. I've also blogged on using the robust Student's $t$ for [regression](https://solomonkurz.netlify.app/post/2019-02-02-robust-linear-regression-with-student-s-t-distribution/) and [correlations](https://solomonkurz.netlify.app/post/2019-02-10-bayesian-robust-correlations-with-brms-and-why-you-should-love-student-s-t/). @gelmanRegressionOtherStories2020 covered robust Student's $t$ regression in Section 15.6, too.
 
 #### Rethinking: The Curse of Tippecanoe.
 
@@ -1861,7 +1861,7 @@ r2 %>%
        x = expression(Delta*italic(R)^2))
 ```
 
-The **brms** package did not get these $R^2$ values by traditional method used in, say, ordinary least squares estimation. To learn more about how the Bayesian $R^2$ sausage is made, check out the paper by @gelmanRsquaredBayesianRegression2019, [*R-squared for Bayesian regression models*](https://www.tandfonline.com/doi/abs/10.1080/00031305.2018.1549100?journalCode=utas20).
+The **brms** package did not get these $R^2$ values by traditional method used in, say, ordinary least squares estimation. To learn more about how the Bayesian $R^2$ sausage is made, check out the paper by @gelmanRsquaredBayesianRegression2019, [*R-squared for Bayesian regression models*](https://doi.org/10.1080/00031305.2018.1549100).
 
 ## Session info {-}
 
