@@ -1691,7 +1691,7 @@ dag5.7 %>%
   theme_bw() +
   theme(panel.grid = element_blank(),
         strip.background = element_blank()) +
-  facet_wrap(~ dag)
+  facet_wrap(~ dag, labeller = label_both)
 ```
 
 These all demonstrate Markov equivalence. I should note that I [got help](https://github.com/malcolmbarrett/ggdag/issues/41) from the great [Malcolm Barrett](https://twitter.com/malco_barrett) on how to make this plot with **ggdag**.
