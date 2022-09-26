@@ -41,7 +41,7 @@ We can talk about the spread of the distribution, sometimes called $\kappa$, in 
 
 $$\kappa = \alpha + \beta.$$
 
-With $\mu$ and $\kappa$ in hand, we can even find the $SD$ of a beta distribution with the formula
+With $\mu$ and $\kappa$ in hand, we can even find the $\textit{SD}$ of a beta distribution with the formula
 
 $$\sigma = \sqrt{\mu (1 - \mu) / (\kappa + 1)}.$$
 
@@ -1070,7 +1070,7 @@ b12.4 %>%
   round(digits = 3)
 ```
 
-But recall that the posterior $SD$ (i.e., the 'Est.Error' values) are not valid using that approach. If you really care about them, you'll need to work with the `as_draws_df()`.
+But recall that the posterior $\textit{SD}$ (i.e., the 'Est.Error' values) are not valid using that approach. If you really care about them, you'll need to work with the `as_draws_df()`.
 
 ```{r, message = F, warning = F}
 as_draws_df(b12.4) %>% 
@@ -1160,7 +1160,7 @@ pk %>%
   round(digits = 2)
 ```
 
-Note the slight difference in how we used `dordlogit()` with a `brm()` fit summarized by `fixef()` than the way McElreath did with a `ulam()` fit summarized by `coef()`. McElreath just put `coef(m12.4)` into `dordlogit()`. We, however, more specifically placed `fixef(b12.4)[, 1]` into the function. With the `[, 1]` part, we specified that we were working with the posterior means (i.e., `Estimate`) and neglecting the other summaries (i.e., the posterior *SD*s and 95% intervals). If you forget to subset, chaos ensues.
+Note the slight difference in how we used `dordlogit()` with a `brm()` fit summarized by `fixef()` than the way McElreath did with a `ulam()` fit summarized by `coef()`. McElreath just put `coef(m12.4)` into `dordlogit()`. We, however, more specifically placed `fixef(b12.4)[, 1]` into the function. With the `[, 1]` part, we specified that we were working with the posterior means (i.e., `Estimate`) and neglecting the other summaries (i.e., the posterior $\textit{SD}$s and 95% intervals). If you forget to subset, chaos ensues.
 
 Next, as McElreath further noted on page 338, "these probabilities imply an average outcome of:"
 
