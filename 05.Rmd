@@ -786,7 +786,7 @@ r %>%
   theme(panel.grid = element_blank())
 ```
 
-Look at that. If you were to fit a follow-up model based on only the point estimates (posterior means) of those residuals, you'd be ignoring a lot of uncertainty.
+Look at that. If you were to fit a follow-up model based on only the point estimates (posterior means) of those residuals, you'd be ignoring a lot of uncertainty. For more on the topic of residuals, see @freckleton2002misuse, [*On the misuse of residuals in ecology: regression of residuals vs. multiple regression*](https://doi.org/10.1046/j.1365-2656.2002.00618.x).
 
 #### Posterior prediction plots.
 
