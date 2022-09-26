@@ -1795,7 +1795,7 @@ As $\nu \rightarrow \infty$, the standard deviation approaches the scale, $\sigm
 
 ## ~~Summary~~ Bonus: $R^2$ talk
 
-At the beginning of the chapter (pp. 193--201), McElreath introduced $R^2$ as a popular way to assess the variance explained in a model. He pooh-poohed it because of its tendency to overfit. It's also limited in that it doesn't generalize well outside of the single-level Gaussian framework, which will be a big deal for us starting in [Chapter 10][Big Entropy and the Generalized Linear Model]. However, if you should find yourself in a situation where $R^2$ suits your purposes, the **brms** `bayes_R2()` function might be of use. Simply feeding a model `brm()` fit object into `bayes_R2()` will return the posterior mean, $SD$, and 95% intervals. For example:
+At the beginning of the chapter (pp. 193--201), McElreath introduced $R^2$ as a popular way to assess the variance explained in a model. He pooh-poohed it because of its tendency to overfit. It's also limited in that it doesn't generalize well outside of the single-level Gaussian framework, which will be a big deal for us starting in [Chapter 10][Big Entropy and the Generalized Linear Model]. However, if you should find yourself in a situation where $R^2$ suits your purposes, the **brms** `bayes_R2()` function might be of use. Simply feeding a model `brm()` fit object into `bayes_R2()` will return the posterior mean, $\textit{SD}$, and 95% intervals. For example:
 
 ```{r}
 bayes_R2(b5.3) %>% round(digits = 3)

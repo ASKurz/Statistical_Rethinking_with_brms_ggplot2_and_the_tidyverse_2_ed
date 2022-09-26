@@ -317,7 +317,7 @@ b6.2 <-
 print(b6.2)
 ```
 
-That posterior $SD$ for `leg_left` looks much better. Compare this density to the one in Figure 6.2.b.
+That posterior $\textit{SD}$ for `leg_left` looks much better. Compare this density to the one in Figure 6.2.b.
 
 ```{r, fig.width = 3, fig.height = 3}
 as_draws_df(b6.2) %>% 

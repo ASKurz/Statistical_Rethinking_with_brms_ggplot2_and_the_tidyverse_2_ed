@@ -907,7 +907,7 @@ You can always get pretty similar information by just putting the `brm()` fit ob
 posterior_summary(b4.1)
 ```
 
-And if you're willing to drop the posterior $SD$s, you can use `tidybayes::mean_hdi()`, too.
+And if you're willing to drop the posterior $\textit{SD}$s, you can use `tidybayes::mean_hdi()`, too.
 
 ```{r, warning = F}
 post %>% 
