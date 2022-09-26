@@ -91,7 +91,7 @@ scales::show_col(dutchmasters$pearl_earring)
 
 We'll name our custom theme `theme_pearl_earring()`. I cobbled together this approach to defining a custom **ggplot2** theme with help from
 
-* [Chapter 17](https://ggplot2-book.org/programming.html) of Wichkam's [-@wickhamGgplot2ElegantGraphics2016] *ggplot2: Elegant graphics for data analysis*;
+* [Chapter 19](https://ggplot2-book.org/programming.html) of Wichkam's [-@wickhamGgplot2ElegantGraphics2016] *ggplot2: Elegant graphics for data analysis*;
 * [Section 4.6](https://bookdown.org/rdpeng/RProgDA/building-a-new-theme.html) of Peng, Kross, and Anderson's [-@pengMasteringSoftwareDevelopment2017] [*Mastering Software Development in R*](https://bookdown.org/rdpeng/RProgDA/building-a-new-theme.html);
 * Lea Waniek's blog post, [*Custom themes in ggplot2*](https://www.statworx.com/de/blog/custom-themes-in-ggplot2/), and
 * Joey Stanley's blog post of the same name, [*Custom themes in ggplot2*](https://joeystanley.com/blog/custom-themes-in-ggplot2).
@@ -972,7 +972,7 @@ McElreath's second example is the **regression discontinuity** approach. If you 
 
 > in practice, one trend is fit for individuals above the cutoff and another to those below the cutoff. Then an estimate of the causal effect is the average difference between individuals just above and just below the cutoff. While the difference near the cuttoff is of interest, the entire function influences this difference. So some care is needed in choosing functions for the overall relationship between the exposure and the outcome. (p. 461)
 
-McElreath's not kidding about the need for care when fitting regression discontinuity models. Gleman's blog is littered with awful examples (e.g., [here](https://statmodeling.stat.columbia.edu/2019/06/25/another-regression-discontinuity-disaster-and-what-can-we-learn-from-it/), [here](https://statmodeling.stat.columbia.edu/2018/08/02/38160/), [here](https://statmodeling.stat.columbia.edu/2020/07/02/no-i-dont-believe-that-claim-based-on-regression-discontinuity-analysis-that/), [here](https://statmodeling.stat.columbia.edu/2020/01/13/how-to-get-out-of-the-credulity-rut-regression-discontinuity-edition-getting-beyond-whack-a-mole/), [here](https://statmodeling.stat.columbia.edu/2020/07/18/please-socially-distance-me-from-this-regression-model/)). See also Gelman and Imbens' [-@gelmanWhyHighorderPolynomials2019] paper, [*Why high-order polynomials should not be used in regression discontinuity designs*](https://amstat.tandfonline.com/doi/pdf/10.1080/07350015.2017.1366909?needAccess=true), or [Nick HK](https://twitter.com/nickchk)'s informative [tweet](https://twitter.com/nickchk/status/1329338429360914433) on how this applies to autocorrelated data [^6].
+McElreath's not kidding about the need for care when fitting regression discontinuity models. Gleman's blog is littered with awful examples (e.g., [here](https://statmodeling.stat.columbia.edu/2019/06/25/another-regression-discontinuity-disaster-and-what-can-we-learn-from-it/), [here](https://statmodeling.stat.columbia.edu/2018/08/02/38160/), [here](https://statmodeling.stat.columbia.edu/2020/07/02/no-i-dont-believe-that-claim-based-on-regression-discontinuity-analysis-that/), [here](https://statmodeling.stat.columbia.edu/2020/01/13/how-to-get-out-of-the-credulity-rut-regression-discontinuity-edition-getting-beyond-whack-a-mole/), [here](https://statmodeling.stat.columbia.edu/2020/07/18/please-socially-distance-me-from-this-regression-model/)). See also Gelman and Imbens' [-@gelmanWhyHighorderPolynomials2019] paper, [*Why high-order polynomials should not be used in regression discontinuity designs*](https://stat.columbia.edu/~gelman/research/published/2018_gelman_jbes.pdf), or [Nick HK](https://twitter.com/nickchk)'s informative [tweet](https://twitter.com/nickchk/status/1329338429360914433) on how this applies to autocorrelated data [^6].
 
 ## Social relations as correlated varying effects
 
@@ -1378,7 +1378,7 @@ fixef(b14.8, probs = c(.055, .945))["a_Intercept", c(1, 3:4)] %>%
   round(digits = 2)
 ```
 
-Our Gaussian process parameters are different from McElreath's. From the `gp` section of the [**brms** reference manual](https://cran.r-project.org/package=brms/brms.pdf) [@brms2021RM], we learn the **brms** parameterization follows the form
+Our Gaussian process parameters are different from McElreath's. From the `gp` section of the [**brms** reference manual](https://cran.r-project.org/package=brms/brms.pdf) [@brms2022RM], we learn the **brms** parameterization follows the form
 
 $$k(x_{i},x_{j}) = sdgp^2 \exp \big (-||x_i - x_j||^2 / (2 lscale^2) \big ),$$
 
@@ -1415,7 +1415,7 @@ Now look at the denominator of the inner part of Bürkner's equation, $2 lscale^
 lscale & = \sqrt{1 / (2 \cdot \rho^2)}.
 \end{align*}
 
-To get a sense of this relationship, it might be helpful to plot.
+To get a sense of this relation, it might be helpful to plot.
 
 ```{r, fig.width = 6.5, fig.height = 2.75}
 p1 <-
@@ -2184,7 +2184,7 @@ left_join(
 
 > There just isn't a lot of phylogenetic covariance for brain sizes, at least according to this model and these data. As a result, the phylogenetic distance doesn't completely explain away the association between group size and brain size, as it did in the Brownian motion model. (p. 485)
 
-For a thorough discussion on how to fit phylogenetic models with **brms**, particularly within the multilevel paradigm, see Bürkner's [-@Bürkner2021Phylogenetic] vignette, [*Estimating phylogenetic multilevel models with brms*](https://CRAN.R-project.org/package=brms/vignettes/brms_phylogenetics.html).
+For a thorough discussion on how to fit phylogenetic models with **brms**, particularly within the multilevel paradigm, see Bürkner's [-@Bürkner2022Phylogenetic] vignette, [*Estimating phylogenetic multilevel models with brms*](https://CRAN.R-project.org/package=brms/vignettes/brms_phylogenetics.html).
 
 ## ~~Summary~~ Bonus: Multilevel growth models and the MELSM
 
@@ -2192,7 +2192,7 @@ To this point in the chapter and most of the text, the data have largely had a c
 
 ### Borrow some data.
 
-All the models in this bonus section are based on the preprint by @williamsBayesianMultivariateMixedeffects2019a, [*Bayesian multivariate mixed-effects location scale modeling of longitudinal relations among affective traits, states, and physical activity*](https://psyarxiv.com/4kfjp). Williams and colleagues' data and supporting scripts are available in the `example_analyses` folder from their OSF project at [https://osf.io/3bmdh/](https://osf.io/3bmdh/). You can also download the data from the [`data` folder](https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed/tree/master/data) of this ebook's GitHub repo.
+All the models in this bonus section are based on the paper by @williams2020BayesianMulitivariate, *Bayesian multivariate mixed-effects location scale modeling of longitudinal relations among affective traits, states, and physical activity* (you can find the preprint [here](https://psyarxiv.com/4kfjp)). Williams and colleagues' data and supporting scripts are available in the `example_analyses` folder from their OSF project at [https://osf.io/3bmdh/](https://osf.io/3bmdh/). You can also download the data from the [`data` folder](https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed/tree/master/data) of this ebook's GitHub repo.
 
 Load the data.
 
@@ -2382,7 +2382,7 @@ Because of our fixed $\sigma_\epsilon$ parameter, the 95% posterior predictive i
 
 ### Learn more about your data with the MELSM.
 
-Mixed-effects location scale models (MELSMs) have their origins in the work of [Donald Hedeker](https://health.uchicago.edu/faculty/donald-hedeker-phd) and colleagues  [@hedekerApplicationMixedeffectsLocation2008; @hedekerModelingWithinsubjectVariance2012]. @rastModelingIndividualDifferences2012 showcased an early application of the framework to the BUGS/JAGS software. More recently [Philippe Rast](https://twitter.com/rastlab) and colleagues (particularly graduate student, [Donald Williams](wdonald_1985)) have adapted this approach for use within the Stan/**brms** ecosystem [@williamsBayesianNonlinearMixedeffects2019a; @williamsSurfaceUnearthingWithinperson2019; @williamsBayesianMultivariateMixedeffects2019a; @williamsPuttingIndividualReliability2019].
+Mixed-effects location scale models (MELSMs) have their origins in the work of [Donald Hedeker](https://health.uchicago.edu/faculty/donald-hedeker-phd) and colleagues  [@hedekerApplicationMixedeffectsLocation2008; @hedekerModelingWithinsubjectVariance2012]. @rastModelingIndividualDifferences2012 showcased an early application of the framework to the BUGS/JAGS software. More recently [Philippe Rast](https://twitter.com/rastlab) and colleagues (particularly graduate student, [Donald Williams](https://twitter.com/wdonald_1985)) have adapted this approach for use within the Stan/**brms** ecosystem [@williamsBayesianNonlinearMixedeffects2019a; @williams2021beneath; @williams2020BayesianMulitivariate; @williams2022PuttingTheIndividual].
 
 Within the **brms** framework, MELSMs apply a distributional modeling approach [see @Bürkner2021Distributional] to the multilevel growth model. Not only are parameters from the mean structure allowed to vary across groups, but parameters applied to $\sigma$ are allowed to vary across groups, too. Do you remember the little practice model `b10.1` from [Section 10.2.2][Linking linear models to distributions.]? We simulated Gaussian data for two groups with the same mean parameter but different parameters for $\sigma$. If you check back in that section, you'll see that the **brms** default was to model $\log \sigma$ in that case. This is smart because when you define a model for $\sigma$, you want to use a link function that ensures the predictions will be stay at zero and above. The MELSM approach of Hedeker, Rast, Williams and friends applies this logic to $\sigma_\epsilon$ in multilevel growth models. However, not only can $\sigma_\epsilon$ vary across groups in a fixed-effects sort of way, we can use multilevel partial pooling, too.
 
@@ -2640,7 +2640,7 @@ With respect to $\rho_{31}$, participant 115 showed both a higher intercept and 
 
 ### Time to go multivariate.
 
-For our final stage in this progression, we will fit what @williamsBayesianMultivariateMixedeffects2019a called a M-MELSM, a multivariate mixed-effects location scale model. Recall these data have measures of both negative and positive affect. The standardized values for PA are waiting for us in the `P_A.std` column. Within the **brms** framework, this is a combination of sensibilities from Bürkner's vignettes on distributional models [@Bürkner2021Distributional] and multivariate models [@Bürkner2021Multivariate]. We might express the statistical model as
+For our final stage in this progression, we will fit what @williams2020BayesianMulitivariate called a M-MELSM, a multivariate mixed-effects location scale model. Recall these data have measures of both negative and positive affect. The standardized values for PA are waiting for us in the `P_A.std` column. Within the **brms** framework, this is a combination of sensibilities from Bürkner's vignettes on distributional models [@Bürkner2022Distributional] and multivariate models [@Bürkner2022Multivariate]. We might express the statistical model as
 
 \begin{align*}
 \color{#A65141}{\begin{bmatrix} \text{NA}_{ij} \\ \text{PA}_{ij} \end{bmatrix}} & \color{#A65141}\sim \color{#A65141}{\operatorname{MVNormal}\begin{pmatrix} \begin{bmatrix} 
@@ -2799,7 +2799,7 @@ To my eye, a few things pop out. First, the correlations within `N_A.std` are ge
 
 As fond as I am with that last correlation plot, it has a glaring defect: there is no expression of uncertainty. Sometimes we express uncertainty with percentile-based intervals. Other times we do so with marginal densities. But the correlation plots only describe the marginal posteriors for all the $\rho$ parameters with their means--no uncertainty. If you have one or a small few correlations to plot, coefficient or density plots might do. However, they don't scale well. If you don't believe me, just try. I'm not sure there are any good solutions to this, but it can be helpful to at least try grappling with the issue.
 
-Fortunately for us, [Matthew Kay](https://twitter.com/mjskay) (creator of the [**tidybayes** package](http://mjskay.github.io/tidybayes)) has already tried his hand at a few approaches. For all the deets, check out the [multivariate-regression.md](https://github.com/mjskay/uncertainty-examples/blob/master/multivariate-regression.md) file in his [uncertainty-examples](https://github.com/mjskay/uncertainty-examples) GitHub repo. One of his more imaginative approaches is to use what he calls dithering. Imagine breaking each of the cells in our correlation plot, above, into a $50 \times 50 = 2{,}500$-cell grid. Now assign each of the cells within that grid one of the values from the HMC draws of that correlation's posterior distribution. Then color code each of those cells by that value in the same basic way we color coded our previous correlation plots. Simultaneously do that for all of the correlations within the $\mathbf R$ matrix and plot them in a faceted plot. That's the essence of the dithering approach. This is all probably hard to make sense of in words. Hopefully it will all come together with a little code and the resulting plot. Hold on to your hat.
+Fortunately for us, [Matthew Kay](https://twitter.com/mjskay) (creator of the [**tidybayes** package](https://mjskay.github.io/tidybayes/)) has already tried his hand at a few approaches. For all the deets, check out the [multivariate-regression.md](https://github.com/mjskay/uncertainty-examples/blob/master/multivariate-regression.md) file in his [uncertainty-examples](https://github.com/mjskay/uncertainty-examples) GitHub repo. One of his more imaginative approaches is to use what he calls dithering. Imagine breaking each of the cells in our correlation plot, above, into a $50 \times 50 = 2{,}500$-cell grid. Now assign each of the cells within that grid one of the values from the HMC draws of that correlation's posterior distribution. Then color code each of those cells by that value in the same basic way we color coded our previous correlation plots. Simultaneously do that for all of the correlations within the $\mathbf R$ matrix and plot them in a faceted plot. That's the essence of the dithering approach. This is all probably hard to make sense of in words. Hopefully it will all come together with a little code and the resulting plot. Hold on to your hat.
 
 ```{r, fig.width = 6.25, fig.height = 5.25, warning = F}
 levels <- c("beta[0]^'NA'", "beta[1]^'NA'", "eta[0]^'NA'", "eta[1]^'NA'",
@@ -2867,15 +2867,15 @@ To learn more about the MELSM approach and its extensions, check out
 
 * @hedekerApplicationMixedeffectsLocation2008, [*An application of a mixed-effects location scale model for analysis of ecological momentary assessment (EMA) data*](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2424261/);
 * @hedekerModelingWithinsubjectVariance2012, [*Modeling between- and within-subject variance in ecological momentary assessment (EMA) data using mixed-effects location scale models*](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3655706/);
-* Williams' and colleagues' [-@williamsBayesianMultivariateMixedeffects2019a] preprint, [*Bayesian multivariate mixed-effects location scale modeling of longitudinal relations among affective traits, states, and physical activity*](https://psyarxiv.com/4kfjp/);
-* Williams' and colleagues' [-@williamsSurfaceUnearthingWithinperson2019] preprint, [*Beneath the surface: Unearthing within-person variability and mean relations with Bayesian mixed models*](https://osf.io/gwatq); 
+* Williams' and colleagues' [-@williams2020BayesianMulitivariate] paper, [*Bayesian multivariate mixed-effects location scale modeling of longitudinal relations among affective traits, states, and physical activity*](https://psyarxiv.com/4kfjp/);
+* Williams' and colleagues' [-@williams2021beneath] paper, [*Beneath the surface: Unearthing within-person variability and mean relations with Bayesian mixed models*](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8572133/); 
 * Williams' and colleagues' [-@williamsBayesianNonlinearMixedeffects2019a] paper, [*A Bayesian nonlinear mixed-effects location scale model for learning*](https://doi.org/10.3758/s13428-019-01255-9);
-* Williams' tutorial blog post, [*A defining feature of cognitive interference tasks: Heterogeneous within-person variance*](https://donaldrwilliams.github.io/2020/04/04/a-defining-feature-of-cognitive-interference-tasks-heterogeneous-within-person-variance/).
+* Williams' tutorial blog post, [*A defining feature of cognitive interference tasks: Heterogeneous within-person variance*](https://rstudio-pubs-static.s3.amazonaws.com/593838_838639e42b1643df9886a26cb922ab05.html).
 
 From a **brms** standpoint, it might also be helpful to brush up on
 
-* Bürkner's [-@Bürkner2021Distributional] vignette, [*Estimating distributional models with brms*](https://CRAN.R-project.org/package=brms/vignettes/brms_distreg.html) and
-* Bürkner's [-@Bürkner2021Multivariate] vignette, [*Estimating multivariate models with brms*](https://CRAN.R-project.org/package=brms/vignettes/brms_multivariate.html).
+* Bürkner's [-@Bürkner2022Distributional] vignette, [*Estimating distributional models with brms*](https://CRAN.R-project.org/package=brms/vignettes/brms_distreg.html) and
+* Bürkner's [-@Bürkner2022Multivariate] vignette, [*Estimating multivariate models with brms*](https://CRAN.R-project.org/package=brms/vignettes/brms_multivariate.html).
 
 ## Session info {-}
 
