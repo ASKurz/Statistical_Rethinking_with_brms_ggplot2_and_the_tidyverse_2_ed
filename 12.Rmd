@@ -31,7 +31,7 @@ However, the beta density is often defined in terms of $\alpha$ and $\beta$. If 
 
 $$\operatorname{Beta}(y | \alpha, \beta) = \frac{y^{\alpha - 1} (1 - y)^{\beta - 1}}{\text B (\alpha, \beta)},$$
 
-which you can verify in the [*Continuous distributions on [0, 1]* section](https://mc-stan.org/docs/2_24/functions-reference/continuous-distributions-on-0-1.html) of the [Stan functions reference](https://mc-stan.org/docs/2_26/functions-reference/index.html) [@standevelopmentteamStanFunctionsReference2021]. In the formula, $\text B$ stands for the Beta function, which computes a normalizing constant, which you can learn about in the [*Mathematical functions* chapter](https://mc-stan.org/docs/2_26/functions-reference/math-functions.html) of the Stan functions reference. If you look at the base **R** `dbeta()` function, you'll learn it takes two parameters, `shape1` and `shape2`. Those uncreatively-named parameters are the same $\alpha$ and $\beta$ from the density, above. They do not correspond to the `pbar` and `theta` parameters of McEreath's `rethinking::dbeta2()` function.
+which you can verify in the [*Continuous distributions on [0, 1]* section *Stan functions reference*](https://mc-stan.org/docs/functions-reference/continuous-distributions-on-0-1.html) [@standevelopmentteamStanFunctionsReference2022]. In the formula, $\text B$ stands for the Beta function, which computes a normalizing constant, which you can learn about in the [*Mathematical functions* chapter](https://mc-stan.org/docs/functions-reference/math-functions.html) of the Stan functions reference. If you look at the base **R** `dbeta()` function, you'll learn it takes two parameters, `shape1` and `shape2`. Those uncreatively-named parameters are the same $\alpha$ and $\beta$ from the density, above. They do not correspond to the `pbar` and `theta` parameters of McEreath's `rethinking::dbeta2()` function.
 
 McElreath had good reason for using `dbeta2()`. Beta's typical $\alpha$ and $\beta$ parameters aren't the most intuitive to use; the parameters in McElreath's `dbeta2()` are much nicer. If you dive a little deeper, it turns out you can find the mean of a beta distribution in terms of $\alpha$ and $\beta$ like this:
 
@@ -136,7 +136,7 @@ crossing(pbar  = c(.25, .5, .75),
   facet_grid(kappa ~ mu, labeller = label_parsed)
 ```
 
-If you'd like to see how to make a similar plot in terms of $\alpha$ and $\beta$, see [Chapter 6](https://bookdown.org/content/3686/inferring-a-binomial-probability-via-exact-mathematical-analysis.html) of my [-@kurzDoingBayesianData2020] [ebook](https://bookdown.org/content/3686/) wherein I translated Kruschke's text into **tidyverse** and **brms** code.
+If you'd like to see how to make a similar plot in terms of $\alpha$ and $\beta$, see [Chapter 6](https://bookdown.org/content/3686/inferring-a-binomial-probability-via-exact-mathematical-analysis.html) of my [-@kurzDoingBayesianDataAnalysis2022] [ebook](https://bookdown.org/content/3686/) wherein I translated Kruschke's text into **tidyverse** and **brms** code.
 
 But remember, we're not fitting a beta model. We're using the beta-binomial. "We're going to bind our linear model to $\bar p$, so that changes in predictor variables change the central tendency of the distribution" (p. 371). The statistical model we'll be fitting follows the form
 
@@ -152,7 +152,7 @@ Here the size, $n$, is defined in the `applications` column in the data we'll lo
 
 beta_binomial
 
-We have an additional complication. The beta-binomial has historically not been officially supported by **brms** (see [GitHub issue #144](https://github.com/paul-buerkner/brms/issues/144))[^4]. However, **brms** versions 2.2.0 and above allow users to define custom distributions. To get all the details, you might check out Bürkner's [-@Bürkner2021Define] vignette, [*Define custom response distributions with brms*](https://CRAN.R-project.org/package=brms/vignettes/brms_customfamilies.html). Happily, Bürkner even used the [beta-binomial distribution as the exemplar](https://cran.r-project.org/package=brms/vignettes/brms_customfamilies.html#the-beta-binomial-distribution) in the vignette.
+We have an additional complication. The beta-binomial has historically not been officially supported by **brms** (see [GitHub issue #144](https://github.com/paul-buerkner/brms/issues/144))[^4]. However, **brms** versions 2.2.0 and above allow users to define custom distributions. To get all the details, you might check out Bürkner's [-@Bürkner2022Define] vignette, [*Define custom response distributions with brms*](https://CRAN.R-project.org/package=brms/vignettes/brms_customfamilies.html). Happily, Bürkner even used the [beta-binomial distribution as the exemplar](https://cran.r-project.org/package=brms/vignettes/brms_customfamilies.html#the-beta-binomial-distribution) in the vignette.
 
 Before we get carried away, let's load the data and **brms**.
 
@@ -171,7 +171,8 @@ I'm not going to go into great detail explaining the ins and outs of making cust
 ```{r}
 beta_binomial2 <- custom_family(
   "beta_binomial2", dpars = c("mu", "phi"),
-  links = c("logit", "log"), lb = c(NA, 2),
+  links = c("logit", "log"),
+  lb = c(0, 2), ub = c(1, NA),
   type = "int", vars = "vint1[n]"
 )
 
@@ -187,14 +188,14 @@ stan_funs <- "
 stanvars <- stanvar(scode = stan_funs, block = "functions")
 ```
 
-Did you notice the `lb = c(NA, 2)` portion of the code defining `beta_binomial2()`? In Bürkner's vignette, he set the lower bound of `phi` to zero. Since McElreath wanted the lower bound for $\phi$ to be 2, we just set that as the default in the likelihood. We should clarify two more points:
+Did you notice the `lb = c(0, 2)` portion of the code defining `beta_binomial2()`? In Bürkner's vignette, he set the lower bound of `phi` to zero. Since McElreath wanted the lower bound for $\phi$ to be 2, we just set that as the default in the likelihood. We should clarify two more points:
 
 First, what McElreath referred to as the shape parameter, $\theta$, Bürkner called the precision parameter, $\phi$. In our exposition, above, we followed Kruschke's convention and called it $\kappa$. These are all the same thing: $\theta$, $\phi$, and $\kappa$ are **all the same thing**. Perhaps less confusingly, what McElreath called the `pbar` parameter, $\bar p$, Bürkner simply refers to as $\mu$.
 
 Second, we've become accustomed to using the `y | trials() ~ ...` syntax when defining our `formula` arguments for binomial models. Here we are replacing `trials()` with `vint()`. From Bürkner's *Define custom response distributions with brms* vignette, we read:
 
 > To provide information about the number of trials (an integer variable), we are going to use the addition argument `vint()`, which can only be used in custom families. Similarly, if we needed to include additional vectors of real data, we would use `vreal()`. Actually, for this particular example, we could more elegantly apply the addition argument `trials()` instead of `vint()` as in the basic binomial model. However, since the present vignette is meant to give a general overview of the topic, we will go with the more general method.
->
+> 
 > We now have all components together to fit our custom beta-binomial model:
 
 ```{r b12.1}
@@ -277,23 +278,23 @@ expose_functions(b12.1, vectorize = TRUE)
 
 # required to use `predict()`
 log_lik_beta_binomial2 <- function(i, prep) {
-  mu     <- prep$dpars$mu[, i]
-  phi    <- prep$dpars$phi
+  mu     <- brms::get_dpar(prep, "mu", i = i)
+  phi    <- brms::get_dpar(prep, "phi", i = i)
   trials <- prep$data$vint1[i]
   y      <- prep$data$Y[i]
   beta_binomial2_lpmf(y, mu, phi, trials)
 }
 
 posterior_predict_beta_binomial2 <- function(i, prep, ...) {
-  mu     <- prep$dpars$mu[, i]
-  phi    <- prep$dpars$phi
+  mu     <- brms::get_dpar(prep, "mu", i = i)
+  phi    <- brms::get_dpar(prep, "phi", i = i)
   trials <- prep$data$vint1[i]
   beta_binomial2_rng(mu, phi, trials)
 }
 
 # required to use `fitted()`
 posterior_epred_beta_binomial2 <- function(prep) {
-  mu     <- prep$dpars$mu
+  mu     <- brms::get_dpar(prep, "mu")
   trials <- prep$data$vint1
   trials <- matrix(trials, nrow = nrow(mu), ncol = ncol(mu), byrow = TRUE)
   mu * trials
@@ -361,7 +362,7 @@ where $\alpha$ and $\Gamma$ are still the shape and gamma function, respectively
 
 $$y_i \sim \operatorname{Gamma-Poisson}(\mu, \alpha),$$
 
-where $\mu$ is the mean or rate, taking the place of $\lambda$ from the Poisson distribution, and $\alpha$ is the shape. I should warn you that this notation is a little different from the notation McElreath used in the text (p. 374), where he used $\lambda$ in place of our $\mu$ and $\phi$ in place of our $\alpha$. The meaning is really the same. The reason I have diverged from McElreath's notation is to emphasize the connection with the walk-out, above. If you want to add injury to insult, compare both of these notations with the notation Bürkner used in his [-@Bürkner2021Parameterization] vignette, [*Parameterization of response distributions in brms*](https://cran.r-project.org/package=brms/vignettes/brms_families.html#ordinal-and-categorical-models).
+where $\mu$ is the mean or rate, taking the place of $\lambda$ from the Poisson distribution, and $\alpha$ is the shape. I should warn you that this notation is a little different from the notation McElreath used in the text (p. 374), where he used $\lambda$ in place of our $\mu$ and $\phi$ in place of our $\alpha$. The meaning is really the same. The reason I have diverged from McElreath's notation is to emphasize the connection with the walk-out, above. If you want to add injury to insult, compare both of these notations with the notation Bürkner used in his [-@Bürkner2022Parameterization] vignette, [*Parameterization of response distributions in brms*](https://cran.r-project.org/package=brms/vignettes/brms_families.html#ordinal-and-categorical-models).
 
 Since this all is already a pedagogical nightmare, let's throw in one more technical tidbit before we start fitting models. I don't believe McElreath plainly explained this in the text, but when we talk about the gamma-Poisson model as having two parameters, the $\lambda$ parameter (a.k.a. $\mu$) is doing double duty. As with conventional Poisson models, $\lambda$ is the mean for the criterion. What might not be as clear is that $\lambda$ is also the mean of the gamma mixture distribution. So when you want to get a sense of the overall shape of the gamma-Poisson model-implied distribution of $\lambda$ parameters—one for each variable in the data set--, the distribution is gamma with a mean of $\lambda$ and shape of $\phi$ (a.k.a. $\alpha$). For a more detailed walk out of this, see Section 8.2 in @hilbeNegativeBinomialRegression2011.
 
@@ -464,7 +465,7 @@ Because this model had no predictors, we have similar posterior-predictive distr
 
 As a reminder, the "rate" for the Poisson distribution is just another word for the mean, also called $\lambda$. So unlike a simple Poisson model where we use the individual cases to estimate one overall $\lambda$, here we're presuming each case has its own $\lambda_i$. There are 10 $\lambda_i$ values that generated our data and if we look at those $\lambda_i$ values on the whole, their distribution can be described with a gamma distribution. And again, this is not a gamma distribution for our data. This is a gamma distribution of the $\lambda_i$ values from the 10 separate Poisson distributions that presumably made our data.
 
-After exponentiating the intercept parameter ($\log \mu$), here are the posterior distributions for those two gamma parameters.
+After exponentiating the intercept parameter $(\log \mu)$, here are the posterior distributions for those two gamma parameters.
 
 ```{r, fig.width = 5.5, fig.height = 2.5, warning = F}
 post <- as_draws_df(b12.2a)
@@ -704,7 +705,7 @@ Because we used predictors in the model, this time the posterior predictive dist
 
 #### Rethinking: Breaking the law.
 
-McElreath discussed how advances in computing have made it possible for working scientists to define their own data generating models. If you'd like to dive deeper into the topic, check out Bürkner's [-@Bürkner2021Define] vignette, [*Define custom response distributions with brms*](https://CRAN.R-project.org/package=brms/vignettes/brms_customfamilies.html).
+McElreath discussed how advances in computing have made it possible for working scientists to define their own data generating models. If you'd like to dive deeper into the topic, check out Bürkner's [-@Bürkner2022Define] vignette, [*Define custom response distributions with brms*](https://CRAN.R-project.org/package=brms/vignettes/brms_customfamilies.html).
 
 ### Example: Zero-inflated Poisson.
 
@@ -769,7 +770,7 @@ y_i & \sim \operatorname{ZIPoisson}(\color{#5a5f37}{p_i}, \color{#524a3a}{\lambd
 \color{#524a3a}{\log (\lambda_i)} & \color{#524a3a}= \color{#524a3a}{\alpha_\lambda + \beta_\lambda x_i},
 \end{align*}
 
-where both parameters in the likelihood, $p_i$ and $\lambda_i$ might get their own statistical model, making this a special case of what Bürkner [-@Bürkner2021Distributional] calls distributional models. One last thing to note is that in **brms**, $p_i$ is denoted `zi`. To fit a zero-inflated Poisson model with **brms**, make sure to specify the correct likelihood with `family = zero_inflated_poisson`. To use a non-default prior for `zi`, make sure to indicate `class = zi` within the `prior()` function.
+where both parameters in the likelihood, $p_i$ and $\lambda_i$ might get their own statistical model, making this a special case of what Bürkner [-@Bürkner2022Distributional] calls distributional models. One last thing to note is that in **brms**, $p_i$ is denoted `zi`. To fit a zero-inflated Poisson model with **brms**, make sure to specify the correct likelihood with `family = zero_inflated_poisson`. To use a non-default prior for `zi`, make sure to indicate `class = zi` within the `prior()` function.
       
 ```{r b12.3}
 b12.3 <- 
@@ -787,7 +788,7 @@ b12.3 <-
 print(b12.3)
 ```
 
-If you look at the [*Zero-inflated and hurdle models* section](https://cran.r-project.org/package=brms/vignettes/brms_families.html#zero-inflated-and-hurdle-models) of Bürkner's [-@Bürkner2021Parameterization] [*Parameterization of response distributions in brms*](https://cran.r-project.org/package=brms/vignettes/brms_families.html) document, you'll see the zero-inflated Poisson is set up a little differently in **brms** than it is in **rethinking**. The difference did not influence the estimate for the intercept, $\lambda$. In both here and in the text, $\lambda$ was about zero. However, it did influence the summary of `zi`. Note how McElreath's `mean( inv_logit( post$ap ) )` returned 0.2241255, which seems rather close to our `zi` estimate of `r round(posterior_summary(b12.3)[2, 1], 3)`. Hopefully it's clear that `zi` in **brms** is already in the probability metric. There's no need to convert it. You can further confirm this by looking at the second line from the `print()` output, `Links: mu = log; zi = identity`. When there are no predictors for `zi`, the **brms** default is to use the identity link. In the text, however, McElreath used the logit link for `p`.
+If you look at the [*Zero-inflated and hurdle models* section](https://cran.r-project.org/package=brms/vignettes/brms_families.html#zero-inflated-and-hurdle-models) of Bürkner's [-@Bürkner2022Parameterization] [*Parameterization of response distributions in brms*](https://cran.r-project.org/package=brms/vignettes/brms_families.html) document, you'll see the zero-inflated Poisson is set up a little differently in **brms** than it is in **rethinking**. The difference did not influence the estimate for the intercept, $\lambda$. In both here and in the text, $\lambda$ was about zero. However, it did influence the summary of `zi`. Note how McElreath's `mean( inv_logit( post$ap ) )` returned 0.2241255, which seems rather close to our `zi` estimate of `r round(posterior_summary(b12.3)[2, 1], 3)`. Hopefully it's clear that `zi` in **brms** is already in the probability metric. There's no need to convert it. You can further confirm this by looking at the second line from the `print()` output, `Links: mu = log; zi = identity`. When there are no predictors for `zi`, the **brms** default is to use the identity link. In the text, however, McElreath used the logit link for `p`.
 
 In the `prior` argument, we used `beta(2, 6)` for `zi` and also mentioned in the margin that the **brms** default is `beta(1, 1)`. The beta distribution ranges from 0 to 1, making it a natural distribution to use for priors on probabilities when using the identity link. To give you a sense of what those two versions of the beta look like, let's plot.
 
@@ -1521,7 +1522,7 @@ brms::rdirichlet(n = 1e4, alpha = rep(2, 7)) %>%
   facet_wrap(~ alpha, labeller = label_parsed, nrow = 2)
 ```
 
-When using **brms**, the issue of treating a predictor in the way McElreath covered in this section is referred to as **monotonic effects**. Bürkner outlined the issue in his [-@Bürkner2021Monotonic] vignette, [*Estimating monotonic effects with with brms*](https://CRAN.R-project.org/package=brms/vignettes/brms_monotonic.html), and in his [-@burknerModellingMonotonicEffects2020] article with Emmanuel Charpentier, *Modelling monotonic effects of ordinal predictors in Bayesian regression models* (click [here](https://psyarxiv.com/9qkhj/) for the freely-available  preprint). From the introduction in Bürkner's vignette, we read:
+When using **brms**, the issue of treating a predictor in the way McElreath covered in this section is referred to as **monotonic effects**. Bürkner outlined the issue in his [-@Bürkner2022Monotonic] vignette, [*Estimating monotonic effects with with brms*](https://CRAN.R-project.org/package=brms/vignettes/brms_monotonic.html), and in his [-@burknerModellingMonotonicEffects2020] article with Emmanuel Charpentier, *Modelling monotonic effects of ordinal predictors in Bayesian regression models* (click [here](https://psyarxiv.com/9qkhj/) for the freely-available  preprint). From the introduction in Bürkner's vignette, we read:
 
 > For a single monotonic predictor, $x$, the linear predictor term of observation $n$ looks as follows:
 > 
@@ -1802,7 +1803,7 @@ d %>%
 
 ## Summary
 
-"This chapter introduced several new types of regression, all of which are generalizations of generalized linear models (GLMs)" (p. 397). This chapter has been a ride. If you'd like more practice with the negative-binomial model and some of the others models for categorical data we covered in this chapter and in [Chapter 11][God Spiked the Integers], Alan Agresti covered them extensively in his [-@agrestiFoundationsLinearGeneralized2015] text, [*Foundations of linear and generalized linear models*](https://www.wiley.com/en-us/Foundations+of+Linear+and+Generalized+Linear+Models-p-9781118730034). For more on different kinds of zero-inflated count models, check out @atkinsTutorialCountRegression2013, [*A tutorial on count regression and zero-altered count models for longitudinal substance use data*](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3513584/pdf/nihms396181.pdf). If you'd like to learn more about using cumulative probabilities to model ordinal data in **brms**, check out Bürkner and Vuorre's [-@burknerOrdinalRegressionModels2019] [*Ordinal regression models in psychology: A tutorial*](https://doi.org/10.1177/2515245918823199) and its repository on the Open Science Framework ([https://osf.io/cu8jv/](https://osf.io/cu8jv/)). Also check out [Chapter 23](https://bookdown.org/content/3686/ordinal-predicted-variable.html) of my [-@kurzDoingBayesianData2020] ebook [*Doing Bayesian Data Analysis in brms and the tidyverse*](https://bookdown.org/content/3686/) were we model ordinal data with a series of cumulative *probit* models.
+"This chapter introduced several new types of regression, all of which are generalizations of generalized linear models (GLMs)" (p. 397). This chapter has been a ride. If you'd like more practice with the negative-binomial model and some of the others models for categorical data we covered in this chapter and in [Chapter 11][God Spiked the Integers], Alan Agresti covered them extensively in his [-@agrestiFoundationsLinearGeneralized2015] text, [*Foundations of linear and generalized linear models*](https://www.wiley.com/en-us/Foundations+of+Linear+and+Generalized+Linear+Models-p-9781118730034). For more on different kinds of zero-inflated count models, check out @atkinsTutorialCountRegression2013, [*A tutorial on count regression and zero-altered count models for longitudinal substance use data*](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3513584/pdf/nihms396181.pdf). If you'd like to learn more about using cumulative probabilities to model ordinal data in **brms**, check out Bürkner and Vuorre's [-@burknerOrdinalRegressionModels2019] [*Ordinal regression models in psychology: A tutorial*](https://doi.org/10.1177/2515245918823199) and its repository on the Open Science Framework ([https://osf.io/cu8jv/](https://osf.io/cu8jv/)). Also check out [Chapter 23](https://bookdown.org/content/3686/ordinal-predicted-variable.html) of my [-@kurzDoingBayesianDataAnalysis2022] ebook [*Doing Bayesian Data Analysis in brms and the tidyverse*](https://bookdown.org/content/3686/) were we model ordinal data with a series of cumulative *probit* models.
 
 ## Session info {-}
 
