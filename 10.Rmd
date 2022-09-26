@@ -166,30 +166,28 @@ crossing(value = seq(from = -5, to = 5, by = .1),
         panel.grid = element_blank())
 ```
 
-Here's right panel of Figure 10.2.
+Once you have $\alpha$ and $\beta$, the entropy equation for the generalized normal distribution is
+
+$$
+\text{entropy} = \frac{1}{\beta} -\log\left[\frac{\beta}{2\alpha\Gamma(1/\beta)}\right].
+$$
+
+Here's how we can use that equation to make our version of right panel of Figure 10.2.
 
 ```{r, fig.width = 3.5, fig.height = 3, warning = F, message = F}
-crossing(value = -8:8,
-         # this time we need a more densely-packed sequence of `beta` values
-         beta  = seq(from = 1, to = 4, length.out = 100)) %>% 
-  mutate(mu    = 0,
-         alpha = alpha_per_beta(beta)) %>% 
-  mutate(density = (beta / (2 * alpha * gamma(1 / beta))) * 
-           exp(1) ^ (-1 * (abs(value - mu) / alpha) ^ beta)) %>% 
-  group_by(beta) %>% 
-  # this is just an abbreviated version of the formula we used in our first code block
-  summarise(entropy = -sum(density * log(density))) %>% 
+tibble(beta = seq(from = 1, to = 4, length.out = 100)) %>% 
+  mutate(alpha = alpha_per_beta(beta)) %>% 
+  mutate(entropy = (1 / beta) - log((beta) / (2 * alpha * gamma(1 / beta))))  %>% 
   
   ggplot(aes(x = beta, y = entropy)) +
   geom_vline(xintercept = 2, color = "white") +
   geom_line(size = 2, color = ghibli_palette("MarnieMedium2")[6]) +
-  xlab(expression(beta(i.e.*", "*shape))) +
-  coord_cartesian(ylim = c(1.34, 1.42)) +
+  xlab(expression(beta~(i.e.*", "*shape))) +
   theme(panel.background = element_rect(fill = ghibli_palette("MarnieMedium2")[7]),
         panel.grid = element_blank())
 ```
 
-If you look closely, you'll see our version doesn't quite match up with McElreath's. Over $x$-axis values of 2 to 4, they match up pretty well. But as you go from 2 to 1, you'll see our line drops off more steeply than his did. [And no, `coord_cartesian()` isn't the problem.] If you can figure out why our numbers diverged, [please share the answer](https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed/issues).
+I should note the solution to this plot was initially beyond me. However, fellow enthusiast [@hamedbh](https://github.com/hamedbh) generously shared the correct solution on [GitHub](https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed/issues/39).
 
 But getting back on track:
 
