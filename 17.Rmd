@@ -15,9 +15,9 @@ In this final chapter, there are no models for us to fit and no figures for use 
 
 OMG
 
-I first started using **R** in the winter of 2015/2016. Right from the start, I learned how to code from within the [RStudio](https://www.rstudio.com) environment. But within RStudio I was using simple scripts. No longer. I now use [R Notebooks](http://rmarkdown.rstudio.com/r_notebooks.html) for just about everything, including my scientific projects, this [bookdown](https://bookdown.org)-powered ebook, and even my academic [webpage](https://solomonkurz.netlify.com) and [blog](https://solomonkurz.netlify.com/post/). Nathan Stephens wrote a nice blog post, [*Why I love R Notebooks*](https://rviews.rstudio.com/2017/03/15/why-i-love-r-notebooks/). I agree. This has fundamentally changed my workflow as a scientist. I only wish I'd learned about this before starting my dissertation project. So it goes...
+I first started using **R** in the winter of 2015/2016. Right from the start, I learned how to code from within the [RStudio](https://www.rstudio.com) environment. But within RStudio I was using simple scripts. No longer. I now use [R Notebooks](http://rmarkdown.rstudio.com/r_notebooks.html) for just about everything, including my scientific projects, this [**bookdown**](https://bookdown.org)-powered ebook, and even my academic [webpage](https://solomonkurz.netlify.com) and [blog](https://solomonkurz.netlify.com/post/). Nathan Stephens wrote a nice blog post, [*Why I love R Notebooks*](https://rviews.rstudio.com/2017/03/15/why-i-love-r-notebooks/). I agree. This has fundamentally changed my workflow as a scientist. I only wish I'd learned about this before starting my dissertation project. So it goes...
 
-Do yourself a favor, adopt R Notebooks into your workflow. Do it today. If you prefer to learn with videos, here's a [nice intro](https://www.youtube.com/watch?v=TJmNvfhLCoI&t=195s) by [Kristine Yu](https://twitter.com/linguist_krisyu) and [another one](https://www.youtube.com/watch?v=GG4pgtfDpWY&t=324s) by [JJ Allaire](https://twitter.com/fly_upside_down). Try it out for like one afternoon and you'll be hooked.
+Do yourself a favor, adopt R Notebooks into your workflow. Do it today. If you prefer to learn with videos, here's a [nice intro](https://youtu.be/TJmNvfhLCoI?t=195) by [Kristine Yu](https://twitter.com/linguist_krisyu) and [another one](https://youtu.be/GG4pgtfDpWY?t=324) by [JJ Allaire](https://twitter.com/fly_upside_down). Try it out for like one afternoon and you'll be hooked.
 
 ## Save your model fits
 
@@ -29,7 +29,7 @@ It hasn't been that way, for me.
 
 Most of my data have a complicated multilevel structure and often aren't very well behaved. It's normal for my models to take an hour or several to fit. Once you start measuring your model fit times in hours, you do not want to fit these things more than once. So, it's not enough to document my code in a nice R Notebook file. I need to save my `brm()` fit objects in external files.
 
-Consider this model. It's taken from Bürkner's [-@Bürkner2021Multivariate] vignette, [*Estimating multivariate models with brms*](https://cran.r-project.org/package=brms/vignettes/brms_multivariate.html). It took about three minutes for my personal laptop to fit.
+Consider this model. It's taken from Bürkner's [-@Bürkner2022Multivariate] vignette, [*Estimating multivariate models with brms*](https://cran.r-project.org/package=brms/vignettes/brms_multivariate.html). It took about three minutes for my personal laptop to fit.
 
 ```{r, warning = F, message = F}
 library(brms)
@@ -160,7 +160,7 @@ print(b17.0)
 
 If the chains look good and the summary statistics are about what I'd expect, I'm on good footing to keep building up to the model I really care about. The results from this model, for example, suggest that both criteria were standardized (i.e., intercepts at 0 and $\sigma$'s at 1). If that wasn't what I intended, I'd rather catch it here than spend several minutes fitting the more complicated `b17.1` model, the parameters for which are sufficiently complicated that I may have had trouble telling what scale the data were on.
 
-Note, this is not the same as $p$-hacking [@simmonsFalsepositivePsychologyUndisclosed2011] or wandering aimlessly down the garden of forking paths [@gelmanGardenForkingPaths2013]. We are not chasing the flashiest model to put in a paper. Rather, this is just [good pragmatic data science](https://github.com/stan-dev/stan/wiki/Stan-Best-Practices). If you start off with a theoretically-justified but complicated model and run into computation problems or produce odd-looking estimates, it won't be clear where things went awry. When you build up, step by step, it's easier to catch data cleaning failures, coding goofs and the like.
+Note, this is not the same as $p$-hacking [@simmonsFalsepositivePsychologyUndisclosed2011] or wandering aimlessly down the garden of forking paths [@gelmanGardenForkingPaths2013]. We are not chasing the flashiest model to put in a paper. Rather, this is just good pragmatic data science. If you start off with a theoretically-justified but complicated model and run into computation problems or produce odd-looking estimates, it won't be clear where things went awry. When you build up, step by step, it's easier to catch data cleaning failures, coding goofs and the like.
 
 So, when I'm working on a project, I fit one or a few simplified models before fitting my complicated model of theoretical interest. This is especially the case when I'm working with model types that are new to me or that I haven't worked with in a while. I document each step in my R Notebook files and I save the fit objects for each in external files. I have caught surprises this way. Hopefully this will help you catch your mistakes, too.
 
@@ -170,13 +170,14 @@ Relatedly, and perhaps even a precursor, you should always plot your data before
 
 ## Consider using the `0 + Intercept` syntax
 
-We covered this a little in the last couple chapters (e.g., [Section 15.4.7][Fit the Bayesian muiltilevel alternative.], [Section 16.4.3][~~Lynx lessons~~ Bonus: Practice with the autoregressive model.]), but it's easy to miss. If your real-world model has predictors (i.e., isn't an intercept-only model), it's important to keep track of how you have centered those predictors. When you specify a prior for a **brms** `Intercept` (i.e., an intercept resulting from the `y ~ x` or `y ~ 1 + x` style of syntax), <u>that prior is applied under the presumption all the predictors are mean centered</u>. In the *Population-level ('fixed') effects* subsection of the *`set_prior`* section of the [**brms** reference manual](https://cran.r-project.org/package=brms/brms.pdf) [@brms2021RM], we read:
+We covered this a little in the last couple chapters (e.g., [Section 15.4.7][Fit the Bayesian muiltilevel alternative.], [Section 16.4.3][~~Lynx lessons~~ Bonus: Practice with the autoregressive model.]), but it's easy to miss. If your real-world model has predictors (i.e., isn't an intercept-only model), it's important to keep track of how you have centered those predictors. When you specify a prior for a **brms** `Intercept` (i.e., an intercept resulting from the `y ~ x` or `y ~ 1 + x` style of syntax), <u>that prior is applied under the presumption all the predictors are mean centered</u>. In the *Population-level ('fixed') effects* subsection of the *`set_prior`* section of the [**brms** reference manual](https://cran.r-project.org/package=brms/brms.pdf) [@brms2022RM], we read:
 
-> Note that technically, this prior is set on an intercept that results when internally centering all population-level predictors around zero to improve sampling efficiency. On this centered intercept, specifying a prior is actually much easier and intuitive than on the original intercept, since the former represents the expected response value when all predictors are at their means. To treat the intercept as an ordinary population-level effect and avoid the centering parameterization, use `0 + Intercept` on the right-hand side of the model formula.
+> Note that technically, this prior is set on an intercept that results when internally
+centering all population-level predictors around zero to improve sampling efficiency. On this centered intercept, specifying a prior is actually much easier and intuitive than on the original intercept, since the former represents the expected response value when all predictors are at their means. To treat the intercept as an ordinary population-level effect and avoid the centering parameterization, use `0 + Intercept` on the right-hand side of the model formula.
 
 We get a little more information from the *Parameterization of the population-level intercept* subsection of the *`brmsformula`* section:
 
-> This behavior can be avoided by using the reserved (and internally generated) variable Intercept. Instead of `y ~ x`, you may write `y ~ 0 + Intercept + x`. This way, priors can be defined on the real intercept, directly. In addition, the intercept is just treated as an ordinary population-level effect and thus priors defined on `b` will also apply to it. Note that this parameterization may be less efficient than the default parameterization discussed above.
+> This behavior can be avoided by using the reserved (and internally generated) variable Intercept. Instead of `y ~ x`, you may write `y ~ 0 + Intercept + x`. This way, priors can be defined on the real intercept, directly. In addition, the intercept is just treated as an ordinary population-level effect and thus priors defined on b will also apply to it. Note that this parameterization may be less efficient than the default parameterization discussed above.
 
 We didn't bother using the `0 + Intercept` syntax for most of our models because McElreath chose to emphasize mean-centered and standardized predictors in the second edition of his text. But this will not always be the case. Sometimes you might have a good reason not to center your predictors. In those cases, the `0 + Intercept` syntax can make a difference. Regardless, do set your `Intercept` priors with care.
 
@@ -207,7 +208,7 @@ I've also learned to break up my projects into multiple R Notebook files. If you
 
 Putting all that information in one R Notebook file would be overwhelming. Your workflow might well look different, but hopefully you get the idea. You don't want working files with thousands of lines of code.
 
-To get a sense of what this can look like in practice, you might follow this link, [https://osf.io/vekpf/](https://osf.io/vekpf/), to the OSF project site for one of my recent conference presentations [@kurzEvenTreatmentFunctional2019]. In the [wiki](https://osf.io/vekpf/wiki/home/), I explained the contents of 10 files supporting the analyses we presented at the conference. Each of those 10 `.html` files has its origin in its own `.Rmd` file.
+To get a sense of what this can look like in practice, you might follow this link, [https://osf.io/vekpf/](https://osf.io/vekpf/), to the OSF project site for one of my conference presentations [@kurzEvenTreatmentFunctional2019] from the Before Times. In the [wiki](https://osf.io/vekpf/wiki/home/), I explained the contents of 10 files supporting the analyses we presented at the conference. Each of those 10 `.html` files has its origin in its own `.Rmd` file.
 
 Mainly to keep Jenny Bryan from [setting my computer on fire](https://www.tidyverse.org/articles/2017/12/workflow-vs-script/), I'm also in the habit of organizing interconnected project files with help from [RStudio Projects](https://support.rstudio.com/hc/en-us/articles/200526207-Using-Projects). You can learn more about these from [Chapter 8](https://r4ds.had.co.nz/workflow-projects.html) in *R4DS* [@grolemundDataScience2017]. They might seem trivial, at first, but I've come to value the simple ways in which RStudio Projects help streamline my workflow.
 
@@ -221,7 +222,7 @@ You can do this on any number of mediums, such as
 * personal blogs (e.g., [here](https://dilshersinghdhillon.netlify.com/post/multiple_comparison/)),
 * the Open Science Framework (e.g., [here](https://osf.io/dpzcb/)),
 * online books (e.g., [here](https://learningstatisticswithr.com/)),
-* full-blown YouTube lectures (e.g., [here](https://www.youtube.com/watch?v=sgw4cu8hrZM)), or even with
+* full-blown YouTube lectures (e.g., [here](https://youtu.be/sgw4cu8hrZM)), or even with
 * brief Twitter GIFs (e.g., [here](https://twitter.com/GuyProchilo/status/1207766623840604174)).
 
 I've found that just the possibility that others might look at my code makes it more likely I'll slow down, annotate, and try to use more consistent formatting. Hopefully it will benefit you, too.
@@ -236,6 +237,7 @@ If you're not on it, consider joining academic Twitter (see the related blog pos
 * [Paul Bürkner](https://twitter.com/paulbuerkner?lang=en)
 * [Nathaniel Haines](https://twitter.com/Nate__Haines)
 * [Frank Harrell](https://twitter.com/f2harrell)
+* [Andrew Heiss](https://twitter.com/andrewheiss)
 * [Alison Presmanes Hill](https://twitter.com/apreshill)
 * [Matthew Kay](https://twitter.com/mjskay?lang=en)
 * [Tristan Mahr](https://twitter.com/tjmahr)
@@ -263,7 +265,7 @@ But if you're new to the world of asking for help with your code online, you mig
 
 ## Extra *Rethinking*-related resources
 
-You may have noticed I don't offer solutions to the homework problems. Happily, [David Salazar](https://twitter.com/DavidSalazarVir) has a blog series on the homework problems highlighting a **tiydverse**- and **rethinking**-oriented workflow; find his first post [here](https://david-salazar.github.io/2020/04/19/statistical-rethinking-week-1/). [Ania Kawiecki](https://twitter.com/aniakawiecki) made a beautiful website solving the homework problems using the **tiydverse** and [**INLA**](https://www.r-inla.org/home) [@rue2009approximate], which you can find [here](https://akawiecki.github.io/statistical_rethinking_inla/). Also, [Vincent Arel-Bundock](https://twitter.com/VincentAB) has a nice website where he worked through the primary material in the book chapters using **rstan** and the **tidyverse**, which you can find [here](https://vincentarelbundock.github.io/rethinking2).
+You may have noticed I don't offer solutions to the homework problems. Happily, [David Salazar](https://twitter.com/DavidSalazarVir) has a blog series on the homework problems highlighting a **tiydverse**- and **rethinking**-oriented workflow; find his first post [here](https://david-salazar.github.io/2020/04/19/statistical-rethinking-week-1/). [Ania Kawiecki](https://twitter.com/aniakawiecki) made a beautiful website solving the homework problems using the **tiydverse** and [**INLA**](https://www.r-inla.org/home) [@rue2009approximate], which you can find [here](https://akawiecki.github.io/statistical_rethinking_inla/). [Vincent Arel-Bundock](https://twitter.com/VincentAB) has a nice website where he worked through the primary material in the book chapters using **rstan** and the **tidyverse**, which you can find [here](https://vincentarelbundock.github.io/rethinking2). Also, [Andrew Heiss](https://twitter.com/andrewheiss) has been coding through some of the examples in McElreath's [2022 lecture series](https://youtube.com/playlist?list=PLDcUM9US4XdMROZ57-OIRtIK0aOynbgZN), which you can find [here](https://bayesf22-notebook.classes.andrewheiss.com/rethinking/03-video.html).
 
 If you find other resources along these lines, please tell me about it in a [GitHub issue](https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed/issues).
 
@@ -294,7 +296,7 @@ At a quick glance, these papers cover a reasonably broad range of topics. I hope
 
 Okay, that's enough from me. Let's start wrapping this project up with some McElreath.
 
-> There is an aspect of science that you do personally control: openness. [Pre-plan your research together with the statistical analysis]((https://mindhacks.com/2017/11/09/open-science-essentials-pre-registration/)). Doing so will improve both the research design and the statistics. Document it in the form of a mock analysis that you would not be ashamed to share with a colleague. Register it publicly, perhaps in a simple repository, like [Github](https://github.com) or any other. But [your webpage](https://bookdown.org/yihui/blogdown/) will do just fine, as well. Then collect the data. Then analyze the data as planned. If you must change the plan, that's fine. But document the changes and justify them. Provide all of the data and scripts necessary to repeat your analysis. Do not provide scripts and data ["on request,"](https://twitter.com/robinnkok/status/1213011238294347776) but rather put them online so reviewers of your paper can access them without your interaction. There are of course cases in which full data cannot be released, due to privacy concerns. But the bulk of science is not of that sort.
+> There is an aspect of science that you do personally control: openness. [Pre-plan your research together with the statistical analysis](https://mindhacks.com/2017/11/09/open-science-essentials-pre-registration/). Doing so will improve both the research design and the statistics. Document it in the form of a mock analysis that you would not be ashamed to share with a colleague. Register it publicly, perhaps in a simple repository, like [Github](https://github.com) or any other. But [your webpage](https://bookdown.org/yihui/blogdown/) will do just fine, as well. Then collect the data. Then analyze the data as planned. If you must change the plan, that's fine. But document the changes and justify them. Provide all of the data and scripts necessary to repeat your analysis. Do not provide scripts and data ["on request,"](https://twitter.com/robinnkok/status/1213011238294347776) but rather put them online so reviewers of your paper can access them without your interaction. There are of course cases in which full data cannot be released, due to privacy concerns. But the bulk of science is not of that sort.
 >
 > The data and its analysis are the scientific product. The paper is just an advertisement. If you do your honest best to design, conduct, and document your research, so that others can build directly upon it, you can make a difference. (p. 555)
 
