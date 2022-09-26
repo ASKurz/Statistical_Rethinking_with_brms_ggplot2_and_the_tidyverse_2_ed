@@ -21,7 +21,7 @@ We'll approach the first two in this chapter. Interactions are reserved for [Cha
 
 #### Rethinking: Causal inference.
 
-"Despite its central importance, there is no unified approach to causal inference yet in the sciences" (p. 124).  To dip into the topic, you might check out the recent blog post by Finn Lattimore and David Rohde, [*Causal inference with Bayes rule*](https://gradientinstitute.org/blog/6/).
+"Despite its central importance, there is no unified approach to causal inference yet in the sciences" (p. 124).  To dip into the topic, you might check out the recent blog post by Finn Lattimore and David Rohde, [*Causal inference with Bayes rule*](https://gradientinstitute.org/blog/6/); McElreath blog series on causal inference, starting with [*Regression, Fire, and Dangerous Things (1/3)*](https://elevanth.org/blog/2021/06/15/regression-fire-and-dangerous-things-1-3/); or McElreath's epic 3-hour introductory lecture on causal inference called [*Science Before Statistics: Causal Inference*](https://youtu.be/KNPYUVmY3NM).
 
 ## Spurious associations
 
@@ -80,7 +80,7 @@ d %>%
   theme(panel.grid = element_blank())
 ```
 
-Since these are geographically-based data, we might plot our three major variables in a map format. The [**tigris** package](https://github.com/UrbanInstitute/urbnmapr) [@R-tigris] provides functions for retrieving latitude and longitude data for the 50 states and we can plot then with the `ggplot2::geom_sf()` function. We'll use the `right_join()` function to combine those data with our primary data `d`[^2].
+Since these are geographically-based data, we might plot our three major variables in a map format. The [**tigris** package](https://github.com/walkerke/tigris) [@R-tigris] provides functions for retrieving latitude and longitude data for the 50 states and we can plot then with the `ggplot2::geom_sf()` function. We'll use the `right_join()` function to combine those data with our primary data `d`[^2].
 
 ```{r, fig.width = 8, fig.height = 2, warning = F, message = F}
 library(tigris)
@@ -274,7 +274,7 @@ fitted(b5.2, newdata = nd) %>%
 
 > It is helpful to introduce a particular type of causal graph known as a **DAG**, short for **directed acyclic graph**. *Graph* means it is nodes and connections. *Directed* means the connections have arrows that indicate directions of causal influence. And *acyclic* means that causes do not eventually flow back on themselves. A DAG is a way of describing qualitative causal relationships among variables. It isn't as detailed as a full model description, but it contains information that a purely statistical model does not. Unlike a statistical model, a DAG will tell you the consequences of intervening to change a variable. But only if the DAG is correct. There is no inference without assumption. (p. 128, **emphasis** in the original)
 
-If you're interested in making directed acyclic graphs (DAG) in **R**, the [**dagitty**](https://CRAN.R-project.org/package=dagitty) [@R-dagitty] and [**ggdag**](https://CRAN.R-project.org/package=ggdag) [@R-ggdag] packages are handy. Our approach will focus on **ggdag**.
+If you're interested in making directed acyclic graphs (DAG) in **R**, the [**dagitty**](https://CRAN.R-project.org/package=dagitty) [@R-dagitty; @dagitty2016] and [**ggdag**](https://CRAN.R-project.org/package=ggdag) [@R-ggdag] packages are handy. Our approach will focus on **ggdag**.
 
 ```{r, warning = F, message = F}
 # library(dagitty)
@@ -316,7 +316,7 @@ p1 <-
 p1
 ```
 
-We could have left out the `coords` argument and let the `dagify()` function set the layout of the nodes on its own. But since we were picky and wanted to ape McElreath, we first specified our coordinates in a tibble and then included that tibble in the `coords` argument. For more on the topic, check out the Barrett's [-@barrettAnIntroduction2020] vignette, [*An introduction to ggdag*](https://CRAN.R-project.org/package=ggdag/vignettes/intro-to-ggdag.html).
+We could have left out the `coords` argument and let the `dagify()` function set the layout of the nodes on its own. But since we were picky and wanted to ape McElreath, we first specified our coordinates in a tibble and then included that tibble in the `coords` argument. For more on the topic, check out the Barrett's [-@barrettAnIntroduction2022] vignette, [*An introduction to ggdag*](https://CRAN.R-project.org/package=ggdag/vignettes/intro-to-ggdag.html).
 
 Buy anyway, our DAG
 
@@ -642,7 +642,7 @@ p1 <-
 p1
 ```
 
-We get the residuals with the well-named `residuals()` function. Much like with `brms::fitted()`, `brms::residuals()` returns a four-vector matrix with the number of rows equal to the number of observations in the original data (by default, anyway). The vectors have the familiar names: `Estimate`, `Est.Error`, `Q2.5`, and `Q97.5`. See the [**brms** reference manual](https://CRAN.R-project.org/package=brms/brms.pdf) [@brms2021RM] for details.
+We get the residuals with the well-named `residuals()` function. Much like with `brms::fitted()`, `brms::residuals()` returns a four-vector matrix with the number of rows equal to the number of observations in the original data (by default, anyway). The vectors have the familiar names: `Estimate`, `Est.Error`, `Q2.5`, and `Q97.5`. See the [**brms** reference manual](https://CRAN.R-project.org/package=brms/brms.pdf) [@brms2022RM] for details.
 
 With our residuals in hand, we just need a little more data processing to make lower left panel of Figure 5.4.
 
@@ -790,7 +790,7 @@ Look at that. If you were to fit a follow-up model based on only the point estim
 
 #### Posterior prediction plots.
 
-"It's important to check the model's implied predictions against the observed data" (p. 137). For more on the topic, check out Gabry and colleagues' [-@gabry2019visualization] [*Visualization in Bayesian workflow*](https://arxiv.org/abs/1709.01449) or Simpson's related blog post, [*Touch me, I want to feel your data*](http://andrewgelman.com/2017/09/07/touch-want-feel-data/).
+"It's important to check the model's implied predictions against the observed data" (p. 137). For more on the topic, check out Gabry and colleagues' [-@gabry2019visualization] [*Visualization in Bayesian workflow*](https://arxiv.org/abs/1709.01449) or Simpson's related blog post, [*Touch me, I want to feel your data*](https://statmodeling.stat.columbia.edu/2017/09/07/touch-want-feel-data/).
 
 The code below will make our version of Figure 5.5.
 
@@ -906,7 +906,7 @@ dagify(M ~ A,
   theme(panel.grid = element_blank())
 ```
 
-The full statistical model implied in this DAG requires we have two criterion variables, $D$ and $M$. To simultaneously model the effects of $A$ on $M$ and $D$ AND the effects of $A$ on $M$ with **brms**, we'll need to invoke the multivariate syntax. There are several ways to do this with **brms**, which Bürkner outlines in his [-@Bürkner2021Multivariate] vignette, [*Estimating multivariate models with brms*](https://CRAN.R-project.org/package=brms/vignettes/brms_multivariate.html). At this point, it's important to recognize we have two regression models. As a first step, we might specify each model separately in a `bf()` function and save them as objects.
+The full statistical model implied in this DAG requires we have two criterion variables, $D$ and $M$. To simultaneously model the effects of $A$ on $M$ and $D$ AND the effects of $A$ on $M$ with **brms**, we'll need to invoke the multivariate syntax. There are several ways to do this with **brms**, which Bürkner outlines in his [-@Bürkner2022Multivariate] vignette, [*Estimating multivariate models with brms*](https://CRAN.R-project.org/package=brms/vignettes/brms_multivariate.html). At this point, it's important to recognize we have two regression models. As a first step, we might specify each model separately in a `bf()` function and save them as objects.
 
 ```{r}
 d_model <- bf(d ~ 1 + a + m)
@@ -1431,7 +1431,7 @@ dcc %>%
   ggpairs()
 ```
 
-But you can customize [these](http://ggobi.github.io/ggally/), too. E.g.,
+But you can customize [these](https://ggobi.github.io/ggally/articles/ggpairs.html), too. E.g.,
 
 ```{r, fig.width = 3.5, fig.height = 3.5, message = F}
 # define custom functions
@@ -1911,7 +1911,7 @@ post %>%
         panel.grid = element_blank())
 ```
 
-Because **bayesplot** returns a **ggplot2** object, the plot was adjustable with familiar **ggplot2** syntax. For more ideas, check out Gabry's [-@gabryPlottingMCMCDraws2021] vignette, [*Plotting MCMC draws using the bayesplot package*](https://CRAN.R-project.org/package=bayesplot/vignettes/plotting-mcmc-draws.html).
+Because **bayesplot** returns a **ggplot2** object, the plot was adjustable with familiar **ggplot2** syntax. For more ideas, check out Gabry's [-@gabryPlottingMCMCDraws2022] vignette, [*Plotting MCMC draws using the bayesplot package*](https://CRAN.R-project.org/package=bayesplot/vignettes/plotting-mcmc-draws.html).
 
 The `tidybayes::stat_pointinterval()` function offers a third way, this time with a more ground-up **ggplot2** workflow.
 
@@ -1987,7 +1987,7 @@ where there is an $\alpha_\text{clade}$ "intercept" for each of the four levels 
 
 When we use the typical `formula` syntax with **brms**, we can suppress the overall intercept when for a single index variable with the `<criterion> ~ 0 + <index variable>` syntax. That's exactly what we did with our `b5.9` model. The catch is this approach only works with one index variable within **brms**. Even though we suppressed the default intercept with our `b5.10` formula, `kcal.per.g_s ~ 0 + clade + house`, we ended up loosing the first category of the second variable, `house`.
 
-Fortunately, we have a fix, which I learned about from one of Bürkner's [answers](https://discourse.mc-stan.org/t/indexing-approach-to-predictors/7898/9) to [Paul Dong](https://discourse.mc-stan.org/u/paul_dong)'s thread in the Stan Forums, [*Indexing approach to predictors*](https://discourse.mc-stan.org/t/indexing-approach-to-predictors/7898). The solution is the use the non-linear syntax. If you recall, our first encounter with the **brms** non-linear syntax was with model `b4.3b` in [Section 4.4.2.1][Overthinking: Logs and exps, oh my.] where we used it to model the exponent of a parameter. Here we'll use it to model our two index variables while excluding an overall or reference-category intercept. I'm still going to wait until [Section 6.2.1][A prior is born.] before walking out the non-linear syntax in detail. But if you're burning with curiosity, check out Bürkner's [-@Bürkner2021Non_linear] vignette, [*Estimating non-linear models with brms*](https://CRAN.R-project.org/package=brms/vignettes/brms_nonlinear.html). For now, we focus on how to faithfully replicate McElreath's `m510` with `brms::brm()`. In the code below, we defined our two model parameters, `a` and `h`, in the first `bf()` line, connected each to a index variable in the next two lines, and closed out the `bf()` statement with `nl = TRUE` to alert `brm()` we were using the non-linear syntax.
+Fortunately, we have a fix, which I learned about from one of Bürkner's [answers](https://discourse.mc-stan.org/t/indexing-approach-to-predictors/7898/9) to [Paul Dong](https://discourse.mc-stan.org/u/paul_dong)'s thread in the Stan Forums, [*Indexing approach to predictors*](https://discourse.mc-stan.org/t/indexing-approach-to-predictors/7898). The solution is the use the non-linear syntax. If you recall, our first encounter with the **brms** non-linear syntax was with model `b4.3b` in [Section 4.4.2.1][Overthinking: Logs and exps, oh my.] where we used it to model the exponent of a parameter. Here we'll use it to model our two index variables while excluding an overall or reference-category intercept. I'm still going to wait until [Section 6.2.1][A prior is born.] before walking out the non-linear syntax in detail. But if you're burning with curiosity, check out Bürkner's [-@Bürkner2022Non_linear] vignette, [*Estimating non-linear models with brms*](https://CRAN.R-project.org/package=brms/vignettes/brms_nonlinear.html). For now, we focus on how to faithfully replicate McElreath's `m510` with `brms::brm()`. In the code below, we defined our two model parameters, `a` and `h`, in the first `bf()` line, connected each to a index variable in the next two lines, and closed out the `bf()` statement with `nl = TRUE` to alert `brm()` we were using the non-linear syntax.
 
 ```{r}
 b5.11 <- 
@@ -2043,7 +2043,7 @@ Just for fun, we used 89% intervals.
 
 > A common error in interpretation of parameter estimates is to suppose that because one parameter is sufficiently far from zero--is "significant"--and another parameter is not--is "not significant"--that the difference between the parameters is also significant. This is not necessarily so. This isn't just an issue for non-Bayesian analysis: If you want to know the distribution of a difference, then you must compute that difference, a **contrast**. (p. 158, **emphasis** in the original)
 
-This reminds me of a paper by Gelman and Stern [-@gelman2006difference], [*The difference between "significant" and "not significant" is not itself statistically significant*](https://www.tandfonline.com/doi/pdf/10.1198/000313006X152649?needAccess=true).
+This reminds me of a paper by Gelman and Stern [-@gelman2006difference], [*The difference between "significant" and "not significant" is not itself statistically significant*](https://stat.columbia.edu/~gelman/research/published/signif4.pdf).
 
 ## ~~Summary~~ Bonus: We can model categorical variables in more ways than one
 
@@ -2260,11 +2260,11 @@ As we will learn, an advantage of this approach is we get improved estimates due
 
 ### Would you like to learn more?
 
-To learn more about the dummy coding approach, McElreath covered it in Chapter 5 of his first [-@mcelreathStatisticalRethinkingBayesian2015] edition, Hayes covered it in Chapter 2 of his [-@hayes2017introduction] text, and it's been covered in many other texts, such as the modern classic by @cohenAppliedMultipleRegression2013. I have ebook translations for the first of those two [@kurzStatisticalRethinkingBrms2020; @kurzRecodingIntroductionMediation2019]. If you like learning by video, the great [Erin Buchanan](https://twitter.com/aggieerin) has a video or two (e.g., [here](https://www.youtube.com/watch?v=Zv19sslm-S4)) on her [Statistics of DOOM chanel](https://www.youtube.com/channel/UCMdihazndR0f9XBoSXWqnYg).
+To learn more about the dummy coding approach, McElreath covered it in Chapter 5 of his first [-@mcelreathStatisticalRethinkingBayesian2015] edition, Hayes covered it in Chapter 2 of his [-@hayes2017introduction] text, and it's been covered in many other texts, such as the modern classic by @cohenAppliedMultipleRegression2013. I have ebook translations for the first of those two [@kurzStatisticalRethinkingBrms2020; @kurzRecodingIntroductionMediation2019]. If you like learning by video, the great [Erin Buchanan](https://twitter.com/aggieerin) has a video or two (e.g., [here](https://youtu.be/Zv19sslm-S4)) on her [Statistics of DOOM chanel](https://www.youtube.com/channel/UCMdihazndR0f9XBoSXWqnYg).
 
 The specific type of contrast coding we used is part of a more general approach. You can learn more about that in Cohen et al [-@cohenAppliedMultipleRegression2013, Chapter 8] or from [this vignette](https://stats.idre.ucla.edu/r/library/r-library-contrast-coding-systems-for-categorical-variables/) by the good folks at the UCLA Institute for Digital Research and Education [@LibraryContrastCoding].
 
-In addition to waiting for [Chapter 13][Models With Memory] in this ebook, you can learn more about the multilevel ANOVA approach in Chapters 19 and 24 of Kruschke's [-@kruschkeDoingBayesianData2015], in the corresponding chapters in my [-@kurzDoingBayesianData2020] ebook translation of the same, and in some of Gelman's peer-reviewed work [@gelmanAnalysisVarianceWhy2005; @gelmanPriorDistributionsVariance2006].
+In addition to waiting for [Chapter 13][Models With Memory] in this ebook, you can learn more about the multilevel ANOVA approach in Chapters 19 and 24 of Kruschke's [-@kruschkeDoingBayesianData2015], in the corresponding chapters in my [-@kurzDoingBayesianDataAnalysis2022] ebook translation of the same, and in some of Gelman's peer-reviewed work [@gelmanAnalysisVarianceWhy2005; @gelmanPriorDistributionsVariance2006].
 
 ## Session info {-}
 
@@ -2282,5 +2282,5 @@ bayesplot::color_scheme_set("blue")
 # pacman::p_unload(pacman::p_loaded(), character.only = TRUE)
 ```
 
-[^2]: Note, there is a small difficulty with this **tigris**-oriented workflow. The issue is that the data frame is of class sf, and objects of class sf don't pivot nicely with the `pivot_longer()` function unless you specifically refer to the columns within quotes, as in `pivot_longer(cols = c("d", "m", "a"))`. The details are in [GitHub issue #1171](https://github.com/tidyverse/tidyr/issues/1171) for the **tidyr** package. 
+[^2]: Note, there is a small difficulty with this **tigris**-oriented workflow. The issue is that the data frame is of class sf, and objects of class sf don't pivot nicely with the `pivot_longer()` function unless you specifically refer to the columns within quotes, as in `pivot_longer(cols = c("d", "m", "a"))`. The details are in [GitHub issue #1171](https://github.com/tidyverse/tidyr/issues/1171) for the **tidyr** package.
 
