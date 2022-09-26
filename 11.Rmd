@@ -987,7 +987,7 @@ as_draws_df(b11.8) %>%
 
 > This empirical example is a famous one in statistical teaching. It is often used to illustrate a phenomenon known as **Simpson’s paradox**. Like most paradoxes, there is no violation of logic, just of intuition. And since different people have different intuition, Simpson's paradox means different things to different people. The poor intuition being violated in this case is that a positive association in the entire population should also hold within each department. (p. 345, **emphasis** in the original)
 
-In my field of clinical psychology, Simpson's paradox is an important, if under-appreciated, phenomenon. If you're in the social sciences as well, I highly recommend spending more time thinking about it. To get you started, I blogged about it [here](https://solomonkurz.netlify.com/post/individuals-are-not-small-groups-i-simpson-s-paradox/) and @kievitSimpsonParadoxPsychological2013 wrote a great tutorial paper called [*Simpson's paradox in psychological science: a practical guide*](https://www.frontiersin.org/articles/10.3389/fpsyg.2013.00513/full).
+In my field of clinical psychology, Simpson's paradox is an important, if under-appreciated, phenomenon. If you're in the social sciences as well, I highly recommend spending more time thinking about it. To get you started, I blogged about it [here](https://solomonkurz.netlify.app/post/2019-10-09-individuals-are-not-small-groups-i-simpson-s-paradox/) and @kievitSimpsonParadoxPsychological2013 wrote a great tutorial paper called [*Simpson's paradox in psychological science: a practical guide*](https://doi.org/10.3389/fpsyg.2013.00513).
 
 ## Poisson regression
 
@@ -1650,7 +1650,7 @@ tibble(income        = c(1, 2, 5),
 
 Now keeping that in mind, recall how McElreath said that though we have $K$ categories, $K = 3$ in this case, we only estimate $K - 1$ linear models. "In a multinomial (or categorical) GLM, you need $K - 1$ linear models for $K$ types of events. One of the outcome values is chosen as a 'pivot' and the others are modeled relative to it." (p. 360). You could also think of the pivot category as the reference category.
 
-Before we practice fitting multinomial models with **brms**, it'll be helpful if we first follow along with the text and fit the model directly in Stan. We will be working directly with Stan very infrequently in this ebook. If you're interested in learning more about modeling directly with Stan, you might check out the [*Stan user's guide*](https://mc-stan.org/docs/2_26/stan-users-guide/index.html) [@standevelopmentteamStanUserGuide2021], the [*Stan reference manual*](https://mc-stan.org/docs/2_26/reference-manual/) [@standevelopmentteamStanReferenceManual2021], and the [*Stan functions reference*](https://mc-stan.org/docs/2_26/functions-reference/index.html) [@standevelopmentteamStanFunctionsReference2021]. Fit the model with Stan.
+Before we practice fitting multinomial models with **brms**, it'll be helpful if we first follow along with the text and fit the model directly in Stan. We will be working directly with Stan very infrequently in this ebook. If you're interested in learning more about modeling directly with Stan, you might check out the [*Stan user's guide*](https://mc-stan.org/docs/stan-users-guide/index.html) [@standevelopmentteamStanUserGuide2022], the [*Stan reference manual*](https://mc-stan.org/docs/reference-manual/index.html) [@standevelopmentteamStanReferenceManual2022], and the [*Stan functions reference*](https://mc-stan.org/docs/functions-reference/index.html) [@standevelopmentteamStanFunctionsReference2022]. Fit the model with Stan.
 
 ```{r m11.13, echo = F}
 # save(list = c("code_m11.13", "dat_list", "m11.13"), file = "fits/m11.13.rda")
@@ -1738,7 +1738,7 @@ data.frame(s1 = score[3] + s1,
   mutate_if(is.double, round, digits = 2)
 ```
 
-In his Stan code (**R** code 11.56), you'll see McElreath chose the third category to be his pivot and that he used zero as a constant value. As it turns out, it is common practice to set the score value for the reference category to zero. It's also a common practice to use the first event type as the reference category. Importantly, in his [-@Bürkner2021Parameterization] vignette, [*Parameterization of response distributions in brms*](https://cran.r-project.org/package=brms/vignettes/brms_families.html#ordinal-and-categorical-models), Bürkner clarified the **brms** default is to use the first response category as the reference and set it to a zero as well. However, we can control this behavior with the `refcat` argument. In the examples to follow, we'll follow McElreath and use the third event type as the reference category by setting `refcat = 3`.
+In his Stan code (**R** code 11.56), you'll see McElreath chose the third category to be his pivot and that he used zero as a constant value. As it turns out, it is common practice to set the score value for the reference category to zero. It's also a common practice to use the first event type as the reference category. Importantly, in his [-@Bürkner2022Parameterization] vignette, [*Parameterization of response distributions in brms*](https://cran.r-project.org/package=brms/vignettes/brms_families.html#ordinal-and-categorical-models), Bürkner clarified the **brms** default is to use the first response category as the reference and set it to a zero as well. However, we can control this behavior with the `refcat` argument. In the examples to follow, we'll follow McElreath and use the third event type as the reference category by setting `refcat = 3`.
 
 In addition to the discrepancies with the code and results in the text, one of the things I don't care for in this section is how fast McElreath covered the material. Our approach will be to slow down a little and start off by fitting a intercepts-only model before adding the covariate. Before we fit the model, we might take a quick look at the prior structure with `brms::get_prior()`.
 
@@ -2182,7 +2182,7 @@ rbind(f[, , 1],
   theme(legend.position = "none")
 ```
 
-For more practice fitting multinomial models with **brms**, check out [Chapter 22](https://bookdown.org/content/3686/nominal-predicted-variable.html) of my [-@kurzDoingBayesianData2020] translation of Kruschke's [-@kruschkeDoingBayesianData2015] text.
+For more practice fitting multinomial models with **brms**, check out [Chapter 22](https://bookdown.org/content/3686/nominal-predicted-variable.html) of my [-@kurzDoingBayesianDataAnalysis2022] translation of Kruschke's [-@kruschkeDoingBayesianData2015] text.
 
 #### Multinomial in disguise as Poisson.
 
@@ -2219,7 +2219,7 @@ b11.pois <-
       file = "fits/b11.pois")
 ```
 
-Note, the `mvbind()` syntax made `b11.pois` a multivariate Poisson model. Starting with version 2.0.0, **brms** supports a variety of multivariate models, which you might learn more about with Bürkner's [-@Bürkner2021Multivariate] vignette, [*Estimating multivariate models with brms*](https://cran.r-project.org/package=brms/vignettes/brms_multivariate.html). Anyway, here are the implications of `b11.pois`.
+Note, the `mvbind()` syntax made `b11.pois` a multivariate Poisson model. Starting with version 2.0.0, **brms** supports a variety of multivariate models, which you might learn more about with Bürkner's [-@Bürkner2022Multivariate] vignette, [*Estimating multivariate models with brms*](https://cran.r-project.org/package=brms/vignettes/brms_multivariate.html). Anyway, here are the implications of `b11.pois`.
 
 ```{r, fig.height = 2.5, fig.width = 6.5, warning = F}
 # extract the samples
@@ -2412,7 +2412,7 @@ This is the same model McElreath discussed in the lecture. We've just renamed a 
 *  `'left'`, `'none'`, `'right'`, and/or `'interval'`; or
 * `-1`, `0`, `1`, and/or `2`.
 
-Since we coded our `censored` variable as *censored* = 1 and *not censored* = 0, we have followed the second coding scheme. For more on the topic, see the `Additional response information` subsection within the `brmsformula` section of [**brms** reference manual](https://cran.r-project.org/package=brms/brms.pdf) [@brms2021RM]. Here's how to fit our survival model with **brms**.
+Since we coded our `censored` variable as *censored* = 1 and *not censored* = 0, we have followed the second coding scheme. For more on the topic, see the `Additional response information` subsection within the `brmsformula` section of [**brms** reference manual](https://cran.r-project.org/package=brms/brms.pdf) [@brms2022RM]. Here's how to fit our survival model with **brms**.
 
 ```{r b11.15}
 b11.15 <-
@@ -2523,7 +2523,7 @@ The model suggests it takes about six days longer for the half of the black cats
 
 ### Survival summary.
 
-We've really just scratched the surface on survival models. In addition to those which use the exponential likelihood, **brms** supports a variety of survival models. Some of the more popular likelihoods are the log-Normal, the gamma, and the Weibull. For details, see the [*Time-to-event models*](https://cran.r-project.org/web/packages/brms/vignettes/brms_families.html#time-to-event-models) section of Bürkner's [-@Bürkner2021Parameterization] vignette, [*Parameterization of response distributions in brms*](https://CRAN.R-project.org/package=brms/vignettes/brms_families.html). Starting with the release of [version 2.13.5](https://github.com/paul-buerkner/brms/blob/master/NEWS.md#brms-2135), **brms** now supports the Cox proportional hazards model via `family = cox`. If you're tricky with your coding, you can also fit discrete-time survival models with the binomial likelihood (see [here](https://bookdown.org/content/4253/fitting-basic-discrete-time-hazard-models.html)). For some examples of discrete and continuous-time survival models, you might check out my [-@kurzAppliedLongitudinalDataAnalysis2019] ebook translation of Singer and Willett's [-@singerAppliedLongitudinalData2003] text, [*Applied longitudinal data analysis: Modeling change and event occurrence*](https://oxford.universitypressscholarship.com/view/10.1093/acprof:oso/9780195152968.001.0001/acprof-9780195152968), the later chapters of which provide an exhaustive introduction to survival analysis.
+We've really just scratched the surface on survival models. In addition to those which use the exponential likelihood, **brms** supports a variety of survival models. Some of the more popular likelihoods are the log-Normal, the gamma, and the Weibull. For details, see the [*Time-to-event models*](https://cran.r-project.org/web/packages/brms/vignettes/brms_families.html#time-to-event-models) section of Bürkner's [-@Bürkner2022Parameterization] vignette, [*Parameterization of response distributions in brms*](https://CRAN.R-project.org/package=brms/vignettes/brms_families.html). Starting with the release of [version 2.13.5](https://github.com/paul-buerkner/brms/blob/master/NEWS.md#brms-2135), **brms** now supports the Cox proportional hazards model via `family = cox`. If you're tricky with your coding, you can also fit discrete-time survival models with the binomial likelihood (see [here](https://bookdown.org/content/4253/fitting-basic-discrete-time-hazard-models.html)). For some examples of discrete and continuous-time survival models, you might check out my [-@kurzAppliedLongitudinalDataAnalysis2019] ebook translation of Singer and Willett's [-@singerAppliedLongitudinalData2003] text, [*Applied longitudinal data analysis: Modeling change and event occurrence*](https://oxford.universitypressscholarship.com/view/10.1093/acprof:oso/9780195152968.001.0001/acprof-9780195152968), the later chapters of which provide an exhaustive introduction to survival analysis.
 
 ## Session info {-}
 
