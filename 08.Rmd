@@ -65,7 +65,7 @@ dagify(R ~ U,
   theme_dag()
 ```
 
-> Let's ignore $Uv for now... Focus instead on the implication that $R$ and $C$ both influence $G$. This could mean that they are independent influences or rather that they interact (one moderates the influence of the other). The DAG does not display an interaction. That's because DAGs do not specify how variables combine to influence other variables. The DAG above implies only that there is some function that uses $R$ and $C$ to generate $G$. In typical notation, $G = f(R, C)$. (p. 240)
+> Let's ignore $U$ for now... Focus instead on the implication that $R$ and $C$ both influence $G$. This could mean that they are independent influences or rather that they interact (one moderates the influence of the other). The DAG does not display an interaction. That's because DAGs do not specify how variables combine to influence other variables. The DAG above implies only that there is some function that uses $R$ and $C$ to generate $G$. In typical notation, $G = f(R, C)$. (p. 240)
 
 It's generally not a good idea to split up your data and run separate analyses when examining an interaction. McElreath listed four reasons why:
 

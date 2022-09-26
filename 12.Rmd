@@ -389,7 +389,7 @@ If you take a look of McElreath's `m12.2`, you'll see it's a gamma-Poisson versi
 \alpha          & \sim \operatorname{Gamma}(0.01, 0.01), 
 \end{align*}
 
-where we have deviated from McElreath's convention of using $\alpha$ for the model in favor $\beta_0$. This is because **brms** parameterizes the gamma likelihood in terms of $\mu$ and shape and, as we discussed above, shape is typically denoted as $\alpha$. I mean, technically we could refer to the shape parameter as $\psi$ or $\xi$ or whatever, but then we'd just be abandoning one convention for another. There's no to win, here. *Sigh*. The prior for $\beta_0$ is the same one we used for the intercept way back for model `b11.9`. We have assigned a gamma prior for our troublesome new $\alpha$ (shape) parameter. Here's where that prior came from.
+where we have deviated from McElreath's convention of using $\alpha$ for the model in favor $\beta_0$. This is because **brms** parameterizes the gamma likelihood in terms of $\mu$ and shape and, as we discussed above, shape is typically denoted as $\alpha$. I mean, technically we could refer to the shape parameter as $\psi$ or $\xi$ or whatever, but then we'd just be abandoning one convention for another. There's no way to win, here. *Sigh*. The prior for $\beta_0$ is the same one we used for the intercept way back for model `b11.9`. We have assigned a gamma prior for our troublesome new $\alpha$ (shape) parameter. Here's where that prior came from.
 
 ```{r}
 get_prior(data = d, 

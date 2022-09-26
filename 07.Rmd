@@ -1344,7 +1344,7 @@ b6.7 <- readRDS("fits/b06.07.rds")
 b6.8 <- readRDS("fits/b06.08.rds")
 ```
 
-With our **brms** paradigm, we also use the `waic()` function. Both the **rethinking** and **brms** packages get their functionality for the `waic()` and related functions from the [**loo** package](https://CRAN.R-project.org/package=loo) [@R-loo; @vehtariPracticalBayesianModel2017; @yaoUsingStackingAverage2018]. Since the `brms::brm()` function fits the models with HMC, we don't need to set a seed before calling `waic()` the way McElreath did with his `rethinking::quap()` model. We're already drawn from the posterior.
+With our **brms** paradigm, we also use the `waic()` function. Both the **rethinking** and **brms** packages get their functionality for the `waic()` and related functions from the [**loo** package](https://CRAN.R-project.org/package=loo) [@R-loo; @vehtariPracticalBayesianModel2017; @yaoUsingStackingAverage2018]. Since the `brms::brm()` function fits the models with HMC, we don't need to set a seed before calling `waic()` the way McElreath did with his `rethinking::quap()` model. We're already drawing from the posterior.
 
 ```{r}
 waic(b6.7)

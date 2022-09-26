@@ -29,7 +29,7 @@ Here's the other way of tackling the vampire problem, this time using the freque
 ```{r}
 tibble(pr_vampire          = 100 / 100000,
        pr_positive_vampire = 95 / 100,
-       pr_positive_mortal  = 99 / 99900) %>% 
+       pr_positive_mortal  = 999 / 99900) %>% 
   mutate(pr_positive = 95 + 999) %>% 
   mutate(pr_vampire_positive = pr_positive_vampire * 100 / pr_positive) %>% 
   glimpse()
