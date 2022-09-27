@@ -24,6 +24,8 @@ twitter-handle: SolomonKurz
 description: "This book is an attempt to re-express the code in the second edition of McElreath's textbook, 'Statistical rethinking.' His models are re-fit in brms, plots are redone with ggplot2, and the general data wrangling code predominantly follows the tidyverse style."
 ---
 
+This is a companion to the second edition of *Statistical rethinking*. [View the companion to the first edition.](https://bookdown.org/content/3890/)
+
 # What and why {-}
 
 This ebook is based on the second edition of [Richard McElreath](https://twitter.com/rlmcelreath)'s [-@mcelreathStatisticalRethinkingBayesian2020] text, [*Statistical rethinking: A Bayesian course with examples in R and Stan*](https://xcelab.net/rm/statistical-rethinking/). My contributions show how to fit the models he covered with [Paul Bürkner](https://twitter.com/paulbuerkner)'s [**brms** package](https://github.com/paul-buerkner/brms) [@R-brms; @burknerBrmsPackageBayesian2017; @burknerAdvancedBayesianMultilevel2018], which makes it easy to fit Bayesian regression models in **R** [@R-base] using Hamiltonian Monte Carlo. I also prefer plotting and data wrangling with the packages from the [**tidyverse**](https://www.tidyverse.org/) [@R-tidyverse; @wickhamWelcomeTidyverse2019]. So we'll be using those methods, too.
@@ -107,7 +109,7 @@ On December 2, 2020, I released a mini update designed to
 
 ### Version 0.2.0. {-}
 
-Welcome to version 0.2.0! Major improvements include:
+On March 16, 2021, I released version 0.2.0, which included the following major improvements:
 
 * a corrected workflow for fitting single-level b-spline models ([Section 4.5.2][Splines.]), thanks to [Stephen Wild](https://github.com/sjwild);
 * a refined workflow for fitting multilevel b-spline models using the `s()` function ([Section 4.6][~~Summary~~ First bonus: Smooth functions with `brms::s()`]), thanks to [Gavin Simpson](https://github.com/gavinsimpson);
@@ -120,6 +122,19 @@ Welcome to version 0.2.0! Major improvements include:
 * the adoption of a [CONTRIBUTING](https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed/blob/master/CONTRIBUTING.md) section on GitHub, thanks to [Brenton M. Wiernik](https://github.com/bwiernik);
 * improved table workflow with the **flextable** package [@R-flextable]; and
 * all models have been refit using **brms** version 2.15.0.
+
+### Version 0.3.0. {-}
+
+Welcome to version 0.3.0! Major improvements include:
+
+* an `as_draws_df()`-oriented workflow to replace the depreciated `posterior_samples()` function;
+* better sampling in models in the first few due to changes in the `lb` argument;
+* more use of the uniform prior for $\sigma$ to better match the text, thanks to the improved `lb` argument;
+* a more **tidyverse**-oriented version of the `sim_happiness()` function in [Section 6.3][Collider bias], thanks to [Randall Pruim](https://github.com/rpruim)
+* a more accurate depiction of entropy in Figure 10.2.b in [Section 10.1.1][Gaussian.], thanks to help from [Hamed Bastan-Hagh](https://github.com/hamedbh), 
+* a cross link to the first edition, thanks to a suggestion from [Will Petry](https://github.com/wpetry);
+* some corrected typos and updates to the links and citations; and
+* all models have been refit using **brms** version 2.18.0.
 
 ### We're not done yet and I could use your help. {-}
 
@@ -152,6 +167,7 @@ I'd like to thank the following for their helpful contributions:
 * Sebastian Lobentanzer ([\@slobentanzer](https://github.com/slobentanzer)),
 * Ed Merkle ([\@ecmerkle](https://github.com/ecmerkle)),
 * Ladislas Nalborczyk ([\@lnalborczyk](https://github.com/lnalborczyk)),
+* Will Petry ([\@wpetry](https://github.com/wpetry)),
 * Randall Pruim ([\@rpruim](https://github.com/rpruim)),
 * Gavin Simpson ([\@gavinsimpson](https://github.com/gavinsimpson)),
 * Kathleen Sprouffske ([\@sprouffske](https://github.com/sprouffske))
