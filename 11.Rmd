@@ -733,7 +733,7 @@ Our results are very similar to those in the text. But notice how our two rows h
 
 Anyway, here we'll compute the difference score in two metrics and summarize them with a little help from `mean_qi()`.
 
-```{r}
+```{r, warning = F, message = F}
 as_draws_df(b11.7) %>% 
   mutate(diff_a = b_gidmale - b_gidfemale,
          diff_p = inv_logit_scaled(b_gidmale) - inv_logit_scaled(b_gidfemale)) %>% 
