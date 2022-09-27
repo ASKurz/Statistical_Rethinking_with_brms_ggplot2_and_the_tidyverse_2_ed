@@ -441,7 +441,7 @@ data(Boxes_model)
 cat(Boxes_model)
 ```
 
-I'm not aware that one can fit this model directly with **brms**. My guess is that if it's possible, it would require a custom likelihood [see @Bürkner2021Define]. If you can reproduce McElreath's Stan code with this or some other approach in **brms**, please [share your code on GitHub](https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed/issues). In the mean time, we're going to follow along with the text and fit the model with `rstan::stan()`.
+I'm not aware that one can fit this model directly with **brms**. My guess is that if it's possible, it would require a custom likelihood [see @Bürkner2022Define]. If you can reproduce McElreath's Stan code with this or some other approach in **brms**, please [share your code on GitHub](https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed/issues). In the mean time, we're going to follow along with the text and fit the model with `rstan::stan()`.
 
 ```{r m16.2, echo = F}
 # save(list = c("dat_list", "m16.2"), file = "fits/m16.2.rda")
