@@ -187,7 +187,7 @@ tibble(beta = seq(from = 1, to = 4, length.out = 100)) %>%
         panel.grid = element_blank())
 ```
 
-I should note the solution to this plot was initially beyond me. However, fellow enthusiast [@hamedbh](https://github.com/hamedbh) generously shared the correct solution on [GitHub](https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed/issues/39).
+I should note the solution to this plot was initially beyond me. However, fellow enthusiast [Hamed Bastan-Hagh](https://github.com/hamedbh) generously shared the correct solution on [GitHub](https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed/issues/39).
 
 But getting back on track:
 
