@@ -999,7 +999,6 @@ d %>%
   mutate_if(is.double, round, digits = 2)
 ```
 
-
 Here's our version of Figure 6.5.
 
 ```{r, fig.width = 8, fig.height = 2.5}
