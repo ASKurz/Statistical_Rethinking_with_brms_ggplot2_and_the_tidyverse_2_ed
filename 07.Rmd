@@ -1708,7 +1708,7 @@ tibble(pareto_k = b5.3t$criteria$loo$diagnostics$pareto_k,
   ggplot(aes(x = pareto_k, y = p_waic, color = Loc == "ID")) +
   geom_point(aes(shape = Loc == "ID")) +
   geom_text(data = . %>% filter(Loc %in% c("ID", "ME")),
-            aes(x = pareto_k - 0.01, label = Loc),
+            aes(x = pareto_k - 0.005, label = Loc),
             hjust = 1) +
   scale_color_manual(values = carto_pal(7, "BurgYl")[c(5, 7)]) +
   scale_shape_manual(values = c(1, 19)) +
