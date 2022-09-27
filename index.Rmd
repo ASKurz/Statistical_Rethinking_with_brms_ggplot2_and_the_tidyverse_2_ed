@@ -138,17 +138,23 @@ I'd like to thank the following for their helpful contributions:
 * Monica Alexander ([\@MJAlexander](https://github.com/MJAlexander)),
 * Shaan Amin ([\@Shaan-Amin](https://github.com/Shaan-Amin)),
 * Malcolm Barrett ([\@malcolmbarrett](https://github.com/malcolmbarrett)),
+* Hamed Bastan-Hagh ([\@hamedbh](https://github.com/hamedbh)),
 * Adam Bear ([\@adambear91](https://github.com/adambear91)),
 * Jenny Bigman ([\@jennybigman](https://github.com/jennybigman)),
 * Louis Bliard ([\@lbiard](https://github.com/lbiard)),
+* Philipp Boersch-Supan ([\@pboesu](https://github.com/pboesu)),
 * Paul-Christian Bürkner ([\@paul-buerkner](https://github.com/paul-buerkner)),
+* Damien Croteau-Chonka ([\@dcroteau-chonka](https://github.com/dcroteau-chonka)),
 * Markus Gesmann ([\@mages](https://github.com/mages)),
 * James Henegan ([\@jameshenegan](https://github.com/jameshenegan)),
+* Mathieu Jones ([\@00mathieu](https://github.com/00mathieu)),
+* William Lai ([\@williamlai2](https://github.com/williamlai2)),
 * Sebastian Lobentanzer ([\@slobentanzer](https://github.com/slobentanzer)),
 * Ed Merkle ([\@ecmerkle](https://github.com/ecmerkle)),
 * Ladislas Nalborczyk ([\@lnalborczyk](https://github.com/lnalborczyk)),
 * Randall Pruim ([\@rpruim](https://github.com/rpruim)),
 * Gavin Simpson ([\@gavinsimpson](https://github.com/gavinsimpson)),
+* Kathleen Sprouffske ([\@sprouffske](https://github.com/sprouffske))
 * Richard Torkar ([\@torkar](https://github.com/torkar)),
 * Brenton M. Wiernik ([\@bwiernik](https://github.com/bwiernik)),
 * Stephen Wild ([\@sjwild](https://github.com/sjwild)), and
@@ -161,12 +167,12 @@ Science is better when we work together.
 This book is licensed under the Creative Commons Zero v1.0 Universal license. You can learn the details, [here](https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed/blob/master/LICENSE). In short, you can use my work. Just make sure you give me the appropriate credit the same way you would for any other scholarly resource. Here's the citation information:
 
 ```{r, eval = F}
-@book{kurzStatisticalRethinkingSecondEd2021,
+@book{kurzStatisticalRethinkingSecondEd2022,
   title = {Statistical rethinking with brms, ggplot2, and the tidyverse: {{Second}} edition},
   author = {Kurz, A. Solomon},
-  year = {2021},
-  month = {mar},
-  edition = {version 0.2.0},
+  year = {2022},
+  month = {sep},
+  edition = {version 0.3.0},
   url = {https://bookdown.org/content/4857/}
 }
 ```
