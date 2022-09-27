@@ -779,7 +779,7 @@ For more ideas on customizing a `ggpairs()` plot, go [here](https://ggobi.github
 
 Using `plot()` for a `brm()` fit returns both density and trace lots for the parameters.
 
-```{r, fig.width = 7, fig.height = 6}
+```{r, fig.width = 7, fig.height = 6.5}
 plot(b9.1b, widths = c(1, 2))
 ```
 
@@ -801,7 +801,7 @@ as_draws_df(b9.1b) %>%
 
 The **bayesplot** package offers a variety of diagnostic plots. Here we make autocorrelation plots for all model parameters, one for each HMC chain.
 
-```{r, fig.width = 8, fig.height = 4.5}
+```{r, fig.width = 8, fig.height = 4.5, warning = F, message = F}
 as_draws_df(b9.1b) %>% 
   mutate(chain = .chain) %>% 
   mcmc_acf(pars = vars(b_a_cid1:sigma),
@@ -977,7 +977,7 @@ That `np = nuts_params(b9.2)` trick will work in a similar way with **bayesplot*
 
 Let's further inspect the damage by making the top two rows of Figure 9.9.
 
-```{r, message = F, fig.width = 6.5, fig.height = 3.75, warning = F}
+```{r, message = F, fig.width = 6.5, fig.height = 4, warning = F}
 p1 <-
   as_draws_df(b9.2) %>% 
   mutate(chain = .chain) %>% 
@@ -1027,7 +1027,7 @@ print(b9.3)
 
 As in the text, no more warning signs and no more silly estimates. The trace and trank plots look better, too.
 
-```{r, message = F, fig.width = 6.5, fig.height = 3.75, warning = F}
+```{r, message = F, fig.width = 6.5, fig.height = 4, warning = F}
 p1 <-
   as_draws_df(b9.3) %>% 
   mutate(chain = .chain) %>%
