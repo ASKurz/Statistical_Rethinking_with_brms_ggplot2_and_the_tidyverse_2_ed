@@ -24,6 +24,8 @@ twitter-handle: SolomonKurz
 description: "This book is an attempt to re-express the code in the second edition of McElreath's textbook, 'Statistical rethinking.' His models are re-fit in brms, plots are redone with ggplot2, and the general data wrangling code predominantly follows the tidyverse style."
 ---
 
+#### Cross-link {-}
+
 This is a companion to the second edition of *Statistical rethinking*. [View the companion to the first edition.](https://bookdown.org/content/3890/)
 
 # What and why {-}
