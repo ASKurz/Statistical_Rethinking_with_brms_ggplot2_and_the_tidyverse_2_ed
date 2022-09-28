@@ -20,7 +20,7 @@ The basic binomial model follows the form
 
 $$y \sim \operatorname{Binomial}(n, p),$$
 
-where $y$ is some count variable, $n$ is the number of trials, and $p$ it the probability a given trial was a 1, which is sometimes termed a *success*. When $n = 1$, then $y$ is a vector of 0's and 1's. Presuming the logit link[^3], which we just covered in [Chapter 10][Linking linear models to distributions.], models of this type are commonly termed logistic regression. When $n > 1$, and still presuming the logit link, we might call our model an aggregated logistic regression model, or more generally an aggregated binomial regression model.
+where $y$ is some count variable, $n$ is the number of trials, and $p$ it the probability a given trial was a 1, which is sometimes termed a *success*. When $n = 1$, then $y$ is a vector of 0's and 1's. Presuming the logit link[^4], which we just covered in [Chapter 10][Linking linear models to distributions.], models of this type are commonly termed logistic regression. When $n > 1$, and still presuming the logit link, we might call our model an aggregated logistic regression model, or more generally an aggregated binomial regression model.
 
 ### Logistic regression: Prosocial chimpanzees.
 
@@ -2541,5 +2541,5 @@ bayesplot::color_scheme_set("blue")
 # pacman::p_unload(pacman::p_loaded(), character.only = TRUE)
 ```
 
-[^3]: Though McElreath didn't cover it, here, it's also fine to fit binomial models using the probit link. @gelmanRegressionOtherStories2020 covered probit regression in Section 15.4. With **brms**, it's simply a matter of setting `family = binomial(link = "probit")` within `brm()`.
+[^4]: Though McElreath didn't cover it, here, it's also fine to fit binomial models using the probit link. @gelmanRegressionOtherStories2020 covered probit regression in Section 15.4. With **brms**, it's simply a matter of setting `family = binomial(link = "probit")` within `brm()`.
 
