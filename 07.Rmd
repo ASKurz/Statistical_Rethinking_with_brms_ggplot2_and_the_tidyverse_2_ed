@@ -997,7 +997,7 @@ tibble(x = seq(from = - 3.5, to = 3.5, by = 0.01)) %>%
 
 In our version of the plot, darker purple = more regularizing.
 
-To prepare for Figure 7.8, we need to simulate. This time we'll wrap the basic simulation code we used before into a function we'll call `make_sim()`. Our `make_sim()` function has two parameters, `n` and `b_sigma`, both of which come from McElreath's simulation code. So you'll note that instead of hard coding the values for `n` and `b_sigma` within the simulation, we're leaving them adjustable (i.e., `sim_train_test(N = n, k = k, b_sigma = b_sigma)`). Also notice that instead of saving the simulation results as objects, like before, we're just converting them to a data frame with the `data.frame()` function at the bottom. Our goal is to use `make_sim()` within a `purrr::map2()` statement. The result will be a nested data frame into which we've saved the results of 6 simulations based off of two sample sizes (i.e., `n = c(20, 100)`) and three values of $\sigma$ for our Gaussian $\beta$ prior (i.e., `b_sigma = c(1, .5, .2)`).
+To prepare for Figure 7.8, we need to simulate. This time we'll wrap the basic simulation code we used before into a function we'll call `make_sim()`. Our `make_sim()` function has two parameters, `n` and `b_sigma`, both of which come from McElreath's simulation code. So you'll note that instead of hard coding the values for `n` and `b_sigma` within the simulation, we're leaving them adjustable (i.e., `sim_train_test(N = n, k = k, b_sigma = b_sigma)`). Also notice that instead of saving the simulation results as objects, like before, we're just converting them to a data frame with the `data.frame()` function at the bottom. Our goal is to use `make_sim()` within a `purrr::map2()` statement. The result will be a nested data frame into which we've saved the results of 6 simulations based off of two sample sizes (i.e., `n = c(20, 100)`) and three values of $\sigma$ for our Gaussian $\beta$ prior (i.e., `b_sigma = c(1, .5, .2)`).[^3]
 
 ```{r, eval = F}
 library(rethinking)
@@ -1035,7 +1035,6 @@ s <-
 
 load("sims/07.sim_2.rda")
 ```
-
 
 We'll follow the same principles for wrangling these data as we did those from the previous simulation, `dev_tibble`. After wrangling, we'll feed the data directly into the code for our version of Figure 7.8.
 
@@ -1878,4 +1877,6 @@ ggplot2::theme_set(ggplot2::theme_grey())
 bayesplot::color_scheme_set("blue")
 # pacman::p_unload(pacman::p_loaded(), character.only = TRUE)
 ```
+
+[^3]: Okay, I'm not being completely honest, here. The `sim_train_test()` code in this section worked fine in version 0.2.0 of this ebook and earlier. However, something has changed over the past year or so and it now returns an error. I've reported the error on GitHub, and you can get all the deets [here](https://github.com/rmcelreath/rethinking/issues/361). In the meantime, the results I'm displaying in this section are from the mid 2000. So it goes...
 
