@@ -152,7 +152,7 @@ Here the size, $n$, is defined in the `applications` column in the data we'll lo
 
 beta_binomial
 
-We have an additional complication. The beta-binomial has historically not been officially supported by **brms** (see [GitHub issue #144](https://github.com/paul-buerkner/brms/issues/144))[^4]. However, **brms** versions 2.2.0 and above allow users to define custom distributions. To get all the details, you might check out Bürkner's [-@Bürkner2022Define] vignette, [*Define custom response distributions with brms*](https://CRAN.R-project.org/package=brms/vignettes/brms_customfamilies.html). Happily, Bürkner even used the [beta-binomial distribution as the exemplar](https://cran.r-project.org/package=brms/vignettes/brms_customfamilies.html#the-beta-binomial-distribution) in the vignette.
+We have an additional complication. The beta-binomial has historically not been officially supported by **brms** (see [GitHub issue #144](https://github.com/paul-buerkner/brms/issues/144))[^5]. However, **brms** versions 2.2.0 and above allow users to define custom distributions. To get all the details, you might check out Bürkner's [-@Bürkner2022Define] vignette, [*Define custom response distributions with brms*](https://CRAN.R-project.org/package=brms/vignettes/brms_customfamilies.html). Happily, Bürkner even used the [beta-binomial distribution as the exemplar](https://cran.r-project.org/package=brms/vignettes/brms_customfamilies.html#the-beta-binomial-distribution) in the vignette.
 
 Before we get carried away, let's load the data and **brms**.
 
@@ -1820,5 +1820,5 @@ ggplot2::theme_set(ggplot2::theme_grey())
 # pacman::p_unload(pacman::p_loaded(), character.only = TRUE)
 ```
 
-[^4]: Okay, it's actually a little more complicated. **brms** has officially supported family `beta_binomial` since version 2.17.0. For the official news release, see [here](https://CRAN.R-project.org/package=brms/news/news.html). However, I still think it's worth while to show how to make a custom likelihood with **brms**. But be warned that I consider this advanced. For example, I would be extremely hesitant to make a custom likelihood for my own research work. I'm just not responsible enough for that kind of power.
+[^5]: Okay, it's actually a little more complicated. **brms** has officially supported family `beta_binomial` since version 2.17.0. For the official news release, see [here](https://CRAN.R-project.org/package=brms/news/news.html). However, I still think it's worth while to show how to make a custom likelihood with **brms**. But be warned that I consider this advanced. For example, I would be extremely hesitant to make a custom likelihood for my own research work. I'm just not responsible enough for that kind of power.
 
