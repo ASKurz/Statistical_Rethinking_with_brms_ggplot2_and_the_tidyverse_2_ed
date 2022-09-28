@@ -24,13 +24,11 @@ twitter-handle: SolomonKurz
 description: "This book is an attempt to re-express the code in the second edition of McElreath's textbook, 'Statistical rethinking.' His models are re-fit in brms, plots are redone with ggplot2, and the general data wrangling code predominantly follows the tidyverse style."
 ---
 
-#### Cross-link {-}
-
-This is a companion to the second edition of *Statistical rethinking*. [View the companion to the first edition.](https://bookdown.org/content/3890/)
-
 # What and why {-}
 
 This ebook is based on the second edition of [Richard McElreath](https://twitter.com/rlmcelreath)'s [-@mcelreathStatisticalRethinkingBayesian2020] text, [*Statistical rethinking: A Bayesian course with examples in R and Stan*](https://xcelab.net/rm/statistical-rethinking/). My contributions show how to fit the models he covered with [Paul Bürkner](https://twitter.com/paulbuerkner)'s [**brms** package](https://github.com/paul-buerkner/brms) [@R-brms; @burknerBrmsPackageBayesian2017; @burknerAdvancedBayesianMultilevel2018], which makes it easy to fit Bayesian regression models in **R** [@R-base] using Hamiltonian Monte Carlo. I also prefer plotting and data wrangling with the packages from the [**tidyverse**](https://www.tidyverse.org/) [@R-tidyverse; @wickhamWelcomeTidyverse2019]. So we'll be using those methods, too.
+
+Are you looking for the companion ebook for McElreath's 1st edition? [Click here.](https://bookdown.org/content/3890/)
 
 ## My assumptions about you {-}
 
@@ -130,8 +128,8 @@ On March 16, 2021, I released version 0.2.0, which included the following major 
 Welcome to version 0.3.0! Major improvements include:
 
 * an `as_draws_df()`-oriented workflow to replace the depreciated `posterior_samples()` function;
-* better sampling in models in the first few due to changes in the `lb` argument;
-* more use of the uniform prior for $\sigma$ to better match the text, thanks to the improved `lb` argument;
+* better sampling in models in the first few due to changes in the `ub` argument;
+* more use of the uniform prior for $\sigma$ to better match the text, thanks to the improved `ub` argument;
 * a more **tidyverse**-oriented version of the `sim_happiness()` function in [Section 6.3][Collider bias], thanks to [Randall Pruim](https://github.com/rpruim)
 * a more accurate depiction of entropy in Figure 10.2.b in [Section 10.1.1][Gaussian.], thanks to help from [Hamed Bastan-Hagh](https://github.com/hamedbh), 
 * a cross link to the first edition, thanks to a suggestion from [Will Petry](https://github.com/wpetry);
