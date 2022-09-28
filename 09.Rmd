@@ -783,13 +783,12 @@ Using `plot()` for a `brm()` fit returns both density and trace lots for the par
 plot(b9.1b, widths = c(1, 2))
 ```
 
-The [**bayesplot**](https://cran.r-project.org/package=bayesplot) package allows a little more control. Here, we use the `bayesplot::mcmc_trace()` function to show only trace plots with our custom theme. Note that `mcmc_trace()` does not work with brmfit objects, but it will accept input from `as_draws_df()`. But note that if you're going to use the `as_draws_df()` method, you'll need to rename the `.chain` meta-variable to `chain` or `Chain` without the `.` prefix. Here's what that looks like in action.
+The [**bayesplot**](https://cran.r-project.org/package=bayesplot) package allows a little more control. Here, we use the `bayesplot::mcmc_trace()` function to show only trace plots with our custom theme. Note that `mcmc_trace()` does not work with brmfit objects, but it will accept input from `as_draws_df()`.
 
 ```{r, fig.width = 8, fig.height = 4, message = F, warning = F}
 library(bayesplot)
 
 as_draws_df(b9.1b) %>% 
-  mutate(chain = .chain) %>%
   mcmc_trace(pars = vars(b_a_cid1:sigma),
              facet_args = list(ncol = 3), 
              size = .15) +
@@ -803,9 +802,7 @@ The **bayesplot** package offers a variety of diagnostic plots. Here we make aut
 
 ```{r, fig.width = 8, fig.height = 4.5, warning = F, message = F}
 as_draws_df(b9.1b) %>% 
-  mutate(chain = .chain) %>% 
-  mcmc_acf(pars = vars(b_a_cid1:sigma),
-             lags = 5) +
+  mcmc_acf(pars = vars(b_a_cid1:sigma), lags = 5) +
   theme_pomological_fancy(base_family = "Marck Script") 
 ```
 
@@ -870,9 +867,7 @@ For each parameter, the all four chains had moved away from their starting value
 But anyway, we've veered a bit from the text. McElreath pointed out a second way to visualize the chains is by the distribution of the ranked samples, which he called a **trank plot** (short for trace rank plot). I'm not aware that **brms** has a built-in function for that. Happily, we can make them with `mcmc_rank_overlay()`.
   
 ```{r, fig.width = 8, fig.height = 4, message = F, warning = F}
-as_draws_df(b9.1b) %>% 
-  mutate(chain = .chain) %>% 
-  
+as_draws_df(b9.1b) %>%  
   mcmc_rank_overlay(pars = vars(b_a_cid1:sigma)) +
   scale_color_pomological() +
   labs(title = "My custom trank plots",
@@ -980,13 +975,11 @@ Let's further inspect the damage by making the top two rows of Figure 9.9.
 ```{r, message = F, fig.width = 6.5, fig.height = 4, warning = F}
 p1 <-
   as_draws_df(b9.2) %>% 
-  mutate(chain = .chain) %>% 
   mcmc_trace(pars = vars(b_Intercept:sigma),
              size = .25)
 
 p2 <-
   as_draws_df(b9.2) %>% 
-  mutate(chain = .chain) %>% 
   mcmc_rank_overlay(pars = vars(b_Intercept:sigma))
 
 (
@@ -1030,13 +1023,11 @@ As in the text, no more warning signs and no more silly estimates. The trace and
 ```{r, message = F, fig.width = 6.5, fig.height = 4, warning = F}
 p1 <-
   as_draws_df(b9.3) %>% 
-  mutate(chain = .chain) %>%
   mcmc_trace(pars = vars(b_Intercept:sigma),
              size = .25)
 
 p2 <-
   as_draws_df(b9.3) %>% 
-  mutate(chain = .chain) %>%
   mcmc_rank_overlay(pars = vars(b_Intercept:sigma)) +
   ylim(35, NA)
 
@@ -1180,20 +1171,18 @@ Now use our custom `trace_rank()` function to make the six rows one at a time an
 
 ```{r, fig.height = 10, fig.width = 7, warning = F, message = F}
 # b9.4
-post <- as_draws_df(b9.4) %>% 
-  mutate(chain = .chain) 
+post <- as_draws_df(b9.4)
 
-p1 <-  trace_rank(data = post, var = "b_a1", subtitle = "b9.4 (bad priors)")
-p2 <-  trace_rank(data = post, var = "b_a2")
-p3 <-  trace_rank(data = post, var = "sigma")
+p1 <- trace_rank(data = post, var = "b_a1", subtitle = "b9.4 (bad priors)")
+p2 <- trace_rank(data = post, var = "b_a2")
+p3 <- trace_rank(data = post, var = "sigma")
 
 # b9.5
-post <- as_draws_df(b9.5) %>% 
-  mutate(chain = .chain) 
+post <- as_draws_df(b9.5)
 
-p4 <-  trace_rank(data = post, var = "b_a1", subtitle = "b9.5 (good priors)", ymin = 30)
-p5 <-  trace_rank(data = post, var = "b_a2", ymin = 30)
-p6 <-  trace_rank(data = post, var = "sigma", ymin = 30)
+p4 <- trace_rank(data = post, var = "b_a1", subtitle = "b9.5 (good priors)", ymin = 30)
+p5 <- trace_rank(data = post, var = "b_a2", ymin = 30)
+p6 <- trace_rank(data = post, var = "sigma", ymin = 30)
 
 # combine!
 (p1 / p2 / p3 / p4 / p5 / p6) &
