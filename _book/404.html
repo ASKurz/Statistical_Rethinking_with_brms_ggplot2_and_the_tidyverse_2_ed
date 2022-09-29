@@ -4,18 +4,18 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>17 Horoscopes Insights | Statistical rethinking with brms, ggplot2, and the tidyverse: Second edition</title>
+  <title>Page not found | Statistical rethinking with brms, ggplot2, and the tidyverse: Second edition</title>
   <meta name="description" content="This book is an attempt to re-express the code in the second edition of McElreath’s textbook, ‘Statistical rethinking.’ His models are re-fit in brms, plots are redone with ggplot2, and the general data wrangling code predominantly follows the tidyverse style." />
   <meta name="generator" content="bookdown 0.28 and GitBook 2.6.7" />
 
-  <meta property="og:title" content="17 Horoscopes Insights | Statistical rethinking with brms, ggplot2, and the tidyverse: Second edition" />
+  <meta property="og:title" content="Page not found | Statistical rethinking with brms, ggplot2, and the tidyverse: Second edition" />
   <meta property="og:type" content="book" />
   
   <meta property="og:description" content="This book is an attempt to re-express the code in the second edition of McElreath’s textbook, ‘Statistical rethinking.’ His models are re-fit in brms, plots are redone with ggplot2, and the general data wrangling code predominantly follows the tidyverse style." />
   <meta name="github-repo" content="ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed" />
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="17 Horoscopes Insights | Statistical rethinking with brms, ggplot2, and the tidyverse: Second edition" />
+  <meta name="twitter:title" content="Page not found | Statistical rethinking with brms, ggplot2, and the tidyverse: Second edition" />
   <meta name="twitter:site" content="@SolomonKurz" />
   <meta name="twitter:description" content="This book is an attempt to re-express the code in the second edition of McElreath’s textbook, ‘Statistical rethinking.’ His models are re-fit in brms, plots are redone with ggplot2, and the general data wrangling code predominantly follows the tidyverse style." />
   
@@ -30,8 +30,8 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black" />
   
   
-<link rel="prev" href="generalized-linear-madness.html"/>
-<link rel="next" href="references.html"/>
+
+
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
@@ -626,432 +626,19 @@ div.csl-indent {
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="horoscopes-insights" class="section level1 hasAnchor" number="17">
-<h1><span class="header-section-number">17</span> <del>Horoscopes</del> Insights<a href="horoscopes-insights.html#horoscopes-insights" class="anchor-section" aria-label="Anchor link to header"></a></h1>
-<blockquote>
-<p>Statistical inference is indeed critically important. But only as much as every other part of research. Scientific discovery is not an additive process, in which sin in one part can be atoned by virtue in another. Everything interacts. So equally when science works as intended as when it does not, every part of the process deserves attention. <span class="citation">(<a href="#ref-mcelreathStatisticalRethinkingBayesian2020" role="doc-biblioref">McElreath, 2020, p. 553</a>)</span></p>
-</blockquote>
-<p>In this final chapter, there are no models for us to fit and no figures for use to reimagine. McElreath took the opportunity to comment more broadly on the scientific process. He made a handful of great points, some of which I’ll quote in a bit. But for the bulk of this chapter, I’d like to take the opportunity to pass on a few of my own insights about workflow. I hope they’re of use.</p>
-<div id="use-r-notebooks" class="section level2 hasAnchor" number="17.1">
-<h2><span class="header-section-number">17.1</span> Use R Notebooks<a href="horoscopes-insights.html#use-r-notebooks" class="anchor-section" aria-label="Anchor link to header"></a></h2>
-<p>OMG</p>
-<p>I first started using <strong>R</strong> in the winter of 2015/2016. Right from the start, I learned how to code from within the <a href="https://www.rstudio.com">RStudio</a> environment. But within RStudio I was using simple scripts. No longer. I now use <a href="http://rmarkdown.rstudio.com/r_notebooks.html">R Notebooks</a> for just about everything, including my scientific projects, this <a href="https://bookdown.org"><strong>bookdown</strong></a>-powered ebook, and even my academic <a href="https://solomonkurz.netlify.com">webpage</a> and <a href="https://solomonkurz.netlify.com/post/">blog</a>. Nathan Stephens wrote a nice blog post, <a href="https://rviews.rstudio.com/2017/03/15/why-i-love-r-notebooks/"><em>Why I love R Notebooks</em></a>. I agree. This has fundamentally changed my workflow as a scientist. I only wish I’d learned about this before starting my dissertation project. So it goes…</p>
-<p>Do yourself a favor, adopt R Notebooks into your workflow. Do it today. If you prefer to learn with videos, here’s a <a href="https://youtu.be/TJmNvfhLCoI?t=195">nice intro</a> by <a href="https://twitter.com/linguist_krisyu">Kristine Yu</a> and <a href="https://youtu.be/GG4pgtfDpWY?t=324">another one</a> by <a href="https://twitter.com/fly_upside_down">JJ Allaire</a>. Try it out for like one afternoon and you’ll be hooked.</p>
-</div>
-<div id="save-your-model-fits" class="section level2 hasAnchor" number="17.2">
-<h2><span class="header-section-number">17.2</span> Save your model fits<a href="horoscopes-insights.html#save-your-model-fits" class="anchor-section" aria-label="Anchor link to header"></a></h2>
-<p>It’s embarrassing how long it took for this to dawn on me.</p>
-<p>Unlike classical statistics, Bayesian models using MCMC take a while to compute. Most of the simple models in McElreath’s text take 30 seconds up to a couple minutes. If your data are small, well-behaved and of a simple structure, you might have a lot of wait times in that range in your future.</p>
-<p>It hasn’t been that way, for me.</p>
-<p>Most of my data have a complicated multilevel structure and often aren’t very well behaved. It’s normal for my models to take an hour or several to fit. Once you start measuring your model fit times in hours, you do not want to fit these things more than once. So, it’s not enough to document my code in a nice R Notebook file. I need to save my <code>brm()</code> fit objects in external files.</p>
-<p>Consider this model. It’s taken from Bürkner’s <span class="citation">(<a href="#ref-Bürkner2022Multivariate" role="doc-biblioref">2022c</a>)</span> vignette, <a href="https://cran.r-project.org/package=brms/vignettes/brms_multivariate.html"><em>Estimating multivariate models with brms</em></a>. It took about three minutes for my personal laptop to fit.</p>
-<div class="sourceCode" id="cb2182"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2182-1"><a href="horoscopes-insights.html#cb2182-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(brms)</span>
-<span id="cb2182-2"><a href="horoscopes-insights.html#cb2182-2" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">&quot;BTdata&quot;</span>, <span class="at">package =</span> <span class="st">&quot;MCMCglmm&quot;</span>)</span></code></pre></div>
-<div class="sourceCode" id="cb2183"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2183-1"><a href="horoscopes-insights.html#cb2183-1" aria-hidden="true" tabindex="-1"></a>b17<span class="fl">.1</span> <span class="ot">&lt;-</span> </span>
-<span id="cb2183-2"><a href="horoscopes-insights.html#cb2183-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">brm</span>(<span class="at">data =</span> BTdata,</span>
-<span id="cb2183-3"><a href="horoscopes-insights.html#cb2183-3" aria-hidden="true" tabindex="-1"></a>      <span class="at">family =</span> gaussian,</span>
-<span id="cb2183-4"><a href="horoscopes-insights.html#cb2183-4" aria-hidden="true" tabindex="-1"></a>      <span class="fu">bf</span>(<span class="fu">mvbind</span>(tarsus, back) <span class="sc">~</span> sex <span class="sc">+</span> hatchdate <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> p <span class="sc">|</span> fosternest) <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> q <span class="sc">|</span> dam)) <span class="sc">+</span></span>
-<span id="cb2183-5"><a href="horoscopes-insights.html#cb2183-5" aria-hidden="true" tabindex="-1"></a>        <span class="fu">set_rescor</span>(<span class="cn">TRUE</span>), </span>
-<span id="cb2183-6"><a href="horoscopes-insights.html#cb2183-6" aria-hidden="true" tabindex="-1"></a>      <span class="at">chains =</span> <span class="dv">2</span>, <span class="at">cores =</span> <span class="dv">2</span>,</span>
-<span id="cb2183-7"><a href="horoscopes-insights.html#cb2183-7" aria-hidden="true" tabindex="-1"></a>      <span class="at">seed =</span> <span class="dv">17</span>)</span></code></pre></div>
-<p>Three minutes isn’t terribly long to wait, but still. I’d prefer to never have to wait for another three minutes, again. Sure, if I save my code in a document like this, I will always be able to fit the model again. But I can work smarter. Here I’ll save my <code>b17.1</code> object outside of <strong>R</strong> with the <code>save()</code> function.</p>
-<div class="sourceCode" id="cb2184"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2184-1"><a href="horoscopes-insights.html#cb2184-1" aria-hidden="true" tabindex="-1"></a><span class="fu">save</span>(b17<span class="fl">.1</span>, <span class="at">file =</span> <span class="st">&quot;fits/b17.01.rda&quot;</span>)</span></code></pre></div>
-<p>Hopefully y’all are savvy Bayesian <strong>R</strong> users and find this insultingly remedial. But if it’s new to you like it was me, you can learn more about <code>.rda</code> files <a href="https://www.r-bloggers.com/load-save-and-rda-files/">here</a>.</p>
-<p>Now <code>b17.1</code> is saved outside of <strong>R</strong>, I can safely remove it and then reload it.</p>
-<div class="sourceCode" id="cb2185"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2185-1"><a href="horoscopes-insights.html#cb2185-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span>(b17<span class="fl">.1</span>)</span>
-<span id="cb2185-2"><a href="horoscopes-insights.html#cb2185-2" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="st">&quot;fits/b17.01.rda&quot;</span>)</span></code></pre></div>
-<p>The file took a fraction of a second to reload. Once reloaded, I can perform typical operations, like examine summaries of the model parameters or refreshing my memory on what data I used.</p>
-<div class="sourceCode" id="cb2186"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2186-1"><a href="horoscopes-insights.html#cb2186-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(b17<span class="fl">.1</span>)</span></code></pre></div>
-<pre><code>##  Family: MV(gaussian, gaussian) 
-##   Links: mu = identity; sigma = identity
-##          mu = identity; sigma = identity 
-## Formula: tarsus ~ sex + hatchdate + (1 | p | fosternest) + (1 | q | dam) 
-##          back ~ sex + hatchdate + (1 | p | fosternest) + (1 | q | dam) 
-##    Data: BTdata (Number of observations: 828) 
-##   Draws: 2 chains, each with iter = 2000; warmup = 1000; thin = 1;
-##          total post-warmup draws = 2000
-## 
-## Group-Level Effects: 
-## ~dam (Number of levels: 106) 
-##                                      Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## sd(tarsus_Intercept)                     0.48      0.05     0.39     0.59 1.01      628     1021
-## sd(back_Intercept)                       0.25      0.07     0.09     0.39 1.01      226      433
-## cor(tarsus_Intercept,back_Intercept)    -0.51      0.22    -0.92    -0.05 1.00      450      688
-## 
-## ~fosternest (Number of levels: 104) 
-##                                      Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## sd(tarsus_Intercept)                     0.27      0.05     0.16     0.37 1.00      703     1076
-## sd(back_Intercept)                       0.35      0.06     0.24     0.47 1.01      345      678
-## cor(tarsus_Intercept,back_Intercept)     0.69      0.21     0.23     0.98 1.01      195      422
-## 
-## Population-Level Effects: 
-##                  Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## tarsus_Intercept    -0.41      0.07    -0.54    -0.28 1.00     1294     1529
-## back_Intercept      -0.01      0.07    -0.14     0.12 1.00     1927     1640
-## tarsus_sexMale       0.77      0.06     0.66     0.88 1.00     3718     1611
-## tarsus_sexUNK        0.23      0.13    -0.02     0.47 1.00     4256     1256
-## tarsus_hatchdate    -0.04      0.06    -0.16     0.08 1.00     1135     1370
-## back_sexMale         0.01      0.07    -0.12     0.14 1.00     5228     1435
-## back_sexUNK          0.15      0.15    -0.14     0.44 1.00     4060     1577
-## back_hatchdate      -0.09      0.05    -0.19     0.01 1.00     1783     1399
-## 
-## Family Specific Parameters: 
-##              Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## sigma_tarsus     0.76      0.02     0.72     0.80 1.00     2286     1478
-## sigma_back       0.90      0.02     0.86     0.95 1.00     1516     1378
-## 
-## Residual Correlations: 
-##                     Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## rescor(tarsus,back)    -0.05      0.04    -0.13     0.02 1.00     2751     1615
-## 
-## Draws were sampled using sampling(NUTS). For each parameter, Bulk_ESS
-## and Tail_ESS are effective sample size measures, and Rhat is the potential
-## scale reduction factor on split chains (at convergence, Rhat = 1).</code></pre>
-<div class="sourceCode" id="cb2188"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2188-1"><a href="horoscopes-insights.html#cb2188-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(b17<span class="fl">.1</span><span class="sc">$</span>data)</span></code></pre></div>
-<pre><code>##        tarsus  sex  hatchdate fosternest     dam       back
-## 1 -1.89229718  Fem -0.6874021      F2102 R187557  1.1464212
-## 2  1.13610981 Male -0.6874021      F1902 R187559 -0.7596521
-## 3  0.98468946 Male -0.4279814       A602 R187568  0.1449373
-## 4  0.37900806 Male -1.4656641      A1302 R187518  0.2555847
-## 5 -0.07525299  Fem -1.4656641      A2602 R187528 -0.3006992
-## 6 -1.13519543  Fem  0.3502805      C2302 R187945  1.5577219</code></pre>
-<p>The other option, which we’ve been using extensively throughout the earlier chapters, is to use <code>file</code> argument within the <code>brms::brm()</code> function. You can read about the origins of the argument in <a href="https://github.com/paul-buerkner/brms/issues/472">issue #472 on the <strong>brms</strong> GitHub repo</a>. To make use of the <code>file</code> argument, specify a character string. <code>brm()</code> will then save your fitted model object in an external <code>.rds</code> file via the <code>saveRDS()</code> function. Let’s give it a whirl, this time with an interaction.</p>
-<div class="sourceCode" id="cb2190"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2190-1"><a href="horoscopes-insights.html#cb2190-1" aria-hidden="true" tabindex="-1"></a>b17<span class="fl">.2</span> <span class="ot">&lt;-</span> </span>
-<span id="cb2190-2"><a href="horoscopes-insights.html#cb2190-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">brm</span>(<span class="at">data =</span> BTdata,</span>
-<span id="cb2190-3"><a href="horoscopes-insights.html#cb2190-3" aria-hidden="true" tabindex="-1"></a>      <span class="at">family =</span> gaussian,</span>
-<span id="cb2190-4"><a href="horoscopes-insights.html#cb2190-4" aria-hidden="true" tabindex="-1"></a>      <span class="fu">bf</span>(<span class="fu">mvbind</span>(tarsus, back) <span class="sc">~</span> sex <span class="sc">*</span> hatchdate <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> p <span class="sc">|</span> fosternest) <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> q <span class="sc">|</span> dam)) <span class="sc">+</span></span>
-<span id="cb2190-5"><a href="horoscopes-insights.html#cb2190-5" aria-hidden="true" tabindex="-1"></a>        <span class="fu">set_rescor</span>(<span class="cn">TRUE</span>), </span>
-<span id="cb2190-6"><a href="horoscopes-insights.html#cb2190-6" aria-hidden="true" tabindex="-1"></a>      <span class="at">chains =</span> <span class="dv">2</span>, <span class="at">cores =</span> <span class="dv">2</span>,</span>
-<span id="cb2190-7"><a href="horoscopes-insights.html#cb2190-7" aria-hidden="true" tabindex="-1"></a>      <span class="at">seed =</span> <span class="dv">17</span>,</span>
-<span id="cb2190-8"><a href="horoscopes-insights.html#cb2190-8" aria-hidden="true" tabindex="-1"></a>      <span class="at">file =</span> <span class="st">&quot;fits/b17.02&quot;</span>)</span></code></pre></div>
-<p>Now <code>b17.2</code> is saved outside of <strong>R</strong>, I can safely remove it and then reload it.</p>
-<div class="sourceCode" id="cb2191"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2191-1"><a href="horoscopes-insights.html#cb2191-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span>(b17<span class="fl">.2</span>)</span></code></pre></div>
-<p>We might load <code>b17.2</code> with the <code>readRDS()</code> function.</p>
-<div class="sourceCode" id="cb2192"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2192-1"><a href="horoscopes-insights.html#cb2192-1" aria-hidden="true" tabindex="-1"></a>b17<span class="fl">.2</span> <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;fits/b17.02.rds&quot;</span>)</span></code></pre></div>
-<p>Now we can work with <code>b17.2</code> as desired.</p>
-<div class="sourceCode" id="cb2193"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2193-1"><a href="horoscopes-insights.html#cb2193-1" aria-hidden="true" tabindex="-1"></a><span class="fu">fixef</span>(b17<span class="fl">.2</span>)</span></code></pre></div>
-<pre><code>##                             Estimate  Est.Error       Q2.5       Q97.5
-## tarsus_Intercept         -0.40671261 0.07008777 -0.5470010 -0.27163003
-## back_Intercept           -0.01131333 0.06397809 -0.1352017  0.11088241
-## tarsus_sexMale            0.76988443 0.05760594  0.6590652  0.88341331
-## tarsus_sexUNK             0.18998102 0.14782444 -0.1001478  0.47197612
-## tarsus_hatchdate         -0.05316912 0.06737082 -0.1870366  0.07343716
-## tarsus_sexMale:hatchdate  0.01169482 0.05815626 -0.1010112  0.12243406
-## tarsus_sexUNK:hatchdate   0.06473711 0.12019755 -0.1620488  0.29951633
-## back_sexMale              0.00715757 0.06772201 -0.1220377  0.13861985
-## back_sexUNK               0.15272222 0.17589963 -0.1977150  0.49646947
-## back_hatchdate           -0.04869634 0.06607839 -0.1792265  0.08336856
-## back_sexMale:hatchdate   -0.08003104 0.06974893 -0.2151977  0.05955340
-## back_sexUNK:hatchdate    -0.04123281 0.14008404 -0.3111807  0.24315779</code></pre>
-<p>The <code>file</code> method has another handy feature. Let’s remove <code>b17.2</code> one more time to see.</p>
-<div class="sourceCode" id="cb2195"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2195-1"><a href="horoscopes-insights.html#cb2195-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span>(b17<span class="fl">.2</span>)</span></code></pre></div>
-<p>If you’ve fit a <code>brm()</code> model once and saved the results with <code>file</code>, executing the same <code>brm()</code> code will not re-fit the model. Rather, it will just load and return the model from the <code>.rds</code> file.</p>
-<div class="sourceCode" id="cb2196"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2196-1"><a href="horoscopes-insights.html#cb2196-1" aria-hidden="true" tabindex="-1"></a>b17<span class="fl">.2</span> <span class="ot">&lt;-</span> </span>
-<span id="cb2196-2"><a href="horoscopes-insights.html#cb2196-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">brm</span>(<span class="at">data =</span> BTdata,</span>
-<span id="cb2196-3"><a href="horoscopes-insights.html#cb2196-3" aria-hidden="true" tabindex="-1"></a>      <span class="at">family =</span> gaussian,</span>
-<span id="cb2196-4"><a href="horoscopes-insights.html#cb2196-4" aria-hidden="true" tabindex="-1"></a>      <span class="fu">bf</span>(<span class="fu">mvbind</span>(tarsus, back) <span class="sc">~</span> sex <span class="sc">*</span> hatchdate <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> p <span class="sc">|</span> fosternest) <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> q <span class="sc">|</span> dam)) <span class="sc">+</span></span>
-<span id="cb2196-5"><a href="horoscopes-insights.html#cb2196-5" aria-hidden="true" tabindex="-1"></a>        <span class="fu">set_rescor</span>(<span class="cn">TRUE</span>), </span>
-<span id="cb2196-6"><a href="horoscopes-insights.html#cb2196-6" aria-hidden="true" tabindex="-1"></a>      <span class="at">chains =</span> <span class="dv">2</span>, <span class="at">cores =</span> <span class="dv">2</span>,</span>
-<span id="cb2196-7"><a href="horoscopes-insights.html#cb2196-7" aria-hidden="true" tabindex="-1"></a>      <span class="at">seed =</span> <span class="dv">15</span>,</span>
-<span id="cb2196-8"><a href="horoscopes-insights.html#cb2196-8" aria-hidden="true" tabindex="-1"></a>      <span class="at">file =</span> <span class="st">&quot;fits/b17.02&quot;</span>)</span></code></pre></div>
-<p>It takes just a fraction of a second. Once again, we’re ready to work with <code>b17.2</code>.</p>
-<div class="sourceCode" id="cb2197"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2197-1"><a href="horoscopes-insights.html#cb2197-1" aria-hidden="true" tabindex="-1"></a>b17<span class="fl">.2</span><span class="sc">$</span>formula</span></code></pre></div>
-<pre><code>## tarsus ~ sex * hatchdate + (1 | p | fosternest) + (1 | q | dam) 
-## back ~ sex * hatchdate + (1 | p | fosternest) + (1 | q | dam)</code></pre>
-<p>And if you’d like to remind yourself what the name of that external file was or what folder you saved it in, you can extract it from the <code>brm()</code> fit object.</p>
-<div class="sourceCode" id="cb2199"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2199-1"><a href="horoscopes-insights.html#cb2199-1" aria-hidden="true" tabindex="-1"></a>b17<span class="fl">.2</span><span class="sc">$</span>file</span></code></pre></div>
-<pre><code>## [1] &quot;fits/b17.02.rds&quot;</code></pre>
-<p>Also, see <a href="https://twitter.com/ucfagls">Gavin Simpson</a>’s blog post, <a href="https://www.fromthebottomoftheheap.net/2012/04/01/saving-and-loading-r-objects/"><em>A better way of saving and loading objects in R</em></a>, for a discussion on the distinction between <code>.rda</code> and <code>.rds</code> files.</p>
-</div>
-<div id="build-your-models-slowly" class="section level2 hasAnchor" number="17.3">
-<h2><span class="header-section-number">17.3</span> Build your models slowly<a href="horoscopes-insights.html#build-your-models-slowly" class="anchor-section" aria-label="Anchor link to header"></a></h2>
-<p>The model from Bürkner’s vignette, <code>b17.1</code>, was no joke. If you wanted to be verbose about it, it was a multilevel, multivariate, multivariable model. It had a cross-classified multilevel structure, two predictors (for each criterion), and two criteria. Not only is that a lot to keep track of, there’s a whole lot of places for things to go wrong.</p>
-<p>Even if that was the final model I was interested in as a scientist, I still wouldn’t start with it. I’d build up incrementally, just to make sure nothing looked fishy. One place to start would be a simple intercepts-only model.</p>
-<div class="sourceCode" id="cb2201"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2201-1"><a href="horoscopes-insights.html#cb2201-1" aria-hidden="true" tabindex="-1"></a>b17<span class="fl">.0</span> <span class="ot">&lt;-</span> </span>
-<span id="cb2201-2"><a href="horoscopes-insights.html#cb2201-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">brm</span>(<span class="at">data =</span> BTdata, </span>
-<span id="cb2201-3"><a href="horoscopes-insights.html#cb2201-3" aria-hidden="true" tabindex="-1"></a>      <span class="at">family =</span> gaussian,</span>
-<span id="cb2201-4"><a href="horoscopes-insights.html#cb2201-4" aria-hidden="true" tabindex="-1"></a>      <span class="fu">bf</span>(<span class="fu">mvbind</span>(tarsus, back) <span class="sc">~</span> <span class="dv">1</span>) <span class="sc">+</span> <span class="fu">set_rescor</span>(<span class="cn">TRUE</span>), </span>
-<span id="cb2201-5"><a href="horoscopes-insights.html#cb2201-5" aria-hidden="true" tabindex="-1"></a>      <span class="at">chains =</span> <span class="dv">2</span>, <span class="at">cores =</span> <span class="dv">2</span>,</span>
-<span id="cb2201-6"><a href="horoscopes-insights.html#cb2201-6" aria-hidden="true" tabindex="-1"></a>      <span class="at">file =</span> <span class="st">&quot;fits/b17.00&quot;</span>)</span></code></pre></div>
-<div class="sourceCode" id="cb2202"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2202-1"><a href="horoscopes-insights.html#cb2202-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(b17<span class="fl">.0</span>, <span class="at">widths =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">3</span>))</span></code></pre></div>
-<p><img src="17_files/figure-html/unnamed-chunk-14-1.png" width="624" style="display: block; margin: auto;" /></p>
-<div class="sourceCode" id="cb2203"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2203-1"><a href="horoscopes-insights.html#cb2203-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(b17<span class="fl">.0</span>)</span></code></pre></div>
-<pre><code>##  Family: MV(gaussian, gaussian) 
-##   Links: mu = identity; sigma = identity
-##          mu = identity; sigma = identity 
-## Formula: tarsus ~ 1 
-##          back ~ 1 
-##    Data: BTdata (Number of observations: 828) 
-##   Draws: 2 chains, each with iter = 2000; warmup = 1000; thin = 1;
-##          total post-warmup draws = 2000
-## 
-## Population-Level Effects: 
-##                  Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## tarsus_Intercept     0.00      0.04    -0.07     0.07 1.00     2628     1750
-## back_Intercept      -0.00      0.04    -0.07     0.07 1.00     2729     1433
-## 
-## Family Specific Parameters: 
-##              Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## sigma_tarsus     1.00      0.02     0.96     1.05 1.00     2225     1369
-## sigma_back       1.00      0.03     0.96     1.05 1.00     2222     1560
-## 
-## Residual Correlations: 
-##                     Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## rescor(tarsus,back)    -0.03      0.04    -0.10     0.04 1.00     2010     1349
-## 
-## Draws were sampled using sampling(NUTS). For each parameter, Bulk_ESS
-## and Tail_ESS are effective sample size measures, and Rhat is the potential
-## scale reduction factor on split chains (at convergence, Rhat = 1).</code></pre>
-<p>If the chains look good and the summary statistics are about what I’d expect, I’m on good footing to keep building up to the model I really care about. The results from this model, for example, suggest that both criteria were standardized (i.e., intercepts at 0 and <span class="math inline">\(\sigma\)</span>’s at 1). If that wasn’t what I intended, I’d rather catch it here than spend several minutes fitting the more complicated <code>b17.1</code> model, the parameters for which are sufficiently complicated that I may have had trouble telling what scale the data were on.</p>
-<p>Note, this is not the same as <span class="math inline">\(p\)</span>-hacking <span class="citation">(<a href="#ref-simmonsFalsepositivePsychologyUndisclosed2011" role="doc-biblioref">Simmons et al., 2011</a>)</span> or wandering aimlessly down the garden of forking paths <span class="citation">(<a href="#ref-gelmanGardenForkingPaths2013" role="doc-biblioref">Gelman &amp; Loken, 2013</a>)</span>. We are not chasing the flashiest model to put in a paper. Rather, this is just good pragmatic data science. If you start off with a theoretically-justified but complicated model and run into computation problems or produce odd-looking estimates, it won’t be clear where things went awry. When you build up, step by step, it’s easier to catch data cleaning failures, coding goofs and the like.</p>
-<p>So, when I’m working on a project, I fit one or a few simplified models before fitting my complicated model of theoretical interest. This is especially the case when I’m working with model types that are new to me or that I haven’t worked with in a while. I document each step in my R Notebook files and I save the fit objects for each in external files. I have caught surprises this way. Hopefully this will help you catch your mistakes, too.</p>
-</div>
-<div id="look-at-your-data" class="section level2 hasAnchor" number="17.4">
-<h2><span class="header-section-number">17.4</span> Look at your data<a href="horoscopes-insights.html#look-at-your-data" class="anchor-section" aria-label="Anchor link to header"></a></h2>
-<p>Relatedly, and perhaps even a precursor, you should always plot your data before fitting a model. There were plenty examples of this in the text, but it’s worth it making explicit. Simple summary statistics are great, but they’re not enough. For an entertaining exposition, check out Matejka and Fitzmaurice’s <span class="citation">(<a href="#ref-matejkaSameStats2017" role="doc-biblioref">2017</a>)</span> <a href="https://www.autodeskresearch.com/publications/samestats"><em>Same stats, different graphs: Generating datasets with varied appearance and identical statistics through simulated annealing</em></a>. Though it might make for a great cocktail party story, I’d hate to pollute the scientific literature with a linear model based on a set of dinosaur-shaped data.</p>
-</div>
-<div id="consider-using-the-0-intercept-syntax" class="section level2 hasAnchor" number="17.5">
-<h2><span class="header-section-number">17.5</span> Consider using the <code>0 + Intercept</code> syntax<a href="horoscopes-insights.html#consider-using-the-0-intercept-syntax" class="anchor-section" aria-label="Anchor link to header"></a></h2>
-<p>We covered this a little in the last couple chapters (e.g., <a href="missing-data-and-other-opportunities.html#fit-the-bayesian-muiltilevel-alternative.">Section 15.4.7</a>, <a href="generalized-linear-madness.html#lynx-lessons-bonus-practice-with-the-autoregressive-model.">Section 16.4.3</a>), but it’s easy to miss. If your real-world model has predictors (i.e., isn’t an intercept-only model), it’s important to keep track of how you have centered those predictors. When you specify a prior for a <strong>brms</strong> <code>Intercept</code> (i.e., an intercept resulting from the <code>y ~ x</code> or <code>y ~ 1 + x</code> style of syntax), <u>that prior is applied under the presumption all the predictors are mean centered</u>. In the <em>Population-level (‘fixed’) effects</em> subsection of the <em><code>set_prior</code></em> section of the <a href="https://cran.r-project.org/package=brms/brms.pdf"><strong>brms</strong> reference manual</a> <span class="citation">(<a href="#ref-brms2022RM" role="doc-biblioref">Bürkner, 2022e</a>)</span>, we read:</p>
-<blockquote>
-<p>Note that technically, this prior is set on an intercept that results when internally
-centering all population-level predictors around zero to improve sampling efficiency. On this centered intercept, specifying a prior is actually much easier and intuitive than on the original intercept, since the former represents the expected response value when all predictors are at their means. To treat the intercept as an ordinary population-level effect and avoid the centering parameterization, use <code>0 + Intercept</code> on the right-hand side of the model formula.</p>
-</blockquote>
-<p>We get a little more information from the <em>Parameterization of the population-level intercept</em> subsection of the <em><code>brmsformula</code></em> section:</p>
-<blockquote>
-<p>This behavior can be avoided by using the reserved (and internally generated) variable Intercept. Instead of <code>y ~ x</code>, you may write <code>y ~ 0 + Intercept + x</code>. This way, priors can be defined on the real intercept, directly. In addition, the intercept is just treated as an ordinary population-level effect and thus priors defined on b will also apply to it. Note that this parameterization may be less efficient than the default parameterization discussed above.</p>
-</blockquote>
-<p>We didn’t bother using the <code>0 + Intercept</code> syntax for most of our models because McElreath chose to emphasize mean-centered and standardized predictors in the second edition of his text. But this will not always be the case. Sometimes you might have a good reason not to center your predictors. In those cases, the <code>0 + Intercept</code> syntax can make a difference. Regardless, do set your <code>Intercept</code> priors with care.</p>
-</div>
-<div id="annotate-your-workflow" class="section level2 hasAnchor" number="17.6">
-<h2><span class="header-section-number">17.6</span> Annotate your workflow<a href="horoscopes-insights.html#annotate-your-workflow" class="anchor-section" aria-label="Anchor link to header"></a></h2>
-<p>In a typical model-fitting file, I’ll load my data, perhaps transform the data a bit, fit several models, and examine the output of each with trace plots, model summaries, information criteria, and the like. In my early days, I just figured each of these steps were self-explanatory.</p>
-<p>Nope.</p>
-<p><a href="https://www.r-bloggers.com/your-most-valuable-collaborator-future-you/">“In every project you have at least one other collaborator; future-you. You don’t want future-you to curse past-you.”</a></p>
-<p>My experience was that even a couple weeks between taking a break from a project and restarting it was enough time to make my earlier files confusing. <strong>And they were my files</strong>. I now start each R Notebook document with an introductory paragraph or two explaining exactly what the purpose of the file is. I separate my major sections by <a href="https://rmarkdown.rstudio.com/authoring_basics.html">headers and subheaders</a>. My working R Notebook files are peppered with bullets, sentences, and full on paragraphs between code blocks.</p>
-</div>
-<div id="annotate-your-code" class="section level2 hasAnchor" number="17.7">
-<h2><span class="header-section-number">17.7</span> Annotate your code<a href="horoscopes-insights.html#annotate-your-code" class="anchor-section" aria-label="Anchor link to header"></a></h2>
-<p>This idea is implicit in McElreath’s text, but it’s easy to miss the message. I know I did, at first. I find this is especially important for data wrangling. I’m a <strong>tidyverse</strong> guy and, for me, the big-money verbs like <code>mutate()</code>, <code>pivot_longer()</code>, <code>select()</code>, <code>filter()</code>, <code>group_by()</code>, and <code>summarise()</code> take care of the bulk of my data wrangling. But every once and a while I need to do something less common, like with <code>str_extract()</code> or <code>case_when()</code>. When I end up using a new or less familiar function, I typically annotate right in the code and even sometimes leave a hyperlink to some <a href="https://www.r-bloggers.com">R-bloggers</a> post or <a href="https://stackoverflow.com">stackoverflow</a> question that explained how to use it.</p>
-</div>
-<div id="break-up-your-workflow" class="section level2 hasAnchor" number="17.8">
-<h2><span class="header-section-number">17.8</span> Break up your workflow<a href="horoscopes-insights.html#break-up-your-workflow" class="anchor-section" aria-label="Anchor link to header"></a></h2>
-<p>I’ve also learned to break up my projects into multiple R Notebook files. If you have a small project for which you just want a quick and dirty plot, fine, do it all in one file. My typical scientific projects have:</p>
-<ul>
-<li>a primary data cleaning file;</li>
-<li>a file with basic descriptive statistics and the like;</li>
-<li>at least one primary analysis file;</li>
-<li>possible secondary and tertiary analysis files;</li>
-<li>a file or two for my major figures; and</li>
-<li>a file explaining and depicting my priors, often accompanied by my posteriors, for comparison.</li>
-</ul>
-<p>Putting all that information in one R Notebook file would be overwhelming. Your workflow might well look different, but hopefully you get the idea. You don’t want working files with thousands of lines of code.</p>
-<p>To get a sense of what this can look like in practice, you might follow this link, <a href="https://osf.io/vekpf/">https://osf.io/vekpf/</a>, to the OSF project site for one of my conference presentations <span class="citation">(<a href="#ref-kurzEvenTreatmentFunctional2019" role="doc-biblioref">Kurz et al., 2019</a>)</span> from the Before Times. In the <a href="https://osf.io/vekpf/wiki/home/">wiki</a>, I explained the contents of 10 files supporting the analyses we presented at the conference. Each of those 10 <code>.html</code> files has its origin in its own <code>.Rmd</code> file.</p>
-<p>Mainly to keep Jenny Bryan from <a href="https://www.tidyverse.org/articles/2017/12/workflow-vs-script/">setting my computer on fire</a>, I’m also in the habit of organizing interconnected project files with help from <a href="https://support.rstudio.com/hc/en-us/articles/200526207-Using-Projects">RStudio Projects</a>. You can learn more about these from <a href="https://r4ds.had.co.nz/workflow-projects.html">Chapter 8</a> in <em>R4DS</em> <span class="citation">(<a href="#ref-grolemundDataScience2017" role="doc-biblioref">Grolemund &amp; Wickham, 2017</a>)</span>. They might seem trivial, at first, but I’ve come to value the simple ways in which RStudio Projects help streamline my workflow.</p>
-</div>
-<div id="code-in-public" class="section level2 hasAnchor" number="17.9">
-<h2><span class="header-section-number">17.9</span> Code in public<a href="horoscopes-insights.html#code-in-public" class="anchor-section" aria-label="Anchor link to header"></a></h2>
-<p>If you would like to improve the code you write for data-wrangling, modeling, and/or visualizing, code in public. Yes, it can be intimidating. Yes, you will probably make mistakes. If you’re lucky, <a href="https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse/pulls?q=is%3Apr+is%3Aclosed">others will point them out</a> and you will revise and learn and grow. 🌱</p>
-<p>You can do this on any number of mediums, such as</p>
-<ul>
-<li>GitHub (e.g., <a href="https://github.com/paul-buerkner/brms">here</a>),</li>
-<li>personal blogs (e.g., <a href="https://dilshersinghdhillon.netlify.com/post/multiple_comparison/">here</a>),</li>
-<li>the Open Science Framework (e.g., <a href="https://osf.io/dpzcb/">here</a>),</li>
-<li>online books (e.g., <a href="https://learningstatisticswithr.com/">here</a>),</li>
-<li>full-blown YouTube lectures (e.g., <a href="https://youtu.be/sgw4cu8hrZM">here</a>), or even with</li>
-<li>brief Twitter GIFs (e.g., <a href="https://twitter.com/GuyProchilo/status/1207766623840604174">here</a>).</li>
-</ul>
-<p>I’ve found that just the possibility that others might look at my code makes it more likely I’ll slow down, annotate, and try to use more consistent formatting. Hopefully it will benefit you, too.</p>
-</div>
-<div id="check-out-social-media" class="section level2 hasAnchor" number="17.10">
-<h2><span class="header-section-number">17.10</span> Check out social media<a href="horoscopes-insights.html#check-out-social-media" class="anchor-section" aria-label="Anchor link to header"></a></h2>
-<p>If you’re not on it, consider joining academic Twitter (see the related blog posts by <a href="https://medium.com/@smojarad/a-beginners-guide-to-academic-twitter-f483dae86597">Sarah Mojarad</a> and <a href="https://www.dsquintana.blog/twitter-for-scientists/">Dan Quintana</a>). The word on the street is correct. Twitter can be rage-fueled <a href="https://media.giphy.com/media/l0IynvPneUpb7SnBe/giphy.gif">dumpster fire</a>. But if you’re selective about who you follow, it’s a great place to lean from and connect with your academic heroes. If you’re a fan of this project, here’s a list of some of the people you might want to follow:</p>
-<ul>
-<li><a href="https://twitter.com/dataandme?lang=en">Mara Averick</a></li>
-<li><a href="https://twitter.com/betanalpha?lang=en">Michael Bentacourt</a></li>
-<li><a href="https://twitter.com/JennyBryan?lang=en">Jenny Bryan</a></li>
-<li><a href="https://twitter.com/paulbuerkner?lang=en">Paul Bürkner</a></li>
-<li><a href="https://twitter.com/Nate__Haines">Nathaniel Haines</a></li>
-<li><a href="https://twitter.com/f2harrell">Frank Harrell</a></li>
-<li><a href="https://twitter.com/andrewheiss">Andrew Heiss</a></li>
-<li><a href="https://twitter.com/apreshill">Alison Presmanes Hill</a></li>
-<li><a href="https://twitter.com/mjskay?lang=en">Matthew Kay</a></li>
-<li><a href="https://twitter.com/tjmahr">Tristan Mahr</a></li>
-<li><a href="https://twitter.com/rlmcelreath?lang=en">Richard McElreath</a></li>
-<li><a href="https://twitter.com/djnavarro">Danielle Navarro</a></li>
-<li><a href="https://twitter.com/ChelseaParlett">Chelsea Parlett-Pelleriti</a></li>
-<li><a href="https://twitter.com/rdpeng?lang=en">Roger Peng</a></li>
-<li><a href="https://twitter.com/drob">David Robinson</a></li>
-<li><a href="https://twitter.com/juliasilge">Julia Silge</a></li>
-<li><a href="https://twitter.com/dan_p_simpson?lang=en">Dan Simpson</a></li>
-<li><a href="https://twitter.com/avehtari?lang=en">Aki Vehtari</a></li>
-<li><a href="https://twitter.com/vuorre?lang=en">Matti Vuorre</a></li>
-<li><a href="https://twitter.com/hadleywickham?lang=en">Hadley Wickham</a></li>
-<li><a href="https://twitter.com/ClausWilke">Claus Wilke</a></li>
-<li><a href="https://twitter.com/wdonald_1985">Donald Williams</a></li>
-<li><a href="https://twitter.com/xieyihui?lang=en">Yihui Xie</a></li>
-</ul>
-<p><a href="https://twitter.com/SolomonKurz?lang=en">I’m on twitter</a>, too.</p>
-<p>There are also some great blogs out there. Of primary interest, McElreath blogs once in a blue moon at <a href="https://elevanth.org/blog/">https://elevanth.org/blog/</a>. Andrew Gelman regularly blogs at <a href="https://statmodeling.stat.columbia.edu/">https://statmodeling.stat.columbia.edu/</a>. Many of Gelman’s posts are great, but don’t miss the action in the comments sections. Every so often, I post on <strong>brms</strong>-related content at <a href="https://solomonkurz.netlify.app/post/">https://solomonkurz.netlify.app/post/</a>.</p>
-<p>Also, do check out the <a href="https://discourse.mc-stan.org">Stan Forums</a>. They have a special <a href="https://discourse.mc-stan.org/c/interfaces/brms"><strong>brms</strong> tag</a> there, under which you can find all kinds of hot <strong>brms</strong> talk.</p>
-<p>But if you’re new to the world of asking for help with your code online, you might acquaint yourself with the notion of a <a href="https://stackoverflow.com/questions/5963269/how-to-make-a-great-r-reproducible-example">minimally reproducible example</a>. In short, a good minimally reproducible example helps others help you. If you fail to do this, prepare for some snark.</p>
-</div>
-<div id="extra-rethinking-related-resources" class="section level2 hasAnchor" number="17.11">
-<h2><span class="header-section-number">17.11</span> Extra <em>Rethinking</em>-related resources<a href="horoscopes-insights.html#extra-rethinking-related-resources" class="anchor-section" aria-label="Anchor link to header"></a></h2>
-<p>You may have noticed I don’t offer solutions to the homework problems. Happily, <a href="https://twitter.com/DavidSalazarVir">David Salazar</a> has a blog series on the homework problems highlighting a <strong>tiydverse</strong>- and <strong>rethinking</strong>-oriented workflow; find his first post <a href="https://david-salazar.github.io/2020/04/19/statistical-rethinking-week-1/">here</a>. <a href="https://twitter.com/aniakawiecki">Ania Kawiecki</a> made a beautiful website solving the homework problems using the <strong>tiydverse</strong> and <a href="https://www.r-inla.org/home"><strong>INLA</strong></a> <span class="citation">(<a href="#ref-rue2009approximate" role="doc-biblioref">Rue et al., 2009</a>)</span>, which you can find <a href="https://akawiecki.github.io/statistical_rethinking_inla/">here</a>. <a href="https://twitter.com/VincentAB">Vincent Arel-Bundock</a> has a nice website where he worked through the primary material in the book chapters using <strong>rstan</strong> and the <strong>tidyverse</strong>, which you can find <a href="https://vincentarelbundock.github.io/rethinking2">here</a>. Also, <a href="https://twitter.com/andrewheiss">Andrew Heiss</a> has been coding through some of the examples in McElreath’s <a href="https://youtube.com/playlist?list=PLDcUM9US4XdMROZ57-OIRtIK0aOynbgZN">2022 lecture series</a>, which you can find <a href="https://bayesf22-notebook.classes.andrewheiss.com/rethinking/03-video.html">here</a>.</p>
-<p>If you find other resources along these lines, please tell me about it in a <a href="https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed/issues">GitHub issue</a>.</p>
-</div>
-<div id="but-like-how-do-i-do-this-for-real" class="section level2 hasAnchor" number="17.12">
-<h2><span class="header-section-number">17.12</span> <em>But, like, how do I do this for real?</em><a href="horoscopes-insights.html#but-like-how-do-i-do-this-for-real" class="anchor-section" aria-label="Anchor link to header"></a></h2>
-<p>McElreath’s text and my ebook are designed to teach you how to <em>get started doing</em> applied Bayesian statistics. Neither does a great job teaching you <em>how to write them up</em> for a professional presentation, like a peer-reviewed journal article. What I will do, however, is give you some places to look. Just before releasing the 0.2.0 version of this ebook, I asked the good people on twitter to share their favorite examples of applied Bayesian statistics in the scientific literature.</p>
-<blockquote class="twitter-tweet" data-width="550" data-lang="en" data-dnt="true" data-theme="light"><p lang="en" dir="ltr">What are your favorite **applied** articles using Bayesian statistics (via Stan, <a href="https://twitter.com/hashtag/brms?src=hash&amp;ref_src=twsrc%5Etfw">#brms</a>, …)? <br><br>I’m particularly interested in great walk-outs in Methods sections, Discussion sections, and supplemental materials.</p>&mdash; Solomon Kurz (@SolomonKurz) <a href="https://twitter.com/SolomonKurz/status/1371547835737444355?ref_src=twsrc%5Etfw">March 15, 2021</a></blockquote>
-
-<p>At first, folks were a little shy, but eventually the crowd came through in spades! For a full list, feel free to peruse my tweet thread. For your convenience, here’s a list of a good bunch of the works people shared<a href="#fn10" class="footnote-ref" id="fnref10"><sup>10</sup></a>:</p>
-<ul>
-<li><span class="citation">Allen et al. (<a href="#ref-allen2020outside" role="doc-biblioref">2020</a>, PDF <a href="https://scholarworks.boisestate.edu/cgi/viewcontent.cgi?article=1197&amp;context=polsci_facpubs" role="doc-biblioref">link</a>)</span></li>
-<li><span class="citation">Amlie-Lefond et al. (<a href="#ref-amlie2020risk" role="doc-biblioref">2020</a>, PDF <a href="https://www.ahajournals.org/doi/epub/10.1161/STROKEAHA.119.027225" role="doc-biblioref">link</a>)</span></li>
-<li><span class="citation">Casillas (<a href="#ref-casillas2021interlingual" role="doc-biblioref">2021</a>, PDF <a href="https://www.mdpi.com/2226-471X/6/1/9/pdf" role="doc-biblioref">link</a>)</span></li>
-<li><span class="citation">Davis et al. (<a href="#ref-davis2020genetic" role="doc-biblioref">2020</a>, PDF <a href="https://elifesciences.org/articles/50901.pdf" role="doc-biblioref">link</a>)</span></li>
-<li><span class="citation">Girard et al. (<a href="#ref-girard2021reconsidering" role="doc-biblioref">2021</a>, PDF <a href="https://doi.org/10.1007/s42761-020-00030-w" role="doc-biblioref">link</a>)</span></li>
-<li><span class="citation">Haines et al. (<a href="#ref-haines2018outcome" role="doc-biblioref">2018</a>, PDF <a href="http://haines-lab.com/pdf/Haines_Cog_Sci_2018.pdf" role="doc-biblioref">link</a>)</span></li>
-<li><span class="citation">Kale et al. (<a href="#ref-kale2020visual" role="doc-biblioref">2020</a>, PDF <a href="https://mucollective.northwestern.edu/files/2020%20-%20Kale,%20Visual%20Reasoning%20Strategies%20for%20Effect%20Size%20Judgements.pdf" role="doc-biblioref">link</a>)</span></li>
-<li><span class="citation">Nogueira et al. (<a href="#ref-nogueira2018thrombectomy" role="doc-biblioref">2018</a>, PDF <a href="https://www.nejm.org/doi/full/10.1056/nejmoa1706442" role="doc-biblioref">link</a>)</span></li>
-<li><span class="citation">Ross et al. (<a href="#ref-ross2020racial" role="doc-biblioref">2020</a>, PDF <a href="https://journals.sagepub.com/doi/pdf/10.1177/1948550620916071" role="doc-biblioref">link</a>)</span></li>
-<li><span class="citation">Silbiger et al. (<a href="#ref-silbiger2019comparative" role="doc-biblioref">2019</a>, PDF <a href="https://par.nsf.gov/servlets/purl/10148484" role="doc-biblioref">link</a>)</span></li>
-</ul>
-<p>At a quick glance, these papers cover a reasonably broad range of topics. I hope they give you a sense of how to write up your work.</p>
-</div>
-<div id="parting-wisdom" class="section level2 hasAnchor" number="17.13">
-<h2><span class="header-section-number">17.13</span> Parting wisdom<a href="horoscopes-insights.html#parting-wisdom" class="anchor-section" aria-label="Anchor link to header"></a></h2>
-<p>Okay, that’s enough from me. Let’s start wrapping this project up with some McElreath.</p>
-<blockquote>
-<p>There is an aspect of science that you do personally control: openness. <a href="https://mindhacks.com/2017/11/09/open-science-essentials-pre-registration/">Pre-plan your research together with the statistical analysis</a>. Doing so will improve both the research design and the statistics. Document it in the form of a mock analysis that you would not be ashamed to share with a colleague. Register it publicly, perhaps in a simple repository, like <a href="https://github.com">Github</a> or any other. But <a href="https://bookdown.org/yihui/blogdown/">your webpage</a> will do just fine, as well. Then collect the data. Then analyze the data as planned. If you must change the plan, that’s fine. But document the changes and justify them. Provide all of the data and scripts necessary to repeat your analysis. Do not provide scripts and data <a href="https://twitter.com/robinnkok/status/1213011238294347776">“on request,”</a> but rather put them online so reviewers of your paper can access them without your interaction. There are of course cases in which full data cannot be released, due to privacy concerns. But the bulk of science is not of that sort.</p>
-<p>The data and its analysis are the scientific product. The paper is just an advertisement. If you do your honest best to design, conduct, and document your research, so that others can build directly upon it, you can make a difference. (p. 555)</p>
-</blockquote>
-<p>Toward that end, also check out the <a href="https://osf.io">OSF</a> and their YouTube channel, <a href="https://www.youtube.com/channel/UCGPlVf8FsQ23BehDLFrQa-g">here</a>. <a href="https://twitter.com/katiecorker">Katie Corker</a> gets the last words: <a href="https://cos.io/blog/open-science-is-a-behavior/">“Open science is stronger because we’re doing this together.”</a></p>
-</div>
-<div id="session-info-16" class="section level2 unnumbered hasAnchor">
-<h2>Session info<a href="horoscopes-insights.html#session-info-16" class="anchor-section" aria-label="Anchor link to header"></a></h2>
-<div class="sourceCode" id="cb2205"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2205-1"><a href="horoscopes-insights.html#cb2205-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span></code></pre></div>
-<pre><code>## R version 4.2.0 (2022-04-22)
-## Platform: x86_64-apple-darwin17.0 (64-bit)
-## Running under: macOS Big Sur/Monterey 10.16
-## 
-## Matrix products: default
-## BLAS:   /Library/Frameworks/R.framework/Versions/4.2/Resources/lib/libRblas.0.dylib
-## LAPACK: /Library/Frameworks/R.framework/Versions/4.2/Resources/lib/libRlapack.dylib
-## 
-## locale:
-## [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
-## 
-## attached base packages:
-## [1] stats     graphics  grDevices utils     datasets  methods   base     
-## 
-## other attached packages:
-## [1] brms_2.18.0 Rcpp_1.0.9 
-## 
-## loaded via a namespace (and not attached):
-##   [1] TH.data_1.1-1        minqa_1.2.4          colorspace_2.0-3     ellipsis_0.3.2       ggridges_0.5.3      
-##   [6] rgdal_1.5-30         estimability_1.4.1   markdown_1.1         base64enc_0.1-3      rstudioapi_0.13     
-##  [11] farver_2.1.1         rstan_2.21.7         DT_0.24              lubridate_1.8.0      fansi_1.0.3         
-##  [16] mvtnorm_1.1-3        bridgesampling_1.1-2 codetools_0.2-18     splines_4.2.0        cachem_1.0.6        
-##  [21] knitr_1.40           shinythemes_1.2.0    bayesplot_1.9.0      projpred_2.2.1       jsonlite_1.8.0      
-##  [26] nloptr_2.0.3         shiny_1.7.2          httr_1.4.4           compiler_4.2.0       emmeans_1.8.0       
-##  [31] backports_1.4.1      assertthat_0.2.1     Matrix_1.4-1         fastmap_1.1.0        cli_3.4.0           
-##  [36] later_1.3.0          htmltools_0.5.3      prettyunits_1.1.1    tools_4.2.0          igraph_1.3.4        
-##  [41] coda_0.19-4          gtable_0.3.1         glue_1.6.2           reshape2_1.4.4       dplyr_1.0.10        
-##  [46] posterior_1.3.1      jquerylib_0.1.4      vctrs_0.4.1          nlme_3.1-159         crosstalk_1.2.0     
-##  [51] tensorA_0.36.2       xfun_0.33            stringr_1.4.1        ps_1.7.1             lme4_1.1-30         
-##  [56] mime_0.12            miniUI_0.1.1.1       lifecycle_1.0.2      gtools_3.9.3         MASS_7.3-58.1       
-##  [61] zoo_1.8-10           scales_1.2.1         colourpicker_1.1.1   promises_1.2.0.1     Brobdingnag_1.2-8   
-##  [66] parallel_4.2.0       sandwich_3.0-2       inline_0.3.19        shinystan_2.6.0      curl_4.3.2          
-##  [71] gamm4_0.2-6          gridExtra_2.3        ggplot2_3.3.6        loo_2.5.1            StanHeaders_2.21.0-7
-##  [76] sass_0.4.2           tweetrmd_0.0.9       stringi_1.7.8        highr_0.9            dygraphs_1.1.1.6    
-##  [81] checkmate_2.1.0      boot_1.3-28          pkgbuild_1.3.1       rlang_1.0.6          pkgconfig_2.0.3     
-##  [86] matrixStats_0.62.0   distributional_0.3.1 evaluate_0.16        lattice_0.20-45      purrr_0.3.4         
-##  [91] labeling_0.4.2       rstantools_2.2.0     htmlwidgets_1.5.4    processx_3.7.0       tidyselect_1.1.2    
-##  [96] plyr_1.8.7           magrittr_2.0.3       bookdown_0.28        R6_2.5.1             generics_0.1.3      
-## [101] multcomp_1.4-20      DBI_1.1.3            pillar_1.8.1         mgcv_1.8-40          xts_0.12.1          
-## [106] sp_1.5-0             survival_3.4-0       abind_1.4-5          tibble_3.1.8         crayon_1.5.1        
-## [111] utf8_1.2.2           rmarkdown_2.16       emo_0.0.0.9000       grid_4.2.0           callr_3.7.1         
-## [116] threejs_0.3.3        digest_0.6.29        xtable_1.8-4         httpuv_1.6.5         RcppParallel_5.1.5  
-## [121] stats4_4.2.0         munsell_0.5.0        bslib_0.4.0          shinyjs_2.1.0</code></pre>
-
-</div>
-</div>
-<h3>References<a href="references.html#references" class="anchor-section" aria-label="Anchor link to header"></a></h3>
-<div id="refs" class="references csl-bib-body hanging-indent" line-spacing="2">
-<div id="ref-allen2020outside" class="csl-entry">
-Allen, M. A., Flynn, M. E., Machain, C. M., &amp; Stravers, A. (2020). Outside the wire: <span>US</span> military deployments and public opinion in host states. <em>American Political Science Review</em>, <em>114</em>(2), 326–341. <a href="https://doi.org/10.1017/S0003055419000868">https://doi.org/10.1017/S0003055419000868</a>
-</div>
-<div id="ref-amlie2020risk" class="csl-entry">
-Amlie-Lefond, C., Shaw, D. W., Cooper, A., Wainwright, M. S., Kirton, A., Felling, R. J., Abraham, M. G., Mackay, M. T., Dowling, M. M., Torres, M., et al. (2020). Risk of intracranial hemorrhage following intravenous <span class="nocase">tPA</span> (<span>Tissue-Type Plasminogen Activator</span>) for acute stroke is low in children. <em>Stroke</em>, <em>51</em>(2), 542–548. <a href="https://doi.org/10.1161/STROKEAHA.119.027225">https://doi.org/10.1161/STROKEAHA.119.027225</a>
-</div>
-<div id="ref-Bürkner2022Multivariate" class="csl-entry">
-Bürkner, P.-C. (2022c). <em>Estimating multivariate models with brms</em>. <a href="https://CRAN.R-project.org/package=brms/vignettes/brms_multivariate.html">https://CRAN.R-project.org/package=brms/vignettes/brms_multivariate.html</a>
-</div>
-<div id="ref-brms2022RM" class="csl-entry">
-Bürkner, P.-C. (2022e). <em><span class="nocase">brms</span> reference manual, <span>Version</span> 2.18.0</em>. <a href="https://CRAN.R-project.org/package=brms/brms.pdf">https://CRAN.R-project.org/package=brms/brms.pdf</a>
-</div>
-<div id="ref-casillas2021interlingual" class="csl-entry">
-Casillas, J. V. (2021). Interlingual interactions elicit performance mismatches not <span>“compromise”</span> categories in early bilinguals: <span>Evidence</span> from meta-analysis and coronal stops. <em>Languages</em>, <em>6</em>(1), 9. <a href="https://doi.org/10.3390/languages6010009">https://doi.org/10.3390/languages6010009</a>
-</div>
-<div id="ref-davis2020genetic" class="csl-entry">
-Davis, F. P., Nern, A., Picard, S., Reiser, M. B., Rubin, G. M., Eddy, S. R., &amp; Henry, G. L. (2020). A genetic, genomic, and computational resource for exploring neural circuit function. <em>Elife</em>, <em>9</em>, e50901. <a href="https://doi.org/10.7554/eLife.50901">https://doi.org/10.7554/eLife.50901</a>
-</div>
-<div id="ref-gelmanGardenForkingPaths2013" class="csl-entry">
-Gelman, A., &amp; Loken, E. (2013). <em>The garden of forking paths: <span>Why</span> multiple comparisons can be a problem, even when there is no <span>“fishing expedition”</span> or <span>“p-hacking”</span> and the research hypothesis was posited ahead of time</em>. 17. <a href="https://stat.columbia.edu/~gelman/research/unpublished/p_hacking.pdf">https://stat.columbia.edu/~gelman/research/unpublished/p_hacking.pdf</a>
-</div>
-<div id="ref-girard2021reconsidering" class="csl-entry">
-Girard, J. M., Cohn, J. F., Yin, L., &amp; Morency, L.-P. (2021). Reconsidering the duchenne smile: <span>Formalizing</span> and testing hypotheses about eye constriction and positive emotion. <em>Affective Science</em>, 1–16. <a href="https://doi.org/10.1007/s42761-020-00030-w">https://doi.org/10.1007/s42761-020-00030-w</a>
-</div>
-<div id="ref-grolemundDataScience2017" class="csl-entry">
-Grolemund, G., &amp; Wickham, H. (2017). <em>R for data science</em>. <span>O’Reilly</span>. <a href="https://r4ds.had.co.nz">https://r4ds.had.co.nz</a>
-</div>
-<div id="ref-haines2018outcome" class="csl-entry">
-Haines, N., Vassileva, J., &amp; Ahn, W.-Y. (2018). The outcome-representation learning model: <span>A</span> novel reinforcement learning model of the <span>Iowa Gambling Task</span>. <em>Cognitive Science</em>, <em>42</em>(8), 2534–2561. <a href="https://doi.org/10.1111/cogs.12688">https://doi.org/10.1111/cogs.12688</a>
-</div>
-<div id="ref-kale2020visual" class="csl-entry">
-Kale, A., Kay, M., &amp; Hullman, J. (2020). Visual reasoning strategies for effect size judgments and decisions. <em>IEEE Transactions on Visualization and Computer Graphics</em>. <a href="https://doi.org/10.1109/TVCG.2020.3030335">https://doi.org/10.1109/TVCG.2020.3030335</a>
-</div>
-<div id="ref-kurzEvenTreatmentFunctional2019" class="csl-entry">
-Kurz, A. S., DeBeer, B. B., Kimbrel, N. A., Morissette, S. B., &amp; Meyer, E. C. (2019, October 16). <em>Even with treatment, functional impairment and quality of life remain remarkably stable over two years in post-9/11 <span>Iraq</span> and <span>Afghanistan</span> war veterans</em>. The 4th <span>Annual San Antonio Combat PTSD Conference</span>. <a href="https://osf.io/vekpf/">https://osf.io/vekpf/</a>
-</div>
-<div id="ref-matejkaSameStats2017" class="csl-entry">
-Matejka, J., &amp; Fitzmaurice, G. (2017). <em>Same stats, different graphs: <span>Generating</span> datasets with varied appearance and identical statistics through simulated annealing</em>. <a href="https://www.autodesk.com/research/publications/same-stats-different-graphs">https://www.autodesk.com/research/publications/same-stats-different-graphs</a>
-</div>
-<div id="ref-mcelreathStatisticalRethinkingBayesian2020" class="csl-entry">
-McElreath, R. (2020). <em>Statistical rethinking: <span>A Bayesian</span> course with examples in <span>R</span> and <span>Stan</span></em> (Second Edition). <span>CRC Press</span>. <a href="https://xcelab.net/rm/statistical-rethinking/">https://xcelab.net/rm/statistical-rethinking/</a>
-</div>
-<div id="ref-nogueira2018thrombectomy" class="csl-entry">
-Nogueira, R. G., Jadhav, A. P., Haussen, D. C., Bonafe, A., Budzik, R. F., Bhuva, P., Yavagal, D. R., Ribo, M., Cognard, C., Hanel, R. A., et al. (2018). Thrombectomy 6 to 24 hours after stroke with a mismatch between deficit and infarct. <em>New England Journal of Medicine</em>, <em>378</em>(1), 11–21. <a href="https://doi.org/10.1056/NEJMoa1706442">https://doi.org/10.1056/NEJMoa1706442</a>
-</div>
-<div id="ref-ross2020racial" class="csl-entry">
-Ross, C. T., Winterhalder, B., &amp; McElreath, R. (2020). Racial disparities in police use of deadly force against unarmed individuals persist after appropriately benchmarking shooting data on violent crime rates. <em>Social Psychological and Personality Science</em>, 1948550620916071. <a href="https://doi.org/10.1177/1948550620916071">https://doi.org/10.1177/1948550620916071</a>
-</div>
-<div id="ref-rue2009approximate" class="csl-entry">
-Rue, H., Martino, S., &amp; Chopin, N. (2009). Approximate <span>Bayesian</span> inference for latent <span>Gaussian</span> models by using integrated nested <span>Laplace</span> approximations. <em>Journal of the Royal Statistical Society: Series b (Statistical Methodology)</em>, <em>71</em>(2), 319–392. <a href="https://doi.org/10.1111/j.1467-9868.2008.00700.x">https://doi.org/10.1111/j.1467-9868.2008.00700.x</a>
-</div>
-<div id="ref-silbiger2019comparative" class="csl-entry">
-Silbiger, N. J., Goodbody-Gringley, G., Bruno, J. F., &amp; Putnam, H. M. (2019). Comparative thermal performance of the reef-building coral <span>Orbicella</span> franksi at its latitudinal range limits. <em>Marine Biology</em>, <em>166</em>(10), 1–14. <a href="https://doi.org/10.1007/s00227-019-3573-6">https://doi.org/10.1007/s00227-019-3573-6</a>
-</div>
-<div id="ref-simmonsFalsepositivePsychologyUndisclosed2011" class="csl-entry">
-Simmons, J. P., Nelson, L. D., &amp; Simonsohn, U. (2011). False-positive psychology: <span>Undisclosed</span> flexibility in data collection and analysis allows presenting anything as significant. <em>Psychological Science</em>, <em>22</em>(11), 1359–1366. <a href="https://doi.org/10.1177/0956797611417632">https://doi.org/10.1177/0956797611417632</a>
-</div>
-</div>
-<div class="footnotes">
-<hr />
-<ol start="10">
-<li id="fn10"><p>This list is not exhaustive of the links people shared on twitter. My basic inclusion criteria were that they were (a) peer-reviewed articles (b) with a substantive focus that I could (c) easily find a PDF link for. When someone shared several of their works, I simply pulled the first one that fulfilled those criteria. Also, inclusion on this list is <strong>not a personal endorsement</strong>. I haven’t read most of them. You get what you pay for, friends.<a href="horoscopes-insights.html#fnref10" class="footnote-back">↩︎</a></p></li>
-</ol>
+<div id="page-not-found" class="section level1">
+<h1>Page not found</h1>
+<p>The page you requested cannot be found (perhaps it was moved or renamed).</p>
+<p>You may want to try searching to find the page's new location, or use
+the table of contents to find the page you are looking for.</p>
 </div>
             </section>
 
           </div>
         </div>
       </div>
-<a href="generalized-linear-madness.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
-<a href="references.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+
+
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>

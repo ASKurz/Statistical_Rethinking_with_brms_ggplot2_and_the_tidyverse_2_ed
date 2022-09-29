@@ -1,8 +1,8 @@
 --- 
 title: "*Statistical rethinking* with brms, ggplot2, and the tidyverse: Second edition"
-subtitle: "version 0.2.0"
+subtitle: "version 0.3.0"
 author: "A Solomon Kurz"
-date: "2021-03-16"
+date: "2022-09-28"
 site: bookdown::bookdown_site
 output: 
   bookdown::gitbook:
@@ -26,11 +26,13 @@ description: "This book is an attempt to re-express the code in the second editi
 
 # What and why {-}
 
-This ebook is based on the second edition of [Richard McElreath](https://twitter.com/rlmcelreath)'s [-@mcelreathStatisticalRethinkingBayesian2020] text, [*Statistical rethinking: A Bayesian course with examples in R and Stan*](https://xcelab.net/rm/statistical-rethinking/). My contributions show how to fit the models he covered with [Paul Bürkner](https://twitter.com/paulbuerkner)'s [**brms** package](https://github.com/paul-buerkner/brms) [@R-brms; @burknerBrmsPackageBayesian2017; @burknerAdvancedBayesianMultilevel2018], which makes it easy to fit Bayesian regression models in **R** [@R-base] using Hamiltonian Monte Carlo. I also prefer plotting and data wrangling with the packages from the [**tidyverse**](http://style.tidyverse.org) [@R-tidyverse; @wickhamWelcomeTidyverse2019]. So we'll be using those methods, too.
+This ebook is based on the second edition of [Richard McElreath](https://twitter.com/rlmcelreath)'s [-@mcelreathStatisticalRethinkingBayesian2020] text, [*Statistical rethinking: A Bayesian course with examples in R and Stan*](https://xcelab.net/rm/statistical-rethinking/). My contributions show how to fit the models he covered with [Paul Bürkner](https://twitter.com/paulbuerkner)'s [**brms** package](https://github.com/paul-buerkner/brms) [@R-brms; @burknerBrmsPackageBayesian2017; @burknerAdvancedBayesianMultilevel2018], which makes it easy to fit Bayesian regression models in **R** [@R-base] using Hamiltonian Monte Carlo. I also prefer plotting and data wrangling with the packages from the [**tidyverse**](https://www.tidyverse.org/) [@R-tidyverse; @wickhamWelcomeTidyverse2019]. So we'll be using those methods, too.
+
+Are you looking for the companion ebook for McElreath's 1st edition? [Click here.](https://bookdown.org/content/3890/)
 
 ## My assumptions about you {-}
 
-If you're looking at this project, I'm guessing you're either a graduate student, a post-graduate academic or a researcher of some sort, which suggests you have at least a 101-level foundation in statistics. If you're rusty, consider checking out the free text books by [Legler and Roback](https://bookdown.org/roback/bookdown-bysh/) [-@leglerBroadeningYourStatistical2019] or [Navarro](https://learningstatisticswithr.com/) [-@navarroLearningStatistics2019] before diving into *Statistical rethinking*. I'm also assuming you understand the rudiments of **R** and have at least a vague idea about what the **tidyverse** is. If you're totally new to **R**, consider starting with Peng's [-@pengProgrammingDataScience2019] [*R programming for data science*](https://bookdown.org/rdpeng/rprogdatascience/). For an introduction to the **tidyvese**-style of data analysis, the best source I've found is Grolemund and Wickham's [-@grolemundDataScience2017] [*R for data science*](http://r4ds.had.co.nz) (*R4DS*), which I extensively link to throughout this project. Another nice alternative is Baumer, Kaplan, and Horton's [-@baumerMocernDataScienceR2021], [*Modern data science with R*](https://mdsr-book.github.io/mdsr2e/).
+If you're looking at this project, I'm guessing you're either a graduate student, a post-graduate academic or a researcher of some sort, which suggests you have at least a 101-level foundation in statistics. If you're rusty, consider checking out the free text books by [Roback and Legler](https://bookdown.org/roback/bookdown-BeyondMLR/) [-@roback2021beyond] or [Navarro](https://learningstatisticswithr.com/) [-@navarroLearningStatistics2019] before diving into *Statistical rethinking*. I'm also assuming you understand the rudiments of **R** and have at least a vague idea about what the **tidyverse** is. If you're totally new to **R**, consider starting with Peng's [-@pengProgrammingDataScience2022] [*R programming for data science*](https://bookdown.org/rdpeng/rprogdatascience/). For an introduction to the **tidyvese**-style of data analysis, the best source I've found is Grolemund and Wickham's [-@grolemundDataScience2017] [*R for data science*](http://r4ds.had.co.nz) (*R4DS*), which I extensively link to throughout this project. Another nice alternative is Baumer, Kaplan, and Horton's [-@baumerMocernDataScienceR2021], [*Modern data science with R*](https://mdsr-book.github.io/mdsr2e/).
 
 However, you do not need to be totally fluent in statistics or **R**. Otherwise why would you need this project, anyway? IMO, the most important things are curiosity, a willingness to try, and persistent tinkering. I love this stuff. Hopefully you will, too.
 
@@ -72,7 +74,7 @@ Once you have installed **R**, execute the following to install the bulk of the 
 
 
 ```r
-packages <- c("ape", "bayesplot", "brms", "broom", "dagitty", "devtools", "flextable", "GGally", "ggdag", "ggdark", "ggmcmc", "ggrepel", "ggthemes", "ggtree", "ghibli", "gtools", "loo", "patchwork", "psych", "rcartocolor", "Rcpp", "remotes", "rstan", "StanHeaders", "statebins", "tidybayes", "tidyverse", "viridis", "viridisLite", "wesanderson")
+packages <- c("ape", "bayesplot", "brms", "broom", "dagitty", "devtools", "flextable", "GGally", "ggdag", "ggdark", "ggmcmc", "ggrepel", "ggthemes", "ggtree", "ghibli", "gtools", "invgamma", "loo", "patchwork", "posterior", "psych", "rcartocolor", "Rcpp", "remotes", "rstan", "santoku", "StanHeaders", "statebins", "tidybayes", "tidyverse", "viridis", "viridisLite", "wesanderson")
 
 install.packages(packages, dependencies = T)
 ```
@@ -84,16 +86,16 @@ A few of the other packages are not officially available via the Comprehensive R
 devtools::install_github("stan-dev/cmdstanr")
 devtools::install_github("EdwinTh/dutchmasters")
 devtools::install_github("gadenbuie/ggpomological")
+devtools::install_github("GuangchuangYu/ggtree")
 devtools::install_github("rmcelreath/rethinking")
 devtools::install_github("UrbanInstitute/urbnmapr")
-remotes::install_github("stan-dev/posterior")
 ```
 
 It's possible you'll have problems installing some of these packages. Here are some likely suspects and where you can find help:
 
 * for difficulties installing **brms**, go to [https://github.com/paul-buerkner/brms#how-do-i-install-brms](https://github.com/paul-buerkner/brms#how-do-i-install-brms) or search around in the [**brms** section of the Stan forums ](https://discourse.mc-stan.org/c/interfaces/brms/36);
 * for difficulties installing **cmdstanr**, go to [https://mc-stan.org/cmdstanr/articles/cmdstanr.html](https://mc-stan.org/cmdstanr/articles/cmdstanr.html);
-* for difficulties installing **rethinking**, go to [https://github.com/rmcelreath/rethinking#quick-installation](https://github.com/rmcelreath/rethinking#quick-installation); and
+* for difficulties installing **rethinking**, go to [https://github.com/rmcelreath/rethinking#installation](https://github.com/rmcelreath/rethinking#installation); and
 * for difficulties installing **rstan**, go to [https://github.com/stan-dev/rstan/wiki/RStan-Getting-Started](https://github.com/stan-dev/rstan/wiki/RStan-Getting-Started).
 
 ## We have updates {-}
@@ -114,7 +116,7 @@ On December 2, 2020, I released a mini update designed to
 
 ### Version 0.2.0. {-}
 
-Welcome to version 0.2.0! Major improvements include:
+On March 16, 2021, I released version 0.2.0, which included the following major improvements:
 
 * a corrected workflow for fitting single-level b-spline models ([Section 4.5.2][Splines.]), thanks to [Stephen Wild](https://github.com/sjwild);
 * a refined workflow for fitting multilevel b-spline models using the `s()` function ([Section 4.6][~~Summary~~ First bonus: Smooth functions with `brms::s()`]), thanks to [Gavin Simpson](https://github.com/gavinsimpson);
@@ -127,6 +129,19 @@ Welcome to version 0.2.0! Major improvements include:
 * the adoption of a [CONTRIBUTING](https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed/blob/master/CONTRIBUTING.md) section on GitHub, thanks to [Brenton M. Wiernik](https://github.com/bwiernik);
 * improved table workflow with the **flextable** package [@R-flextable]; and
 * all models have been refit using **brms** version 2.15.0.
+
+### Version 0.3.0. {-}
+
+Welcome to version 0.3.0! Major improvements include:
+
+* an `as_draws_df()`-oriented workflow to replace the depreciated `posterior_samples()` function;
+* better sampling in models in the first few due to changes in the `ub` argument;
+* more use of the uniform prior for $\sigma$ to better match the text, thanks to the improved `ub` argument;
+* a more **tidyverse**-oriented version of the `sim_happiness()` function in [Section 6.3][Collider bias], thanks to [Randall Pruim](https://github.com/rpruim)
+* a more accurate depiction of entropy in Figure 10.2.b in [Section 10.1.1][Gaussian.], thanks to help from [Hamed Bastan-Hagh](https://github.com/hamedbh), 
+* a cross link to the first edition, thanks to a suggestion from [Will Petry](https://github.com/wpetry);
+* some corrected typos and updates to the links and citations; and
+* all models have been refit using **brms** version 2.18.0.
 
 ### We're not done yet and I could use your help. {-}
 
@@ -145,17 +160,24 @@ I'd like to thank the following for their helpful contributions:
 * Monica Alexander ([\@MJAlexander](https://github.com/MJAlexander)),
 * Shaan Amin ([\@Shaan-Amin](https://github.com/Shaan-Amin)),
 * Malcolm Barrett ([\@malcolmbarrett](https://github.com/malcolmbarrett)),
+* Hamed Bastan-Hagh ([\@hamedbh](https://github.com/hamedbh)),
 * Adam Bear ([\@adambear91](https://github.com/adambear91)),
 * Jenny Bigman ([\@jennybigman](https://github.com/jennybigman)),
 * Louis Bliard ([\@lbiard](https://github.com/lbiard)),
+* Philipp Boersch-Supan ([\@pboesu](https://github.com/pboesu)),
 * Paul-Christian Bürkner ([\@paul-buerkner](https://github.com/paul-buerkner)),
+* Damien Croteau-Chonka ([\@dcroteau-chonka](https://github.com/dcroteau-chonka)),
 * Markus Gesmann ([\@mages](https://github.com/mages)),
 * James Henegan ([\@jameshenegan](https://github.com/jameshenegan)),
+* Mathieu Jones ([\@00mathieu](https://github.com/00mathieu)),
+* William Lai ([\@williamlai2](https://github.com/williamlai2)),
 * Sebastian Lobentanzer ([\@slobentanzer](https://github.com/slobentanzer)),
 * Ed Merkle ([\@ecmerkle](https://github.com/ecmerkle)),
 * Ladislas Nalborczyk ([\@lnalborczyk](https://github.com/lnalborczyk)),
+* Will Petry ([\@wpetry](https://github.com/wpetry)),
 * Randall Pruim ([\@rpruim](https://github.com/rpruim)),
 * Gavin Simpson ([\@gavinsimpson](https://github.com/gavinsimpson)),
+* Kathleen Sprouffske ([\@sprouffske](https://github.com/sprouffske))
 * Richard Torkar ([\@torkar](https://github.com/torkar)),
 * Brenton M. Wiernik ([\@bwiernik](https://github.com/bwiernik)),
 * Stephen Wild ([\@sjwild](https://github.com/sjwild)), and
@@ -169,19 +191,19 @@ This book is licensed under the Creative Commons Zero v1.0 Universal license. Yo
 
 
 ```r
-@book{kurzStatisticalRethinkingSecondEd2021,
+@book{kurzStatisticalRethinkingSecondEd2022,
   title = {Statistical rethinking with brms, ggplot2, and the tidyverse: {{Second}} edition},
   author = {Kurz, A. Solomon},
-  year = {2021},
-  month = {mar},
-  edition = {version 0.2.0},
+  year = {2022},
+  month = {sep},
+  edition = {version 0.3.0},
   url = {https://bookdown.org/content/4857/}
 }
 ```
 
 ## You can do this, too {-}
 
-This project is powered by Yihui Xie's [-@R-bookdown] [**bookdown** package](https://bookdown.org), which makes it easy to turn R markdown files into HTML, PDF, and EPUB. Go [here](https://bookdown.org/yihui/bookdown/) to learn more about bookdown. While you're at it, also check out Xie, Allaire, and Grolemund's [*R markdown: The definitive guide*](https://bookdown.org/yihui/rmarkdown/). And if you're unacquainted with GitHub, check out Jenny Bryan's [-@bryanHappyGitGitHub2020] [*Happy Git and GitHub for the useR*](https://happygitwithr.com/). I've even [blogged](https://solomonkurz.netlify.com/post/how-bookdown/) about what it was like putting together the first version of this project.
+This project is powered by Yihui Xie's [-@R-bookdown] [**bookdown** package](https://bookdown.org), which makes it easy to turn R markdown files into HTML, PDF, and EPUB. Go [here](https://bookdown.org/yihui/bookdown/) to learn more about bookdown. While you're at it, also check out Xie, Allaire, and Grolemund's [*R markdown: The definitive guide*](https://bookdown.org/yihui/rmarkdown/). And if you're unacquainted with GitHub, check out Jenny Bryan's [-@bryanHappyGitGitHub2020] [*Happy Git and GitHub for the useR*](https://happygitwithr.com/). I've even [blogged](https://solomonkurz.netlify.app/post/how-bookdown/) about what it was like putting together the first version of this project.
 
 The source code of the project is available on GitHub at [https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed](https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed).
 

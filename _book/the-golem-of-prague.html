@@ -6,11 +6,10 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <title>1 The Golem of Prague | Statistical rethinking with brms, ggplot2, and the tidyverse: Second edition</title>
   <meta name="description" content="This book is an attempt to re-express the code in the second edition of McElreath’s textbook, ‘Statistical rethinking.’ His models are re-fit in brms, plots are redone with ggplot2, and the general data wrangling code predominantly follows the tidyverse style." />
-  <meta name="generator" content="bookdown 0.21 and GitBook 2.6.7" />
+  <meta name="generator" content="bookdown 0.28 and GitBook 2.6.7" />
 
   <meta property="og:title" content="1 The Golem of Prague | Statistical rethinking with brms, ggplot2, and the tidyverse: Second edition" />
   <meta property="og:type" content="book" />
-  
   
   <meta property="og:description" content="This book is an attempt to re-express the code in the second edition of McElreath’s textbook, ‘Statistical rethinking.’ His models are re-fit in brms, plots are redone with ggplot2, and the general data wrangling code predominantly follows the tidyverse style." />
   <meta name="github-repo" content="ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed" />
@@ -24,7 +23,7 @@
 <meta name="author" content="A Solomon Kurz" />
 
 
-<meta name="date" content="2021-03-16" />
+<meta name="date" content="2022-09-28" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -33,8 +32,8 @@
   
 <link rel="prev" href="index.html"/>
 <link rel="next" href="small-worlds-and-large-worlds.html"/>
-<script src="libs/header-attrs-2.7/header-attrs.js"></script>
-<script src="libs/jquery-2.2.3/jquery.min.js"></script>
+<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
@@ -50,9 +49,12 @@
 
 
 
-
-<link href="libs/vembedr-0.1.4/css/vembedr.css" rel="stylesheet" />
-<link href="libs/tabwid-1.0.0/tabwid.css" rel="stylesheet" />
+<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
+<link href="libs/vembedr-0.1.5/css/vembedr.css" rel="stylesheet" />
+<link href="libs/tabwid-1.1.0/tabwid.css" rel="stylesheet" />
+<link href="libs/tabwid-1.1.0/scrool.css" rel="stylesheet" />
 <script src="libs/twitter-widget-0.0.1/widgets.js"></script>
 
 
@@ -121,6 +123,29 @@ code span.vs { color: #4070a0; } /* VerbatimString */
 code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
 </style>
 
+<style type="text/css">
+/* Used with Pandoc 2.11+ new --citeproc when CSL is used */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}
+</style>
+
 </head>
 
 <body>
@@ -137,12 +162,13 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <ul>
 <li class="chapter" data-level="" data-path="index.html"><a href="index.html#my-assumptions-about-you"><i class="fa fa-check"></i>My assumptions about you</a></li>
 <li class="chapter" data-level="" data-path="index.html"><a href="index.html#how-to-use-and-understand-this-project"><i class="fa fa-check"></i>How to use and understand this project</a></li>
-<li><a href="index.html#r-setup"><strong>R</strong> setup</a></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#r-setup"><i class="fa fa-check"></i><strong>R</strong> setup</a></li>
 <li class="chapter" data-level="" data-path="index.html"><a href="index.html#we-have-updates"><i class="fa fa-check"></i>We have updates</a>
 <ul>
 <li class="chapter" data-level="" data-path="index.html"><a href="index.html#version-0.1.0."><i class="fa fa-check"></i>Version 0.1.0.</a></li>
 <li class="chapter" data-level="" data-path="index.html"><a href="index.html#version-0.1.1."><i class="fa fa-check"></i>Version 0.1.1.</a></li>
 <li class="chapter" data-level="" data-path="index.html"><a href="index.html#version-0.2.0."><i class="fa fa-check"></i>Version 0.2.0.</a></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#version-0.3.0."><i class="fa fa-check"></i>Version 0.3.0.</a></li>
 <li class="chapter" data-level="" data-path="index.html"><a href="index.html#were-not-done-yet-and-i-could-use-your-help."><i class="fa fa-check"></i>We’re not done yet and I could use your help.</a></li>
 </ul></li>
 <li class="chapter" data-level="" data-path="index.html"><a href="index.html#thank-yous-are-in-order"><i class="fa fa-check"></i>Thank-you’s are in order</a></li>
@@ -600,38 +626,38 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="the-golem-of-prague" class="section level1" number="1">
-<h1><span class="header-section-number">1</span> The Golem of Prague</h1>
-<div class="figure" style="text-align: center">
+<div id="the-golem-of-prague" class="section level1 hasAnchor" number="1">
+<h1><span class="header-section-number">1</span> The Golem of Prague<a href="the-golem-of-prague.html#the-golem-of-prague" class="anchor-section" aria-label="Anchor link to header"></a></h1>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:unnamed-chunk-1"></span>
 <img src="pictures/Golem_and_Loew.jpg" alt="Rabbi Loew and Golem by Mikoláš Aleš, 1899" width="20%" />
 <p class="caption">
-Rabbi Loew and Golem by Mikoláš Aleš, 1899
+Figure 1.1: Rabbi Loew and Golem by Mikoláš Aleš, 1899
 </p>
 </div>
 <p>As he opened the chapter, McElreath told us that</p>
 <blockquote>
 <p>ultimately Judah was forced to destroy the golem, as its combination of extraordinary power with clumsiness eventually led to innocent deaths. Wiping away one letter from the inscription <em>emet</em> to spell instead <em>met</em>, “death,” Rabbi Judah decommissioned the robot.</p>
-<h2 id="statistical-golems">Statistical golems</h2>
-<p>Scientists also make golems. Our golems rarely have physical form, but they too are often made of clay, living in silicon as computer code. These golems are scientific models. But these golems have real effects on the world, through the predictions they make and the intuitions they challenge or inspire. A concern with “truth” enlivens these models, but just like a golem or a modern robot, scientific models are neither true nor false, neither prophets nor charlatans. Rather they are constructs engineered for some purpose. These constructs are incredibly powerful, dutifully conducting their programmed calculations. <span class="citation">(<a href="references.html#ref-mcelreathStatisticalRethinkingBayesian2020" role="doc-biblioref">McElreath, 2020a, p. 1</a>, <em>emphasis</em> in the original)</span></p>
+<h2 id="statistical-golems" class="hasAnchor">Statistical golems<a href="the-golem-of-prague.html#statistical-golems" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>Scientists also make golems. Our golems rarely have physical form, but they too are often made of clay, living in silicon as computer code. These golems are scientific models. But these golems have real effects on the world, through the predictions they make and the intuitions they challenge or inspire. A concern with “truth” enlivens these models, but just like a golem or a modern robot, scientific models are neither true nor false, neither prophets nor charlatans. Rather they are constructs engineered for some purpose. These constructs are incredibly powerful, dutifully conducting their programmed calculations. <span class="citation">(<a href="#ref-mcelreathStatisticalRethinkingBayesian2020" role="doc-biblioref">McElreath, 2020, p. 1</a>, <em>emphasis</em> in the original)</span></p>
 </blockquote>
-<p>There are a lot of great points, themes, methods, and factoids in this text. For me, one of the most powerful themes interlaced throughout the pages is how we should be skeptical of our models. Yes, learn Bayes. Pore over this book. Fit models until late into the night. But please don’t fall into blind love with their elegance and power. If we all knew what we were doing, there’d be no need for science. For more wise deflation along these lines, do check out <a href="https://psyarxiv.com/nujy6"><em>A personal essay on Bayes factors</em></a>, <a href="https://link.springer.com/article/10.1007/s42113-018-0019-z"><em>Between the devil and the deep blue sea: Tensions between scientific judgement and statistical model selection</em></a> <span class="citation">(<a href="references.html#ref-navarroDevilDeepBlue2019" role="doc-biblioref">D. J. Navarro, 2019</a>)</span> and <a href="https://www.youtube.com/watch?v=tNkmsAOn7aU"><em>Science, statistics and the problem of “pretty good inference”</em></a>, a blog, paper and talk by the inimitable <a href="https://twitter.com/djnavarro?lang=en">Danielle Navarro</a>.</p>
+<p>There are a lot of great points, themes, methods, and factoids in this text. For me, one of the most powerful themes interlaced throughout the pages is how we should be skeptical of our models. Yes, learn Bayes. Pore over this book. Fit models until late into the night. But please don’t fall into blind love with their elegance and power. If we all knew what we were doing, there’d be no need for science. For more wise deflation along these lines, do check out <a href="https://psyarxiv.com/nujy6"><em>A personal essay on Bayes factors</em></a>, <a href="https://doi.org/10.1007/s42113-018-0019-z"><em>Between the devil and the deep blue sea: Tensions between scientific judgement and statistical model selection</em></a> <span class="citation">(<a href="#ref-navarroDevilDeepBlue2019" role="doc-biblioref">D. J. Navarro, 2019</a>)</span> and <a href="https://youtu.be/tNkmsAOn7aU"><em>Science, statistics and the problem of “pretty good inference”</em></a>, a blog, paper and talk by the inimitable <a href="https://twitter.com/djnavarro?lang=en">Danielle Navarro</a>.</p>
 <p>Anyway, McElreath left us no code or figures to translate in this chapter. But before you skip off to the next one, why not invest a little time soaking in this chapter’s material by way of a lecture by McElreath, himself? He’s an engaging speaker and the material in his online lectures does not entirely overlap with that in the text. Here’s the first lecture from his Winter 2019 course:</p>
 <div class="vembedr" align="center">
 <div>
-<iframe src="https://www.youtube.com/embed/4WVelCswXo4" width="533" height="300" frameborder="0" allowfullscreen=""></iframe>
+<iframe src="https://www.youtube.com/embed/4WVelCswXo4" width="533" height="300" frameborder="0" allowfullscreen="" data-external="1"></iframe>
 </div>
 </div>
-<div id="session-info" class="section level2 unnumbered">
-<h2>Session info</h2>
+<div id="session-info" class="section level2 unnumbered hasAnchor">
+<h2>Session info<a href="the-golem-of-prague.html#session-info" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>At the end of every chapter, I use the <code>sessionInfo()</code> function to help make my results more reproducible.</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="the-golem-of-prague.html#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span></code></pre></div>
-<pre><code>## R version 4.0.4 (2021-02-15)
+<pre><code>## R version 4.2.0 (2022-04-22)
 ## Platform: x86_64-apple-darwin17.0 (64-bit)
-## Running under: macOS Catalina 10.15.7
+## Running under: macOS Big Sur/Monterey 10.16
 ## 
 ## Matrix products: default
-## BLAS:   /Library/Frameworks/R.framework/Versions/4.0/Resources/lib/libRblas.dylib
-## LAPACK: /Library/Frameworks/R.framework/Versions/4.0/Resources/lib/libRlapack.dylib
+## BLAS:   /Library/Frameworks/R.framework/Versions/4.2/Resources/lib/libRblas.0.dylib
+## LAPACK: /Library/Frameworks/R.framework/Versions/4.2/Resources/lib/libRlapack.dylib
 ## 
 ## locale:
 ## [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
@@ -640,13 +666,24 @@ Rabbi Loew and Golem by Mikoláš Aleš, 1899
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## loaded via a namespace (and not attached):
-##  [1] bookdown_0.21     digest_0.6.27     assertthat_0.2.1  R6_2.5.0         
-##  [5] magrittr_2.0.1    evaluate_0.14     highr_0.8         httr_1.4.2       
-##  [9] rlang_0.4.10      stringi_1.5.3     curl_4.3          rmarkdown_2.7    
-## [13] tools_4.0.4       stringr_1.4.0     glue_1.4.2        xfun_0.22        
-## [17] yaml_2.2.1        compiler_4.0.4    vembedr_0.1.4     htmltools_0.5.1.1
-## [21] knitr_1.31</code></pre>
+##  [1] rstudioapi_0.13  knitr_1.40       magrittr_2.0.3   R6_2.5.1        
+##  [5] rlang_1.0.6      fastmap_1.1.0    vembedr_0.1.5    stringr_1.4.1   
+##  [9] highr_0.9        httr_1.4.4       tools_4.2.0      xfun_0.33       
+## [13] cli_3.4.0        jquerylib_0.1.4  htmltools_0.5.3  yaml_2.3.5      
+## [17] digest_0.6.29    assertthat_0.2.1 lifecycle_1.0.2  bookdown_0.28   
+## [21] sass_0.4.2       glue_1.6.2       cachem_1.0.6     evaluate_0.16   
+## [25] rmarkdown_2.16   stringi_1.7.8    compiler_4.2.0   bslib_0.4.0     
+## [29] jsonlite_1.8.0</code></pre>
 
+</div>
+</div>
+<h3>References<a href="references.html#references" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<div id="refs" class="references csl-bib-body hanging-indent" line-spacing="2">
+<div id="ref-mcelreathStatisticalRethinkingBayesian2020" class="csl-entry">
+McElreath, R. (2020). <em>Statistical rethinking: <span>A Bayesian</span> course with examples in <span>R</span> and <span>Stan</span></em> (Second Edition). <span>CRC Press</span>. <a href="https://xcelab.net/rm/statistical-rethinking/">https://xcelab.net/rm/statistical-rethinking/</a>
+</div>
+<div id="ref-navarroDevilDeepBlue2019" class="csl-entry">
+Navarro, D. J. (2019). Between the devil and the deep blue sea: <span>Tensions</span> between scientific judgement and statistical model selection. <em>Computational Brain &amp; Behavior</em>, <em>2</em>(1), 28–34. <a href="https://doi.org/10.1007/s42113-018-0019-z">https://doi.org/10.1007/s42113-018-0019-z</a>
 </div>
 </div>
             </section>
@@ -659,7 +696,6 @@ Rabbi Loew and Golem by Mikoláš Aleš, 1899
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>
-<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
 <script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
 <script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
 <script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
@@ -678,6 +714,7 @@ gitbook.start({
 "weibo": false,
 "instapaper": false,
 "vk": false,
+"whatsapp": false,
 "all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
 },
 "fontsettings": {
@@ -698,6 +735,10 @@ gitbook.start({
 "text": null
 },
 "download": null,
+"search": {
+"engine": "fuse",
+"options": null
+},
 "toc": {
 "collapse": "subsection"
 }
@@ -711,7 +752,7 @@ gitbook.start({
     var script = document.createElement("script");
     script.type = "text/javascript";
     var src = "true";
-    if (src === "" || src === "true") src = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
     if (location.protocol !== "file:")
       if (/^https?:/.test(src))
         src = src.replace(/^https?:/, '');
