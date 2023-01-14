@@ -652,11 +652,11 @@ loo(b11.6)
 
 To understand what's going on, consider how you might describe six 1's out of nine trials in the aggregated form,
 
-$$\text{Pr}(6|9, p) = \frac{6!}{6!(9 - 6)!} p^6 (1 - p)^{9 - 6}.$$
+$$\Pr(6|9, p) = \frac{6!}{6!(9 - 6)!} p^6 (1 - p)^{9 - 6}.$$
 
 If we still stick with the same data, but this time re-express those as nine dichotomous data points, we now describe their joint probability as
 
-$$\text{Pr}(1, 1, 1, 1, 1, 1, 0, 0, 0 | p) = p^6 (1 - p)^{9 - 6}.$$
+$$\Pr(1, 1, 1, 1, 1, 1, 0, 0, 0 | p) = p^6 (1 - p)^{9 - 6}.$$
 
 Let's work this out in code.
 
@@ -1547,7 +1547,7 @@ Because we don't know what seed McElreath used to simulate his data, our simulat
 >
 > The conventional and natural link in this context is the **multinomial logit**, also known as the **softmax** function. This link function takes a vector of scores, one for each of $K$ event types, and computes the probability of a particular type of event $k$ as
 >
-> $$\text{Pr} (k |s_1, s_2, \dots, s_K) = \frac{\exp (s_k)}{\sum_{i = 1}^K \exp (s_i)}$$
+> $$\Pr (k |s_1, s_2, \dots, s_K) = \frac{\exp (s_k)}{\sum_{i = 1}^K \exp (s_i)}$$
 > (p. 359, **emphasis** in the original)
 
 McElreath then went on to explain how multinomial logistic regression models are among the more difficult of the GLMs to master. He wasn't kidding. To get a grasp on these, we'll cover them in a little more detail than he did in the text. Before we begin, I'd like to give a big shout out to [Adam Bear](https://adambear.me/), whose initial comment on a [GitHub issue](https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse/issues/5) turned into a friendly and productive email collaboration on what, exactly, is going on with this section. Hopefully we got it.
@@ -1632,7 +1632,7 @@ tibble(income = c(1, 2, 5)) %>%
 
 Notice how the values in the `p` column match up well with the `probability` values from the output from the block just above. Our simulation successfully produces data corresponding to the data-generating values. Woot! Also note how the code we just used to compute those `p` values, `p = exp(score) / sum(exp(score))`, corresponds nicely with the formula from above,
 
-$$\text{Pr} (k |s_1, s_2, \dots, s_K) = \frac{\exp (s_k)}{\sum_{i = 1}^K \exp (s_i)}.$$
+$$\Pr (k |s_1, s_2, \dots, s_K) = \frac{\exp (s_k)}{\sum_{i = 1}^K \exp (s_i)}.$$
 
 What still might seem mysterious is what those $s$ values in the equation are. In the simulation and in the prose, McElreath called them *scores*. Another way to think about them is as weights. The thing to get is that their exact values aren't important so much as their difference one from another. You'll note that `score` for `income == 2` was 0.5 larger than that of `income == 1`. The same was true for `income == 3` and `income == 2`. So if we add an arbitrary constant to each of those `score` values, like 11, we'll get the same `p` values.
 

@@ -9,7 +9,9 @@ options(width = 100)
 
 If you would like to know the probability someone is a vampire given they test positive to the blood-based vampire test, you compute
 
-$$\text{Pr(vampire|positive)} = \frac{\text{Pr(positive|vampire) Pr(vampire)}}{\text{Pr(positive)}}.$$
+$$
+\Pr(\text{vampire}|\text{positive}) = \frac{\Pr(\text{positive}|\text{vampire})\Pr(\text{vampire})}{\Pr(\text{positive})}.
+$$
 
 We'll do so within a tibble.
 
