@@ -217,8 +217,7 @@ p1 <-
   prior %>% 
   slice_sample(n = 50) %>% 
   rownames_to_column() %>% 
-  expand(nesting(rowname, Intercept, b),
-         rugged_std_c = c(-2, 2)) %>% 
+  expand_grid(rugged_std_c = c(-2, 2)) %>% 
   mutate(log_gdp_std = Intercept + b * rugged_std_c,
          rugged_std  = rugged_std_c + mean(dd$rugged_std)) %>% 
   
@@ -278,8 +277,7 @@ p2 <-
   prior_draws(b8.1b) %>% 
   slice_sample(n = 50) %>% 
   rownames_to_column() %>% 
-  expand(nesting(rowname, Intercept, b),
-         rugged_std_c = c(-2, 2)) %>% 
+  expand_grid(rugged_std_c = c(-2, 2)) %>% 
   mutate(log_gdp_std = Intercept + b * rugged_std_c,
          rugged_std  = rugged_std_c + mean(dd$rugged_std)) %>% 
   
@@ -435,17 +433,13 @@ Did you notice the `probs = c(.015, .985)` argument in our `fitted()` code, abov
 
 Building off of McElreath's "boundaries are meaningless" point, here we use a combination of `summary = F` within `fitted()` and a little `tidybayes::stat_lineribbon()` magic to re-imagine Figure 8.4. This time we use a sequence of overlapping semitransparent credible intervals to give the posterior a 3D-like appearance.
 
-```{r, fig.height = 3, fig.width = 3}
+```{r, fig.height = 3, fig.width = 3, warning = F}
 fitted(b8.2, 
        newdata = nd,
        summary = F) %>%
   data.frame() %>%
   pivot_longer(everything()) %>% 
-  bind_cols(
-    expand(nd, 
-           draws = 1:4000,
-           nesting(cid, rugged_std))
-  ) %>%
+  bind_cols(expand_grid(draws = 1:4000, nd)) %>%
   mutate(cont_africa = ifelse(cid == 1, "Africa", "not Africa")) %>% 
   
   ggplot(aes(x = rugged_std, y = value, fill = cont_africa, color = cont_africa)) +
@@ -647,15 +641,13 @@ With this model, it is equally true that that slope is conditional on the interc
 
 where the first term vanishes when $\text{cid}_i = 2$ and the second term vanishes when $\text{cid}_i = 1$. In contrast to the plots above, we can re-express this equation as saying "*The association of being in Africa with log GDP depends upon terrain ruggedness*" (p. 251, *emphasis* in the original). Here we follow McElreath's Figure 8.6  and plot the difference between a nation in Africa and outside Africa, conditional on ruggedness.
 
-```{r, fig.height = 2.75, fig.width = 3}
+```{r, fig.height = 2.75, fig.width = 3, warning = F}
 fitted(b8.3, 
        newdata = nd,
        summary = F) %>%
   data.frame() %>%
   pivot_longer(everything()) %>% 
-  bind_cols(expand(nd,
-                   draws = 1:4000,
-                   nesting(cid, rugged_std))) %>% 
+  bind_cols(expand_grid(draws = 1:4000, nd)) %>% 
   select(-name) %>% 
   pivot_wider(names_from = cid, values_from = value) %>% 
   mutate(delta = `1` - `2`) %>% 
@@ -878,8 +870,7 @@ We don't necessarily need a loop. We can achieve all of McElreath's Figure 8.8 w
 # augment the data
 points <-
   d %>%
-  expand(fit = c("b8.4", "b8.5"),
-         nesting(shade_cent, water_cent, blooms_std)) %>%
+  expand_grid(fit = c("b8.4", "b8.5")) %>%
   mutate(x_grid = str_c("shade_cent = ", shade_cent),
          y_grid = fit)
 

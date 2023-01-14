@@ -1053,8 +1053,7 @@ tibble(x       = c(3, 22),
        y       = c(0.055, 0.04),
        meanlog = c(0, 3),
        sdlog   = c(10, 0.5)) %>% 
-  expand(nesting(x, y, meanlog, sdlog),
-         number = seq(from = 0, to = 100, length.out = 200)) %>% 
+  expand_grid(number = seq(from = 0, to = 100, length.out = 200)) %>% 
   mutate(density = dlnorm(number, meanlog, sdlog),
          group   = str_c("alpha%~%Normal(", meanlog, ", ", sdlog, ")")) %>% 
   
@@ -1100,8 +1099,7 @@ tibble(x    = c(10, 4),
        y    = c(0.05, 0.5),
        mean = c(0, 3),
        sd   = c(10, 0.5)) %>% 
-  expand(nesting(x, y, mean, sd),
-         number = seq(from = -25, to = 25, length.out = 500)) %>% 
+  expand_grid(number = seq(from = -25, to = 25, length.out = 500)) %>% 
   mutate(density = dnorm(number, mean, sd),
          group   = str_c("alpha%~%Normal(", mean, ", ", sd, ")")) %>% 
   
@@ -1134,8 +1132,7 @@ tibble(i = 1:n,
   pivot_longer(contains("beta"),
                values_to = "b",
                names_to = "prior") %>% 
-  expand(nesting(i, a, b, prior),
-         x = seq(from = -2, to = 2, length.out = 100)) %>% 
+  expand_grid(x = seq(from = -2, to = 2, length.out = 100)) %>% 
   
   # plot
   ggplot(aes(x = x, y = exp(a + b * x), group = i)) +
@@ -1156,8 +1153,7 @@ prior <-
   tibble(i = 1:n,
          a = rnorm(n, mean = 3, sd = 0.5),
          b = rnorm(n, mean = 0, sd = 0.2)) %>% 
-  expand(nesting(i, a, b),
-         x = seq(from = log(100), to = log(200000), length.out = 100))
+  expand_grid(x = seq(from = log(100), to = log(200000), length.out = 100))
 
 # left
 p1 <-
@@ -1268,8 +1264,8 @@ library(ggrepel)
 
 nd <-
   distinct(d, cid) %>% 
-  expand(cid, 
-         log_pop_std = seq(from = -4.5, to = 2.5, length.out = 100))
+  expand_grid(log_pop_std = seq(from = -4.5, to = 2.5, length.out = 100))
+
 f <- 
   fitted(b11.10,
          newdata = nd,
@@ -1395,8 +1391,7 @@ text <-
 # redefine the new data
 nd <-
   distinct(d, cid) %>% 
-  expand(cid, 
-         population = seq(from = 0, to = 300000, length.out = 100))
+  expand_grid(population = seq(from = 0, to = 300000, length.out = 100))
 
 # compute the poster predictions for lambda
 fitted(b11.11,
@@ -2132,7 +2127,7 @@ rbind(f[, , 1],
       f[, , 2],
       f[, , 3]) %>% 
   data.frame() %>% 
-  bind_cols(nd %>% expand(career = 1:3, family_income)) %>% 
+  bind_cols(expand_grid(career = 1:3, nd)) %>% 
   mutate(career = str_c("career: ", career)) %>% 
   
   # plot
@@ -2166,7 +2161,7 @@ rbind(f[, , 1],
       f[, , 2],
       f[, , 3]) %>% 
   data.frame() %>% 
-  bind_cols(nd %>% expand(career = 1:3, family_income)) %>% 
+  bind_cols(expand_grid(career = 1:3, nd)) %>% 
   group_by(family_income) %>% 
   mutate(proportion = Estimate / sum(Estimate),
          career     = factor(career)) %>% 
@@ -2462,8 +2457,7 @@ f <-
   data.frame() %>% 
   rownames_to_column() %>% 
   mutate(color = str_remove(rowname, "black")) %>% 
-  expand(nesting(Estimate, Q2.5, Q97.5, color),
-         days = 0:100) %>% 
+  expand_grid(days = 0:100) %>% 
   mutate(m  = 1 - pexp(days, rate = 1 / exp(Estimate)),
          ll = 1 - pexp(days, rate = 1 / exp(Q2.5)),
          ul = 1 - pexp(days, rate = 1 / exp(Q97.5)))

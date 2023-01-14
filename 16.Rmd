@@ -613,8 +613,7 @@ prior <-
          k     = rlnorm(n, meanlog = log(2), sdlog = 0.25),
          theta = rlnorm(n, meanlog = log(5), sdlog = 0.25)) %>% 
   slice_sample(n = n_draws) %>% 
-  expand(nesting(index, phi, k, theta),
-         age = seq(from = 0, to = 1.5, length.out = 1e2)) %>% 
+  expand_grid(age = seq(from = 0, to = 1.5, length.out = 1e2)) %>% 
   mutate(bm = 1 - exp(-k * age),
          ns = phi * (1 - exp(-k * age))^theta) 
 
@@ -685,10 +684,10 @@ print(b16.4)
 No we might get a sense of what this posterior means by plotting nuts per second as a function of `age` in our version of Figure 16.5.
 
 ```{r, fig.width = 4, fig.height = 3.2}
+set.seed(16)
 as_draws_df(b16.4) %>% 
   slice_sample(n = n_draws) %>% 
-  expand(nesting(.draw, b_phi_Intercept, b_k_Intercept, b_theta_Intercept),
-         age = seq(from = 0, to = 1.5, length.out = 1e2)) %>% 
+  expand_grid(age = seq(from = 0, to = 1.5, length.out = 1e2)) %>% 
   mutate(ns = b_phi_Intercept * (1 - exp(-b_k_Intercept * age))^b_theta_Intercept) %>% 
   
   ggplot() +
@@ -875,8 +874,7 @@ set.seed(16)
 # define the 3 X 3 grid
 tibble(shape1 = c(2, 10, 18),
        shape2 = c(18, 10, 2)) %>% 
-  expand(nesting(shape1, shape2),
-         Ht = c(5e3, 1e4, 15e3)) %>% 
+  expand_grid(Ht = c(5e3, 1e4, 15e3)) %>% 
   # simulate
   mutate(pt = purrr::map2(shape1, shape2, ~rbeta(n, shape1 = .x, shape2 = .y))) %>% 
   mutate(ht = purrr::map2(Ht, pt, ~rbinom(n, size = .x, prob = .y))) %>% 

@@ -120,7 +120,7 @@ McElreath encouraged us to "explore different values for `pbar` and `theta`" (p.
 # data
 crossing(pbar  = c(.25, .5, .75),
          theta = c(5, 15, 30)) %>% 
-  expand(nesting(pbar, theta), x = seq(from = 0, to = 1, length.out = 100)) %>% 
+  expand_grid(x = seq(from = 0, to = 1, length.out = 100)) %>% 
   mutate(density = rethinking::dbeta2(x, prob = pbar, theta = theta),
          mu      = str_c("mu == ", pbar %>% str_remove(., "0")),
          kappa   = factor(str_c("kappa == ", theta), 
@@ -149,10 +149,7 @@ But remember, we're not fitting a beta model. We're using the beta-binomial. "We
 
 Here the size, $n$, is defined in the `applications` column in the data we'll load in just a moment. In case you're confused, yes, our statistical model is not quite the same as the one McElreath presented on page 371 in the text. If you look closely, we dropped all mention of $\theta$ and jumped directly to $\phi$. Instead of implementing McElreath's $\theta = \phi + 2$ trick, we're going to set the lower bound for $\phi$ directly. Which brings us to the next issue:
 
-
-beta_binomial
-
-We have an additional complication. The beta-binomial has historically not been officially supported by **brms** (see [GitHub issue #144](https://github.com/paul-buerkner/brms/issues/144))[^5]. However, **brms** versions 2.2.0 and above allow users to define custom distributions. To get all the details, you might check out Bürkner's [-@Bürkner2022Define] vignette, [*Define custom response distributions with brms*](https://CRAN.R-project.org/package=brms/vignettes/brms_customfamilies.html). Happily, Bürkner even used the [beta-binomial distribution as the exemplar](https://cran.r-project.org/package=brms/vignettes/brms_customfamilies.html#the-beta-binomial-distribution) in the vignette.
+The beta-binomial has historically not been officially supported by **brms** (see [GitHub issue #144](https://github.com/paul-buerkner/brms/issues/144))[^5]. However, **brms** versions 2.2.0 and above allow users to define custom distributions. To get all the details, you might check out Bürkner's [-@Bürkner2022Define] vignette, [*Define custom response distributions with brms*](https://CRAN.R-project.org/package=brms/vignettes/brms_customfamilies.html). Happily, Bürkner even used the [beta-binomial distribution as the exemplar](https://cran.r-project.org/package=brms/vignettes/brms_customfamilies.html#the-beta-binomial-distribution) in the vignette.
 
 Before we get carried away, let's load the data and **brms**.
 
@@ -237,17 +234,17 @@ post %>%
 
 Much like in the text, the difference between genders on admission rates is near zero with wide uncertainty intervals spanning in either direction.
 
-To stay within the **tidyverse** while making the many thin lines in Figure 12.1.a, we're going to need to do a bit of data processing. First, we'll want a variable to index the rows in `post` (i.e., to index the posterior draws). And we'll want to convert the `b_gid2` to the $\bar p$ metric with the `inv_logit_scaled()` function. Then we'll use `slice_sample()` to randomly draw a subset of the posterior draws. Then with the `expand()` function, we'll insert a dense sequence of `x` values ranging between 0 and 1--the parameter space of beta distribution. Finally, we'll use `pmap_dbl()` to compute the density values for the `rethinking::dbeta2` distribution corresponding to the unique combination of `x`, `p_bar`, and `phi` values in each row.
+To stay within the **tidyverse** while making the many thin lines in Figure 12.1.a, we're going to need to do a bit of data processing. First, we'll want a variable to index the rows in `post` (i.e., to index the posterior draws). And we'll want to convert the `b_gid2` to the $\bar p$ metric with the `inv_logit_scaled()` function. Then we'll use `slice_sample()` to randomly draw a subset of the posterior draws. With the `expand_grid()` function, we'll insert a dense sequence of `x` values ranging between 0 and 1--the parameter space of beta distribution. Finally, we'll use `pmap_dbl()` to compute the density values for the `rethinking::dbeta2` distribution corresponding to the unique combination of `x`, `p_bar`, and `phi` values in each row.
 
-```{r}
+```{r, warning = F}
 set.seed(12)
 
 lines <-
   post %>% 
   mutate(p_bar = inv_logit_scaled(b_gid2)) %>% 
   slice_sample(n = 100) %>% 
-  expand(nesting(.draw, p_bar, phi),
-         x = seq(from = 0, to = 1, by = .005)) %>% 
+  select(.draw, p_bar, phi) %>% 
+  expand_grid(x = seq(from = 0, to = 1, by = .005)) %>% 
   mutate(density = pmap_dbl(list(x, p_bar, phi), rethinking::dbeta2))
 
 str(lines)
@@ -513,8 +510,7 @@ post %>%
   mutate(alpha = shape,
          theta = exp(b_Intercept) / shape) %>%
   slice_sample(n = 200) %>% 
-  expand(nesting(.draw, alpha, theta),
-         x = 0:250) %>% 
+  expand_grid(x = 0:250)%>% 
   mutate(density = dgamma(x, shape = alpha, scale = theta)) %>% 
   
   # plot
@@ -592,8 +588,7 @@ Here we make the left panel of the figure.
 # the new data
 nd <-
   distinct(d, cid) %>% 
-  expand(cid, 
-         population = seq(from = 0, to = 300000, length.out = 100))
+  expand_grid(population = seq(from = 0, to = 300000, length.out = 100))
 
 p1 <-
   # compute the expected trajectories

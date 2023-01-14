@@ -228,8 +228,7 @@ set.seed(13)
 p1 <-
   post %>% 
   slice_sample(n = 100) %>% 
-  expand(nesting(.draw, b_Intercept, sd_tank__Intercept),
-         x = seq(from = -4, to = 5, length.out = 100)) %>%
+  expand_grid(x = seq(from = -4, to = 5, length.out = 100)) %>%
   mutate(density = dnorm(x, mean = b_Intercept, sd = sd_tank__Intercept)) %>% 
     
   ggplot(aes(x = x, y = density, group = .draw)) +
@@ -1351,8 +1350,8 @@ n_chimps <- 100
 nd <- 
   distinct(d, treatment) %>% 
   # define 100 new actors
-  expand(actor = str_c("new", 1:n_chimps),
-         treatment) %>% 
+  expand_grid(actor = str_c("new", 1:n_chimps)) %>% 
+  arrange(actor, treatment) %>% 
   # this adds a row number, which will come in handy, later
   mutate(row = 1:n())
 

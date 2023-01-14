@@ -1015,7 +1015,7 @@ lines <-
   tibble(n = 1:n_lines,
          a = rnorm(n_lines, mean = 178, sd = 20),
          b = rnorm(n_lines, mean = 0, sd = 10)) %>% 
-  expand(nesting(n, a, b), weight = range(d2$weight)) %>% 
+  expand_grid(weight = range(d2$weight)) %>% 
   mutate(height = a + b * (weight - mean(d2$weight)))
 
 head(lines)
@@ -1109,7 +1109,7 @@ set.seed(2971)
 tibble(n = 1:n_lines,
        a = rnorm(n_lines, mean = 178, sd = 20),
        b = rlnorm(n_lines, mean = 0, sd = 1)) %>% 
-  expand(nesting(n, a, b), weight = range(d2$weight)) %>% 
+  expand_grid(weight = range(d2$weight)) %>% 
   mutate(height = a + b * (weight - mean(d2$weight))) %>%
   
   # plot
@@ -1624,13 +1624,14 @@ With our **brms** model fitting approach, that would mean we'd have to refit `b4
 
 ##### Overthinking: Rolling your own ~~sim~~ `predict()`.
 
-Here we follow McElreath's example and do our model-based predictions by hand. Instead of relying on base **R** `apply()` and `sapply()`, here the main action is in `expand()`, the second `mutate()` line and the `group_by()` + `summarise()` combination.
+Here we follow McElreath's example and do our model-based predictions by hand. Instead of relying on base **R** `apply()` and `sapply()`, here the main action is in `expand_grid()`, the second `mutate()` line and the `group_by()` + `summarise()` combination.
 
 ```{r, fig.width = 3, fig.height = 2.8, warning = F, message = F}
 # `predict()` by hand
+set.seed(4)
+
 post %>% 
-  expand(nesting(b_Intercept, b_weight_c, sigma),
-         weight = 25:70) %>% 
+  expand_grid(weight = 25:70) %>% 
   mutate(weight_c = weight - mean(d2$weight)) %>% 
   mutate(sim_height = rnorm(n(),
                             mean = b_Intercept + b_weight_c * weight_c,

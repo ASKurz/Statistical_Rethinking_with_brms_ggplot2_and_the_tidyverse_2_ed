@@ -152,10 +152,11 @@ set.seed(22)  # used to replicate example
 d <-
   vary_effects %>% 
   mutate(cafe = 1:n_cafes) %>% 
-  expand(nesting(cafe, a_cafe, b_cafe), visit = 1:n_visits) %>% 
+  expand_grid(visit = 1:n_visits) %>% 
   mutate(afternoon = rep(0:1, times = n() / 2)) %>% 
   mutate(mu = a_cafe + b_cafe * afternoon) %>% 
-  mutate(wait = rnorm(n = n(), mean = mu, sd = sigma))
+  mutate(wait = rnorm(n = n(), mean = mu, sd = sigma)) %>% 
+  select(cafe, everything())
 ```
 
 We might peek at the data.
@@ -1493,12 +1494,11 @@ set.seed(14)
 # wrangle
 p1 <-
   prior_draws(b14.8) %>% 
-  mutate(draw  = 1:n(),
-         etasq = sdgp_a_gplat_adjlon2_adj^2,
-         rhosq = 1 / (2 * lscale_a__1_gplat_adjlon2_adj^2)) %>% 
+  transmute(draw  = 1:n(),
+            etasq = sdgp_a_gplat_adjlon2_adj^2,
+            rhosq = 1 / (2 * lscale_a__1_gplat_adjlon2_adj^2)) %>% 
   slice_sample(n = 100) %>%
-  expand(nesting(draw, etasq, rhosq),
-         x = seq(from = 0, to = 10, by = .05)) %>% 
+  expand_grid(x = seq(from = 0, to = 10, by = .05)) %>% 
   mutate(covariance = etasq * exp(-rhosq * x^2)) %>% 
   
   # plot
@@ -1524,8 +1524,7 @@ p2 <-
   mutate(etasq = sdgp_a_gplat_adjlon2_adj^2,
          rhosq = 1 / (2 * lscale_a_gplat_adjlon2_adj^2)) %>% 
   slice_sample(n = 50) %>% 
-  expand(nesting(.draw, etasq, rhosq),
-         x = seq(from = 0, to = 10, by = .05)) %>% 
+  expand_grid(x = seq(from = 0, to = 10, by = .05)) %>% 
   mutate(covariance = etasq * exp(-rhosq * x^2)) %>% 
   
   # plot
@@ -1657,8 +1656,7 @@ Here's our the code for our version of Figure 14.12.b.
 # log population and total tools, summarized by the median and 80% interval
 f <-
   post %>% 
-  expand(logpop = seq(from = 6, to = 14, length.out = 30),
-         nesting(b_a_Intercept, b_b_Intercept, b_g_Intercept)) %>%
+  expand_grid(logpop = seq(from = 6, to = 14, length.out = 30)) %>%
   mutate(population = exp(logpop)) %>% 
   mutate(lambda = exp(b_a_Intercept) * population^b_b_Intercept / b_g_Intercept) %>%
   group_by(logpop) %>% 
@@ -1813,8 +1811,7 @@ p1 <-
 # log population and total tools, summarized by the median and 80% interval
 f <-
   post %>% 
-  expand(logpop = seq(from = 6, to = 14, length.out = 30),
-         nesting(b_a_Intercept, b_b_Intercept, b_g_Intercept)) %>%
+  expand_grid(logpop = seq(from = 6, to = 14, length.out = 30)) %>%
   mutate(population = exp(logpop)) %>% 
   mutate(lambda = exp(b_a_Intercept) * population^b_b_Intercept / b_g_Intercept) %>%
   group_by(logpop) %>% 
@@ -2141,7 +2138,7 @@ precis(m14.11)
 
 To get a sense of the covariance function implied by `etasq` and `rhosq`, here we'll plot the posterior against the prior for our **tidyverse** variant of Figure 14.14.
 
-```{r, fig.width = 3.25, fig.height = 3}
+```{r, fig.width = 3.25, fig.height = 3, warning = F}
 post <- extract.samples(m14.11)
 
 set.seed(14)
@@ -2152,13 +2149,12 @@ left_join(
     data.frame() %>% 
     slice_sample(n = 30) %>% 
     mutate(draw = 1:n()) %>% 
-    tidyr::expand(nesting(draw, etasq, rhosq),
-                  d_seq = seq(from = 0, to = 1, length.out = 50)),
+    select(draw, etasq, rhosq) %>% 
+    expand_grid(d_seq = seq(from = 0, to = 1, length.out = 50)),
   # prior
   tibble(eta = abs(rnorm(1e5, mean = 1, sd = 0.25)),
          rho = abs(rnorm(1e5, mean = 3, sd = 0.25))) %>% 
-    tidyr::expand(nesting(eta, rho), 
-                  d_seq = seq(from = 0, to = 1, length.out = 50)) %>% 
+    expand_grid(d_seq = seq(from = 0, to = 1, length.out = 50)) %>% 
     mutate(k = eta * exp(-rho * d_seq)) %>% 
     group_by(d_seq) %>% 
     mean_hdi(k, .width = .89),

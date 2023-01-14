@@ -175,8 +175,7 @@ set.seed(5)
 prior %>% 
   slice_sample(n = 50) %>% 
   rownames_to_column("draw") %>% 
-  expand(nesting(draw, Intercept, b),
-         a = c(-2, 2)) %>% 
+  expand_grid(a = c(-2, 2)) %>% 
   mutate(d = Intercept + b * a) %>% 
   
   ggplot(aes(x = a, y = d)) +
@@ -1067,13 +1066,14 @@ post <-
   as_draws_df(b5.3_A)
 ```
 
-Here we use `expand()` elongate the output from above by a factor of thirty, each time corresponding to one of the levels of `a = seq(from = -2, to = 2, length.out = 30)`. In the two `mutate()` lines that follow, we plug the model formulas into the `rnorm()` function to take random draws from posterior predictive distribution. The rest is just wrangling and summarizing.
+Here we use `expand_grid()` to elongate the output from above by a factor of thirty, each time corresponding to one of the levels of `a = seq(from = -2, to = 2, length.out = 30)`. In the two `mutate()` lines that follow, we plug the model formulas into the `rnorm()` function to take random draws from posterior predictive distribution. The rest is just wrangling and summarizing.
 
 ```{r, warning = F, message = F}
+set.seed(5)
+
 post <-
   post %>% 
-  expand(nesting(.draw, b_m_Intercept, b_m_a, sigma_m, b_d_Intercept, b_d_a, b_d_m, sigma_d),
-         a = seq(from = -2, to = 2, length.out = 30)) %>% 
+  expand_grid(a = seq(from = -2, to = 2, length.out = 30)) %>% 
   mutate(m_sim = rnorm(n(), mean = b_m_Intercept + b_m_a * a, sd = sigma_m)) %>% 
   mutate(d_sim = rnorm(n(), mean = b_d_Intercept + b_d_a * a + b_d_m * m_sim, sd = sigma_d)) %>% 
   pivot_longer(ends_with("sim")) %>% 
@@ -1185,8 +1185,7 @@ set.seed(5)
 prior_draws(b5.5_draft) %>% 
   slice_sample(n = 50) %>% 
   rownames_to_column() %>% 
-  expand(nesting(rowname, Intercept, b),
-         neocortex.perc_s = c(-2, 2)) %>% 
+  expand_grid(neocortex.perc_s = c(-2, 2)) %>% 
   mutate(kcal.per.g_s = Intercept + b * neocortex.perc_s) %>% 
   
   ggplot(aes(x = neocortex.perc_s, y = kcal.per.g_s)) +
@@ -1229,8 +1228,7 @@ set.seed(5)
 prior_draws(b5.5) %>% 
   slice_sample(n = 50) %>% 
   rownames_to_column() %>% 
-  expand(nesting(rowname, Intercept, b),
-         neocortex.perc_s = c(-2, 2)) %>% 
+  expand_grid(neocortex.perc_s = c(-2, 2)) %>% 
   mutate(kcal.per.g_s = Intercept + b * neocortex.perc_s) %>% 
   
   ggplot(aes(x = neocortex.perc_s, y = kcal.per.g_s, group = rowname)) +
@@ -1240,7 +1238,7 @@ prior_draws(b5.5) %>%
        x = "neocortex percent (std)",
        y = "kilocal per g (std)") +
   theme_bw() +
-  theme(panel.grid = element_blank()) 
+  theme(panel.grid = element_blank())
 ```
 
 Look at the posterior summary.
