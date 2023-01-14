@@ -23,7 +23,7 @@ As it turns out, **brms** does currently allow users to use the multivariate Stu
 
 ### Simulate the population.
 
-If you follow this section closely, it's a great template for simulating multilevel code for any of your future projects. You might think of this as an alternative to a frequentist power analysis. Vourre has done [some nice work along these lines](https://gitlab.com/vuorre/bayesplan), I have a [blog series](https://solomonkurz.netlify.com/post/bayesian-power-analysis-part-i/) on Bayesian power analysis, and Kruschke covered the topic in Chapter 13 of his [-@kruschkeDoingBayesianData2015] [text](https://sites.google.com/site/doingbayesiandataanalysis/).
+If you follow this section closely, it's a great template for simulating multilevel code for any of your future projects. You might think of this as an alternative to a frequentist power analysis. Vourre has done [some nice work along these lines](https://gitlab.com/vuorre/bayesplan), I have a [blog series](https://solomonkurz.netlify.app/blog/bayesian-power-analysis-part-i/) on Bayesian power analysis, and Kruschke covered the topic in Chapter 13 of his [-@kruschkeDoingBayesianData2015] [text](https://sites.google.com/site/doingbayesiandataanalysis/).
 
 ```{r}
 a       <-  3.5  # average morning wait time
@@ -658,7 +658,7 @@ fitted(b14.3,
 
 > These chimpanzees simply did not behave in any consistently different way in the partner treatments. The model we've used here does have some advantages, though. Since it allows for some individuals to differ in how they respond to the treatments, it could reveal a situation in which a treatment has no effect on average, even though some of the individuals respond strongly. That wasn't the case here. But often we are more interested in the distribution of responses than in the average response, so a model that estimates the distribution of treatment effects is very useful. (p. 452)
 
-For more practice with models of this kind, check out my blog post, [*Multilevel models and the index-variable approach*](https://solomonkurz.netlify.app/post/2020-12-09-multilevel-models-and-the-index-variable-approach/).
+For more practice with models of this kind, check out my blog post, [*Multilevel models and the index-variable approach*](https://solomonkurz.netlify.app/blog/2020-12-09-multilevel-models-and-the-index-variable-approach/).
 
 ## Instruments and causal designs
 

@@ -266,7 +266,7 @@ lines %>%
        x = "probability admit")
 ```
 
-There are other ways to do this. For ideas, check out my blog post, [*Make rotated Gaussians, Kruschke style*](https://solomonkurz.netlify.com/post/make-rotated-gaussians-kruschke-style/).
+There are other ways to do this. For ideas, check out my blog post, [*Make rotated Gaussians, Kruschke style*](https://solomonkurz.netlify.app/blog/2018-12-20-make-rotated-gaussians-kruschke-style/).
 
 Before we can do our variant of Figure 12.1.b, we'll need to define a few more custom functions. The `log_lik_beta_binomial2()` and `posterior_predict_beta_binomial2()` functions are required for `brms::predict()` to work with our `family = beta_binomial2` brmfit object. Similarly, `posterior_epred_beta_binomial2()` is required for `brms::fitted()` to work properly. And before all that, we need to throw in a line with the `expose_functions()` function. Just go with it.
 

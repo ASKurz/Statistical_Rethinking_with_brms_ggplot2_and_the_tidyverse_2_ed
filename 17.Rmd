@@ -15,7 +15,7 @@ In this final chapter, there are no models for us to fit and no figures for use 
 
 OMG
 
-I first started using **R** in the winter of 2015/2016. Right from the start, I learned how to code from within the [RStudio](https://www.rstudio.com) environment. But within RStudio I was using simple scripts. No longer. I now use [R Notebooks](http://rmarkdown.rstudio.com/r_notebooks.html) for just about everything, including my scientific projects, this [**bookdown**](https://bookdown.org)-powered ebook, and even my academic [webpage](https://solomonkurz.netlify.com) and [blog](https://solomonkurz.netlify.com/post/). Nathan Stephens wrote a nice blog post, [*Why I love R Notebooks*](https://rviews.rstudio.com/2017/03/15/why-i-love-r-notebooks/). I agree. This has fundamentally changed my workflow as a scientist. I only wish I'd learned about this before starting my dissertation project. So it goes...
+I first started using **R** in the winter of 2015/2016. Right from the start, I learned how to code from within the [RStudio](https://www.rstudio.com) environment. But within RStudio I was using simple scripts. No longer. I now use [R Notebooks](http://rmarkdown.rstudio.com/r_notebooks.html) for just about everything, including my scientific projects, this [**bookdown**](https://bookdown.org)-powered ebook, and even my academic [webpage](https://solomonkurz.netlify.com) and [blog](https://solomonkurz.netlify.com/blog/). Nathan Stephens wrote a nice blog post, [*Why I love R Notebooks*](https://rviews.rstudio.com/2017/03/15/why-i-love-r-notebooks/). I agree. This has fundamentally changed my workflow as a scientist. I only wish I'd learned about this before starting my dissertation project. So it goes...
 
 Do yourself a favor, adopt R Notebooks into your workflow. Do it today. If you prefer to learn with videos, here's a [nice intro](https://youtu.be/TJmNvfhLCoI?t=195) by [Kristine Yu](https://twitter.com/linguist_krisyu) and [another one](https://youtu.be/GG4pgtfDpWY?t=324) by [JJ Allaire](https://twitter.com/fly_upside_down). Try it out for like one afternoon and you'll be hooked.
 
@@ -257,7 +257,7 @@ If you're not on it, consider joining academic Twitter (see the related blog pos
 
 [I'm on twitter](https://twitter.com/SolomonKurz?lang=en), too.
 
-There are also some great blogs out there. Of primary interest, McElreath blogs once in a blue moon at [https://elevanth.org/blog/](https://elevanth.org/blog/). Andrew Gelman regularly blogs at [https://statmodeling.stat.columbia.edu/](https://statmodeling.stat.columbia.edu/). Many of Gelman's posts are great, but don't miss the action in the comments sections. Every so often, I post on **brms**-related content at [https://solomonkurz.netlify.app/post/](https://solomonkurz.netlify.app/post/).
+There are also some great blogs out there. Of primary interest, McElreath blogs once in a blue moon at [https://elevanth.org/blog/](https://elevanth.org/blog/). Andrew Gelman regularly blogs at [https://statmodeling.stat.columbia.edu/](https://statmodeling.stat.columbia.edu/). Many of Gelman's posts are great, but don't miss the action in the comments sections. Every so often, I post on **brms**-related content at [https://solomonkurz.netlify.app/blog/](https://solomonkurz.netlify.app/blog/).
 
 Also, do check out the [Stan Forums](https://discourse.mc-stan.org). They have a special [**brms** tag](https://discourse.mc-stan.org/c/interfaces/brms) there, under which you can find all kinds of hot **brms** talk.
 

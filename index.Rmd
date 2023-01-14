@@ -195,7 +195,7 @@ This book is licensed under the Creative Commons Zero v1.0 Universal license. Yo
 
 ## You can do this, too {-}
 
-This project is powered by Yihui Xie's [-@R-bookdown] [**bookdown** package](https://bookdown.org), which makes it easy to turn R markdown files into HTML, PDF, and EPUB. Go [here](https://bookdown.org/yihui/bookdown/) to learn more about bookdown. While you're at it, also check out Xie, Allaire, and Grolemund's [*R markdown: The definitive guide*](https://bookdown.org/yihui/rmarkdown/). And if you're unacquainted with GitHub, check out Jenny Bryan's [-@bryanHappyGitGitHub2020] [*Happy Git and GitHub for the useR*](https://happygitwithr.com/). I've even [blogged](https://solomonkurz.netlify.app/post/how-bookdown/) about what it was like putting together the first version of this project.
+This project is powered by Yihui Xie's [-@R-bookdown] [**bookdown** package](https://bookdown.org), which makes it easy to turn R markdown files into HTML, PDF, and EPUB. Go [here](https://bookdown.org/yihui/bookdown/) to learn more about bookdown. While you're at it, also check out Xie, Allaire, and Grolemund's [*R markdown: The definitive guide*](https://bookdown.org/yihui/rmarkdown/). And if you're unacquainted with GitHub, check out Jenny Bryan's [-@bryanHappyGitGitHub2020] [*Happy Git and GitHub for the useR*](https://happygitwithr.com/). I've even [blogged](https://solomonkurz.netlify.app/blog/2018-10-04-bookdown-my-process/) about what it was like putting together the first version of this project.
 
 The source code of the project is available on GitHub at [https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed](https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed).
 
