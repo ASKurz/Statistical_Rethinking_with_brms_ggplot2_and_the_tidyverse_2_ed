@@ -683,7 +683,7 @@ We can sum up the components of the model as three things:
 
 If you let the count of water be $w$ and the count of land be $l$, then the binomial likelihood for the globe-tossing data may be expressed as
 
-$$\operatorname{Pr} (w, l| p) = \frac{(w + l)!}{w!l!} p^w (1 - p)^l.$$
+$$\Pr (w, l| p) = \frac{(w + l)!}{w!l!} p^w (1 - p)^l.$$
 
 As McElreath wrote, we can read that as: "*The counts of 'water' W and 'land' L are distributed binomially, with probability* $p$ *of 'water' on each toss*. (p. 33, *emphasis* in the original). Given a probability of .5, we can use the `dbinom()` function to determine the likelihood of 6 out of 9 tosses coming out water.
 
@@ -776,11 +776,11 @@ which expresses the model assumption that the entire range of possible values fo
 
 ### Bayes' theorem.
 
-We already know about our values for $w$, $l$, and, by logical necessity, $n$. Bayes' theorem will allow us to determine the plausibility of various values of $p$, given $w$ and $l$, which we can express formally as $\operatorname{Pr}(p | w, l)$. Building on some of the earlier equations on page 37, Bayes' theorem tells us that
+We already know about our values for $w$, $l$, and, by logical necessity, $n$. Bayes' theorem will allow us to determine the plausibility of various values of $p$, given $w$ and $l$, which we can express formally as $\Pr(p | w, l)$. Building on some of the earlier equations on page 37, Bayes' theorem tells us that
 
-$$\operatorname{Pr}(p | w, l) = \frac{\operatorname{Pr}(w, l | p) \operatorname{Pr}(p )}{\operatorname{Pr}(w, l)}.$$
+$$\Pr(p | w, l) = \frac{\Pr(w, l | p) \Pr(p )}{\Pr(w, l)}.$$
 
-> And this is Bayes' theorem. It says that the probability of any particular value of $p$, considering the data, is equal to the product of the relative plausibility of the data, conditional on $p$, and the prior plausibility of $p$, divided by this thing $\operatorname{Pr}(W, L)$, which I’ll call the *average probability of the data*. (p. 37, *emphasis* in the original)
+> And this is Bayes' theorem. It says that the probability of any particular value of $p$, considering the data, is equal to the product of the relative plausibility of the data, conditional on $p$, and the prior plausibility of $p$, divided by this thing $\Pr(W, L)$, which I’ll call the *average probability of the data*. (p. 37, *emphasis* in the original)
 
 We can express this in words as
 
