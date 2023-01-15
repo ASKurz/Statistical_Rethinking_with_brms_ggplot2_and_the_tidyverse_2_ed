@@ -791,8 +791,8 @@ A typical way to plot a beta distribution would be to use the base **R** `dbeta(
 
 ```{r}
 priors <-
-  c(prior(beta(1, 1), class = zi),
-    prior(beta(2, 6), class = zi))
+  c(prior(beta(1, 1)),
+    prior(beta(2, 6)))
 
 priors %>% 
   parse_dist(prior)
@@ -807,6 +807,7 @@ priors %>%
   stat_dist_halfeye(.width = .95) +
   scale_fill_manual(values = canva_pal("Green fields")(4)[c(4, 1)]) +
   scale_x_continuous("zi", breaks = c(0, .5, 1)) +
+  scale_y_discrete(expand = expansion(add = 0.1)) +
   ylab(NULL) +
   theme(legend.position = "none")
 ```
@@ -883,7 +884,7 @@ Make our version of the simple Figure 12.4 histogram of our primary variable, `r
 ```{r, fig.width = 2.5, fig.height = 3}
 p1 <-
   d %>% 
-  ggplot(aes(x = response, fill = ..x..)) +
+  ggplot(aes(x = response, fill = after_stat(x))) +
   geom_histogram(binwidth = 1/4, linewidth = 0) +
   scale_fill_gradient(low = canva_pal("Green fields")(4)[4],
                       high = canva_pal("Green fields")(4)[1]) +
