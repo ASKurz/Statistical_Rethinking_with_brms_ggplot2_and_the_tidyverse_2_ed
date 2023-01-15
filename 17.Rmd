@@ -153,7 +153,7 @@ b17.0 <-
       file = "fits/b17.00")
 ```
 
-```{r, message = F, fig.width = 6.5, fig.height = 5.5}
+```{r, message = F, fig.width = 6.5, fig.height = 6}
 plot(b17.0, widths = c(2, 3))
 print(b17.0)
 ```
@@ -229,7 +229,7 @@ I've found that just the possibility that others might look at my code makes it 
 
 ## Check out social media
 
-If you're not on it, consider joining academic Twitter (see the related blog posts by [Sarah Mojarad](https://medium.com/@smojarad/a-beginners-guide-to-academic-twitter-f483dae86597) and [Dan Quintana](https://www.dsquintana.blog/twitter-for-scientists/)). The word on the street is correct. Twitter can be rage-fueled [dumpster fire](https://media.giphy.com/media/l0IynvPneUpb7SnBe/giphy.gif). But if you're selective about who you follow, it's a great place to lean from and connect with your academic heroes. If you're a fan of this project, here's a list of some of the people you might want to follow:
+If you're not on it, consider joining academic Twitter[^10] (see the related blog posts by [Sarah Mojarad](https://medium.com/@smojarad/a-beginners-guide-to-academic-twitter-f483dae86597) and [Dan Quintana](https://www.dsquintana.blog/twitter-for-scientists/)). The word on the street is correct. Twitter can be rage-fueled [dumpster fire](https://media.giphy.com/media/l0IynvPneUpb7SnBe/giphy.gif). But if you're selective about who you follow, it's a great place to lean from and connect with your academic heroes. If you're a fan of this project, here's a list of some of the people you might want to follow:
 
 * [Mara Averick](https://twitter.com/dataandme?lang=en)
 * [Michael Bentacourt](https://twitter.com/betanalpha?lang=en)
@@ -277,7 +277,7 @@ McElreath's text and my ebook are designed to teach you how to *get started doin
 tweetrmd::include_tweet("https://twitter.com/SolomonKurz/status/1371547835737444355")
 ```
 
-At first, folks were a little shy, but eventually the crowd came through in spades! For a full list, feel free to peruse my tweet thread. For your convenience, here's a list of a good bunch of the works people shared[^10]:
+At first, folks were a little shy, but eventually the crowd came through in spades! For a full list, feel free to peruse my tweet thread. For your convenience, here's a list of a good bunch of the works people shared[^11]:
 
 * @allen2020outside  [, PDF [link](https://scholarworks.boisestate.edu/cgi/viewcontent.cgi?article=1197&context=polsci_facpubs)]
 * @amlie2020risk  [, PDF [link](https://www.ahajournals.org/doi/epub/10.1161/STROKEAHA.119.027225)]
@@ -316,5 +316,7 @@ rm(BTdata, b17.1, b17.2, b17.0)
 # pacman::p_unload(pacman::p_loaded(), character.only = TRUE)
 ```
 
-[^10]: This list is not exhaustive of the links people shared on twitter. My basic inclusion criteria were that they were (a) peer-reviewed articles (b) with a substantive focus that I could (c) easily find a PDF link for. When someone shared several of their works, I simply pulled the first one that fulfilled those criteria. Also, inclusion on this list is **not a personal endorsement**. I haven't read most of them. You get what you pay for, friends.
+[^10]: Since Elon Musk took over twitter in late 2022, academic twitter has become an odd place. Many have migrated to other platforms, and it's not clear if those initial migrations will be permanent, or to what extent we'll see folks return. But at the time of this writing  (January 2023), I'm still on twitter and I hope to see you there, too.
+
+[^11]: This list is not exhaustive of the links people shared on twitter. My basic inclusion criteria were that they were (a) peer-reviewed articles (b) with a substantive focus that I could (c) easily find a PDF link for. When someone shared several of their works, I simply pulled the first one that fulfilled those criteria. Also, inclusion on this list is **not a personal endorsement**. I haven't read most of them. You get what you pay for, friends.
 
