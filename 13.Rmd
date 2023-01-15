@@ -101,7 +101,7 @@ tibble(estimate = fixef(b13.1)[, 1]) %>%
   mutate(name = if_else(name == "p", "expected survival probability", "expected survival log-odds")) %>% 
   
   ggplot(aes(x = value, fill = name)) +
-  stat_dots(linewidth = 0) +
+  stat_dots(size = 0) +
   scale_fill_manual(values = c("orange1", "orange4")) +
   scale_y_continuous(breaks = NULL) +
   labs(title = "Tank-level intercepts from the no-pooling model",
@@ -565,7 +565,7 @@ bind_rows(as_draws_df(b13.3),
   mutate(model = rep(c("b13.3", "b13.3_new"), each = n() / 2)) %>% 
   ggplot(aes(x = b_Intercept, y = sd_pond__Intercept)) +
   stat_density_2d(geom = "raster", 
-                  aes(fill = stat(density)), 
+                  aes(fill = after_stat(density)), 
                   contour = F, n = 200) +
   geom_vline(xintercept = a_bar, color = "orange3", linetype = 3) +
   geom_hline(yintercept = sigma, color = "orange3", linetype = 3) +
@@ -832,9 +832,8 @@ as_draws_df(b13.6) %>%
   
   ggplot(aes(x = value, y = parameter)) +
   stat_halfeye(.width = .95, size = 1, fill = "orange", adjust = 0.1) +
-  scale_y_discrete(labels = ggplot2:::parse_safe) +
+  scale_y_discrete(labels = ggplot2:::parse_safe, expand = expansion(add = 0.1)) +
   labs(subtitle = "The variation among treatment levels is small, but the\nvariation among the levels of block is still the smallest.") +
-  coord_cartesian(ylim = c(1.5, 3)) +
   theme(axis.text.y = element_text(hjust = 0))
 ```
 
@@ -1473,7 +1472,7 @@ tibble(n = rnorm(1e6, mean = -1, sd = 1)) %>%
   mutate(p = inv_logit_scaled(n)) %>% 
   
   ggplot(aes(x = p)) +
-  geom_histogram(fill = "blue", binwidth = .02) +
+  geom_histogram(fill = "blue", binwidth = .02, boundary = 0) +
   scale_y_continuous(breaks = NULL)
 ```
 
