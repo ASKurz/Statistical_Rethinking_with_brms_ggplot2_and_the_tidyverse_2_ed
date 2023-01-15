@@ -435,7 +435,7 @@ We're finally ready to plot our Figure 2.4.
 ```{r, fig.width = 7, fig.height = 7}
 d %>% 
   ggplot(aes(x = position, y = draw)) +
-  geom_vline(xintercept = c(0, 4, 8), color = "white", size = 2/3) +
+  geom_vline(xintercept = c(0, 4, 8), color = "white", linewidth = 2/3) +
   geom_segment(data = lines_1,
                aes(x = x, xend = xend,
                    y = y, yend = yend,
