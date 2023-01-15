@@ -1321,7 +1321,7 @@ p1 <-
   geom_point(aes(x = b),
              color = color) +
   geom_pointrange(aes(x = Estimate, xmin = Q2.5, xmax = Q97.5),
-                  shape = 1, linewidth = 1/4, fatten = 8, stroke = 1/4) +
+                  shape = 1, linewidth = 1/4, fatten = 4, stroke = 1/4) +
   labs(x = "neocortex percent (std)",
        y = "kcal milk (std)") +
   coord_cartesian(xlim = range(d$b, na.rm = T))
@@ -1333,7 +1333,7 @@ p2 <-
   geom_point(aes(y = b),
              color = color) +
   geom_pointrange(aes(y = Estimate, ymin = Q2.5, ymax = Q97.5),
-                  shape = 1, linewidth = 1/4, fatten = 8, stroke = 1/4) +
+                  shape = 1, linewidth = 1/4, fatten = 4, stroke = 1/4) +
   labs(x = "log body mass (std)",
        y = "neocortex percent (std)") +
   coord_cartesian(ylim = range(d$b, na.rm = T))
@@ -1484,7 +1484,7 @@ p1 <-
   geom_point(aes(x = b),
              color = color) +
   geom_pointrange(aes(x = Estimate, xmin = Q2.5, xmax = Q97.5),
-                  shape = 1, linewidth = 1/4, fatten = 8, stroke = 1/4) +
+                  shape = 1, linewidth = 1/4, fatten = 4, stroke = 1/4) +
   labs(x = "neocortex percent (std)",
        y = "kcal milk (std)") +
   coord_cartesian(xlim = range(d$b, na.rm = T))
@@ -1495,7 +1495,7 @@ p2 <-
   geom_point(aes(y = b),
              color = color) +
   geom_pointrange(aes(y = Estimate, ymin = Q2.5, ymax = Q97.5),
-                  shape = 1, linewidth = 1/4, fatten = 8, stroke = 1/4) +
+                  shape = 1, linewidth = 1/4, fatten = 4, stroke = 1/4) +
   labs(x = "log body mass (std)",
        y = "neocortex percent (std)") +
   coord_cartesian(ylim = range(d$b, na.rm = T))
@@ -2080,7 +2080,7 @@ Here's our custom forest plot.
 post %>% 
   ggplot(aes(x = Estimate, xmin = Q2.5, xmax = Q97.5, y = rank)) +
   geom_interval(aes(color = label == "POPULATION AVERAGE"),
-                linewidth = 1/2) +
+                size = 1/2) +
   geom_point(aes(size = 1 - Est.Error, color = label == "POPULATION AVERAGE"),
              shape = 15) +
   scale_color_viridis_d(option = "C", begin = .33, end = .67) +
