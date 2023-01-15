@@ -1441,12 +1441,12 @@ Since we used `weight_c` to fit our model, we might first want to understand wha
 mean(d2$weight)
 ```
 
-Just a hair under 45. If we're interested in $\mu$ at `weight` = 50, that implies we're also interested in $\mu$ at `weight_c` + 5.01.
+Just a hair under 45. If we're interested in $\mu$ at `weight` = 50, that implies we're also interested in $\mu$ at `weight_c` + 5.01. Within the context of our model, we compute this with $\alpha + \beta \cdot 5.01$. Here's what that looks like with `post`.
 
 ```{r, warning = F}
 mu_at_50 <- 
   post %>% 
-  transmute(mu_at_50 = b_Intercept + b_weight_c + 5.01)
+  transmute(mu_at_50 = b_Intercept + b_weight_c * 5.01)
  
 head(mu_at_50)
 ```
