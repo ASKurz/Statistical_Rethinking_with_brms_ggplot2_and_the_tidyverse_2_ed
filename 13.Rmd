@@ -101,7 +101,7 @@ tibble(estimate = fixef(b13.1)[, 1]) %>%
   mutate(name = if_else(name == "p", "expected survival probability", "expected survival log-odds")) %>% 
   
   ggplot(aes(x = value, fill = name)) +
-  stat_dots(size = 0) +
+  stat_dots(linewidth = 0) +
   scale_fill_manual(values = c("orange1", "orange4")) +
   scale_y_continuous(breaks = NULL) +
   labs(title = "Tank-level intercepts from the no-pooling model",
@@ -205,8 +205,8 @@ Here's the **ggplot2** code to reproduce Figure 13.1.
 ```{r, fig.width = 5, fig.height = 4}
 post_mdn %>%
   ggplot(aes(x = tank)) +
-  geom_hline(yintercept = inv_logit_scaled(median(post$b_Intercept)), linetype = 2, size = 1/4) +
-  geom_vline(xintercept = c(16.5, 32.5), size = 1/4, color = "grey25") +
+  geom_hline(yintercept = inv_logit_scaled(median(post$b_Intercept)), linetype = 2, linewidth = 1/4) +
+  geom_vline(xintercept = c(16.5, 32.5), linewidth = 1/4, color = "grey25") +
   geom_point(aes(y = propsurv), color = "orange2") +
   geom_point(aes(y = post_mdn), shape = 1) +
   annotate(geom = "text", 
@@ -250,7 +250,7 @@ p2 <-
   mutate(sim_tanks = rnorm(n(), mean = b_Intercept, sd = sd_tank__Intercept)) %>% 
   
   ggplot(aes(x = inv_logit_scaled(sim_tanks))) +
-  geom_density(size = 0, fill = "orange2", adjust = 0.1) +
+  geom_density(linewidth = 0, fill = "orange2", adjust = 0.1) +
   scale_y_continuous(NULL, breaks = NULL) +
   labs(title = "Probability of survival",
        subtitle = "transformed by the inverse-logit function")
@@ -313,7 +313,7 @@ tibble(`prior_Exponential(1)`        = prior_draws(b13.2)  %>% pull(sd_tank),
   
   # plot!
   ggplot(aes(x = value, fill = distribution)) +
-  geom_density(size = 0, alpha = 2/3, adjust = 0.25) +
+  geom_density(linewidth = 0, alpha = 2/3, adjust = 0.25) +
   geom_text(data = text,
             aes(y = density, label = distribution, color = distribution)) +
   scale_fill_manual(NULL, values = c("orange4", "orange2")) +
@@ -483,7 +483,7 @@ dfline <-
 dsim %>% 
   ggplot(aes(x = pond)) +
   geom_vline(xintercept = c(15.5, 30.5, 45.4), 
-             color = "white", size = 2/3) +
+             color = "white", linewidth = 2/3) +
   geom_point(aes(y = nopool_error), color = "orange2") +
   geom_point(aes(y = partpool_error), shape = 1) +
   geom_segment(data = dfline, 
@@ -674,7 +674,7 @@ color_scheme_set("orange")
 as_draws_df(b13.4) %>% 
   mcmc_trace(pars = vars(b_a_Intercept:`r_block__a[6,Intercept]`),
              facet_args = list(ncol = 4), 
-             size = .15) +
+             linewidth = 0.15) +
   theme(legend.position = "none")
 ```
 
@@ -753,7 +753,7 @@ post %>%
   pivot_longer(starts_with("sd")) %>% 
   
   ggplot(aes(x = value, fill = name)) +
-  geom_density(size = 0, alpha = 3/4, adjust = 2/3, show.legend = F) +
+  geom_density(linewidth = 0, alpha = 3/4, adjust = 2/3, show.legend = F) +
   annotate(geom = "text", x = 0.67, y = 2, label = "block", color = "orange4") +
   annotate(geom = "text", x = 2.725, y = 0.5, label = "actor", color = "orange1") +
   scale_fill_manual(values = str_c("orange", c(1, 4))) +
@@ -1095,7 +1095,7 @@ post %>%
   transmute(actor_5 = `r_actor__a[5,Intercept]`) %>% 
   
   ggplot(aes(x = actor_5)) +
-  geom_density(size = 0, fill = "blue") +
+  geom_density(linewidth = 0, fill = "blue") +
   scale_y_continuous(breaks = NULL) +
   ggtitle("Chimp #5's density")
 ```
@@ -1564,7 +1564,7 @@ p2 <-
          type = factor("multilevel", levels = levels)) %>% 
   
   ggplot(aes(x = prop, xmin = Q2.5, xmax = Q97.5, y = age_group)) + 
-  geom_pointrange(color = "blue2", size = 0.8, fatten = 2) +
+  geom_pointrange(color = "blue2", linewidth = 0.8, fatten = 2) +
   scale_x_continuous(breaks = c(0, .5, 1), limits = c(0, 1)) +
   scale_y_discrete(labels = NULL) +
   facet_wrap(~ type)
@@ -1624,7 +1624,7 @@ p3 <-
   mutate(type = factor("MRP", levels = levels)) %>% 
 
   ggplot(aes(x = kept_name_predict, xmin = .lower, xmax = .upper, y = age_group)) + 
-  geom_pointrange(color = "orange2", size = 0.8, fatten = 2) +
+  geom_pointrange(color = "orange2", linewidth = 0.8, fatten = 2) +
   scale_x_continuous(breaks = c(0, .5, 1), limits = 0:1) +
   scale_y_discrete(labels = NULL) +
   facet_wrap(~ type)
