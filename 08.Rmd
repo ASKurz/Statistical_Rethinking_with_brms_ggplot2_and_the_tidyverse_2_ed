@@ -225,7 +225,7 @@ p1 <-
   geom_hline(yintercept = range(dd$log_gdp_std), linetype = 2) +
   geom_line(color = palette_pander(n = 2)[2], alpha = .4) +
   geom_abline(intercept = 1.3, slope = -0.6,
-              color = palette_pander(n = 2)[1], size = 2) +
+              color = palette_pander(n = 2)[1], linewidth = 2) +
   labs(subtitle = "Intercept ~ dnorm(1, 1)\nb ~ dnorm(0, 1)",
        x = "ruggedness",
        y = "log GDP (prop of mean)") +
@@ -408,7 +408,7 @@ dd %>%
   geom_smooth(data = f,
               aes(y = Estimate, ymin = Q1.5, ymax = Q98.5),
               stat = "identity",
-              alpha = 1/4, size = 1/2) +
+              alpha = 1/4, linewidth = 1/2) +
   geom_point(aes(y = log_gdp_std),
              size = 2/3) +
   scale_fill_pander() +
@@ -602,7 +602,7 @@ dd %>%
   geom_smooth(data = f,
               aes(y = Estimate, ymin = Q1.5, ymax = Q98.5),
               stat = "identity",
-              alpha = 1/4, size = 1/2) +
+              alpha = 1/4, linewidth = 1/2) +
   geom_text_repel(data = . %>% filter(country %in% countries),  
                   aes(label = country), 
                   size = 3, seed = 8, 
@@ -850,7 +850,7 @@ for(s in -1:1) {
            aes(x = water_cent, y = blooms_std)) +
     geom_line(data = f,
               aes(group = row),
-              color = palette_pander(n = 6)[6], alpha = 1/5, size = 1/2) +
+              color = palette_pander(n = 6)[6], alpha = 1/5, linewidth = 1/2) +
     geom_point(color = palette_pander(n = 6)[6]) +
     scale_x_continuous("Water (centered)", breaks = c(-1, 0, 1)) +
     labs(title = paste("Shade (centered) =", s),
@@ -899,7 +899,7 @@ rbind(fitted(b8.4, newdata = nd, summary = F, ndraws = 20),
   # plot!
   ggplot(aes(x = water_cent, y = blooms_std)) +
   geom_line(aes(group = row),
-            color = palette_pander(n = 6)[6], alpha = 1/5, size = 1/2) +
+            color = palette_pander(n = 6)[6], alpha = 1/5, linewidth = 1/2) +
   geom_point(data = points,
              color = palette_pander(n = 6)[6]) +
   scale_x_continuous("Water (centered)", breaks = c(-1, 0, 1)) +

@@ -667,7 +667,7 @@ d <- tibble(draws = rbinom(n_draws, size = 9, prob = .7))
 d %>% 
   ggplot(aes(x = draws)) +
   geom_histogram(binwidth = 1, center = 0,
-                 color = "grey92", size = 1/10) +
+                 color = "grey92", linewidth = 1/10) +
   scale_x_continuous("dummy water count", breaks = 0:4 * 2) +
   ylab("frequency") +
   coord_cartesian(xlim = c(0, 9)) +
@@ -702,7 +702,7 @@ Let's plot the simulation results.
 d %>% 
   ggplot(aes(x = draws)) +
   geom_histogram(binwidth = 1, center = 0,
-                 color = "grey92", size = 1/10) +
+                 color = "grey92", linewidth = 1/10) +
   scale_x_continuous("dummy water count", breaks = 0:4 * 2) +
   ylab("frequency") +
   coord_cartesian(xlim = c(0, 9)) +
@@ -796,7 +796,7 @@ Now we're ready to plot.
 d_small %>%
   ggplot(aes(x = draws)) +
   geom_histogram(binwidth = 1, center = 0,
-                 color = "grey92", size = 1/10) +
+                 color = "grey92", linewidth = 1/10) +
   scale_x_continuous(NULL, breaks = 0:3 * 3) +
   scale_y_continuous(NULL, breaks = NULL) +
   labs(subtitle = "Sampling distributions") +
@@ -828,7 +828,7 @@ Here's our histogram.
 samples %>% 
   ggplot(aes(x = w)) +
   geom_histogram(binwidth = 1, center = 0,
-                 color = "grey92", size = 1/10) +
+                 color = "grey92", linewidth = 1/10) +
   scale_x_continuous("number of water samples",
                      breaks = 0:3 * 3) +
   scale_y_continuous(NULL, breaks = NULL) +
@@ -895,7 +895,7 @@ samples %>%
   ggplot(aes(x = longest_run_length)) +
   geom_histogram(aes(fill = longest_run_length == 3),
                  binwidth = 1, center = 0,
-                 color = "grey92", size = 1/10) +
+                 color = "grey92", linewidth = 1/10) +
   scale_fill_viridis_d(option = "D", end = .9) +
   scale_x_continuous("longest run length", breaks = 0:3 * 3) +
   ylab("frequency") +
@@ -926,7 +926,7 @@ samples %>%
   ggplot(aes(x = longest_run_length)) +
   geom_histogram(aes(fill = longest_run_length == 7),
                  binwidth = 1, center = 0,
-                 color = "grey92", size = 1/10) +
+                 color = "grey92", linewidth = 1/10) +
   scale_fill_viridis_d(option = "D", end = .9) +
   scale_x_continuous("number of switches", breaks = 0:3 * 3) +
   ylab("frequency") +
@@ -1008,7 +1008,7 @@ f <-
 f %>% 
   ggplot(aes(x = w)) +
   geom_histogram(binwidth = 1, center = 0,
-                 color = "grey92", size = 1/10) +
+                 color = "grey92", linewidth = 1/10) +
   scale_x_continuous("number of water samples", breaks = 0:3 * 3) +
   scale_y_continuous(NULL, breaks = NULL, limits = c(0, 5000)) +
   ggtitle("Posterior predictive distribution") +

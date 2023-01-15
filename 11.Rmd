@@ -125,7 +125,7 @@ prior_draws(b11.1) %>%
   
   ggplot(aes(x = p)) +
   geom_density(fill = wes_palette("Moonrise2")[4], 
-               size = 0, adjust = 0.1) +
+               linewidth = 0, adjust = 0.1) +
   scale_y_continuous(NULL, breaks = NULL) +
   xlab("prior prob pull left")
 ```
@@ -155,7 +155,7 @@ bind_rows(prior_draws(b11.1),
   
   # plot
   ggplot(aes(x = p, fill = w)) +
-  geom_density(size = 0, alpha = 3/4, adjust = 0.1) +
+  geom_density(linewidth = 0, alpha = 3/4, adjust = 0.1) +
   scale_fill_manual(expression(italic(w)), values = wes_palette("Moonrise2")[c(4, 1)]) +
   scale_y_continuous(NULL, breaks = NULL) +
   labs(title = expression(alpha%~%Normal(0*", "*italic(w))),
@@ -220,7 +220,7 @@ prior <-
 # plot
 prior %>% 
   ggplot(aes(x = diff, fill = w)) +
-  geom_density(size = 0, alpha = 3/4, adjust = 0.1) +
+  geom_density(linewidth = 0, alpha = 3/4, adjust = 0.1) +
   scale_fill_manual(expression(italic(w)), values = wes_palette("Moonrise2")[c(4, 2)]) +
   scale_y_continuous(NULL, breaks = NULL) +
   labs(title = expression(alpha%~%Normal(0*", "*italic(w))),
@@ -409,7 +409,7 @@ p1 <-
   ggplot(aes(x = labels, y = proportion)) +
   geom_hline(yintercept = .5, color = wes_palette("Moonrise2")[3]) +
   geom_line(aes(group = prosoc_left),
-            size = 1/4, color = wes_palette("Moonrise2")[4]) +
+            linewidth = 1/4, color = wes_palette("Moonrise2")[4]) +
   geom_point(aes(color = condition),
              size = 2.5, show.legend = F) + 
   labs(subtitle = "observed proportions")
@@ -432,7 +432,7 @@ p2 <-
   ggplot(aes(x = labels, y = Estimate, ymin = Q2.5, ymax = Q97.5)) +
   geom_hline(yintercept = .5, color = wes_palette("Moonrise2")[3]) +
   geom_line(aes(group = prosoc_left),
-            size = 1/4, color = wes_palette("Moonrise2")[4]) +
+            linewidth = 1/4, color = wes_palette("Moonrise2")[4]) +
   geom_pointrange(aes(color = condition),
                   fatten = 2.5, show.legend = F) + 
   labs(subtitle = "posterior predictions")
@@ -446,7 +446,7 @@ library(patchwork)
                      breaks = c(0, .5, 1), limits = c(0, 1)) &
   xlab(NULL) &
   theme(axis.ticks.x = element_blank(),
-        panel.background = element_rect(fill = alpha("white", 1/10), size = 0)) &
+        panel.background = element_rect(fill = alpha("white", 1/10), linewidth = 0)) &
   facet_wrap(~ actor, nrow = 1, labeller = label_both)
 ```
 
@@ -516,7 +516,7 @@ fitted(b11.5,
   ggplot(aes(x = labels, y = Estimate, ymin = Q2.5, ymax = Q97.5)) +
   geom_hline(yintercept = .5, color = wes_palette("Moonrise2")[3]) +
   geom_line(aes(group = side),
-            size = 1/4, color = wes_palette("Moonrise2")[4]) +
+            linewidth = 1/4, color = wes_palette("Moonrise2")[4]) +
   geom_pointrange(aes(color = cond),
                   fatten = 2.5, show.legend = F) + 
   scale_color_manual(values = wes_palette("Moonrise2")[c(2:1)]) +
@@ -525,7 +525,7 @@ fitted(b11.5,
   labs(subtitle = "posterior predictions for b11.5",
        x = NULL) +
   theme(axis.ticks.x = element_blank(),
-        panel.background = element_rect(fill = alpha("white", 1/10), size = 0)) +
+        panel.background = element_rect(fill = alpha("white", 1/10), linewidth = 0)) +
   facet_wrap(~ actor, nrow = 1, labeller = label_both)
 ```
 
@@ -952,7 +952,7 @@ my_upper <- function(data, mapping, ...) {
 
 my_diag <- function(data, mapping, ...) {
   ggplot(data = data, mapping = mapping) + 
-    geom_density(fill = wes_palette("Moonrise2")[2], size = 0) +
+    geom_density(fill = wes_palette("Moonrise2")[2], linewidth = 0) +
     theme_void()
 }
 
@@ -1059,7 +1059,7 @@ tibble(x       = c(3, 22),
   
   ggplot(aes(fill = group, color = group)) +
   geom_area(aes(x = number, y = density),
-            alpha = 3/4, size = 0, position = "identity") +
+            alpha = 3/4, linewidth = 0, position = "identity") +
   geom_text(data = . %>% group_by(group) %>% slice(1),
             aes(x = x, y = y, label = group),
             family = "Times", parse = T,  hjust = 0) +
@@ -1105,7 +1105,7 @@ tibble(x    = c(10, 4),
   
   ggplot(aes(fill = group, color = group)) +
   geom_area(aes(x = number, y = density),
-            alpha = 3/4, size = 0, position = "identity") +
+            alpha = 3/4, linewidth = 0, position = "identity") +
   geom_text(data = . %>% group_by(group) %>% slice(1),
             aes(x = x, y = y, label = group),
             family = "Times", parse = T,  hjust = 0) +
@@ -1136,7 +1136,7 @@ tibble(i = 1:n,
   
   # plot
   ggplot(aes(x = x, y = exp(a + b * x), group = i)) +
-  geom_line(size = 1/4, alpha = 2/3,
+  geom_line(linewidth = 1/4, alpha = 2/3,
             color = wes_palette("Moonrise2")[4]) +
   labs(x = "log population (std)",
        y = "total tools") +
@@ -1159,7 +1159,7 @@ prior <-
 p1 <-
   prior %>% 
   ggplot(aes(x = x, y = exp(a + b * x), group = i)) +
-  geom_line(size = 1/4, alpha = 2/3,
+  geom_line(linewidth = 1/4, alpha = 2/3,
             color = wes_palette("Moonrise2")[4]) +
   labs(subtitle = expression(beta%~%Normal(0*', '*0.2)),
        x = "log population",
@@ -1170,7 +1170,7 @@ p1 <-
 p2 <-
   prior %>% 
   ggplot(aes(x = exp(x), y = exp(a + b * x), group = i)) +
-  geom_line(size = 1/4, alpha = 2/3,
+  geom_line(linewidth = 1/4, alpha = 2/3,
             color = wes_palette("Moonrise2")[4]) +
   labs(subtitle = expression(beta%~%Normal(0*', '*0.2)),
        x = "population",
@@ -1278,7 +1278,7 @@ p1 <-
   ggplot(aes(x = log_pop_std, group = cid, color = cid)) +
   geom_smooth(aes(y = Estimate, ymin = Q5.5, ymax = Q94.5, fill = cid),
               stat = "identity",
-              alpha = 1/4, size = 1/2) +
+              alpha = 1/4, linewidth = 1/2) +
   geom_point(data = bind_cols(d, b11.10$criteria$loo$diagnostics),
              aes(y = total_tools, size = pareto_k),
              alpha = 4/5) +
@@ -1304,7 +1304,7 @@ p2 <-
   ggplot(aes(x = population, group = cid, color = cid)) +
   geom_smooth(aes(y = Estimate, ymin = Q5.5, ymax = Q94.5, fill = cid),
               stat = "identity",
-              alpha = 1/4, size = 1/2) +
+              alpha = 1/4, linewidth = 1/2) +
   geom_point(data = bind_cols(d, b11.10$criteria$loo$diagnostics),
              aes(y = total_tools, size = pareto_k),
              alpha = 4/5) +
@@ -1404,7 +1404,7 @@ fitted(b11.11,
   ggplot(aes(x = population, group = cid, color = cid)) +
   geom_smooth(aes(y = Estimate, ymin = Q5.5, ymax = Q94.5, fill = cid),
               stat = "identity",
-              alpha = 1/4, size = 1/2) +
+              alpha = 1/4, linewidth = 1/2) +
   geom_point(data = bind_cols(d, b11.11$criteria$loo$diagnostics),
              aes(y = total_tools, size = pareto_k),
              alpha = 4/5) +
@@ -1610,7 +1610,7 @@ d <-
 # plot 
 d %>%
   ggplot(aes(x = career)) +
-  geom_bar(size = 0, fill = wes_palette("Moonrise2")[2])
+  geom_bar(linewidth = 0, fill = wes_palette("Moonrise2")[2])
 ```
 
 Our `career` variable is composed of three categories, `1:3`, with each category more likely than the one before. Here's a breakdown of the counts, percentages, and probabilities of each category.
@@ -1956,7 +1956,7 @@ tibble(fit = str_c("b11.13", letters[1:4])) %>%
   geom_pointrange(fatten = 3/2, color = wes_palette("Moonrise2")[4]) +
   ylab(NULL) +
   theme(axis.ticks.y = element_blank(),
-        panel.background = element_rect(fill = alpha("white", 1/8), size = 0)) +
+        panel.background = element_rect(fill = alpha("white", 1/8), linewidth = 0)) +
   facet_wrap(~ parameter, nrow = 1)
 ```
 
@@ -2054,7 +2054,7 @@ p1 <-
   mutate(career = as.factor(career)) %>% 
   
   ggplot(aes(x = family_income, fill = career)) +
-  geom_density(size = 0, alpha = 3/4) +
+  geom_density(linewidth = 0, alpha = 3/4) +
   scale_fill_manual(values = wes_palette("Moonrise2")[c(4, 2, 1)]) +
   theme(legend.position = "none")
   
@@ -2134,8 +2134,8 @@ rbind(f[, , 1],
   ggplot(aes(x = family_income, y = Estimate,
              ymin = Q2.5, ymax = Q97.5,
              fill = career, color = career)) +
-  geom_ribbon(alpha = 2/3, size = 0) +
-  geom_line(size = 3/4) +
+  geom_ribbon(alpha = 2/3, linewidth = 0) +
+  geom_line(linewidth = 3/4) +
   scale_fill_manual(values = wes_palette("Moonrise2")[c(4, 2, 1)]) +
   scale_color_manual(values = wes_palette("Moonrise2")[c(4, 2, 1)]) +
   scale_x_continuous(breaks = 0:2 / 2) +

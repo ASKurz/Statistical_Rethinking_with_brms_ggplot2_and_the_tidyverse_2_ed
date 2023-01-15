@@ -128,7 +128,7 @@ Note how our custom `theme_pearl_earing()` function has a few adjustable paramet
 vary_effects %>% 
   ggplot(aes(x = a_cafe, y = b_cafe)) +
   geom_point(color = "#80A0C7") +
-  geom_rug(color = "#8B9DAF", size = 1/7)
+  geom_rug(color = "#8B9DAF", linewidth = 1/7)
 ```
 
 Again, these are not "data." Figure 14.2 shows a distribution of *parameters*. Here's their Pearson's correlation coefficient.
@@ -379,18 +379,18 @@ Finally, here's our code for Figure 14.5.a, showing shrinkage in two dimensions.
 ```{r, fig.width = 4.5, fig.height = 3}
 p1 <-
   ggplot(data = params, aes(x = Intercept, y = Slope)) +
-  stat_ellipse(geom = "polygon", type = "norm", level = 1/10, size = 0, alpha = 1/20, fill = "#E7CDC2") +
-  stat_ellipse(geom = "polygon", type = "norm", level = 2/10, size = 0, alpha = 1/20, fill = "#E7CDC2") +
-  stat_ellipse(geom = "polygon", type = "norm", level = 3/10, size = 0, alpha = 1/20, fill = "#E7CDC2") +
-  stat_ellipse(geom = "polygon", type = "norm", level = 4/10, size = 0, alpha = 1/20, fill = "#E7CDC2") +
-  stat_ellipse(geom = "polygon", type = "norm", level = 5/10, size = 0, alpha = 1/20, fill = "#E7CDC2") +
-  stat_ellipse(geom = "polygon", type = "norm", level = 6/10, size = 0, alpha = 1/20, fill = "#E7CDC2") +
-  stat_ellipse(geom = "polygon", type = "norm", level = 7/10, size = 0, alpha = 1/20, fill = "#E7CDC2") +
-  stat_ellipse(geom = "polygon", type = "norm", level = 8/10, size = 0, alpha = 1/20, fill = "#E7CDC2") +
-  stat_ellipse(geom = "polygon", type = "norm", level = 9/10, size = 0, alpha = 1/20, fill = "#E7CDC2") +
-  stat_ellipse(geom = "polygon", type = "norm", level = .99,  size = 0, alpha = 1/20, fill = "#E7CDC2") +
+  stat_ellipse(geom = "polygon", type = "norm", level = 1/10, linewidth = 0, alpha = 1/20, fill = "#E7CDC2") +
+  stat_ellipse(geom = "polygon", type = "norm", level = 2/10, linewidth = 0, alpha = 1/20, fill = "#E7CDC2") +
+  stat_ellipse(geom = "polygon", type = "norm", level = 3/10, linewidth = 0, alpha = 1/20, fill = "#E7CDC2") +
+  stat_ellipse(geom = "polygon", type = "norm", level = 4/10, linewidth = 0, alpha = 1/20, fill = "#E7CDC2") +
+  stat_ellipse(geom = "polygon", type = "norm", level = 5/10, linewidth = 0, alpha = 1/20, fill = "#E7CDC2") +
+  stat_ellipse(geom = "polygon", type = "norm", level = 6/10, linewidth = 0, alpha = 1/20, fill = "#E7CDC2") +
+  stat_ellipse(geom = "polygon", type = "norm", level = 7/10, linewidth = 0, alpha = 1/20, fill = "#E7CDC2") +
+  stat_ellipse(geom = "polygon", type = "norm", level = 8/10, linewidth = 0, alpha = 1/20, fill = "#E7CDC2") +
+  stat_ellipse(geom = "polygon", type = "norm", level = 9/10, linewidth = 0, alpha = 1/20, fill = "#E7CDC2") +
+  stat_ellipse(geom = "polygon", type = "norm", level = .99,  linewidth = 0, alpha = 1/20, fill = "#E7CDC2") +
   geom_point(aes(group = cafe, color = pooled)) +
-  geom_line(aes(group = cafe), size = 1/4) +
+  geom_line(aes(group = cafe), linewidth = 1/4) +
   scale_color_manual("Pooled?", values = c("#80A0C7", "#A65141")) +
   coord_cartesian(xlim = range(params$Intercept),
                   ylim = range(params$Slope))
@@ -439,13 +439,13 @@ p2 <-
   # functions in the previous plot
   mapply(function(level) {
     stat_ellipse(geom  = "polygon", type = "norm",
-                 size  = 0, alpha = 1/20, fill = "#E7CDC2",
+                 linewidth  = 0, alpha = 1/20, fill = "#E7CDC2",
                  level = level)
     }, 
     # enter the levels here
     level = c(1:9 / 10, .99)) +
   geom_point(aes(group = cafe, color = pooled)) +
-  geom_line(aes(group = cafe), size = 1/4) +
+  geom_line(aes(group = cafe), linewidth = 1/4) +
   scale_color_manual("Pooled?", values = c("#80A0C7", "#A65141")) +
   labs(x = "morning wait (mins)",
        y = "afternoon wait (mins)") +
@@ -637,14 +637,14 @@ fitted(b14.3,
   geom_hline(yintercept = .5, color = "#E8DCCF", alpha = 1/2, linetype = 2) +
   # empirical proportions
   geom_line(aes(y = proportion, group = prosoc_left),
-            size = 1/4, color = "#394165") +
+            linewidth = 1/4, color = "#394165") +
   geom_point(aes(y = proportion, shape = condition),
              color = "#394165", fill = "#100F14", size = 2.5, show.legend = F) + 
   # posterior predictions
   geom_line(aes(y = Estimate, group = prosoc_left),
-            size = 3/4, color = "#80A0C7") +
+            linewidth = 3/4, color = "#80A0C7") +
   geom_pointrange(aes(y = Estimate, ymin = Q2.5, ymax = Q97.5, shape = condition),
-                  color = "#80A0C7", fill = "#100F14", fatten = 8, size = 1/3, show.legend = F) + 
+                  color = "#80A0C7", fill = "#100F14", fatten = 8, linewidth = 1/3, show.legend = F) + 
   # annotation for the conditions
   geom_text(data = text,
             aes(y = prop, label = labels), 
@@ -1001,8 +1001,8 @@ kl_dyads %>%
   geom_tile(aes(fill = did),
             show.legend = F) +
   geom_text(size = 2.25, family = "Courier") +
-  geom_vline(xintercept = 0:24 + 0.5, color = "#394165", size = 1/5) +
-  geom_hline(yintercept = 1:25 + 0.5, color = "#394165", size = 1/5) +
+  geom_vline(xintercept = 0:24 + 0.5, color = "#394165", linewidth = 1/5) +
+  geom_hline(yintercept = 1:25 + 0.5, color = "#394165", linewidth = 1/5) +
   scale_fill_gradient(low = "#DCA258", high = "#EEDA9D", limits = c(1, NA)) +
   scale_x_continuous(breaks = 1:24) +
   scale_y_continuous(breaks = 2:25) +
@@ -1135,8 +1135,8 @@ tibble(g = exp(g[, 1]),
   ggplot(aes(x = g, y = r)) +
   geom_abline(color = "#FCF9F0", linetype = 2, alpha = 1/3) + # white "#FCF9F0" # gold "#B1934A"
   geom_point(color = "#B1934A", alpha = 1/3, size = 1/4) +
-  stat_ellipse(type = "norm", level = .5, size = 1/2, color = "#80A0C7") +
-  stat_ellipse(type = "norm", level = .9, size = 1/2, color = "#80A0C7") +
+  stat_ellipse(type = "norm", level = .5, linewidth = 1/2, color = "#80A0C7") +
+  stat_ellipse(type = "norm", level = .9, linewidth = 1/2, color = "#80A0C7") +
   labs(x = expression(giving[italic(i)==1]),
        y = expression(receiving[italic(i)==1])) +
   coord_equal(xlim = c(0, 5),
@@ -1162,7 +1162,7 @@ rbind(exp(g), exp(r)) %>%
   geom_abline(color = "#FCF9F0", linetype = 2, alpha = 1/3) +
   stat_ellipse(data = . %>% unnest(data),
                aes(x = g, y = r),
-               type = "norm", level = .5, size = 1/2, alpha = 1/2, color = "#80A0C7") +
+               type = "norm", level = .5, linewidth = 1/2, alpha = 1/2, color = "#80A0C7") +
   geom_point(aes(x = mu_g, y = mu_r),
              color = "#DCA258") +
   labs(x = "generalized giving",
@@ -1232,8 +1232,8 @@ tibble(dy1 = post$d[, 1, 1],
   geom_vline(xintercept = 0, color = "#FCF9F0", linetype = 2, alpha = 1/3) +
   geom_hline(yintercept = 0, color = "#FCF9F0", linetype = 2, alpha = 1/3) +
   geom_point(color = "#8B9DAF", alpha = 1/3, size = 1/4) +
-  stat_ellipse(type = "norm", level = .5, size = 1/2, color = "#EEDA9D") +
-  stat_ellipse(type = "norm", level = .9, size = 1/2, color = "#EEDA9D") +
+  stat_ellipse(type = "norm", level = .5, linewidth = 1/2, color = "#EEDA9D") +
+  stat_ellipse(type = "norm", level = .9, linewidth = 1/2, color = "#EEDA9D") +
   labs(x = expression("household A in dyad"[italic(i)==1]),
        y = expression("household B in dyad"[italic(i)==1])) +
   coord_equal(xlim = c(-2, 3.5),
@@ -1424,8 +1424,8 @@ p1 <-
   mutate(lscale = sqrt(1 / (2 * `rho^2`))) %>%
   
   ggplot(aes(x = `rho^2`, y = lscale)) +
-  geom_hline(yintercept = 0, color = "#FCF9F0", size = 1/4, linetype = 2) +
-  geom_vline(xintercept = 0, color = "#FCF9F0", size = 1/4, linetype = 2) +
+  geom_hline(yintercept = 0, color = "#FCF9F0", linewidth = 1/4, linetype = 2) +
+  geom_vline(xintercept = 0, color = "#FCF9F0", linewidth = 1/4, linetype = 2) +
   geom_line(color = "#A65141") +
   xlab(expression(rho^2)) +
   coord_cartesian(xlim = c(0, 10),
@@ -1436,8 +1436,8 @@ p2 <-
   mutate(`rho^2` = 1 / (2 * lscale^2)) %>%
   
   ggplot(aes(x = lscale, y = `rho^2`)) +
-  geom_hline(yintercept = 0, color = "#FCF9F0", size = 1/4, linetype = 2) +
-  geom_vline(xintercept = 0, color = "#FCF9F0", size = 1/4, linetype = 2) +
+  geom_hline(yintercept = 0, color = "#FCF9F0", linewidth = 1/4, linetype = 2) +
+  geom_vline(xintercept = 0, color = "#FCF9F0", linewidth = 1/4, linetype = 2) +
   geom_line(color = "#80A0C7") +
   ylab(expression(rho^2)) +
   coord_cartesian(xlim = c(0, 10),
@@ -1504,7 +1504,7 @@ p1 <-
   # plot
   ggplot(aes(x = x, y = covariance)) +
   geom_line(aes(group = draw),
-            size = 1/4, alpha = 1/4, color = "#EEDA9D") +
+            linewidth = 1/4, alpha = 1/4, color = "#EEDA9D") +
   scale_x_continuous("distance (thousand km)", expand = c(0, 0),
                      breaks = 0:5 * 2) +
   coord_cartesian(xlim = c(0, 10),
@@ -1530,10 +1530,10 @@ p2 <-
   # plot
   ggplot(aes(x = x, y = covariance)) +
   geom_line(aes(group = .draw),
-            size = 1/4, alpha = 1/4, color = "#EEDA9D") +
+            linewidth = 1/4, alpha = 1/4, color = "#EEDA9D") +
   stat_function(fun = function(x) mean(post$sdgp_a_gplat_adjlon2_adj)^2 *
                   exp(-(1 / (2 * mean(post$lscale_a_gplat_adjlon2_adj)^2)) * x^2),
-                color = "#DCA258", size = 1) +
+                color = "#DCA258", linewidth = 1) +
   scale_x_continuous("distance (thousand km)", expand = c(0, 0),
                      breaks = 0:5 * 2) +
   coord_cartesian(xlim = c(0, 10),
@@ -1669,7 +1669,7 @@ p2 <-
   geom_smooth(data = f,
               aes(y = lambda, ymin = .lower, ymax = .upper),
               stat = "identity",
-              fill = "#394165", color = "#100F14", alpha = .5, size = 1.1) +
+              fill = "#394165", color = "#100F14", alpha = .5, linewidth = 1.1) +
   geom_point(data = d, 
              aes(y = total_tools, size = logpop), 
              color = "#DCA258") +
@@ -1824,7 +1824,7 @@ p2 <-
   geom_smooth(data = f,
               aes(y = lambda, ymin = .lower, ymax = .upper),
               stat = "identity",
-              fill = "#394165", color = "#100F14", alpha = .5, size = 1.1) +
+              fill = "#394165", color = "#100F14", alpha = .5, linewidth = 1.1) +
   geom_point(data = d, 
              aes(y = total_tools, size = logpop), 
              color = "#DCA258") +
@@ -2332,11 +2332,11 @@ fitted(b14.12,
   bind_cols(nd) %>% 
   
   ggplot(aes(x = day01, y = Estimate, group = record_id)) +
-  geom_line(alpha = 1/3, size = 1/3, color = "#8B9DAF") +
+  geom_line(alpha = 1/3, linewidth = 1/3, color = "#8B9DAF") +
   geom_segment(x = 0, xend = 1,
                y = fixef(b14.12)[1, 1],
                yend = fixef(b14.12)[1, 1] + fixef(b14.12)[2, 1],
-               size = 3, color = "#80A0C7") +
+               linewidth = 3, color = "#80A0C7") +
   scale_x_continuous(breaks = c(0, .5, 1)) +
   ylab("negative affect (standardized)")
 ```
@@ -2364,7 +2364,7 @@ bind_cols(
   ggplot(aes(x = day01)) +
   geom_smooth(aes(y = Estimate, ymin = Q2.5, ymax = Q97.5),
               stat = "identity",
-              fill = "#8B9DAF", color = "#8B9DAF", alpha = 1/2, size = 1/2) +
+              fill = "#8B9DAF", color = "#8B9DAF", alpha = 1/2, linewidth = 1/2) +
   geom_ribbon(aes(ymin = p_lower, ymax = p_upper),
               fill = "#8B9DAF", alpha = 1/2) +
   geom_point(aes(y = N_A.std),
@@ -2446,7 +2446,7 @@ coef(b14.13)$record_id[, , "sigma_Intercept"] %>%
   mutate(rank = 1:n()) %>% 
   
   ggplot(aes(x = rank, y = Estimate, ymin = Q2.5, ymax = Q97.5)) +
-  geom_pointrange(size = .4, fatten = .3, color = "#EEDA9D") +
+  geom_pointrange(linewidth = 0.4, fatten = 0.3, color = "#EEDA9D") +
   scale_x_continuous("participants ranked by posterior mean", breaks = NULL) +
   ylab(expression(exp(eta[0]+italic(u)[2][italic(i)])))
 ```
@@ -2472,7 +2472,7 @@ bind_cols(
   ggplot(aes(x = day01)) +
   geom_smooth(aes(y = Estimate, ymin = Q2.5, ymax = Q97.5),
               stat = "identity",
-              fill = "#8B9DAF", color = "#8B9DAF", alpha = 1/2, size = 1/2) +
+              fill = "#8B9DAF", color = "#8B9DAF", alpha = 1/2, linewidth = 1/2) +
   geom_ribbon(aes(ymin = p_lower, ymax = p_upper),
               fill = "#8B9DAF", alpha = 1/2) +
   geom_point(aes(y = N_A.std),
@@ -2540,7 +2540,7 @@ posterior_summary(b14.14) %>%
   mutate(par = str_c("'", par, "'~", rho)) %>% 
   
   ggplot(aes(x = Estimate, xmin = Q2.5, xmax = Q97.5, y = par)) +
-  geom_vline(xintercept = c(-.5, 0, .5), linetype = c(2, 1, 2), size = c(1/4, 1/2, 1/4), color = "#FCF9F0", alpha = 1/4) +
+  geom_vline(xintercept = c(-.5, 0, .5), linetype = c(2, 1, 2), linewidth = c(1/4, 1/2, 1/4), color = "#FCF9F0", alpha = 1/4) +
   geom_pointrange(color = "#B1934A") +
   scale_y_discrete(labels = ggplot2:::parse_safe) +
   xlim(-1, 1) +
@@ -2622,7 +2622,7 @@ bind_cols(
   ggplot(aes(x = day01)) +
   geom_smooth(aes(y = Estimate, ymin = Q2.5, ymax = Q97.5),
               stat = "identity",
-              fill = "#8B9DAF", color = "#8B9DAF", alpha = 1/2, size = 1/2) +
+              fill = "#8B9DAF", color = "#8B9DAF", alpha = 1/2, linewidth = 1/2) +
   geom_ribbon(aes(ymin = p_lower, ymax = p_upper),
               fill = "#8B9DAF", alpha = 1/2) +
   geom_point(aes(y = N_A.std),

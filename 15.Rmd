@@ -389,7 +389,7 @@ p2 <-
                   .width = .95, size = 1/3, color = "grey50", fill = "grey20") +
   geom_segment(data = d_est,
                aes(xend = A, y = D_obs, yend = D_est),
-               size = 1/5) +
+               linewidth = 1/5) +
   geom_point(data = d_est,
              aes(y = D_obs),
              color = color) +
@@ -544,7 +544,7 @@ full_join(
   # plot!
   ggplot(aes(x = m, y = d)) +
   geom_line(aes(group = Loc),
-            size = 1/4) +
+            linewidth = 1/4) +
   geom_point(aes(color = name)) +
   scale_color_manual(values = c(color_p, color_y)) +
   labs(subtitle = "Shrinkage of both divorce rate and marriage rate", 
@@ -1321,7 +1321,7 @@ p1 <-
   geom_point(aes(x = b),
              color = color) +
   geom_pointrange(aes(x = Estimate, xmin = Q2.5, xmax = Q97.5),
-                  shape = 1, size = 1/4, fatten = 8, stroke = 1/4) +
+                  shape = 1, linewidth = 1/4, fatten = 8, stroke = 1/4) +
   labs(x = "neocortex percent (std)",
        y = "kcal milk (std)") +
   coord_cartesian(xlim = range(d$b, na.rm = T))
@@ -1333,7 +1333,7 @@ p2 <-
   geom_point(aes(y = b),
              color = color) +
   geom_pointrange(aes(y = Estimate, ymin = Q2.5, ymax = Q97.5),
-                  shape = 1, size = 1/4, fatten = 8, stroke = 1/4) +
+                  shape = 1, linewidth = 1/4, fatten = 8, stroke = 1/4) +
   labs(x = "log body mass (std)",
        y = "neocortex percent (std)") +
   coord_cartesian(ylim = range(d$b, na.rm = T))
@@ -1484,7 +1484,7 @@ p1 <-
   geom_point(aes(x = b),
              color = color) +
   geom_pointrange(aes(x = Estimate, xmin = Q2.5, xmax = Q97.5),
-                  shape = 1, size = 1/4, fatten = 8, stroke = 1/4) +
+                  shape = 1, linewidth = 1/4, fatten = 8, stroke = 1/4) +
   labs(x = "neocortex percent (std)",
        y = "kcal milk (std)") +
   coord_cartesian(xlim = range(d$b, na.rm = T))
@@ -1495,7 +1495,7 @@ p2 <-
   geom_point(aes(y = b),
              color = color) +
   geom_pointrange(aes(y = Estimate, ymin = Q2.5, ymax = Q97.5),
-                  shape = 1, size = 1/4, fatten = 8, stroke = 1/4) +
+                  shape = 1, linewidth = 1/4, fatten = 8, stroke = 1/4) +
   labs(x = "log body mass (std)",
        y = "neocortex percent (std)") +
   coord_cartesian(ylim = range(d$b, na.rm = T))
@@ -2080,7 +2080,7 @@ Here's our custom forest plot.
 post %>% 
   ggplot(aes(x = Estimate, xmin = Q2.5, xmax = Q97.5, y = rank)) +
   geom_interval(aes(color = label == "POPULATION AVERAGE"),
-                size = 1/2) +
+                linewidth = 1/2) +
   geom_point(aes(size = 1 - Est.Error, color = label == "POPULATION AVERAGE"),
              shape = 15) +
   scale_color_viridis_d(option = "C", begin = .33, end = .67) +
@@ -2184,7 +2184,7 @@ This provides some information, which we wouldn't get from a meta-analysis. Howe
 c %>% 
   ggplot(aes(x = intercepts, y = slopes)) +
   stat_ellipse(aes(group = name),
-               geom = "polygon", level = .05, size = 0, 
+               geom = "polygon", level = .05, linewidth = 0, 
                fill = color, alpha = 1/2) +
   stat_ellipse(level = .95, color = color) +
   labs(x = expression(alpha[italic(j)]),

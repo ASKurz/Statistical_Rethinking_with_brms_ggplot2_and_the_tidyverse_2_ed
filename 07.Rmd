@@ -279,7 +279,7 @@ fitted(b7.1,
   
   ggplot(aes(x = mass_std, y = Estimate)) +
   geom_lineribbon(aes(ymin = Q5.5, ymax = Q94.5),
-                  color = carto_pal(7, "BurgYl")[7], size = 1/2, 
+                  color = carto_pal(7, "BurgYl")[7], linewidth = 1/2, 
                   fill = alpha(carto_pal(7, "BurgYl")[6], 1/3)) +
   geom_point(data = d,
              aes(y = brain_std),
@@ -313,7 +313,7 @@ make_figure7.3 <- function(brms_fit, ylim = range(d$brain_std)) {
     # plot!  
     ggplot(aes(x = mass_std)) +
     geom_lineribbon(aes(y = Estimate, ymin = Q5.5, ymax = Q94.5),
-                    color = carto_pal(7, "BurgYl")[7], size = 1/2, 
+                    color = carto_pal(7, "BurgYl")[7], linewidth = 1/2, 
                     fill = alpha(carto_pal(7, "BurgYl")[6], 1/3)) +
     geom_point(data = d,
                aes(y = brain_std),
@@ -400,7 +400,7 @@ fitted(b7.1.1,
   
   ggplot(aes(x = mass_std)) +
   geom_line(aes(y = Estimate),
-            color = carto_pal(7, "BurgYl")[7], size = 1/2, alpha = 1/2) +
+            color = carto_pal(7, "BurgYl")[7], linewidth = 1/2, alpha = 1/2) +
   geom_point(data = d,
              aes(y = brain_std),
              color = carto_pal(7, "BurgYl")[7]) +
@@ -475,7 +475,7 @@ p1 <-
   
   ggplot(aes(x = mass_std)) +
   geom_line(aes(y = Estimate, group = row),
-            color = carto_pal(7, "BurgYl")[7], size = 1/2, alpha = 1/2) +
+            color = carto_pal(7, "BurgYl")[7], linewidth = 1/2, alpha = 1/2) +
   geom_point(data = d,
              aes(y = brain_std),
              color = carto_pal(7, "BurgYl")[7]) +
@@ -491,7 +491,7 @@ p2 <-
   
   ggplot(aes(x = mass_std, y = Estimate)) +
   geom_line(aes(group = row),
-            color = carto_pal(7, "BurgYl")[7], size = 1/2, alpha = 1/2) +
+            color = carto_pal(7, "BurgYl")[7], linewidth = 1/2, alpha = 1/2) +
   geom_point(data = d,
              aes(y = brain_std),
              color = carto_pal(7, "BurgYl")[7]) +
@@ -695,7 +695,7 @@ Now we have the data, plotting Figure 7.6 is a just `geom_line()` with stylistic
 t %>% 
   ggplot(aes(x = q_1, y = d_kl)) +
   geom_vline(xintercept = .3, color = carto_pal(7, "BurgYl")[5], linetype = 2) +
-  geom_line(color = carto_pal(7, "BurgYl")[7], size = 1.5) +
+  geom_line(color = carto_pal(7, "BurgYl")[7], linewidth = 1.5) +
   annotate(geom = "text", x = .4, y = 1.5, label = "q = p",
            color = carto_pal(7, "BurgYl")[5], family = "Courier", size = 3.5) +
   labs(x = "q[1]",
@@ -986,7 +986,7 @@ tibble(x = seq(from = - 3.5, to = 3.5, by = 0.01)) %>%
   
   ggplot(aes(x = x, y = value,
              fill = name, color = name, linetype = name)) +
-  geom_area(alpha = 1/2, size = 1/2, position = "identity") +
+  geom_area(alpha = 1/2, linewidth = 1/2, position = "identity") +
   scale_fill_manual(values = carto_pal(7, "BurgYl")[7:5]) +
   scale_color_manual(values = carto_pal(7, "BurgYl")[7:5]) +
   scale_linetype_manual(values = 1:3) +
@@ -1833,9 +1833,9 @@ r2 <-
 r2 %>% 
   ggplot() +
   geom_density(aes(x = b5.1),
-               alpha = 3/4, size = 0, fill = carto_pal(7, "BurgYl")[4]) +
+               alpha = 3/4, linewidth = 0, fill = carto_pal(7, "BurgYl")[4]) +
   geom_density(aes(x = b5.2),
-               alpha = 3/4, size = 0, fill = carto_pal(7, "BurgYl")[6]) +
+               alpha = 3/4, linewidth = 0, fill = carto_pal(7, "BurgYl")[6]) +
   annotate(geom = "text", 
            x = c(.1, .34), y = 3.5, 
            label = c("b5.2", "b5.1"), 

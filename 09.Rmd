@@ -399,7 +399,7 @@ d <-
 
 d  %>% 
   ggplot(aes(x = con, fill = `# dimensions`)) +
-  geom_density(size = 0, alpha = 3/4) +
+  geom_density(linewidth = 0, alpha = 3/4) +
   scale_fill_pomological() +
   xlab("Radial distance from mode") +
   theme_pomological_fancy(base_family = "Marck Script") +
@@ -791,7 +791,7 @@ library(bayesplot)
 as_draws_df(b9.1b) %>% 
   mcmc_trace(pars = vars(b_a_cid1:sigma),
              facet_args = list(ncol = 3), 
-             size = .15) +
+             linewidth = .15) +
   scale_color_pomological() +
   labs(title = "My custom trace plots") +
   theme_pomological_fancy(base_family = "Marck Script") +
@@ -831,9 +831,9 @@ ggs(b9.1b) %>%
   # this marks off the warmups
   annotate(geom = "rect", 
            xmin = 0, xmax = 1000, ymin = -Inf, ymax = Inf,
-           fill = pomological_palette[9], alpha = 1/6, size = 0) +
+           fill = pomological_palette[9], alpha = 1/6, linewidth = 0) +
   geom_line(aes(color = chain),
-            size = .15) +
+            linewidth = .15) +
   scale_color_pomological() +
   labs(title = "My custom trace plots with warmups via ggmcmc::ggs()",
        x = NULL, y = NULL) +
@@ -851,8 +851,8 @@ ggs(b9.1b) %>%
   ggplot(aes(x = Iteration, y = value, color = chain)) +
   annotate(geom = "rect", 
            xmin = 0, xmax = 1000, ymin = -Inf, ymax = Inf,
-           fill = pomological_palette[9], alpha = 1/6, size = 0) +
-  geom_line(size = .5) +
+           fill = pomological_palette[9], alpha = 1/6, linewidth = 0) +
+  geom_line(linewidth = 0.5) +
   scale_color_pomological() +
   labs(title = "Another custom trace plots with warmups via ggmcmc::ggs()",
        x = NULL, y = NULL) +
@@ -976,7 +976,7 @@ Let's further inspect the damage by making the top two rows of Figure 9.9.
 p1 <-
   as_draws_df(b9.2) %>% 
   mcmc_trace(pars = vars(b_Intercept:sigma),
-             size = .25)
+             linewidth = 0.25)
 
 p2 <-
   as_draws_df(b9.2) %>% 
@@ -1024,7 +1024,7 @@ As in the text, no more warning signs and no more silly estimates. The trace and
 p1 <-
   as_draws_df(b9.3) %>% 
   mcmc_trace(pars = vars(b_Intercept:sigma),
-             size = .25)
+             linewidth = 0.25)
 
 p2 <-
   as_draws_df(b9.3) %>% 
@@ -1148,7 +1148,7 @@ trace_rank <- function(data, var, subtitle = NULL, ymin = NA) {
   p1 <-
     data %>% 
     mcmc_trace(pars = var,
-               size = .25,
+               linewidth = 0.25,
                facet_args = list(ncol = 1)) +
     labs(subtitle = subtitle,
          y = NULL) +

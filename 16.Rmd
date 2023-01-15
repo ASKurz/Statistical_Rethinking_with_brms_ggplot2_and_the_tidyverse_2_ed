@@ -87,9 +87,9 @@ theme_set(
   theme_base(base_size = 12) +
     theme(text = element_text(family = "Times"),
           axis.text = element_text(family = "Times"),
-          axis.ticks = element_line(size = 0.25),
+          axis.ticks = element_line(linewidth = 0.25),
           axis.ticks.length = unit(0.1, "cm"),
-          panel.background = element_rect(size = 0.1),
+          panel.background = element_rect(linewidth = 0.1),
           plot.background = element_blank(),
           )
   )
@@ -131,8 +131,8 @@ Here's their bivariate distribution in a scatter plot.
 ```{r, fig.width = 5, fig.height = 3}
 d %>% 
   ggplot(aes(x = h, y = w)) +
-  geom_vline(xintercept = 1, linetype = 2, size = 1/4, color = "grey50") +
-  geom_hline(yintercept = 1, linetype = 2, size = 1/4, color = "grey50") +
+  geom_vline(xintercept = 1, linetype = 2, linewidth = 1/4, color = "grey50") +
+  geom_hline(yintercept = 1, linetype = 2, linewidth = 1/4, color = "grey50") +
   geom_point(size = 1/4)
 ```
 
@@ -214,7 +214,7 @@ my_lower <- function(data, mapping, ...) {
 
 my_diag <- function(data, mapping, ...) {
   ggplot(data = data, mapping = mapping) + 
-    geom_histogram(size = 1/4, color = "white", fill = "grey67", bins = 20) +
+    geom_histogram(linewidth = 1/4, color = "white", fill = "grey67", bins = 20) +
     scale_x_continuous(NULL, breaks = NULL) +
     scale_y_continuous(NULL, breaks = NULL)
 }
@@ -260,7 +260,7 @@ d %>%
   geom_smooth(data = p,
               aes(y = Estimate, ymin = Q2.5, ymax = Q97.5),
               stat = "identity",
-              fill = "grey67", color = "black", size = 1/4) +
+              fill = "grey67", color = "black", linewidth = 1/4) +
   geom_point(aes(y = w),
              size = 1/3) +
   coord_cartesian(xlim = c(0, max(d$h)),
@@ -491,8 +491,8 @@ precis(m16.2, depth = 2) %>%
   mutate(name = fct_rev(name)) %>% 
   
   ggplot(aes(x = mean, xmin = X5.5., xmax = X94.5., y = name)) +
-  geom_vline(xintercept = .2, size = 1/4, linetype = 2) +
-  geom_pointrange(size = 1/4, fatten = 6/4) +
+  geom_vline(xintercept = .2, linewidth = 1/4, linetype = 2) +
+  geom_pointrange(linewidth = 1/4, fatten = 6/4) +
   scale_x_continuous(expression(italic(p[s])), limits = c(0, 1),
                      breaks = 0:5 / 5) +
   scale_y_discrete(NULL, labels = ggplot2:::parse_safe) +
@@ -511,7 +511,7 @@ extract.samples(m16.2) %>%
   mutate(name = fct_rev(name)) %>% 
   
   ggplot(aes(x = value, y = name)) +
-  geom_vline(xintercept = .2, size = 1/4, linetype = 2) +
+  geom_vline(xintercept = .2, linewidth = 1/4, linetype = 2) +
   stat_ccdfinterval(.width = .95, size = 1/4, alpha = .8) +
   scale_x_continuous(expression(italic(p[s])), expand = c(0, 0), limits = c(0, 1),
                      breaks = 0:5 / 5) +
@@ -621,7 +621,7 @@ prior <-
 p1 <-
   prior %>% 
   ggplot(aes(x = age, y = bm, group = index)) +
-  geom_line(size = 1/4, alpha = 1/2) +
+  geom_line(linewidth = 1/4, alpha = 1/2) +
   scale_x_continuous(breaks = at, labels = round(at * max(d$age))) +
   ylab("body mass")
 
@@ -629,7 +629,7 @@ p1 <-
 p2 <-
   prior %>% 
   ggplot(aes(x = age, y = ns, group = index)) +
-  geom_line(size = 1/4, alpha = 1/2) +
+  geom_line(linewidth = 1/4, alpha = 1/2) +
   scale_x_continuous(breaks = at, labels = round(at * max(d$age))) +
   ylab("nuts per second")
 
@@ -692,7 +692,7 @@ as_draws_df(b16.4) %>%
   
   ggplot() +
   geom_line(aes(x = age, y = ns, group = .draw),
-            size = 1/4, alpha = 1/2) +
+            linewidth = 1/4, alpha = 1/2) +
   geom_jitter(data = d,
               aes(x = age_s, y = n / seconds, size = seconds),
               shape = 1, width = 0.01, color = "grey50") +
@@ -735,7 +735,7 @@ Lynx_Hare %>%
   # plot!
   ggplot(aes(x = Year, y = value)) +
   geom_line(aes(color = name),
-            size = 1/4) +
+            linewidth = 1/4) +
   geom_point(aes(fill = name),
              size = 3, shape = 21, color = "white") +
   geom_text(data = text,
@@ -832,7 +832,7 @@ z %>%
   pivot_longer(-t) %>% 
   
   ggplot(aes(x = t, y = value, color = name)) +
-  geom_line(size = 1/4) +
+  geom_line(linewidth = 1/4) +
   scale_color_grey(start = 0, end = .5) +
   scale_x_continuous(expression(time~(italic(t))), breaks = NULL) +
   scale_y_continuous("number (thousands)", breaks = 0:4 * 10, limits = c(0, 45)) +
@@ -860,7 +860,7 @@ tibble(pt = rbeta(n, shape1 = 2, shape2 = 18)) %>%
   
   # plot
   ggplot(aes(x = ht)) +
-  geom_histogram(size = 1/4, binwidth = 0.1,
+  geom_histogram(linewidth = 1/4, binwidth = 0.1,
                  color = "white", fill = "grey67") +
   scale_y_continuous(NULL, breaks = NULL) +
   xlab(expression(thousand~of~pelts~(italic(h[t]))))
@@ -891,9 +891,9 @@ tibble(shape1 = c(2, 10, 18),
   # plot!
   ggplot(aes(x = ht)) +
   geom_histogram(aes(fill = beta == "italic(p[t])%~%'Beta '(2, 18)" & Htlab == "italic(H[t])==10000"),
-                 size = 1/10, binwidth = 0.25, boundary = 0) +
+                 linewidth = 1/10, binwidth = 0.25, boundary = 0) +
   geom_vline(aes(xintercept = Ht / 1000), 
-             size = 1/4, linetype = 2) +
+             linewidth = 1/4, linetype = 2) +
   scale_fill_grey(start = .67, end = 0, breaks = NULL) +
   scale_y_continuous(NULL, breaks = NULL) +
   xlab(expression(thousand~of~pelts~(italic(h[t])))) +
@@ -929,7 +929,7 @@ set.seed(16)
 tibble(p = rbeta(n = 1e6, shape1 = 40, shape2 = 200)) %>%
   
   ggplot(aes(x = p)) +
-  geom_histogram(size = 1/6, binwidth = 0.005, boundary = 0,
+  geom_histogram(linewidth = 1/6, binwidth = 0.005, boundary = 0,
                  color = "white", fill = "grey67") +
   scale_x_continuous(expression(prior~predictive~distribution~of~italic(p[H])~and~italic(p[L])), 
                      breaks = 0:5 / 5, expand = c(0, 0), limits = c(0, 1)) +
@@ -1096,7 +1096,7 @@ as_draws_df(b16.5a) %>%
   set_names(col_names) %>% 
   
   mcmc_trace(facet_args = list(labeller = label_parsed), 
-             size = .15) +
+             linewidth = .15) +
   scale_x_continuous(breaks = NULL) +
   theme(legend.key.size = unit(0.15, 'in'),
         legend.position = c(.97, .13))
@@ -1149,7 +1149,7 @@ p %>%
   # plot!
   ggplot(aes(x = Year, y = value)) +
   geom_line(aes(group = interaction(iter, population), color = population),
-            size = 1/3, alpha = 1/2) +
+            linewidth = 1/3, alpha = 1/2) +
   geom_point(data = . %>% filter(iter == 1),
              aes(x = Year, fill = population),
              size = 3, shape = 21, stroke = 1/5, color = "white") +
@@ -1224,7 +1224,7 @@ as_draws_df(b16.5b) %>%
   set_names(col_names) %>% 
   
   mcmc_trace(facet_args = list(labeller = label_parsed), 
-             size = .15) +
+             linewidth = .15) +
   scale_x_continuous(breaks = NULL) +
   theme(legend.key.size = unit(0.15, 'in'),
         legend.position = c(.55, .13))
@@ -1257,7 +1257,7 @@ p1 <-
   # plot!
   ggplot(aes(x = Year, y = value)) +
   geom_line(aes(group = interaction(iter, population), color = population),
-            size = 1/3, alpha = 1/2) +
+            linewidth = 1/3, alpha = 1/2) +
   geom_point(data = . %>% filter(iter == 1),
              aes(x = Year, fill = population),
              size = 3, shape = 21, stroke = 1/5, color = "white") +
@@ -1299,7 +1299,7 @@ p2 <-
   # plot!
   ggplot(aes(x = Year, y = value)) +
   geom_line(aes(group = interaction(iter, population), color = population),
-            size = 1/3, alpha = 1/2) +
+            linewidth = 1/3, alpha = 1/2) +
   scale_color_grey(start = 0, end = .5, breaks = NULL) +
   scale_fill_grey(start = 0, end = .5, breaks = NULL) +
   scale_y_continuous("thousands of animals", breaks = 0:5 * 100) +
@@ -1422,7 +1422,7 @@ fitted(b16.6,
   
   ggplot(aes(x = Year)) +
   geom_line(aes(y = value, group = iter),
-            size = 1/3, alpha = 1/2) +
+            linewidth = 1/3, alpha = 1/2) +
   geom_point(data = Lynx_Hare,
              aes(y = Hare),
              size = 3, shape = 21, stroke = 1/4, 
