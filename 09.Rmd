@@ -964,7 +964,9 @@ This indicates that among the 3,000 post-warmup draws, 393 were classified as di
 
 ```{r, fig.width = 4, fig.height = 3.5, message = F, warning = F}
 pairs(b9.2, 
-      np = nuts_params(b9.2),
+      # currently not working with bayesplot 1.10.0
+      # see https://github.com/stan-dev/bayesplot/issues/298
+      # np = nuts_params(b9.2),
       off_diag_args = list(size = 1/4))
 ```
 
