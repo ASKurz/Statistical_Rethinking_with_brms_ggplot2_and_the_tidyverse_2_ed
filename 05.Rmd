@@ -661,7 +661,7 @@ p3 <-
   ggplot(aes(x = Estimate, y = d)) +
   stat_smooth(method = "lm", fullrange = T,
               color = "firebrick4", fill = "firebrick4", 
-              alpha = 1/5, size = 1/2) +
+              alpha = 1/5, linewidth = 1/2) +
   geom_vline(xintercept = 0, linetype = 2, color = "grey50") +
   geom_point(size = 2, color = "firebrick4", alpha = 2/3) +
   geom_text_repel(data = . %>% filter(Loc %in% c("WY", "ND", "ME", "HI", "DC")),  
@@ -731,7 +731,7 @@ p4 <-
   ggplot(aes(x = Estimate, y = d)) +
   stat_smooth(method = "lm", fullrange = T,
               color = "firebrick4", fill = "firebrick4", 
-              alpha = 1/5, size = 1/2) +
+              alpha = 1/5, linewidth = 1/2) +
   geom_vline(xintercept = 0, linetype = 2, color = "grey50") +
   geom_point(size = 2, color = "firebrick4", alpha = 2/3) +
   geom_text_repel(data = . %>% filter(Loc %in% c("ID", "HI", "DC")),  
@@ -772,7 +772,7 @@ r %>%
   ggplot(aes(x = Estimate, y = d)) +
   stat_smooth(method = "lm", fullrange = T,
               color = "firebrick4", fill = "firebrick4", 
-              alpha = 1/5, size = 1/2) +
+              alpha = 1/5, linewidth = 1/2) +
   geom_vline(xintercept = 0, linetype = 2, color = "grey50") +
   # the only change is here
   geom_pointrange(aes(xmin = Q2.5, xmax = Q97.5),
@@ -805,7 +805,7 @@ fitted(b5.3) %>%
   bind_cols(d) %>%
   
   ggplot(aes(x = Divorce, y = Estimate)) +
-  geom_abline(linetype = 2, color = "grey50", size = .5) +
+  geom_abline(linetype = 2, color = "grey50", linewidth = 0.5) +
   geom_point(size = 1.5, color = "firebrick4", alpha = 3/4) +
   geom_linerange(aes(ymin = Q2.5, ymax = Q97.5),
                  linewidth = 1/4, color = "firebrick4") +
@@ -1439,7 +1439,7 @@ But you can customize [these](https://ggobi.github.io/ggally/articles/ggpairs.ht
 # define custom functions
 my_diag <- function(data, mapping, ...) {
   ggplot(data = data, mapping = mapping) + 
-    geom_density(fill = "firebrick4", size = 0)
+    geom_density(fill = "firebrick4", linewidth = 0)
 }
 
 my_lower <- function(data, mapping, ...) {

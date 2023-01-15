@@ -756,14 +756,14 @@ d %>%
   geom_area(color = "grey67", fill = "grey67") +
   geom_segment(data = . %>% 
                  filter(p_grid %in% c(seq(from = .1, to = .9, by = .1), 3 / 10)),
-               aes(xend = p_grid, yend = 0, size = posterior),
+               aes(xend = p_grid, yend = 0, linewidth = posterior),
                color = "grey33", show.legend = F) +
   geom_point(data = . %>%
                filter(p_grid %in% c(seq(from = .1, to = .9, by = .1), 3 / 10))) +
   annotate(geom = "text", 
            x = .08, y = .0025,
            label = "Posterior probability") +
-  scale_size_continuous(range = c(0, 1)) +
+  scale_linewidth_continuous(range = c(0, 1)) +
   scale_x_continuous("probability of water", breaks = 0:10 / 10) +
   scale_y_continuous(NULL, breaks = NULL) +
   theme(panel.grid = element_blank())

@@ -741,7 +741,7 @@ d_grid_samples %>%
   pivot_longer(mu:sigma) %>% 
 
   ggplot(aes(x = value)) + 
-  geom_density(fill = "grey33", size = 0) +
+  geom_density(fill = "grey33", linewidth = 0) +
   scale_y_continuous(NULL, breaks = NULL) +
   xlab(NULL) +
   theme(panel.grid = element_blank()) +
@@ -1026,7 +1026,7 @@ Now we'll plot the left panel from Figure 4.5.
 ```{r, fig.width = 3, fig.height = 2.8}
 lines %>% 
   ggplot(aes(x = weight, y = height, group = n)) +
-  geom_hline(yintercept = c(0, 272), linetype = 2:1, size = 1/3) +
+  geom_hline(yintercept = c(0, 272), linetype = 2:1, linewidth = 1/3) +
   geom_line(alpha = 1/10) +
   coord_cartesian(ylim = c(-100, 400)) +
   ggtitle("b ~ dnorm(0, 10)") +
@@ -1114,7 +1114,7 @@ tibble(n = 1:n_lines,
   
   # plot
   ggplot(aes(x = weight, y = height, group = n)) +
-  geom_hline(yintercept = c(0, 272), linetype = 2:1, size = 1/3) +
+  geom_hline(yintercept = c(0, 272), linetype = 2:1, linewidth = 1/3) +
   geom_line(alpha = 1/10) +
   geom_text(data = text,
             aes(label = label),
@@ -1553,7 +1553,7 @@ d2 %>%
               aes(y = Estimate, ymin = Q2.5, ymax = Q97.5),
               stat = "identity",
               fill = "grey70", color = "black", alpha = 1, linewidth = 1/2) +
-  geom_point(color = "navyblue", shape = 1, size = 1.5, alpha = 2/3) +
+  geom_point(color = "navyblue", shape = 1, linewidth = 1.5, alpha = 2/3) +
   coord_cartesian(xlim = range(d2$weight)) +
   theme(text = element_text(family = "Times"),
         panel.grid = element_blank())

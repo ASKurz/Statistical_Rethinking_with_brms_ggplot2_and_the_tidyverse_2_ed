@@ -422,7 +422,7 @@ my_diag <- function(data, mapping, ...) {
 my_lower <- function(data, mapping, ...) {
   ggplot(data = data, mapping = mapping) + 
     geom_smooth(method = "lm", color = "orange", se = F) +
-    geom_point(alpha = .8, linewidth = 1/3, color = "blue")
+    geom_point(alpha = .8, size = 1/3, color = "blue")
   }
 
 # plug those custom functions into `ggpairs()`
@@ -999,7 +999,7 @@ d %>%
   mutate_if(is.double, round, digits = 2)
 ```
 
-Here's our version of Figure 6.5.
+Here's our version of Figure 6.4.
 
 ```{r, fig.width = 8, fig.height = 2.5}
 d %>% 
@@ -1176,7 +1176,7 @@ d %>%
   geom_point(aes(shape = centile, color = u),
              size = 2.5, stroke = 1/4) +
   stat_smooth(data = . %>% filter(centile == "a"),
-              method = "lm", se = F, size = 1/2, color = "black", fullrange = T) +
+              method = "lm", se = F, linewidth = 1/2, color = "black", fullrange = T) +
   scale_shape_manual(values = c(19, 1)) +
   scale_color_manual(values = c("black", "lightblue")) +
   theme(legend.position = "none")
