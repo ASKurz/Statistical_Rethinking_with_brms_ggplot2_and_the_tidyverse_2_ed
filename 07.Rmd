@@ -1878,5 +1878,5 @@ bayesplot::color_scheme_set("blue")
 # xvpacman::p_unload(pacman::p_loaded(), character.only = TRUE)
 ```
 
-[^3]: Okay, I'm not being completely honest, here. The `sim_train_test()` code in this section worked fine in version 0.2.0 of this ebook and earlier. However, something has changed over the past year or so and it now returns an error. I've reported the error on GitHub, and you can get all the deets [here](https://github.com/rmcelreath/rethinking/issues/361). In the meantime, the results I'm displaying in this section are from the mid 2000. So it goes...
+[^3]: Okay, I'm not being completely honest, here. The `sim_train_test()` code in this section worked fine in version 0.2.0 of this ebook and earlier. However, something has changed over the past year or so and it now returns an error. I've reported the error on GitHub, and you can get all the deets [here](https://github.com/rmcelreath/rethinking/issues/361). In the meantime, the results I'm displaying in this section are from mid 2020. So it goes...
 
