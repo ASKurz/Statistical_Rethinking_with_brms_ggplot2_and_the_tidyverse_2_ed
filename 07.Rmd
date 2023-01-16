@@ -1093,7 +1093,7 @@ Folds are typically equivalent in size and we often denote the total number of f
 
 A practical difficulty with LOO-CV is it's costly in terms of the time and memory required to refit the model $k = N$ times. Happily, we have an approximation to pure LOO-CV. Vehtari, Gelman, and Gabry [-@vehtariPracticalBayesianModel2017] proposed Pareto smoothed importance-sampling leave-one-out cross-validation (PSIS-LOO-CV) as an efficient way to approximate true LOO-CV.
 
-## Information criteria
+### Information criteria.
 
 > The second approach is the use of **information criteria** to compute an expected score out of sample. Information criteria construct a theoretical estimate of the relative out-of-sample KL divergence. (p. 219, **emphasis** in the original)
 
@@ -1105,7 +1105,7 @@ $$\text{WAIC}(y, \Theta) = -2 \big (\text{lppd} - \underbrace{\sum_i \operatorna
 
 where $y$ is the data, $\Theta$ is the posterior distribution, and $\text{lppd}$ is the log-posterior-predictive-density from before. The penalty term is also referred to at the effective number of parameters, $p_\text{WAIC}$. There are a few ways to compute the WAIC with **brms**, including with the `waic()` function.
 
-#### Overthinking: WAIC calculation.
+#### Overthinking: WAIC calculations.
 
 Here is how to fit the pre-WAIC model with **brms**.
 
