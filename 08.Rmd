@@ -433,7 +433,7 @@ Did you notice the `probs = c(.015, .985)` argument in our `fitted()` code, abov
 
 Building off of McElreath's "boundaries are meaningless" point, here we use a combination of `summary = F` within `fitted()` and a little `tidybayes::stat_lineribbon()` magic to re-imagine Figure 8.4. This time we use a sequence of overlapping semitransparent credible intervals to give the posterior a 3D-like appearance.
 
-```{r, fig.height = 3, fig.width = 3, warning = F}
+```{r, fig.height = 3, fig.width = 3}
 fitted(b8.2, 
        newdata = nd,
        summary = F) %>%
