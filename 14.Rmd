@@ -439,7 +439,7 @@ p2 <-
   # functions in the previous plot
   mapply(function(level) {
     stat_ellipse(geom  = "polygon", type = "norm",
-                 linewidth  = 0, alpha = 1/20, fill = "#E7CDC2",
+                 linewidth = 0, alpha = 1/20, fill = "#E7CDC2",
                  level = level)
     }, 
     # enter the levels here
