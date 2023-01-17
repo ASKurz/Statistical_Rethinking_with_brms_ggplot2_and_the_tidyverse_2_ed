@@ -279,7 +279,7 @@ fitted(b7.1,
   
   ggplot(aes(x = mass_std, y = Estimate)) +
   geom_lineribbon(aes(ymin = Q5.5, ymax = Q94.5),
-                  color = carto_pal(7, "BurgYl")[7], size = 1/2, 
+                  color = carto_pal(7, "BurgYl")[7], linewidth = 1/2, 
                   fill = alpha(carto_pal(7, "BurgYl")[6], 1/3)) +
   geom_point(data = d,
              aes(y = brain_std),
@@ -313,7 +313,7 @@ make_figure7.3 <- function(brms_fit, ylim = range(d$brain_std)) {
     # plot!  
     ggplot(aes(x = mass_std)) +
     geom_lineribbon(aes(y = Estimate, ymin = Q5.5, ymax = Q94.5),
-                    color = carto_pal(7, "BurgYl")[7], size = 1/2, 
+                    color = carto_pal(7, "BurgYl")[7], linewidth = 1/2, 
                     fill = alpha(carto_pal(7, "BurgYl")[6], 1/3)) +
     geom_point(data = d,
                aes(y = brain_std),
@@ -1875,7 +1875,7 @@ rm(d, b7.1, R2_is_bad, b7.2, b7.3, b7.4, b7.5, custom_normal, stan_funs, custom_
 ```{r, echo = F, message = F, warning = F, results = "hide"}
 ggplot2::theme_set(ggplot2::theme_grey())
 bayesplot::color_scheme_set("blue")
-# xvpacman::p_unload(pacman::p_loaded(), character.only = TRUE)
+# pacman::p_unload(pacman::p_loaded(), character.only = TRUE)
 ```
 
 [^3]: Okay, I'm not being completely honest, here. The `sim_train_test()` code in this section worked fine in version 0.2.0 of this ebook and earlier. However, something has changed over the past year or so and it now returns an error. I've reported the error on GitHub, and you can get all the deets [here](https://github.com/rmcelreath/rethinking/issues/361). In the meantime, the results I'm displaying in this section are from mid 2020. So it goes...
