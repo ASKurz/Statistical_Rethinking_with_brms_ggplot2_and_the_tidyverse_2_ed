@@ -605,7 +605,7 @@ waic(b14.3)
 
 Like the $p_\text{WAIC}$, our **brms** version of the model has about 27 effective parameters. Now we'll get a better sense of the model with a posterior predictive check in the form of our version of Figure 14.7. McElreath described his **R** code 14.22 as "a big chunk of code" (p. 451). I'll leave up to the reader to decide whether our big code chunk is any better.
 
-```{r, fig.width = 8, fig.height = 2.5}
+```{r, fig.width = 8, fig.height = 2.5, warning = F}
 # for annotation
 text <-
   distinct(d, labels) %>% 
