@@ -1917,7 +1917,7 @@ Because **bayesplot** returns a **ggplot2** object, the plot was adjustable with
 
 The `tidybayes::stat_pointinterval()` function offers a third way, this time with a more ground-up **ggplot2** workflow.
 
-```{r, message = F, warning = F, fig.width = 6, fig.height = 1.33}
+```{r, fig.width = 6, fig.height = 1.33, message = F, warning = F}
 library(tidybayes)
 
 post %>% 
@@ -2237,7 +2237,7 @@ print(b5.9b)
 
 The 'Group-Level Effects:' section in that output won't make much sense until we cover the material in [Chapter 13][Models With Memory]. Here's how one might wrangle the posterior samples to make a coefficient plot similar to the one we made for the original `b5.9`.
 
-```{r, message = F, warning = F, fig.width = 6, fig.height = 1.33}
+```{r, fig.width = 6, fig.height = 1.33, warning = F}
 as_draws_df(b5.9b) %>% 
   mutate(Ape                = b_Intercept + `r_clade[Ape,Intercept]`,
          `New World Monkey` = b_Intercept + `r_clade[New.World.Monkey,Intercept]`,
