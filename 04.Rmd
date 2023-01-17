@@ -890,7 +890,7 @@ t(apply(post[, 1:2], 2, quantile, probs = c(.5, .025, .75)))
 
 The base **R** code is compact, but somewhat opaque. Here's how to do something similar with more explicit **tidyverse** code.
 
-```{r, message = F}
+```{r, message = F, warning = F}
 post %>%
   pivot_longer(b_Intercept:sigma) %>% 
   group_by(name) %>%
