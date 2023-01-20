@@ -92,7 +92,7 @@ Why might "the most newsworthy studies might be the least trustworthy?" The sele
 
 > This frustrating phenomenon arises from the details of how multiple regression works. In fact, there is nothing wrong with multicollinearity. The model will work fine for prediction. You will just be frustrated trying to understand it. The hope is that once you understand multicollinearity, you will better understand regression models in general. (p. 163, *emphasis* added)
 
-For more on this topic, check out [Jan VanHove](https://twitter.com/janhove)'s interesting blog post, [*Collinearity isn't a disease that needs curing*](https://janhove.github.io/analysis/2019/09/11/collinearity).
+For more on this topic, check out [Jan VanHove](https://janhove.github.io/)'s interesting blog post, [*Collinearity isn't a disease that needs curing*](https://janhove.github.io/analysis/2019/09/11/collinearity).
 
 ### Multicollinear legs.
 

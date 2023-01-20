@@ -867,7 +867,7 @@ glimpse(samples)
 
 The main action is in the `draws` column.
 
-Now we have to count the longest sequences. The base **R** [`rle()` function](https://www.rdocumentation.org/packages/base/versions/3.3/topics/rle) will help with that. Consider McElreath's sequence of tosses.
+Now we have to count the longest sequences. The base **R** [`rle()` function](https://www.rdocumentation.org/packages/base/versions/3.6.2/topics/rle) will help with that. Consider McElreath's sequence of tosses.
 
 ```{r}
 tosses <- c("w", "l", "w", "w", "w", "l", "w", "l", "w")

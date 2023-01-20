@@ -895,7 +895,7 @@ You can also get that information by executing `b9.1b$model` or `b9.1b$fit@stanm
 
 > Markov chain Monte Carlo is a highly technical and usually automated procedure. You might write your own MCMC code, for the sake of learning. But it is very easy to introduce subtle biases. A package like Stan, in contrast, is continuously tested against expected output. Most people who use Stan don't really understand what it is doing, under the hood. That's okay. Science requires division of labor, and if every one of us had to write our own Markov chains from scratch, a lot less research would get done in the aggregate. (p. 287)
 
-If you do want to learn more about HMC, McElreath has some nice introductory lectures on the topic (see [here](https://youtu.be/v-j0UmWf3Us) and [here](https://youtu.be/BWEtS3HuU5A)). To dive even deeper, [Michael Betancourt]( https://twitter.com/betanalpha) from the Stan team has given many lectures on the topic (e.g., [here](https://youtu.be/_fnDz2Bz3h8) and [here](https://youtu.be/jUSZboSq1zg)).
+If you do want to learn more about HMC, McElreath has some nice introductory lectures on the topic (see [here](https://youtu.be/v-j0UmWf3Us) and [here](https://youtu.be/BWEtS3HuU5A)). To dive even deeper, [Michael Betancourt](https://betanalpha.github.io/) from the Stan team has given many lectures on the topic (e.g., [here](https://youtu.be/_fnDz2Bz3h8) and [here](https://youtu.be/jUSZboSq1zg)).
 
 ### How many samples do you need?
 

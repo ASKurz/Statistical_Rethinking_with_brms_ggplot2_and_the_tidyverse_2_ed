@@ -48,7 +48,7 @@ d %>%
   width(width = c(1, 1, 4))
 ```
 
-It would be conventional to include these two variables and their interaction using dummy variables. We're going to follow McElreath and use an index variable approach, instead. If you'd like to see what this would look like using the dummy variable approach, check out my [-@kurzStatisticalRethinkingBrms2020] [translation of the corresponding section](https://bookdown.org/content/3890/counting-and-classification.html#logistic-regression-prosocial-chimpanzees.) from McElreath's first [-@mcelreathStatisticalRethinkingBayesian2015] edition. For now, make the index, which we'll be saving as a factor.
+It would be conventional to include these two variables and their interaction using dummy variables. We're going to follow McElreath and use an index variable approach, instead. If you'd like to see what this would look like using the dummy variable approach, check out my [-@kurzStatisticalRethinkingBrms2023] [translation of the corresponding section](https://bookdown.org/content/3890/counting-and-classification.html#logistic-regression-prosocial-chimpanzees.) from McElreath's first [-@mcelreathStatisticalRethinkingBayesian2015] edition. For now, make the index, which we'll be saving as a factor.
 
 ```{r}
 d <-
@@ -2177,7 +2177,7 @@ rbind(f[, , 1],
   theme(legend.position = "none")
 ```
 
-For more practice fitting multinomial models with **brms**, check out [Chapter 22](https://bookdown.org/content/3686/nominal-predicted-variable.html) of my [-@kurzDoingBayesianDataAnalysis2022] translation of Kruschke's [-@kruschkeDoingBayesianData2015] text.
+For more practice fitting multinomial models with **brms**, check out [Chapter 22](https://bookdown.org/content/3686/nominal-predicted-variable.html) of my [-@kurzDoingBayesianDataAnalysis2023] translation of Kruschke's [-@kruschkeDoingBayesianData2015] text.
 
 #### Multinomial in disguise as Poisson.
 

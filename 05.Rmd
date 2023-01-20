@@ -1696,7 +1696,7 @@ dag5.7 %>%
   facet_wrap(~ dag, labeller = label_both)
 ```
 
-These all demonstrate Markov equivalence. I should note that I [got help](https://github.com/malcolmbarrett/ggdag/issues/41) from the great [Malcolm Barrett](https://twitter.com/malco_barrett) on how to make this plot with **ggdag**.
+These all demonstrate Markov equivalence. I should note that I [got help](https://github.com/malcolmbarrett/ggdag/issues/41) from the great [Malcolm Barrett](https://malco.io/) on how to make this plot with **ggdag**.
 
 ## Categorical variables
 
@@ -2262,11 +2262,11 @@ As we will learn, an advantage of this approach is we get improved estimates due
 
 ### Would you like to learn more?
 
-To learn more about the dummy coding approach, McElreath covered it in Chapter 5 of his first [-@mcelreathStatisticalRethinkingBayesian2015] edition, Hayes covered it in Chapter 2 of his [-@hayes2017introduction] text, and it's been covered in many other texts, such as the modern classic by @cohenAppliedMultipleRegression2013. I have ebook translations for the first of those two [@kurzStatisticalRethinkingBrms2020; @kurzRecodingIntroductionMediation2019]. If you like learning by video, the great [Erin Buchanan](https://twitter.com/aggieerin) has a video or two (e.g., [here](https://youtu.be/Zv19sslm-S4)) on her [Statistics of DOOM chanel](https://www.youtube.com/channel/UCMdihazndR0f9XBoSXWqnYg).
+To learn more about the dummy coding approach, McElreath covered it in Chapter 5 of his first [-@mcelreathStatisticalRethinkingBayesian2015] edition, Hayes covered it in Chapter 2 of his [-@hayes2017introduction] text, and it's been covered in many other texts, such as the modern classic by @cohenAppliedMultipleRegression2013. I have ebook translations for the first of those two [@kurzStatisticalRethinkingBrms2023; @kurzRecodingIntroductionMediation2019]. If you like learning by video, the great [Erin Buchanan](https://www.aggieerin.com/) has a video or two (e.g., [here](https://youtu.be/Zv19sslm-S4)) on her [Statistics of DOOM chanel](https://www.youtube.com/channel/UCMdihazndR0f9XBoSXWqnYg).
 
 The specific type of contrast coding we used is part of a more general approach. You can learn more about that in Cohen et al [-@cohenAppliedMultipleRegression2013, Chapter 8] or from [this vignette](https://stats.idre.ucla.edu/r/library/r-library-contrast-coding-systems-for-categorical-variables/) by the good folks at the UCLA Institute for Digital Research and Education [@LibraryContrastCoding].
 
-In addition to waiting for [Chapter 13][Models With Memory] in this ebook, you can learn more about the multilevel ANOVA approach in Chapters 19 and 24 of Kruschke's [-@kruschkeDoingBayesianData2015], in the corresponding chapters in my [-@kurzDoingBayesianDataAnalysis2022] ebook translation of the same, and in some of Gelman's peer-reviewed work [@gelmanAnalysisVarianceWhy2005; @gelmanPriorDistributionsVariance2006].
+In addition to waiting for [Chapter 13][Models With Memory] in this ebook, you can learn more about the multilevel ANOVA approach in Chapters 19 and 24 of Kruschke's [-@kruschkeDoingBayesianData2015], in the corresponding chapters in my [-@kurzDoingBayesianDataAnalysis2023] ebook translation of the same, and in some of Gelman's peer-reviewed work [@gelmanAnalysisVarianceWhy2005; @gelmanPriorDistributionsVariance2006].
 
 ## Session info {-}
 

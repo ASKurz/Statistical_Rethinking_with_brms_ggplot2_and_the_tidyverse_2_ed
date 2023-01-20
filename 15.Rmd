@@ -1680,7 +1680,7 @@ Note how we constructed `cat_obs` by replacing several values of `cat` with `-9`
 
 > This chapter has been a quick introduction to the design and implementation of measurement error and missing data models. Measurement error and missing data have causes. Incorporating those causes into the generative model helps us decide how error and missingness impact inference as well as how to design a statistical procedure. (p. 521)
 
-If modern missing data methods are new to you, you might also check out van Burren's great online [-@vanbuurenFlexibleImputationMissing2018] text, [*Flexible imputation of missing data*](https://stefvanbuuren.name/fimd/). I'm also a fan of Enders's [-@enders2010applied] [*Applied missing data analysis*](http://www.appliedmissingdata.com), for which you can find a free sample chapter [here](http://www.appliedmissingdata.com/sample-chapter.pdf).
+If modern missing data methods are new to you, you might also check out van Burren's great online [-@vanbuurenFlexibleImputationMissing2018] text, [*Flexible imputation of missing data*](https://stefvanbuuren.name/fimd/). I'm also a fan of Enders's [-@enders2022applied] [*Applied missing data analysis*](http://www.appliedmissingdata.com), for which you can download a free sample chapter by clicking [here](https://dl.dropboxusercontent.com/s/mhk6bdxj1lu48ua/Enders2E-Ch1.pdf?dl=1).
 
 ## Bonus: Bayesian meta-analysis with odds ratios
 

@@ -280,7 +280,7 @@ crossing(k   = 2:5,
   facet_wrap(~ strip, labeller = label_parsed, ncol = 4)
 ```
 
-To learn more about this plotting method, check out Kay's [-@kayMarginalDistributionSingle2020] [*Marginal distribution of a single correlation from an LKJ distribution*](https://mjskay.github.io/ggdist/reference/lkjcorr_marginal.html). To get a better intuition what that plot means, check out the illuminating blog post by [Stephen Martin](https://twitter.com/smartin2018), [*Is the LKJ(1) prior uniform? "Yes"*](http://srmart.in/is-the-lkj1-prior-uniform-yes/).
+To learn more about this plotting method, check out Kay's [-@kayMarginalDistributionSingle2020] [*Marginal distribution of a single correlation from an LKJ distribution*](https://mjskay.github.io/ggdist/reference/lkjcorr_marginal.html). To get a better intuition what that plot means, check out the illuminating blog post by [Stephen Martin](http://srmart.in/), [*Is the LKJ(1) prior uniform? "Yes"*](http://srmart.in/is-the-lkj1-prior-uniform-yes/).
 
 Okay, let's get ready to model and switch out **rethinking** for **brms**.
 
@@ -937,7 +937,7 @@ instrumentalVariables(dagIV, exposure = "E", outcome = "W")
 
 #### Rethinking: Two-stage worst squares.
 
-"The instrumental variable model is often discussed with an estimation procedure known as **two-stage least squares** (2SLS)" (p. 460, **emphasis** in the original). For a nice introduction to instrumental variables via 2SLS, see this [practical introduction](https://evalf20.classes.andrewheiss.com/example/iv/), and also the [slides and video-lecture files](https://evalf20.classes.andrewheiss.com/content/11-content/), from the great [Andrew Heiss](https://twitter.com/andrewheiss).
+"The instrumental variable model is often discussed with an estimation procedure known as **two-stage least squares** (2SLS)" (p. 460, **emphasis** in the original). For a nice introduction to instrumental variables via 2SLS, see this [practical introduction](https://evalf20.classes.andrewheiss.com/example/iv/), and also the [slides and video-lecture files](https://evalf20.classes.andrewheiss.com/content/11-content/), from the great [Andrew Heiss](https://www.andrewheiss.com/). For the clinical researchers in the room, [Kristoffer Magnusson](https://rpsychologist.com/about) has a nice **brms**-based blog post on the topic called [*Confounded dose-response effects of treatment adherence: fitting Bayesian instrumental variable models using brms*](https://rpsychologist.com/adherence-analysis-IV-brms).
 
 ### Other designs.
 
@@ -1318,7 +1318,7 @@ rm(Kline2)
 d %>% glimpse()
 ```
 
-`r emo::ji("wave")` **Heads up**: The **brms** package is capable of handling a variety of Gaussian process models using the `gp()` function. As we will see throughout this section, this method will depart in important ways from how McElreath fits Gaussian process models with **rethinking**. Due in large part to these differences, this section and its analogue in the first edition of *Statistical rethinking* [@mcelreathStatisticalRethinkingBayesian2015] baffled me, at first. Happily, fellow enthusiasts [Louis Bliard](https://twitter.com/LBliard) and [Richard Torkar](https://twitter.com/rtorkar) reached out and helped me hammer this section out behind the scenes. The method to follow is due in large part to their efforts. `r emo::ji("handshake")`
+`r emo::ji("wave")` **Heads up**: The **brms** package is capable of handling a variety of Gaussian process models using the `gp()` function. As we will see throughout this section, this method will depart in important ways from how McElreath fits Gaussian process models with **rethinking**. Due in large part to these differences, this section and its analogue in the first edition of *Statistical rethinking* [@mcelreathStatisticalRethinkingBayesian2015] baffled me, at first. Happily, fellow enthusiasts [Louis Bliard](https://twitter.com/LBliard) and [Richard Torkar](https://torkar.github.io/) reached out and helped me hammer this section out behind the scenes. The method to follow is due in large part to their efforts. `r emo::ji("handshake")`
 
 The `brms::gp()` function takes a handful of arguments. The first and most important argument, `...`, accepts the names of one or more predictors from the data. When fitting a spatial Gaussian process of this kind, we'll enter in the latitude and longitude data for each of levels of `culture`. This will be an important departure from the text. For his `m14.8`, McElreath directly entered in the `Dmat` distance matrix data into `ulam()`. In so doing, he defined $D_{ij}$, the matrix of distances between each of the societies. When using **brms**, we instead *estimate* the distance matrix from the latitude and longitude variables.
 
@@ -2188,7 +2188,7 @@ To this point in the chapter and most of the text, the data have largely had a c
 
 ### Borrow some data.
 
-All the models in this bonus section are based on the paper by @williams2020BayesianMulitivariate, *Bayesian multivariate mixed-effects location scale modeling of longitudinal relations among affective traits, states, and physical activity* (you can find the preprint [here](https://psyarxiv.com/4kfjp)). Williams and colleagues' data and supporting scripts are available in the `example_analyses` folder from their OSF project at [https://osf.io/3bmdh/](https://osf.io/3bmdh/). You can also download the data from the [`data` folder](https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed/tree/master/data) of this ebook's GitHub repo.
+All the models in this bonus section are based on the paper by @williamsBayesianMultivariateMixedeffects2021, *Bayesian multivariate mixed-effects location scale modeling of longitudinal relations among affective traits, states, and physical activity* (you can find the preprint [here](https://psyarxiv.com/4kfjp)). Williams and colleagues' data and supporting scripts are available in the `example_analyses` folder from their OSF project at [https://osf.io/3bmdh/](https://osf.io/3bmdh/). You can also download the data from the [`data` folder](https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed/tree/master/data) of this ebook's GitHub repo.
 
 Load the data.
 
@@ -2378,7 +2378,7 @@ Because of our fixed $\sigma_\epsilon$ parameter, the 95% posterior predictive i
 
 ### Learn more about your data with the MELSM.
 
-Mixed-effects location scale models (MELSMs) have their origins in the work of [Donald Hedeker](https://health.uchicago.edu/faculty/donald-hedeker-phd) and colleagues  [@hedekerApplicationMixedeffectsLocation2008; @hedekerModelingWithinsubjectVariance2012]. @rastModelingIndividualDifferences2012 showcased an early application of the framework to the BUGS/JAGS software. More recently [Philippe Rast](https://twitter.com/rastlab) and colleagues (particularly graduate student, [Donald Williams](https://twitter.com/wdonald_1985)) have adapted this approach for use within the Stan/**brms** ecosystem [@williamsBayesianNonlinearMixedeffects2019a; @williams2021beneath; @williams2020BayesianMulitivariate; @williams2022PuttingTheIndividual].
+Mixed-effects location scale models (MELSMs) have their origins in the work of [Donald Hedeker](https://health.uchicago.edu/faculty/donald-hedeker-phd) and colleagues  [@hedekerApplicationMixedeffectsLocation2008; @hedekerModelingWithinsubjectVariance2012]. @rastModelingIndividualDifferences2012 showcased an early application of the framework to the BUGS/JAGS software. More recently [Philippe Rast](https://rastlab.ucdavis.edu/) and colleagues (particularly [Donald Williams](https://donaldrwilliams.github.io/)) have adapted this approach for use within the Stan/**brms** ecosystem [@williamsBayesianNonlinearMixedeffects2019a; @williams2021beneath; @williams2020BayesianMulitivariate; @williams2022PuttingTheIndividual].
 
 Within the **brms** framework, MELSMs apply a distributional modeling approach [see @Bürkner2022Distributional] to the multilevel growth model. Not only are parameters from the mean structure allowed to vary across groups, but parameters applied to $\sigma$ are allowed to vary across groups, too. Do you remember the little practice model `b10.1` from [Section 10.2.2][Linking linear models to distributions.]? We simulated Gaussian data for two groups with the same mean parameter but different parameters for $\sigma$. If you check back in that section, you'll see that the **brms** default was to model $\log \sigma$ in that case. This is smart because when you define a model for $\sigma$, you want to use a link function that ensures the predictions will be stay at zero and above. The MELSM approach of Hedeker, Rast, Williams and friends applies this logic to $\sigma_\epsilon$ in multilevel growth models. However, not only can $\sigma_\epsilon$ vary across groups in a fixed-effects sort of way, we can use multilevel partial pooling, too.
 

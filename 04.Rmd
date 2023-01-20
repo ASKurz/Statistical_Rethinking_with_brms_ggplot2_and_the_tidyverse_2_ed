@@ -788,7 +788,7 @@ If you want detailed diagnostics for the HMC chains, call `launch_shinystan(b4.1
 print(b4.1)
 ```
 
-The `summary()` function works in a similar way. You can also get a Stan-like summary [see the [*RStan: the R interface to Stan*](https://CRAN.R-project.org/package=rstan/vignettes/rstan.html) vignette; @standevelopmentteamRStanInterfaceStan2022] with a little indexing.
+The `summary()` function works in a similar way. You can also get a Stan-like summary [see the [*RStan: the R interface to Stan*](https://CRAN.R-project.org/package=rstan/vignettes/rstan.html) vignette; @standevelopmentteamRStanInterfaceStan2023] with a little indexing.
 
 ```{r}
 b4.1$fit
@@ -874,7 +874,7 @@ With our `post <- as_draws_df(b4.1)` code from a few lines above, we've already 
 str(post)
 ```
 
-Thus, our `post` object is not just a data frame, but also of class draws_df, which means it contains three metadata variables--`.chain`, `.iteration`, and `.draw`--which will are often hidden from view, but are there in the background when needed. As you'll see, we'll make good use of the `.draw` variable in the future. Notice how our `post` data frame also includes a vector named `lp__`. That's the log posterior. For details, see the [**brms** reference manual](https://CRAN.R-project.org/package=brms/brms.pdf) [@brms2022RM], the "[The Log-Posterior (function and gradient)](https://cran.r-project.org/package=rstan/vignettes/rstan.html#the-log-posterior-function-and-gradient)" section of the Stan Development Team's [-@standevelopmentteamRStanInterfaceStan2022] vignette, [*RStan: the R interface to Stan*](https://cran.r-project.org/package=rstan/vignettes/rstan.html), or [Stephen Martin](https://twitter.com/smartin2018)'s [nice explanation](https://discourse.mc-stan.org/t/basic-question-what-is-lp-in-posterior-samples-of-a-brms-regression/17567/2) of the log posterior on the Stan Forums. The log posterior will largely be outside of our focus in this ebook.
+Thus, our `post` object is not just a data frame, but also of class draws_df, which means it contains three metadata variables--`.chain`, `.iteration`, and `.draw`--which will are often hidden from view, but are there in the background when needed. As you'll see, we'll make good use of the `.draw` variable in the future. Notice how our `post` data frame also includes a vector named `lp__`. That's the log posterior. For details, see the [**brms** reference manual](https://CRAN.R-project.org/package=brms/brms.pdf) [@brms2022RM], the "[The Log-Posterior (function and gradient)](https://cran.r-project.org/package=rstan/vignettes/rstan.html#the-log-posterior-function-and-gradient)" section of the Stan Development Team's [-@standevelopmentteamRStanInterfaceStan2023] vignette, [*RStan: the R interface to Stan*](https://cran.r-project.org/package=rstan/vignettes/rstan.html), or [Stephen Martin](https://twitter.com/smartin2018)'s [nice explanation](https://discourse.mc-stan.org/t/basic-question-what-is-lp-in-posterior-samples-of-a-brms-regression/17567/2) of the log posterior on the Stan Forums. The log posterior will largely be outside of our focus in this ebook.
 
 The `summary()` function doesn't work for **brms** posterior data frames quite the way `precis()` does for posterior data frames from the **rethinking package**. Behold the results.
 
