@@ -1,6 +1,6 @@
 --- 
 title: "*Statistical rethinking* with brms, ggplot2, and the tidyverse: Second edition"
-subtitle: "version 0.3.0"
+subtitle: "version 0.4.0"
 author: "A Solomon Kurz"
 date: "`r Sys.Date()`"
 site: bookdown::bookdown_site
@@ -26,7 +26,7 @@ description: "This book is an attempt to re-express the code in the second editi
 
 # What and why {-}
 
-This ebook is based on the second edition of [Richard McElreath](https://twitter.com/rlmcelreath)'s [-@mcelreathStatisticalRethinkingBayesian2020] text, [*Statistical rethinking: A Bayesian course with examples in R and Stan*](https://xcelab.net/rm/statistical-rethinking/). My contributions show how to fit the models he covered with [Paul Bürkner](https://twitter.com/paulbuerkner)'s [**brms** package](https://github.com/paul-buerkner/brms) [@R-brms; @burknerBrmsPackageBayesian2017; @burknerAdvancedBayesianMultilevel2018], which makes it easy to fit Bayesian regression models in **R** [@R-base] using Hamiltonian Monte Carlo. I also prefer plotting and data wrangling with the packages from the [**tidyverse**](https://www.tidyverse.org/) [@R-tidyverse; @wickhamWelcomeTidyverse2019]. So we'll be using those methods, too.
+This ebook is based on the second edition of [Richard McElreath](https://twitter.com/rlmcelreath)'s [-@mcelreathStatisticalRethinkingBayesian2020] text, [*Statistical rethinking: A Bayesian course with examples in R and Stan*](https://xcelab.net/rm/statistical-rethinking/). My contributions show how to fit the models he covered with [Paul Bürkner](https://www.simtech.uni-stuttgart.de/exc/people/Buerkner/)'s [**brms** package](https://github.com/paul-buerkner/brms) [@R-brms; @burknerBrmsPackageBayesian2017; @burknerAdvancedBayesianMultilevel2018], which makes it easy to fit Bayesian regression models in **R** [@R-base] using Hamiltonian Monte Carlo. I also prefer plotting and data wrangling with the packages from the [**tidyverse**](https://www.tidyverse.org/) [@R-tidyverse; @wickhamWelcomeTidyverse2019]. So we'll be using those methods, too.
 
 Are you looking for the companion ebook for McElreath's 1st edition? [Click here.](https://bookdown.org/content/3890/)
 
@@ -125,7 +125,7 @@ On March 16, 2021, I released version 0.2.0, which included the following major 
 
 ### Version 0.3.0. {-}
 
-Welcome to version 0.3.0! Major improvements include:
+On September 28, 2022, I released version 0.3.0, which included the following major improvements:
 
 * an `as_draws_df()`-oriented workflow to replace the depreciated `posterior_samples()` function;
 * better sampling in models in the first few due to changes in the `ub` argument;
@@ -135,6 +135,14 @@ Welcome to version 0.3.0! Major improvements include:
 * a cross link to the first edition, thanks to a suggestion from [Will Petry](https://github.com/wpetry);
 * some corrected typos and updates to the links and citations; and
 * all models have been refit using **brms** version 2.18.0.
+
+### Version 0.4.0. {-}
+
+Welcome to version 0.4.0! Noteworthy changes include:
+
+* replacing my incorrect use of `tidyr::expand()` with a more appropriate `tidyr::expand_grid()` workflow, thanks to insights from [Desislava Petkova](https://github.com/dipetkov);
+* adopting the new `linewidth` argument for several **ggplot2** geoms (see [here](https://www.tidyverse.org/blog/2022/08/ggplot2-3-4-0-size-to-linewidth/)); and
+* minor prose, hyperlink, and code edits throughout.
 
 ### We're not done yet and I could use your help. {-}
 
@@ -167,6 +175,7 @@ I'd like to thank the following for their helpful contributions:
 * Sebastian Lobentanzer ([\@slobentanzer](https://github.com/slobentanzer)),
 * Ed Merkle ([\@ecmerkle](https://github.com/ecmerkle)),
 * Ladislas Nalborczyk ([\@lnalborczyk](https://github.com/lnalborczyk)),
+* Desislava Petkova ([\@dipetkov](https://github.com/dipetkov)),
 * Will Petry ([\@wpetry](https://github.com/wpetry)),
 * Randall Pruim ([\@rpruim](https://github.com/rpruim)),
 * Gavin Simpson ([\@gavinsimpson](https://github.com/gavinsimpson)),
@@ -183,12 +192,12 @@ Science is better when we work together.
 This book is licensed under the Creative Commons Zero v1.0 Universal license. You can learn the details, [here](https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed/blob/master/LICENSE). In short, you can use my work. Just make sure you give me the appropriate credit the same way you would for any other scholarly resource. Here's the citation information:
 
 ```{r, eval = F}
-@book{kurzStatisticalRethinkingSecondEd2022,
+@book{kurzStatisticalRethinkingSecondEd2023,
   title = {Statistical rethinking with brms, ggplot2, and the tidyverse: {{Second}} edition},
   author = {Kurz, A. Solomon},
-  year = {2022},
-  month = {sep},
-  edition = {version 0.3.0},
+  year = {2023},
+  month = {jan},
+  edition = {version 0.4.0},
   url = {https://bookdown.org/content/4857/}
 }
 ```

@@ -163,8 +163,8 @@ golem-taming-regularization
 rethinking-ridge-regression.
 predicting-predictive-accuracy
 cross-validation.
-information-criteria
-overthinking-waic-calculation.
+information-criteria.
+overthinking-waic-calculations.
 comparing-cv-psis-and-waic.
 model-comparison
 model-mis-selection.
