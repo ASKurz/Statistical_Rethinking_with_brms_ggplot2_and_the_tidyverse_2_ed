@@ -1332,6 +1332,12 @@ dag_6.1 <-
 adjustmentSets(dag_6.1, exposure = "X", outcome = "Y")
 ```
 
+Do note the `adjustmentSets()` default is to return only minimal sets of variables on which to condition. If you would like to see other non-minimal adjustment sets, set `type = "all"`. Here's what that looks like for this example.
+
+```{r}
+adjustmentSets(dag_6.1, exposure = "X", outcome = "Y", type = "all")
+```
+
 ### Backdoor waffles. 
 
 ```{r, fig.width = 3, fig.height = 2, message = F, warning = F}
