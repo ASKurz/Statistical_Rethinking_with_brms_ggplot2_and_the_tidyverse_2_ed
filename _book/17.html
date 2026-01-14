@@ -1,0 +1,1242 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.32">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>17&nbsp; Horoscopes Insights – *Statistical rethinking* 2 with rstan and the tidyverse</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./references.html" rel="next">
+<link href="./16.html" rel="prev">
+<link href="./mischa_favicon.png" rel="icon" type="image/png">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-234273d1456647dabc34a594ac50e507.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-7d082c015fa132ca880f975003d7bf2f.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar floating slimcontent quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./17.html"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title"><del>Horoscopes</del> Insights</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./"><em>Statistical rethinking</em> 2 with rstan and the tidyverse</a> 
+        <div class="sidebar-tools-main">
+    <a href="https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Preface</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./01.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">The Golem of Prague</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./02.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Small Worlds and Large Worlds</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./03.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Sampling the Imaginary</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./04.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Geocentric Models</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./05.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">The Many Variables &amp; The Spurious Waffles</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./06.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">The Haunted DAG &amp; The Causal Terror</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./07.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Ulysses’ Compass</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./08.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Conditional Manatees</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./09.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Markov Chain Monte Carlo</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./10.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Big Entropy and the Generalized Linear Model</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./11.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">God Spiked the Integers</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./12.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Monsters and Mixtures</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./13.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Models With Memory</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./14.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Adventures in Covariance</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./15.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Missing Data and Other Opportunities</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./16.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Generalized Linear Madness</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./17.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title"><del>Horoscopes</del> Insights</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./references.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">References</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#use-r-notebooks-or-quarto-files" id="toc-use-r-notebooks-or-quarto-files" class="nav-link active" data-scroll-target="#use-r-notebooks-or-quarto-files"><span class="header-section-number">17.1</span> Use R Notebooks (or Quarto files)</a></li>
+  <li><a href="#save-your-model-fits" id="toc-save-your-model-fits" class="nav-link" data-scroll-target="#save-your-model-fits"><span class="header-section-number">17.2</span> Save your model fits</a></li>
+  <li><a href="#build-your-models-slowly" id="toc-build-your-models-slowly" class="nav-link" data-scroll-target="#build-your-models-slowly"><span class="header-section-number">17.3</span> Build your models slowly</a></li>
+  <li><a href="#look-at-your-data" id="toc-look-at-your-data" class="nav-link" data-scroll-target="#look-at-your-data"><span class="header-section-number">17.4</span> Look at your data</a></li>
+  <li><a href="#consider-using-the-0-intercept-syntax" id="toc-consider-using-the-0-intercept-syntax" class="nav-link" data-scroll-target="#consider-using-the-0-intercept-syntax"><span class="header-section-number">17.5</span> Consider using the <code>0 + Intercept</code> syntax</a></li>
+  <li><a href="#annotate-your-workflow" id="toc-annotate-your-workflow" class="nav-link" data-scroll-target="#annotate-your-workflow"><span class="header-section-number">17.6</span> Annotate your workflow</a></li>
+  <li><a href="#annotate-your-code" id="toc-annotate-your-code" class="nav-link" data-scroll-target="#annotate-your-code"><span class="header-section-number">17.7</span> Annotate your code</a></li>
+  <li><a href="#break-up-your-workflow" id="toc-break-up-your-workflow" class="nav-link" data-scroll-target="#break-up-your-workflow"><span class="header-section-number">17.8</span> Break up your workflow</a></li>
+  <li><a href="#code-in-public" id="toc-code-in-public" class="nav-link" data-scroll-target="#code-in-public"><span class="header-section-number">17.9</span> Code in public</a></li>
+  <li><a href="#check-out-social-media" id="toc-check-out-social-media" class="nav-link" data-scroll-target="#check-out-social-media"><span class="header-section-number">17.10</span> Check out social media</a></li>
+  <li><a href="#extra-rethinking-related-resources" id="toc-extra-rethinking-related-resources" class="nav-link" data-scroll-target="#extra-rethinking-related-resources"><span class="header-section-number">17.11</span> Extra <em>Rethinking</em>-related resources</a></li>
+  <li><a href="#but-like-how-do-i-do-this-for-real" id="toc-but-like-how-do-i-do-this-for-real" class="nav-link" data-scroll-target="#but-like-how-do-i-do-this-for-real"><span class="header-section-number">17.12</span> <em>But, like, how do I do this for real?</em></a></li>
+  <li><a href="#parting-wisdom" id="toc-parting-wisdom" class="nav-link" data-scroll-target="#parting-wisdom"><span class="header-section-number">17.13</span> Parting wisdom</a></li>
+  <li><a href="#session-info" id="toc-session-info" class="nav-link" data-scroll-target="#session-info">Session info</a></li>
+  <li><a href="#comments" id="toc-comments" class="nav-link" data-scroll-target="#comments">Comments</a></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content page-columns page-full" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title"><del>Horoscopes</del> Insights</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<blockquote class="blockquote">
+<p>Statistical inference is indeed critically important. But only as much as every other part of research. Scientific discovery is not an additive process, in which sin in one part can be atoned by virtue in another. Everything interacts. So equally when science works as intended as when it does not, every part of the process deserves attention. <span class="citation" data-cites="mcelreathStatisticalRethinkingBayesian2020">(<a href="references.html#ref-mcelreathStatisticalRethinkingBayesian2020" role="doc-biblioref">McElreath, 2020, p. 553</a>)</span></p>
+</blockquote>
+<p>In this final chapter, there are no models for us to fit and no figures for use to reimagine. McElreath took the opportunity to comment more broadly on the scientific process. He made a handful of great points, some of which I’ll quote in a bit. But for the bulk of this chapter, I’d like to take the opportunity to pass on a few of my own insights about workflow. I hope they’re of use.</p>
+<section id="use-r-notebooks-or-quarto-files" class="level2" data-number="17.1">
+<h2 data-number="17.1" class="anchored" data-anchor-id="use-r-notebooks-or-quarto-files"><span class="header-section-number">17.1</span> Use R Notebooks (or Quarto files)</h2>
+<p>OMG</p>
+<p>I first started using <strong>R</strong> in the winter of 2015/2016. Right from the start, I learned how to code from within the <a href="https://www.rstudio.com">RStudio</a> environment. But within RStudio I was using simple scripts. No longer. I now use <a href="http://rmarkdown.rstudio.com/r_notebooks.html">R Notebooks</a> for just about everything, including my scientific projects, this <a href="https://bookdown.org"><strong>bookdown</strong></a>-powered ebook, and even my academic <a href="https://solomonkurz.netlify.com">webpage</a> and <a href="https://solomonkurz.netlify.com/blog/">blog</a>. Nathan Stephens wrote a nice blog post, <a href="https://rviews.rstudio.com/2017/03/15/why-i-love-r-notebooks/"><em>Why I love R Notebooks</em></a>. I agree. This has fundamentally changed my workflow as a scientist. I only wish I’d learned about this before starting my dissertation project. So it goes…</p>
+<p>Do yourself a favor, adopt R Notebooks into your workflow. Do it today. If you prefer to learn with videos, here’s a <a href="https://youtu.be/TJmNvfhLCoI?t=195">nice intro</a> by <a href="https://www.krisyu.org/">Kristine Yu</a> and <a href="https://youtu.be/GG4pgtfDpWY?t=324">another one</a> by <a href="https://twitter.com/fly_upside_down">JJ Allaire</a>. Try it out for like one afternoon and you’ll be hooked.’</p>
+<p><em>Update</em>. I still use R Notebooks, which are still totally awesome. But I’ve been slowly switching over to Quarto files over the past couple of years. For my basic scientific projects, they’re almost the same as R Notebooks. But Quarto files make is much nicer when you want to make a website or publish an ebook. To learn more about Quarto, go to <a href="https://quarto.org/">https://quarto.org/</a>. If you’re using R Studio, they’re already available from the <code>Quarto Document...</code> option when you navigate to the <code>New File</code> dropdown.</p>
+</section>
+<section id="save-your-model-fits" class="level2" data-number="17.2">
+<h2 data-number="17.2" class="anchored" data-anchor-id="save-your-model-fits"><span class="header-section-number">17.2</span> Save your model fits</h2>
+<p>It’s embarrassing how long it took for this to dawn on me.</p>
+<p>Unlike classical statistics, Bayesian models using MCMC take a while to compute. Most of the simple models in McElreath’s text take 30 seconds up to a couple minutes. If your data are small, well-behaved and of a simple structure, you might have a lot of wait times in that range in your future.</p>
+<p>It hasn’t been that way, for me.</p>
+<p>Most of my data have a complicated multilevel structure and often aren’t very well behaved. It’s normal for my models to take an hour or several to fit. Once you start measuring your model fit times in hours, you do not want to fit these things more than once. So, it’s not enough to document my code in a nice R Notebook file. I need to save my <code>brm()</code> fit objects in external files.</p>
+<p>Consider this model. It’s taken from Bürkner’s <span class="citation" data-cites="Bürkner2022Multivariate">(<a href="references.html#ref-Bürkner2022Multivariate" role="doc-biblioref">2022b</a>)</span> vignette, <a href="https://cran.r-project.org/package=brms/vignettes/brms_multivariate.html"><em>Estimating multivariate models with brms</em></a>. It took about one minute for my personal laptop to fit.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(brms)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">"BTdata"</span>, <span class="at">package =</span> <span class="st">"MCMCglmm"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>b17<span class="fl">.1</span> <span class="ot">&lt;-</span> <span class="fu">brm</span>(</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> BTdata,</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> gaussian,</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bf</span>(<span class="fu">mvbind</span>(tarsus, back) <span class="sc">~</span> sex <span class="sc">+</span> hatchdate <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> p <span class="sc">|</span> fosternest) <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> q <span class="sc">|</span> dam)) <span class="sc">+</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">set_rescor</span>(<span class="cn">TRUE</span>), </span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">chains =</span> <span class="dv">2</span>, <span class="at">cores =</span> <span class="dv">2</span>,</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">seed =</span> <span class="dv">17</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>ONe minute isn’t terribly long to wait, but still. I’d prefer to never have to wait a minute for that model, again. Sure, if I save my code in a document like this, I will always be able to fit the model in the future. But I can work smarter. Here I’ll save my <code>b17.1</code> object outside of <strong>R</strong> with the <code>save()</code> function.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">save</span>(b17<span class="fl">.1</span>, <span class="at">file =</span> <span class="st">"fits/b17.01.rda"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Hopefully y’all are savvy Bayesian <strong>R</strong> users and find this insultingly remedial. But if it’s new to you like it was me, you can learn more about <code>.rda</code> files <a href="https://www.r-bloggers.com/load-save-and-rda-files/">here</a>.</p>
+<p>Now <code>b17.1</code> is saved outside of <strong>R</strong>, I can safely remove it and then reload it.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span>(b17<span class="fl">.1</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="st">"fits/b17.01.rda"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The file took a fraction of a second to reload. Once reloaded, I can perform typical operations, like examine summaries of the model parameters or refreshing my memory on what data I used.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(b17<span class="fl">.1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> Family: MV(gaussian, gaussian) 
+  Links: mu = identity
+         mu = identity 
+Formula: tarsus ~ sex + hatchdate + (1 | p | fosternest) + (1 | q | dam) 
+         back ~ sex + hatchdate + (1 | p | fosternest) + (1 | q | dam) 
+   Data: BTdata (Number of observations: 828) 
+  Draws: 2 chains, each with iter = 2000; warmup = 1000; thin = 1;
+         total post-warmup draws = 2000
+
+Multilevel Hyperparameters:
+~dam (Number of levels: 106) 
+                                     Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+sd(tarsus_Intercept)                     0.48      0.05     0.39     0.59 1.00      935     1195
+sd(back_Intercept)                       0.26      0.07     0.11     0.39 1.00      311      560
+cor(tarsus_Intercept,back_Intercept)    -0.50      0.22    -0.91    -0.04 1.00      506      517
+
+~fosternest (Number of levels: 104) 
+                                     Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+sd(tarsus_Intercept)                     0.27      0.06     0.17     0.38 1.00      696     1075
+sd(back_Intercept)                       0.35      0.06     0.23     0.47 1.00      412      746
+cor(tarsus_Intercept,back_Intercept)     0.71      0.20     0.25     0.98 1.00      323      583
+
+Regression Coefficients:
+                 Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+tarsus_Intercept    -0.41      0.07    -0.55    -0.27 1.00     1230     1167
+back_Intercept      -0.01      0.07    -0.15     0.12 1.00     2251     1293
+tarsus_sexMale       0.77      0.06     0.65     0.88 1.00     3348     1300
+tarsus_sexUNK        0.23      0.13    -0.02     0.48 1.00     2901     1317
+tarsus_hatchdate    -0.04      0.06    -0.15     0.07 1.00     1231     1216
+back_sexMale         0.01      0.07    -0.13     0.14 1.00     3048     1334
+back_sexUNK          0.15      0.15    -0.15     0.45 1.00     3014     1416
+back_hatchdate      -0.09      0.05    -0.19     0.02 1.00     2377     1552
+
+Further Distributional Parameters:
+             Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+sigma_tarsus     0.76      0.02     0.72     0.80 1.00     2012     1554
+sigma_back       0.90      0.02     0.85     0.95 1.00     2460     1502
+
+Residual Correlations: 
+                    Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+rescor(tarsus,back)    -0.05      0.04    -0.13     0.02 1.00     2723     1604
+
+Draws were sampled using sampling(NUTS). For each parameter, Bulk_ESS
+and Tail_ESS are effective sample size measures, and Rhat is the potential
+scale reduction factor on split chains (at convergence, Rhat = 1).</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(b17<span class="fl">.1</span><span class="sc">$</span>data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>       tarsus  sex  hatchdate fosternest     dam       back
+1 -1.89229718  Fem -0.6874021      F2102 R187557  1.1464212
+2  1.13610981 Male -0.6874021      F1902 R187559 -0.7596521
+3  0.98468946 Male -0.4279814       A602 R187568  0.1449373
+4  0.37900806 Male -1.4656641      A1302 R187518  0.2555847
+5 -0.07525299  Fem -1.4656641      A2602 R187528 -0.3006992
+6 -1.13519543  Fem  0.3502805      C2302 R187945  1.5577219</code></pre>
+</div>
+</div>
+<p>The other option, which we’ve been using extensively throughout the earlier chapters, is to use <code>file</code> argument within the <code>brms::brm()</code> function. You can read about the origins of the argument in <a href="https://github.com/paul-buerkner/brms/issues/472">issue #472 on the <strong>brms</strong> GitHub repo</a>. To make use of the <code>file</code> argument, specify a character string. <code>brm()</code> will then save your fitted model object in an external <code>.rds</code> file via the <code>saveRDS()</code> function. Let’s give it a whirl, this time with an interaction.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>b17<span class="fl">.2</span> <span class="ot">&lt;-</span> <span class="fu">brm</span>(</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> BTdata,</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> gaussian,</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bf</span>(<span class="fu">mvbind</span>(tarsus, back) <span class="sc">~</span> sex <span class="sc">*</span> hatchdate <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> p <span class="sc">|</span> fosternest) <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> q <span class="sc">|</span> dam)) <span class="sc">+</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">set_rescor</span>(<span class="cn">TRUE</span>), </span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">chains =</span> <span class="dv">2</span>, <span class="at">cores =</span> <span class="dv">2</span>,</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">seed =</span> <span class="dv">17</span>,</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">file =</span> <span class="st">"fits/b17.02"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Now <code>b17.2</code> is saved in my <code>fits</code> folder outside of <strong>R</strong>, I can safely remove it and then reload it.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span>(b17<span class="fl">.2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>We might load <code>b17.2</code> with the <code>readRDS()</code> function.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>b17<span class="fl">.2</span> <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"fits/b17.02.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Now we can work with <code>b17.2</code> as desired.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">fixef</span>(b17<span class="fl">.2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                             Estimate  Est.Error        Q2.5       Q97.5
+tarsus_Intercept         -0.407187226 0.07072158 -0.54804293 -0.27190775
+back_Intercept           -0.012886241 0.06527942 -0.14159551  0.11165077
+tarsus_sexMale            0.767087723 0.05853218  0.65740660  0.88108744
+tarsus_sexUNK             0.192399658 0.14596787 -0.09388989  0.47641641
+tarsus_hatchdate         -0.049360650 0.06579074 -0.18054760  0.08010410
+tarsus_sexMale:hatchdate  0.012755570 0.05751723 -0.09693957  0.12953029
+tarsus_sexUNK:hatchdate   0.063041413 0.12169950 -0.17988536  0.29943080
+back_sexMale              0.006151895 0.06566112 -0.12204744  0.13189381
+back_sexUNK               0.149214462 0.16998410 -0.18497893  0.46862455
+back_hatchdate           -0.048512751 0.06220318 -0.17132565  0.07668044
+back_sexMale:hatchdate   -0.080900526 0.06716127 -0.20912414  0.05298468
+back_sexUNK:hatchdate    -0.040353487 0.14079000 -0.32264015  0.23253958</code></pre>
+</div>
+</div>
+<p>The <code>file</code> method has another handy feature. Let’s remove <code>b17.2</code> one more time to see.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span>(b17<span class="fl">.2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>If you’ve fit a <code>brm()</code> model once and saved the results with <code>file</code>, executing the same <code>brm()</code> code will not re-fit the model. Rather, it will just load and return the model from the <code>.rds</code> file.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>b17<span class="fl">.2</span> <span class="ot">&lt;-</span> <span class="fu">brm</span>(</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> BTdata,</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> gaussian,</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bf</span>(<span class="fu">mvbind</span>(tarsus, back) <span class="sc">~</span> sex <span class="sc">*</span> hatchdate <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> p <span class="sc">|</span> fosternest) <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> q <span class="sc">|</span> dam)) <span class="sc">+</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">set_rescor</span>(<span class="cn">TRUE</span>), </span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">chains =</span> <span class="dv">2</span>, <span class="at">cores =</span> <span class="dv">2</span>,</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">seed =</span> <span class="dv">15</span>,</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">file =</span> <span class="st">"fits/b17.02"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>It takes just a fraction of a second. Once again, we’re ready to work with <code>b17.2</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>b17<span class="fl">.2</span><span class="sc">$</span>formula</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>tarsus ~ sex * hatchdate + (1 | p | fosternest) + (1 | q | dam) 
+back ~ sex * hatchdate + (1 | p | fosternest) + (1 | q | dam) </code></pre>
+</div>
+</div>
+<p>And if you’d like to remind yourself what the name of that external file was or what folder you saved it in, you can extract it from the <code>brm()</code> fit object.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>b17<span class="fl">.2</span><span class="sc">$</span>file</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "fits/b17.02.rds"</code></pre>
+</div>
+</div>
+<p>Also, see <a href="https://fromthebottomoftheheap.net/">Gavin Simpson</a>’s blog post, <a href="https://www.fromthebottomoftheheap.net/2012/04/01/saving-and-loading-r-objects/"><em>A better way of saving and loading objects in R</em></a>, for a discussion on the distinction between <code>.rda</code> and <code>.rds</code> files.</p>
+</section>
+<section id="build-your-models-slowly" class="level2" data-number="17.3">
+<h2 data-number="17.3" class="anchored" data-anchor-id="build-your-models-slowly"><span class="header-section-number">17.3</span> Build your models slowly</h2>
+<p>The model from Bürkner’s vignette, <code>b17.1</code>, was no joke. If you wanted to be verbose about it, it was a multilevel, multivariate, multivariable model. It had a cross-classified multilevel structure, two predictors (for each criterion), and two criteria. Not only is that a lot to keep track of, there’s a whole lot of places for things to go wrong.</p>
+<p>Even if that was the final model I was interested in as a scientist, I still wouldn’t start with it. I’d build up incrementally, just to make sure nothing looked fishy. One place to start would be a simple intercepts-only model.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>b17<span class="fl">.0</span> <span class="ot">&lt;-</span> <span class="fu">brm</span>(</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> BTdata, </span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> gaussian,</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bf</span>(<span class="fu">mvbind</span>(tarsus, back) <span class="sc">~</span> <span class="dv">1</span>) <span class="sc">+</span> <span class="fu">set_rescor</span>(<span class="cn">TRUE</span>), </span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">chains =</span> <span class="dv">2</span>, <span class="at">cores =</span> <span class="dv">2</span>,</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">file =</span> <span class="st">"fits/b17.00"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(b17<span class="fl">.0</span>, <span class="at">widths =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">3</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="17_files/figure-html/unnamed-chunk-13-1.png" class="img-fluid figure-img" width="624"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(b17<span class="fl">.0</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> Family: MV(gaussian, gaussian) 
+  Links: mu = identity
+         mu = identity 
+Formula: tarsus ~ 1 
+         back ~ 1 
+   Data: BTdata (Number of observations: 828) 
+  Draws: 2 chains, each with iter = 2000; warmup = 1000; thin = 1;
+         total post-warmup draws = 2000
+
+Regression Coefficients:
+                 Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+tarsus_Intercept     0.00      0.04    -0.07     0.07 1.00     2693     1530
+back_Intercept       0.00      0.03    -0.07     0.07 1.01     2612     1636
+
+Further Distributional Parameters:
+             Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+sigma_tarsus     1.00      0.02     0.95     1.05 1.00     2440     1450
+sigma_back       1.00      0.03     0.96     1.05 1.00     2681     1350
+
+Residual Correlations: 
+                    Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+rescor(tarsus,back)    -0.03      0.04    -0.10     0.04 1.01     2188     1411
+
+Draws were sampled using sampling(NUTS). For each parameter, Bulk_ESS
+and Tail_ESS are effective sample size measures, and Rhat is the potential
+scale reduction factor on split chains (at convergence, Rhat = 1).</code></pre>
+</div>
+</div>
+<p>If the chains look good and the summary statistics are about what I’d expect, I’m on good footing to keep building up to the model I really care about. The results from this model, for example, suggest that both criteria were standardized (i.e., intercepts at 0 and <span class="math inline">\(\sigma\)</span>’s at 1). If that wasn’t what I intended, I’d rather catch it here than spend a whole minute fitting the more complicated <code>b17.1</code> model, the parameters for which are sufficiently complicated that I may have had trouble telling what scale the data were on.</p>
+<p>Note, this is not the same as <span class="math inline">\(p\)</span>-hacking <span class="citation" data-cites="simmonsFalsepositivePsychologyUndisclosed2011">(<a href="references.html#ref-simmonsFalsepositivePsychologyUndisclosed2011" role="doc-biblioref">Simmons et al., 2011</a>)</span> or wandering aimlessly down the garden of forking paths <span class="citation" data-cites="gelmanGardenForkingPaths2013">(<a href="references.html#ref-gelmanGardenForkingPaths2013" role="doc-biblioref">Gelman &amp; Loken, 2013</a>)</span>. We are not chasing the flashiest model to put in a paper. Rather, this is just good pragmatic data science. If you start off with a theoretically-justified but complicated model and run into computation problems or produce odd-looking estimates, it won’t be clear where things went awry. When you build up, step by step, it’s easier to catch data cleaning failures, coding goofs and the like.</p>
+<p>So, when I’m working on a project, I fit one or a few simplified models before fitting my complicated model of theoretical interest. This is especially the case when I’m working with model types that are new to me or that I haven’t worked with in a while. I document each step in my R Notebook files and I save the fit objects for each in external files. I have caught surprises this way. Hopefully this will help you catch your mistakes, too.</p>
+</section>
+<section id="look-at-your-data" class="level2" data-number="17.4">
+<h2 data-number="17.4" class="anchored" data-anchor-id="look-at-your-data"><span class="header-section-number">17.4</span> Look at your data</h2>
+<p>Relatedly, and perhaps even a precursor, you should always plot your data before fitting a model. There were plenty examples of this in the text, but it’s worth it making explicit. Simple summary statistics are great, but they’re not enough. For an entertaining exposition, check out Matejka and Fitzmaurice’s <span class="citation" data-cites="matejkaSameStats2017">(<a href="references.html#ref-matejkaSameStats2017" role="doc-biblioref">2017</a>)</span> <a href="https://www.autodeskresearch.com/publications/samestats"><em>Same stats, different graphs: Generating datasets with varied appearance and identical statistics through simulated annealing</em></a>. Though it might make for a great cocktail party story, I’d hate to pollute the scientific literature with a linear model based on a set of dinosaur-shaped data.</p>
+</section>
+<section id="consider-using-the-0-intercept-syntax" class="level2" data-number="17.5">
+<h2 data-number="17.5" class="anchored" data-anchor-id="consider-using-the-0-intercept-syntax"><span class="header-section-number">17.5</span> Consider using the <code>0 + Intercept</code> syntax</h2>
+<p>We covered this a little in the last couple chapters (e.g., <a href="15.html#sec-Fit-the-Bayesian-muiltilevel-alternative" class="quarto-xref"><span>Section 15.5.7</span></a>, <a href="16.html#sec-Practice-with-the-autoregressive-model" class="quarto-xref"><span>Section 16.4.3</span></a>), but it’s easy to miss. If your real-world model has predictors (i.e., isn’t an intercept-only model), it’s important to keep track of how you have centered those predictors. When you specify a prior for a <strong>brms</strong> <code>Intercept</code> (i.e., an intercept resulting from the <code>y ~ x</code> or <code>y ~ 1 + x</code> style of syntax), <u>that prior is applied under the presumption all the predictors are mean centered</u>. In the <em>Population-level (‘fixed’) effects</em> subsection of the <em><code>set_prior</code></em> section of the <a href="https://cran.r-project.org/package=brms/brms.pdf"><strong>brms</strong> reference manual</a> <span class="citation" data-cites="brms2022RM">(<a href="references.html#ref-brms2022RM" role="doc-biblioref">Bürkner, 2022a</a>)</span>, we read:</p>
+<blockquote class="blockquote">
+<p>Note that technically, this prior is set on an intercept that results when internally centering all population-level predictors around zero to improve sampling efficiency. On this centered intercept, specifying a prior is actually much easier and intuitive than on the original intercept, since the former represents the expected response value when all predictors are at their means. To treat the intercept as an ordinary population-level effect and avoid the centering parameterization, use <code>0 + Intercept</code> on the right-hand side of the model formula.</p>
+</blockquote>
+<p>We get a little more information from the <em>Parameterization of the population-level intercept</em> subsection of the <em><code>brmsformula</code></em> section:</p>
+<blockquote class="blockquote">
+<p>This behavior can be avoided by using the reserved (and internally generated) variable Intercept. Instead of <code>y ~ x</code>, you may write <code>y ~ 0 + Intercept + x</code>. This way, priors can be defined on the real intercept, directly. In addition, the intercept is just treated as an ordinary population-level effect and thus priors defined on b will also apply to it. Note that this parameterization may be less efficient than the default parameterization discussed above.</p>
+</blockquote>
+<p>We didn’t bother using the <code>0 + Intercept</code> syntax for most of our models because McElreath chose to emphasize mean-centered and standardized predictors in the second edition of his text. But this will not always be the case. Sometimes you might have a good reason not to center your predictors. In those cases, the <code>0 + Intercept</code> syntax can make a difference. Regardless, do set your <code>Intercept</code> priors with care.</p>
+</section>
+<section id="annotate-your-workflow" class="level2 page-columns page-full" data-number="17.6">
+<h2 data-number="17.6" class="anchored" data-anchor-id="annotate-your-workflow"><span class="header-section-number">17.6</span> Annotate your workflow</h2>
+<p>In a typical model-fitting file, I’ll load my data, perhaps transform the data a bit, fit several models, and examine the output of each with trace plots, model summaries, information criteria, and the like. In my early days, I just figured each of these steps were self-explanatory.</p>
+<p>Nope.</p>
+<p><a href="https://www.r-bloggers.com/your-most-valuable-collaborator-future-you/">“In every project you have at least one other collaborator; future-you. You don’t want future-you to curse past-you.”</a></p>
+<p>My experience was that even a couple weeks between taking a break from a project and restarting it was enough time to make my earlier files confusing. <strong>And they were my files</strong>. I now start each R document<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> with an introductory paragraph or two explaining exactly what the purpose of the file is. I separate my major sections by <a href="https://rmarkdown.rstudio.com/authoring_basics.html">headers and subheaders</a>. My working files are peppered with bullets, sentences, and full on paragraphs between code blocks.</p>
+<div class="no-row-height column-margin column-container"><div id="fn1"><p><sup>1</sup>&nbsp;Historically I’ve used R Notebook files for my projects, but in recent years I’ve moved to Quarto. This ebook, for example, was originally built with Notebook files, but is not based on Quarto. Both are great and, IMO, vastly suprior to simple R script files.</p></div></div></section>
+<section id="annotate-your-code" class="level2" data-number="17.7">
+<h2 data-number="17.7" class="anchored" data-anchor-id="annotate-your-code"><span class="header-section-number">17.7</span> Annotate your code</h2>
+<p>This idea is implicit in McElreath’s text, but it’s easy to miss the message. I know I did, at first. I find this is especially important for data wrangling. I’m a <strong>tidyverse</strong> guy and, for me, the big-money verbs like <code>mutate()</code>, <code>pivot_longer()</code>, <code>select()</code>, <code>filter()</code>, <code>group_by()</code>, and <code>summarise()</code> take care of the bulk of my data wrangling. But every once and a while I need to do something less common, like with <code>str_extract()</code> or <code>case_when()</code>. When I end up using a new or less familiar function, I typically annotate right in the code and even sometimes leave a hyperlink to some <a href="https://www.r-bloggers.com">R-bloggers</a> post or <a href="https://stackoverflow.com">stackoverflow</a> question that explained how to use it.</p>
+</section>
+<section id="break-up-your-workflow" class="level2" data-number="17.8">
+<h2 data-number="17.8" class="anchored" data-anchor-id="break-up-your-workflow"><span class="header-section-number">17.8</span> Break up your workflow</h2>
+<p>I’ve also learned to break up my projects into multiple R Notebook files. If you have a small project for which you just want a quick and dirty plot, fine, do it all in one file. My typical scientific projects have:</p>
+<ul>
+<li>a primary data cleaning file;</li>
+<li>a file with basic descriptive statistics and the like;</li>
+<li>at least one primary analysis file;</li>
+<li>possible secondary and tertiary analysis files;</li>
+<li>a file or two for my major figures; and</li>
+<li>a file explaining and depicting my priors, often accompanied by my posteriors, for comparison.</li>
+</ul>
+<p>Putting all that information in one R Notebook file would be overwhelming. Your workflow might well look different, but hopefully you get the idea. You don’t want working files with thousands of lines of code.</p>
+<p>To get a sense of what this can look like in practice, you might follow this link, <a href="https://osf.io/vekpf/">https://osf.io/vekpf/</a>, to the OSF project site for one of my conference presentations <span class="citation" data-cites="kurzEvenTreatmentFunctional2019">(<a href="references.html#ref-kurzEvenTreatmentFunctional2019" role="doc-biblioref">Kurz et al., 2019</a>)</span> from the Before Times. In the <a href="https://osf.io/vekpf/wiki/home/">wiki</a>, I explained the contents of 10 files supporting the analyses we presented at the conference. Each of those 10 <code>.html</code> files has its origin in its own <code>.Rmd</code> file.</p>
+<p>Mainly to keep Jenny Bryan from <a href="https://www.tidyverse.org/articles/2017/12/workflow-vs-script/">setting my computer on fire</a>, I’m also in the habit of organizing interconnected project files with help from <a href="https://support.rstudio.com/hc/en-us/articles/200526207-Using-Projects">RStudio Projects</a>. You can learn more about these from <a href="https://r4ds.had.co.nz/workflow-projects.html">Chapter 8</a> in <em>R4DS</em> <span class="citation" data-cites="grolemundDataScience2017">(<a href="references.html#ref-grolemundDataScience2017" role="doc-biblioref">Grolemund &amp; Wickham, 2017</a>)</span>. They might seem trivial, at first, but I’ve come to value the simple ways in which RStudio Projects help streamline my workflow.</p>
+</section>
+<section id="code-in-public" class="level2" data-number="17.9">
+<h2 data-number="17.9" class="anchored" data-anchor-id="code-in-public"><span class="header-section-number">17.9</span> Code in public</h2>
+<p>If you would like to improve the code you write for data-wrangling, modeling, and/or visualizing, code in public. Yes, it can be intimidating. Yes, you will probably make mistakes. If you’re lucky, <a href="https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse/pulls?q=is%3Apr+is%3Aclosed">others will point them out</a> and you will revise and learn and grow. 🌱</p>
+<p>You can do this on any number of mediums, such as</p>
+<ul>
+<li>GitHub (e.g., <a href="https://github.com/paul-buerkner/brms">here</a>),</li>
+<li>personal blogs (e.g., <a href="https://www.andrewheiss.com/blog/2024/04/04/group_by-summarize-ungroup-animations/">here</a>),</li>
+<li>the Open Science Framework (e.g., <a href="https://osf.io/dpzcb/">here</a>),</li>
+<li>online books (e.g., <a href="https://learningstatisticswithr.com/">here</a>),</li>
+<li>full-blown YouTube lectures (e.g., <a href="https://youtu.be/sgw4cu8hrZM">here</a>), or even with</li>
+<li>brief Twitter GIFs (e.g., <a href="https://twitter.com/GuyProchilo/status/1207766623840604174">here</a>).</li>
+</ul>
+<p>I’ve found that just the possibility that others might look at my code makes it more likely I’ll slow down, annotate, and try to use more consistent formatting. Hopefully it will benefit you, too.</p>
+</section>
+<section id="check-out-social-media" class="level2" data-number="17.10">
+<h2 data-number="17.10" class="anchored" data-anchor-id="check-out-social-media"><span class="header-section-number">17.10</span> Check out social media</h2>
+<p>If you haven’t already, joint the science and statistics conversation the rest of us are having on social media. You can find me on <a href="https://bsky.app/profile/solomonkurz.bsky.social">Bluesky</a> and <a href="https://twitter.com/SolomonKurz">Twitter</a>, but I’ve seen other interesting folks hanging out on platforms like Mastodon and Substack, too.</p>
+<p>There are also some great blogs out there. Of primary interest, McElreath posts once in a blue moon at <a href="https://elevanth.org/blog/">https://elevanth.org/blog/</a>. Andrew Gelman regularly blogs at <a href="https://statmodeling.stat.columbia.edu/">https://statmodeling.stat.columbia.edu/</a>. Many of Gelman’s posts are great, but don’t miss the action in the comments sections. Every so often, I post on <strong>brms</strong>-related content at <a href="https://solomonkurz.netlify.app/blog/">https://solomonkurz.netlify.app/blog/</a>.</p>
+<p>Also, do check out the <a href="https://discourse.mc-stan.org">Stan Forums</a>. They have a special <a href="https://discourse.mc-stan.org/c/interfaces/brms"><strong>brms</strong> tag</a> there, under which you can find all kinds of hot <strong>brms</strong> talk.</p>
+<p>But if you’re new to the world of asking for help with your code online, you might acquaint yourself with the notion of a <a href="https://stackoverflow.com/questions/5963269/how-to-make-a-great-r-reproducible-example">minimally reproducible example</a>. In short, a good minimally reproducible example helps others help you. If you fail to do this, prepare for some snark.</p>
+</section>
+<section id="extra-rethinking-related-resources" class="level2" data-number="17.11">
+<h2 data-number="17.11" class="anchored" data-anchor-id="extra-rethinking-related-resources"><span class="header-section-number">17.11</span> Extra <em>Rethinking</em>-related resources</h2>
+<p>You may have noticed I don’t offer solutions to the homework problems. Happily, <a href="https://david-salazar.github.io/">David Salazar</a> has a blog series on the homework problems highlighting a <strong>tiydverse</strong>- and <strong>rethinking</strong>-oriented workflow; find his first post <a href="https://david-salazar.github.io/2020/04/19/statistical-rethinking-week-1/">here</a>. <a href="https://akawiecki.github.io/">Ania Kawiecki</a> made a beautiful website solving the homework problems using the <strong>tiydverse</strong> and <a href="https://www.r-inla.org/home"><strong>INLA</strong></a> <span class="citation" data-cites="rue2009approximate">(<a href="references.html#ref-rue2009approximate" role="doc-biblioref">Rue et al., 2009</a>)</span>, which you can find <a href="https://akawiecki.github.io/statistical_rethinking_inla/">here</a>. <a href="https://arelbundock.com/">Vincent Arel-Bundock</a> has a nice website where he worked through the primary material in the book chapters using <strong>rstan</strong> and the <strong>tidyverse</strong>, which you can find <a href="https://vincentarelbundock.github.io/rethinking2">here</a>. Also, <a href="https://twitter.com/andrewheiss">Andrew Heiss</a> has been coding through some of the examples in McElreath’s <a href="https://youtube.com/playlist?list=PLDcUM9US4XdMROZ57-OIRtIK0aOynbgZN">2022 lecture series</a>, which you can find <a href="https://bayesf22-notebook.classes.andrewheiss.com/rethinking/03-video.html">here</a>.</p>
+<p>If you find other resources along these lines, please tell me about it in a <a href="https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed/issues">GitHub issue</a>.</p>
+</section>
+<section id="but-like-how-do-i-do-this-for-real" class="level2 page-columns page-full" data-number="17.12">
+<h2 data-number="17.12" class="anchored" data-anchor-id="but-like-how-do-i-do-this-for-real"><span class="header-section-number">17.12</span> <em>But, like, how do I do this for real?</em></h2>
+<p>McElreath’s text and my ebook are designed to teach you how to <em>get started doing</em> applied Bayesian statistics. Neither does a great job teaching you <em>how to write them up</em> for a professional presentation, like a peer-reviewed journal article. What I will do, however, is give you some places to look. Just before releasing the 0.2.0 version of this ebook, I asked the good people on twitter to share their favorite examples of applied Bayesian statistics in the scientific literature. See <a href="https://twitter.com/SolomonKurz/status/1371547835737444355">here</a> for the thread.</p>
+<p>At first, folks were a little shy, but eventually the crowd came through in spades! For a full list, feel free to peruse my tweet thread. For your convenience, here’s a list of a good bunch of the works people shared:<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a></p>
+<div class="no-row-height column-margin column-container"><div id="fn2"><p><sup>2</sup>&nbsp;This list is not exhaustive of the links people shared on twitter. My basic inclusion criteria were that they were (a) peer-reviewed articles (b) with a substantive focus that I could (c) easily find a PDF link for. When someone shared several of their works, I simply pulled the first one that fulfilled those criteria. Also, inclusion on this list is <strong>not a personal endorsement</strong>. I haven’t read most of them. You get what you pay for, friends.</p></div></div><ul>
+<li><span class="citation" data-cites="allen2020outside">Allen et al. (<a href="references.html#ref-allen2020outside" role="doc-biblioref">2020</a>, PDF <a href="https://scholarworks.boisestate.edu/cgi/viewcontent.cgi?article=1197&amp;context=polsci_facpubs">link</a>)</span></li>
+<li><span class="citation" data-cites="amlie2020risk">Amlie-Lefond et al. (<a href="references.html#ref-amlie2020risk" role="doc-biblioref">2020</a>, PDF <a href="https://www.ahajournals.org/doi/epub/10.1161/STROKEAHA.119.027225">link</a>)</span></li>
+<li><span class="citation" data-cites="casillas2021interlingual">Casillas (<a href="references.html#ref-casillas2021interlingual" role="doc-biblioref">2021</a>, PDF <a href="https://www.mdpi.com/2226-471X/6/1/9/pdf">link</a>)</span></li>
+<li><span class="citation" data-cites="davis2020genetic">Davis et al. (<a href="references.html#ref-davis2020genetic" role="doc-biblioref">2020</a>, PDF <a href="https://elifesciences.org/articles/50901.pdf">link</a>)</span></li>
+<li><span class="citation" data-cites="girard2021reconsidering">Girard et al. (<a href="references.html#ref-girard2021reconsidering" role="doc-biblioref">2021</a>, PDF <a href="https://doi.org/10.1007/s42761-020-00030-w">link</a>)</span></li>
+<li><span class="citation" data-cites="haines2018outcome">Haines et al. (<a href="references.html#ref-haines2018outcome" role="doc-biblioref">2018</a>, PDF <a href="http://haines-lab.com/pdf/Haines_Cog_Sci_2018.pdf">link</a>)</span></li>
+<li><span class="citation" data-cites="kale2020visual">Kale et al. (<a href="references.html#ref-kale2020visual" role="doc-biblioref">2020</a>, PDF <a href="https://mucollective.northwestern.edu/files/2020%20-%20Kale,%20Visual%20Reasoning%20Strategies%20for%20Effect%20Size%20Judgements.pdf">link</a>)</span></li>
+<li><span class="citation" data-cites="nogueira2018thrombectomy">Nogueira et al. (<a href="references.html#ref-nogueira2018thrombectomy" role="doc-biblioref">2018</a>, PDF <a href="https://www.nejm.org/doi/full/10.1056/nejmoa1706442">link</a>)</span></li>
+<li><span class="citation" data-cites="ross2020racial">Ross et al. (<a href="references.html#ref-ross2020racial" role="doc-biblioref">2020</a>, PDF <a href="https://journals.sagepub.com/doi/pdf/10.1177/1948550620916071">link</a>)</span></li>
+<li><span class="citation" data-cites="silbiger2019comparative">Silbiger et al. (<a href="references.html#ref-silbiger2019comparative" role="doc-biblioref">2019</a>, PDF <a href="https://par.nsf.gov/servlets/purl/10148484">link</a>)</span></li>
+</ul>
+<p>At a quick glance, these papers cover a reasonably broad range of topics. I hope they give you a sense of how to write up your work.</p>
+</section>
+<section id="parting-wisdom" class="level2" data-number="17.13">
+<h2 data-number="17.13" class="anchored" data-anchor-id="parting-wisdom"><span class="header-section-number">17.13</span> Parting wisdom</h2>
+<p>Okay, that’s enough from me. Let’s start wrapping this project up with some McElreath.</p>
+<blockquote class="blockquote">
+<p>There is an aspect of science that you do personally control: openness. <a href="https://mindhacks.com/2017/11/09/open-science-essentials-pre-registration/">Pre-plan your research together with the statistical analysis</a>. Doing so will improve both the research design and the statistics. Document it in the form of a mock analysis that you would not be ashamed to share with a colleague. Register it publicly, perhaps in a simple repository, like <a href="https://github.com">Github</a> or any other. But <a href="https://bookdown.org/yihui/blogdown/">your webpage</a> will do just fine, as well. Then collect the data. Then analyze the data as planned. If you must change the plan, that’s fine. But document the changes and justify them. Provide all of the data and scripts necessary to repeat your analysis. Do not provide scripts and data <a href="https://twitter.com/robinnkok/status/1213011238294347776">“on request,”</a> but rather put them online so reviewers of your paper can access them without your interaction. There are of course cases in which full data cannot be released, due to privacy concerns. But the bulk of science is not of that sort.</p>
+<p>The data and its analysis are the scientific product. The paper is just an advertisement. If you do your honest best to design, conduct, and document your research, so that others can build directly upon it, you can make a difference. (p.&nbsp;555)</p>
+</blockquote>
+<p>Toward that end, also check out the <a href="https://osf.io">OSF</a> and their YouTube channel, <a href="https://www.youtube.com/channel/UCGPlVf8FsQ23BehDLFrQa-g">here</a>. <a href="https://twitter.com/katiecorker">Katie Corker</a> gets the last words: <a href="https://cos.io/blog/open-science-is-a-behavior/">“Open science is stronger because we’re doing this together.”</a></p>
+</section>
+<section id="session-info" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="session-info">Session info</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>R version 4.5.1 (2025-06-13)
+Platform: aarch64-apple-darwin20
+Running under: macOS Ventura 13.4
+
+Matrix products: default
+BLAS:   /Library/Frameworks/R.framework/Versions/4.5-arm64/Resources/lib/libRblas.0.dylib 
+LAPACK: /Library/Frameworks/R.framework/Versions/4.5-arm64/Resources/lib/libRlapack.dylib;  LAPACK version 3.12.1
+
+locale:
+[1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+
+time zone: America/Chicago
+tzcode source: internal
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+other attached packages:
+[1] brms_2.23.0 Rcpp_1.1.0 
+
+loaded via a namespace (and not attached):
+ [1] gtable_0.3.6            tensorA_0.36.2.1        xfun_0.55               ggplot2_4.0.1           QuickJSR_1.8.1         
+ [6] htmlwidgets_1.6.4       inline_0.3.21           lattice_0.22-7          vctrs_0.6.5             tools_4.5.1            
+[11] generics_0.1.4          stats4_4.5.1            curl_7.0.0              parallel_4.5.1          sandwich_3.1-1         
+[16] tibble_3.3.1            pkgconfig_2.0.3         Matrix_1.7-3            checkmate_2.3.3         RColorBrewer_1.1-3     
+[21] S7_0.2.1                assertthat_0.2.1        distributional_0.5.0    RcppParallel_5.1.11-1   lifecycle_1.0.5        
+[26] compiler_4.5.1          farver_2.1.2            stringr_1.6.0           Brobdingnag_1.2-9       codetools_0.2-20       
+[31] htmltools_0.5.9         bayesplot_1.15.0.9000   yaml_2.3.12             crayon_1.5.3            pillar_1.11.1          
+[36] MASS_7.3-65             StanHeaders_2.36.0.9000 bridgesampling_1.2-1    abind_1.4-8             multcomp_1.4-29        
+[41] nlme_3.1-168            posterior_1.6.1.9000    rstan_2.36.0.9000       tidyselect_1.2.1        digest_0.6.39          
+[46] mvtnorm_1.3-3           stringi_1.8.7           purrr_1.2.1             reshape2_1.4.5          dplyr_1.1.4            
+[51] labeling_0.4.3          splines_4.5.1           fastmap_1.2.0           grid_4.5.1              cli_3.6.5              
+[56] magrittr_2.0.4          emo_0.0.0.9000          loo_2.9.0.9000          survival_3.8-3          pkgbuild_1.4.8         
+[61] TH.data_1.1-4           withr_3.0.2             scales_1.4.0            backports_1.5.0         timechange_0.3.0       
+[66] lubridate_1.9.4         estimability_1.5.1      rmarkdown_2.30          emmeans_1.11.2-8        matrixStats_1.5.0      
+[71] gridExtra_2.3           zoo_1.8-14              coda_0.19-4.1           evaluate_1.0.5          knitr_1.51             
+[76] V8_8.0.1                rstantools_2.5.0.9000   rlang_1.1.7             xtable_1.8-4            glue_1.8.0             
+[81] rstudioapi_0.17.1       jsonlite_2.0.0          plyr_1.8.9              R6_2.6.1               </code></pre>
+</div>
+</div>
+</section>
+<section id="comments" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="comments">Comments</h2>
+
+
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" data-line-spacing="2" role="list" style="display: none">
+<div id="ref-allen2020outside" class="csl-entry" role="listitem">
+Allen, M. A., Flynn, M. E., Machain, C. M., &amp; Stravers, A. (2020). Outside the wire: <span>US</span> military deployments and public opinion in host states. <em>American Political Science Review</em>, <em>114</em>(2), 326–341. <a href="https://doi.org/10.1017/S0003055419000868">https://doi.org/10.1017/S0003055419000868</a>
+</div>
+<div id="ref-amlie2020risk" class="csl-entry" role="listitem">
+Amlie-Lefond, C., Shaw, D. W., Cooper, A., Wainwright, M. S., Kirton, A., Felling, R. J., Abraham, M. G., Mackay, M. T., Dowling, M. M., Torres, M., et al. (2020). Risk of intracranial hemorrhage following intravenous <span class="nocase">tPA</span> (<span>Tissue-Type Plasminogen Activator</span>) for acute stroke is low in children. <em>Stroke; a Journal of Cerebral Circulation</em>, <em>51</em>(2), 542–548. <a href="https://doi.org/10.1161/STROKEAHA.119.027225">https://doi.org/10.1161/STROKEAHA.119.027225</a>
+</div>
+<div id="ref-brms2022RM" class="csl-entry" role="listitem">
+Bürkner, P.-C. (2022a). <em><span class="nocase">brms</span> reference manual, <span>Version</span> 2.18.0</em>. <a href="https://CRAN.R-project.org/package=brms/brms.pdf">https://CRAN.R-project.org/package=brms/brms.pdf</a>
+</div>
+<div id="ref-Bürkner2022Multivariate" class="csl-entry" role="listitem">
+Bürkner, P.-C. (2022b). <em>Estimating multivariate models with brms</em>. <a href="https://CRAN.R-project.org/package=brms/vignettes/brms_multivariate.html">https://CRAN.R-project.org/package=brms/vignettes/brms_multivariate.html</a>
+</div>
+<div id="ref-casillas2021interlingual" class="csl-entry" role="listitem">
+Casillas, J. V. (2021). Interlingual interactions elicit performance mismatches not <span>“compromise”</span> categories in early bilinguals: <span>Evidence</span> from meta-analysis and coronal stops. <em>Languages</em>, <em>6</em>(1), 9. <a href="https://doi.org/10.3390/languages6010009">https://doi.org/10.3390/languages6010009</a>
+</div>
+<div id="ref-davis2020genetic" class="csl-entry" role="listitem">
+Davis, F. P., Nern, A., Picard, S., Reiser, M. B., Rubin, G. M., Eddy, S. R., &amp; Henry, G. L. (2020). A genetic, genomic, and computational resource for exploring neural circuit function. <em>Elife</em>, <em>9</em>, e50901. <a href="https://doi.org/10.7554/eLife.50901">https://doi.org/10.7554/eLife.50901</a>
+</div>
+<div id="ref-gelmanGardenForkingPaths2013" class="csl-entry" role="listitem">
+Gelman, A., &amp; Loken, E. (2013). <em>The garden of forking paths: <span>Why</span> multiple comparisons can be a problem, even when there is no <span>“fishing expedition”</span> or <span>“p-<span>Hacking</span>”</span> and the research hypothesis was posited ahead of time</em>. 17. <a href="https://stat.columbia.edu/~gelman/research/unpublished/p_hacking.pdf">https://stat.columbia.edu/~gelman/research/unpublished/p_hacking.pdf</a>
+</div>
+<div id="ref-girard2021reconsidering" class="csl-entry" role="listitem">
+Girard, J. M., Cohn, J. F., Yin, L., &amp; Morency, L.-P. (2021). Reconsidering the duchenne smile: <span>Formalizing</span> and testing hypotheses about eye constriction and positive emotion. <em>Affective Science</em>, 1–16. <a href="https://doi.org/10.1007/s42761-020-00030-w">https://doi.org/10.1007/s42761-020-00030-w</a>
+</div>
+<div id="ref-grolemundDataScience2017" class="csl-entry" role="listitem">
+Grolemund, G., &amp; Wickham, H. (2017). <em>R for data science</em>. O’Reilly. <a href="https://r4ds.had.co.nz">https://r4ds.had.co.nz</a>
+</div>
+<div id="ref-haines2018outcome" class="csl-entry" role="listitem">
+Haines, N., Vassileva, J., &amp; Ahn, W.-Y. (2018). The outcome-representation learning model: <span>A</span> novel reinforcement learning model of the <span>Iowa Gambling Task</span>. <em>Cognitive Science</em>, <em>42</em>(8), 2534–2561. <a href="https://doi.org/10.1111/cogs.12688">https://doi.org/10.1111/cogs.12688</a>
+</div>
+<div id="ref-kale2020visual" class="csl-entry" role="listitem">
+Kale, A., Kay, M., &amp; Hullman, J. (2020). Visual reasoning strategies for effect size judgments and decisions. <em>IEEE Transactions on Visualization and Computer Graphics</em>. <a href="https://doi.org/10.1109/TVCG.2020.3030335">https://doi.org/10.1109/TVCG.2020.3030335</a>
+</div>
+<div id="ref-kurzEvenTreatmentFunctional2019" class="csl-entry" role="listitem">
+Kurz, A. S., DeBeer, B. B., Kimbrel, N. A., Morissette, S. B., &amp; Meyer, E. C. (2019, October 16). <em>Even with treatment, functional impairment and quality of life remain remarkably stable over two years in post-9/11 <span>Iraq</span> and <span>Afghanistan</span> war veterans</em>. The 4th <span>Annual San Antonio Combat PTSD Conference</span>. <a href="https://osf.io/vekpf/">https://osf.io/vekpf/</a>
+</div>
+<div id="ref-matejkaSameStats2017" class="csl-entry" role="listitem">
+Matejka, J., &amp; Fitzmaurice, G. (2017). <em>Same stats, different graphs: <span>Generating</span> datasets with varied appearance and identical statistics through simulated annealing</em>. <a href="https://www.autodesk.com/research/publications/same-stats-different-graphs">https://www.autodesk.com/research/publications/same-stats-different-graphs</a>
+</div>
+<div id="ref-mcelreathStatisticalRethinkingBayesian2020" class="csl-entry" role="listitem">
+McElreath, R. (2020). <em>Statistical rethinking: <span>A Bayesian</span> course with examples in <span>R</span> and <span>Stan</span></em> (Second Edition). CRC Press. <a href="https://xcelab.net/rm/statistical-rethinking/">https://xcelab.net/rm/statistical-rethinking/</a>
+</div>
+<div id="ref-nogueira2018thrombectomy" class="csl-entry" role="listitem">
+Nogueira, R. G., Jadhav, A. P., Haussen, D. C., Bonafe, A., Budzik, R. F., Bhuva, P., Yavagal, D. R., Ribo, M., Cognard, C., Hanel, R. A., et al. (2018). Thrombectomy 6 to 24 hours after stroke with a mismatch between deficit and infarct. <em>New England Journal of Medicine</em>, <em>378</em>(1), 11–21. <a href="https://doi.org/10.1056/NEJMoa1706442">https://doi.org/10.1056/NEJMoa1706442</a>
+</div>
+<div id="ref-ross2020racial" class="csl-entry" role="listitem">
+Ross, C. T., Winterhalder, B., &amp; McElreath, R. (2020). Racial disparities in police use of deadly force against unarmed individuals persist after appropriately benchmarking shooting data on violent crime rates. <em>Social Psychological and Personality Science</em>, 1948550620916071. <a href="https://doi.org/10.1177/1948550620916071">https://doi.org/10.1177/1948550620916071</a>
+</div>
+<div id="ref-rue2009approximate" class="csl-entry" role="listitem">
+Rue, H., Martino, S., &amp; Chopin, N. (2009). Approximate <span>Bayesian</span> inference for latent <span>Gaussian</span> models by using integrated nested <span>Laplace</span> approximations. <em>Journal of the Royal Statistical Society: Series b (Statistical Methodology)</em>, <em>71</em>(2), 319–392. <a href="https://doi.org/10.1111/j.1467-9868.2008.00700.x">https://doi.org/10.1111/j.1467-9868.2008.00700.x</a>
+</div>
+<div id="ref-silbiger2019comparative" class="csl-entry" role="listitem">
+Silbiger, N. J., Goodbody-Gringley, G., Bruno, J. F., &amp; Putnam, H. M. (2019). Comparative thermal performance of the reef-building coral <span>Orbicella</span> franksi at its latitudinal range limits. <em>Marine Biology</em>, <em>166</em>(10), 1–14. <a href="https://doi.org/10.1007/s00227-019-3573-6">https://doi.org/10.1007/s00227-019-3573-6</a>
+</div>
+<div id="ref-simmonsFalsepositivePsychologyUndisclosed2011" class="csl-entry" role="listitem">
+Simmons, J. P., Nelson, L. D., &amp; Simonsohn, U. (2011). False-positive psychology: <span>Undisclosed</span> flexibility in data collection and analysis allows presenting anything as significant. <em>Psychological Science</em>, <em>22</em>(11), 1359–1366. <a href="https://doi.org/10.1177/0956797611417632">https://doi.org/10.1177/0956797611417632</a>
+</div>
+</div>
+</section>
+
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<input type="hidden" id="giscus-base-theme" value="light">
+<input type="hidden" id="giscus-alt-theme" value="dark">
+<script>
+  function loadGiscus() {
+    // Function to get the theme based on body class
+    const getTheme = () => {
+      let baseTheme = document.getElementById('giscus-base-theme').value;
+      let altTheme = document.getElementById('giscus-alt-theme').value;
+      return document.body.classList.contains('quarto-dark') ? altTheme : baseTheme;
+    };
+    const script = document.createElement("script");
+    script.src = "https://giscus.app/client.js";
+    script.async = true;
+    script.dataset.repo = "ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed";
+    script.dataset.repoId = "";
+    script.dataset.category = "General";
+    script.dataset.categoryId = "";
+    script.dataset.mapping = "title";
+    script.dataset.reactionsEnabled = "1";
+    script.dataset.emitMetadata = "0";
+    script.dataset.inputPosition = "top";
+    script.dataset.theme = getTheme();
+    script.dataset.lang = "en";
+    script.crossOrigin = "anonymous";
+    // Append the script to the desired div instead of at the end of the body
+    document.getElementById("quarto-content").appendChild(script);
+  }
+  loadGiscus();
+</script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./16.html" class="pagination-link" aria-label="Generalized Linear Madness">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Generalized Linear Madness</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./references.html" class="pagination-link" aria-label="References">
+        <span class="nav-page-text">References</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>

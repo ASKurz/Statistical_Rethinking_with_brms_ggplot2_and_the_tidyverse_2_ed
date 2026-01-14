@@ -1,0 +1,1875 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.32">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>10&nbsp; Big Entropy and the Generalized Linear Model – *Statistical rethinking* 2 with rstan and the tidyverse</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./11.html" rel="next">
+<link href="./09.html" rel="prev">
+<link href="./mischa_favicon.png" rel="icon" type="image/png">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-234273d1456647dabc34a594ac50e507.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-7d082c015fa132ca880f975003d7bf2f.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<link href="site_libs/tabwid-1.1.3/tabwid.css" rel="stylesheet">
+<script src="site_libs/tabwid-1.1.3/tabwid.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar floating quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./10.html"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Big Entropy and the Generalized Linear Model</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./"><em>Statistical rethinking</em> 2 with rstan and the tidyverse</a> 
+        <div class="sidebar-tools-main">
+    <a href="https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Preface</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./01.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">The Golem of Prague</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./02.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Small Worlds and Large Worlds</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./03.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Sampling the Imaginary</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./04.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Geocentric Models</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./05.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">The Many Variables &amp; The Spurious Waffles</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./06.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">The Haunted DAG &amp; The Causal Terror</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./07.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Ulysses’ Compass</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./08.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Conditional Manatees</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./09.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Markov Chain Monte Carlo</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./10.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Big Entropy and the Generalized Linear Model</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./11.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">God Spiked the Integers</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./12.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Monsters and Mixtures</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./13.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Models With Memory</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./14.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Adventures in Covariance</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./15.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Missing Data and Other Opportunities</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./16.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Generalized Linear Madness</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./17.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title"><del>Horoscopes</del> Insights</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./references.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">References</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#rethinking-bayesian-updating-is-entropy-maximization" id="toc-rethinking-bayesian-updating-is-entropy-maximization" class="nav-link active" data-scroll-target="#rethinking-bayesian-updating-is-entropy-maximization"><span class="header-section-number">10.0.0.1</span> Rethinking: Bayesian updating is entropy maximization</a></li>
+  <li><a href="#maximum-entropy" id="toc-maximum-entropy" class="nav-link" data-scroll-target="#maximum-entropy"><span class="header-section-number">10.1</span> Maximum entropy</a>
+  <ul>
+  <li><a href="#rethinking-what-good-is-intuition" id="toc-rethinking-what-good-is-intuition" class="nav-link" data-scroll-target="#rethinking-what-good-is-intuition"><span class="header-section-number">10.1.0.1</span> Rethinking: What good is intuition?</a></li>
+  <li><a href="#sec-Gaussian" id="toc-sec-Gaussian" class="nav-link" data-scroll-target="#sec-Gaussian"><span class="header-section-number">10.1.1</span> Gaussian</a></li>
+  <li><a href="#binomial" id="toc-binomial" class="nav-link" data-scroll-target="#binomial"><span class="header-section-number">10.1.2</span> Binomial</a></li>
+  </ul></li>
+  <li><a href="#generalized-linear-models" id="toc-generalized-linear-models" class="nav-link" data-scroll-target="#generalized-linear-models"><span class="header-section-number">10.2</span> Generalized linear models</a>
+  <ul>
+  <li><a href="#rethinking-the-scourge-of-histomancy" id="toc-rethinking-the-scourge-of-histomancy" class="nav-link" data-scroll-target="#rethinking-the-scourge-of-histomancy"><span class="header-section-number">10.2.0.1</span> Rethinking: The scourge of Histomancy</a></li>
+  <li><a href="#meet-the-family" id="toc-meet-the-family" class="nav-link" data-scroll-target="#meet-the-family"><span class="header-section-number">10.2.1</span> Meet the family</a>
+  <ul>
+  <li><a href="#rethinking-a-likelihood-is-a-prior" id="toc-rethinking-a-likelihood-is-a-prior" class="nav-link" data-scroll-target="#rethinking-a-likelihood-is-a-prior"><span class="header-section-number">10.2.1.1</span> Rethinking: A likelihood is a prior</a></li>
+  </ul></li>
+  <li><a href="#sec-Linking-linear-models-to-distributions" id="toc-sec-Linking-linear-models-to-distributions" class="nav-link" data-scroll-target="#sec-Linking-linear-models-to-distributions"><span class="header-section-number">10.2.2</span> Linking linear models to distributions</a>
+  <ul>
+  <li><a href="#rethinking-when-in-doubt-play-with-assumptions" id="toc-rethinking-when-in-doubt-play-with-assumptions" class="nav-link" data-scroll-target="#rethinking-when-in-doubt-play-with-assumptions"><span class="header-section-number">10.2.2.1</span> Rethinking: When in doubt, play with assumptions</a></li>
+  </ul></li>
+  <li><a href="#omitted-variable-bias-again" id="toc-omitted-variable-bias-again" class="nav-link" data-scroll-target="#omitted-variable-bias-again"><span class="header-section-number">10.2.3</span> Omitted variable bias again</a></li>
+  <li><a href="#absolute-and-relative-differences" id="toc-absolute-and-relative-differences" class="nav-link" data-scroll-target="#absolute-and-relative-differences"><span class="header-section-number">10.2.4</span> Absolute and relative differences</a></li>
+  </ul></li>
+  <li><a href="#session-info" id="toc-session-info" class="nav-link" data-scroll-target="#session-info">Session info</a></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title"><span id="sec-Big-Entropy-and-the-GLM" class="quarto-section-identifier"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Big Entropy and the Generalized Linear Model</span></span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<blockquote class="blockquote">
+<p>Statistical models force many choices upon us. Some of these choices are distributions that represent uncertainty. We must choose, for each parameter, a prior distribution. And we must choose a likelihood function, which serves as a distribution of data. There are conventional choices, such as wide Gaussian priors and the Gaussian likelihood of linear regression. These conventional choices work unreasonably well in many circumstances. But very often the conventional choices are not the best choices. Inference can be more powerful when we use all of the information, and doing so usually requires going beyond convention.</p>
+<p>To go beyond convention, it helps to have some principles to guide choice. When an engineer wants to make an unconventional bridge, engineering principles help guide choice. When a researcher wants to build an unconventional model, entropy provides one useful principle to guide choice of probability distributions: Bet on the distribution with the biggest entropy. <span class="citation" data-cites="mcelreathStatisticalRethinkingBayesian2020">(<a href="references.html#ref-mcelreathStatisticalRethinkingBayesian2020" role="doc-biblioref">McElreath, 2020, p. 299</a>)</span></p>
+</blockquote>
+<section id="rethinking-bayesian-updating-is-entropy-maximization" class="level4" data-number="10.0.0.1">
+<h4 data-number="10.0.0.1" class="anchored" data-anchor-id="rethinking-bayesian-updating-is-entropy-maximization"><span class="header-section-number">10.0.0.1</span> Rethinking: Bayesian updating is entropy maximization</h4>
+<blockquote class="blockquote">
+<p>Another kind of probability distribution, the posterior distribution deduced by Bayesian updating, is also a case of maximizing entropy. The posterior distribution has the greatest entropy relative to the prior (the smallest cross entropy) among all distributions consistent with the assumed constraints and the observed data. (p.&nbsp;300)</p>
+</blockquote>
+</section>
+<section id="maximum-entropy" class="level2" data-number="10.1">
+<h2 data-number="10.1" class="anchored" data-anchor-id="maximum-entropy"><span class="header-section-number">10.1</span> Maximum entropy</h2>
+<blockquote class="blockquote">
+<p>In <a href="07.html" class="quarto-xref"><span>Chapter 7</span></a>, you met the basics of information theory. In brief, we seek a measure of uncertainty that satisfies three criteria: (1) the measure should be continuous; (2) it should increase as the number of possible events increases; and (3) it should be additive. The resulting unique measure of the uncertainty of a probability distribution <span class="math inline">\(p\)</span> with probabilities <span class="math inline">\(p_i\)</span> for each possible event <span class="math inline">\(i\)</span> turns out to be just the average log-probability:</p>
+<p><span class="math display">\[H(p) = - \sum_i p_i \log p_i\]</span></p>
+<p>This function is known as <em>information entropy</em>.</p>
+<p>The principle of maximum entropy applies this measure of uncertainty to the problem of choosing among probability distributions. Perhaps the simplest way to state the maximum entropy principle is:</p>
+<blockquote class="blockquote">
+<p>The distribution that can happen the most ways is also the distribution with the biggest information entropy. The distribution with the biggest entropy is the most conservative distribution that obeys its constraints.</p>
+</blockquote>
+<p>There’s nothing intuitive about this idea, so if it seems weird, you are normal. (pp.&nbsp;300–301, <em>emphasis</em> in the original)</p>
+</blockquote>
+<p>Let’s execute the code for the pebbles-in-buckets example.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">a =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">10</span>, <span class="dv">0</span>, <span class="dv">0</span>),</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>            <span class="at">b =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">8</span>, <span class="dv">1</span>, <span class="dv">0</span>),</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>            <span class="at">c =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">2</span>, <span class="dv">6</span>, <span class="dv">2</span>, <span class="dv">0</span>),</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>            <span class="at">d =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">4</span>, <span class="dv">2</span>, <span class="dv">1</span>),</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>            <span class="at">e =</span> <span class="dv">2</span>)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co"># This is our analogue to McElreath's `lapply()` code</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>d <span class="sc">|&gt;</span> </span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="at">.cols =</span> <span class="fu">everything</span>(), <span class="at">.fns =</span> \(x) x <span class="sc">/</span> <span class="fu">sum</span>(x))) <span class="sc">|&gt;</span> </span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  <span class="co"># The next few lines constitute our analogue to his `sapply()` code</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="fu">everything</span>(), <span class="at">names_to =</span> <span class="st">"plot"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(plot) <span class="sc">|&gt;</span> </span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">h =</span> <span class="sc">-</span><span class="fu">sum</span>(<span class="fu">ifelse</span>(value <span class="sc">==</span> <span class="dv">0</span>, <span class="dv">0</span>, value <span class="sc">*</span> <span class="fu">log</span>(value))))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 5 × 2
+  plot      h
+  &lt;chr&gt; &lt;dbl&gt;
+1 a     0    
+2 b     0.639
+3 c     0.950
+4 d     1.47 
+5 e     1.61 </code></pre>
+</div>
+</div>
+<p>For more on the formula syntax we used within <code>mutate(across())</code>, you might check out <a href="https://dplyr.tidyverse.org/reference/across.html">this</a>.</p>
+<p>Anyway, we’re almost ready to plot, which brings us to color. For the plots in this chapter, we’ll be taking our color palettes from the <a href="https://github.com/ewenme/ghibli"><strong>ghibli</strong> package</a> <span class="citation" data-cites="R-ghibli">(<a href="references.html#ref-R-ghibli" role="doc-biblioref">Henderson, 2022</a>)</span>, which provides palettes based on scenes from anime films by the Studio Ghibli.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ghibli)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The main function is <code>ghibli_palette()</code> which you can use to both preview the palettes before using them and also index in order to use specific colors. For example, we’ll play with “MarnieMedium1”, first.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ghibli_palette</span>(<span class="st">"MarnieMedium1"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="10_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid figure-img" width="432"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ghibli_palette</span>(<span class="st">"MarnieMedium1"</span>)[<span class="dv">1</span><span class="sc">:</span><span class="dv">7</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "#28231DFF" "#5E2D30FF" "#008E90FF" "#1C77A3FF" "#C5A387FF" "#67B8D6FF" "#E9D097FF"</code></pre>
+</div>
+</div>
+<p>Now we’re ready to plot five of the six panels of Figure 10.1.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># For annotation</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>d_text <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">letter  =</span> letters[<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>],</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">bucket  =</span> <span class="fl">5.5</span>,</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">pebbles =</span> <span class="fl">10.5</span>,</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">label   =</span> <span class="fu">str_c</span>(<span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">90</span>, <span class="dv">1260</span>, <span class="dv">37800</span>, <span class="dv">113400</span>), </span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>                    <span class="fu">rep</span>(<span class="fu">c</span>(<span class="st">" way"</span>, <span class="st">" ways"</span>), <span class="at">times =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">4</span>))))</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>d <span class="sc">|&gt;</span> </span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">bucket =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="sc">-</span>bucket,</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>               <span class="at">names_to =</span> <span class="st">"letter"</span>,</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>               <span class="at">values_to =</span> <span class="st">"pebbles"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> bucket, <span class="at">y =</span> pebbles)) <span class="sc">+</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>(<span class="at">width =</span> <span class="dv">1</span><span class="sc">/</span><span class="dv">5</span>, <span class="at">fill =</span> <span class="fu">ghibli_palette</span>(<span class="st">"MarnieMedium1"</span>)[<span class="dv">2</span>]) <span class="sc">+</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="fu">aes</span>(<span class="at">y =</span> pebbles <span class="sc">+</span> <span class="dv">1</span>, <span class="at">label =</span> pebbles)) <span class="sc">+</span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="at">data =</span> d_text,</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>            <span class="fu">aes</span>(<span class="at">label =</span> label), </span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>            <span class="at">hjust =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">breaks =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">5</span>, <span class="dv">10</span>), <span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">12</span>)) <span class="sc">+</span></span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> letter, <span class="at">ncol =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">panel.background =</span> <span class="fu">element_rect</span>(<span class="at">fill =</span> <span class="fu">ghibli_palette</span>(<span class="st">"MarnieMedium1"</span>)[<span class="dv">6</span>]),</span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>        <span class="at">panel.grid =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>        <span class="at">strip.background =</span> <span class="fu">element_rect</span>(<span class="at">fill =</span> <span class="fu">ghibli_palette</span>(<span class="st">"MarnieMedium1"</span>)[<span class="dv">7</span>]))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="10_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid figure-img" width="576"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>We might plot our version of the final panel like so.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>d <span class="sc">|&gt;</span> </span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="co"># The next four lines are the same from above</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="at">.cols =</span> <span class="fu">everything</span>(), <span class="at">.fns =</span> \(x) x <span class="sc">/</span> <span class="fu">sum</span>(x))) <span class="sc">|&gt;</span> </span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="fu">everything</span>()) <span class="sc">|&gt;</span> </span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(name) <span class="sc">|&gt;</span> </span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">h =</span> <span class="sc">-</span><span class="fu">sum</span>(<span class="fu">ifelse</span>(value <span class="sc">==</span> <span class="dv">0</span>, <span class="dv">0</span>, value <span class="sc">*</span> <span class="fu">log</span>(value)))) <span class="sc">|&gt;</span> </span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Here's the R code 9.4 stuff</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">n_ways =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">90</span>, <span class="dv">1260</span>, <span class="dv">37800</span>, <span class="dv">113400</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(name) <span class="sc">|&gt;</span> </span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">log_ways =</span> <span class="fu">log</span>(n_ways) <span class="sc">/</span> <span class="dv">10</span>,</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>         <span class="at">text_y   =</span> <span class="fu">ifelse</span>(name <span class="sc">&lt;</span> <span class="st">"c"</span>, h <span class="sc">+</span> .<span class="dv">15</span>, h <span class="sc">-</span> .<span class="dv">15</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Plot</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> log_ways, <span class="at">y =</span> h)) <span class="sc">+</span></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_abline</span>(<span class="at">intercept =</span> <span class="dv">0</span>, <span class="at">slope =</span> <span class="fl">1.37</span>, <span class="at">color =</span> <span class="st">"white"</span>) <span class="sc">+</span></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="fl">2.5</span>, <span class="at">color =</span> <span class="fu">ghibli_palette</span>(<span class="st">"MarnieMedium1"</span>)[<span class="dv">7</span>]) <span class="sc">+</span></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="fu">aes</span>(<span class="at">y =</span> text_y, <span class="at">label =</span> name)) <span class="sc">+</span></span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"log(ways) per pebble"</span>,</span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"entropy"</span>) <span class="sc">+</span></span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">panel.background =</span> <span class="fu">element_rect</span>(<span class="at">fill =</span> <span class="fu">ghibli_palette</span>(<span class="st">"MarnieMedium1"</span>)[<span class="dv">6</span>]),</span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>        <span class="at">panel.grid =</span> <span class="fu">element_blank</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="10_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid figure-img" width="288"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>“The distribution that can happen the greatest number of ways is the most plausible distribution. Call this distribution the <strong>maximum entropy distribution</strong>” (p.&nbsp;303, <strong>emphasis</strong> in the original). Among the pebbles, the maximum entropy distribution was <code>e</code> (i.e., the uniform).</p>
+<section id="rethinking-what-good-is-intuition" class="level4" data-number="10.1.0.1">
+<h4 data-number="10.1.0.1" class="anchored" data-anchor-id="rethinking-what-good-is-intuition"><span class="header-section-number">10.1.0.1</span> Rethinking: What good is intuition?</h4>
+<p>“Like many aspects of information theory, maximum entropy is not very intuitive. But note that intuition is just a guide to developing methods. When a method works, it hardly matters whether our intuition agrees” (p.&nbsp;303).</p>
+</section>
+<section id="sec-Gaussian" class="level3" data-number="10.1.1">
+<h3 data-number="10.1.1" class="anchored" data-anchor-id="sec-Gaussian"><span class="header-section-number">10.1.1</span> Gaussian</h3>
+<p>Behold the probability density for the generalized normal distribution:</p>
+<p><span class="math display">\[\Pr (y \mid \mu, \alpha, \beta) = \frac{\beta}{2 \alpha \Gamma \left (\frac{1}{\beta} \right )} e ^ {- \left (\frac{|y - \mu|}{\alpha} \right ) ^ {\beta}},\]</span></p>
+<p>where <span class="math inline">\(\alpha =\)</span> the scale, <span class="math inline">\(\beta =\)</span> the shape, <span class="math inline">\(\mu =\)</span> the location, and <span class="math inline">\(\Gamma =\)</span> the <a href="https://en.wikipedia.org/wiki/Gamma_function">gamma function</a>. If you read closely in the text, you’ll discover that the densities in the right panel of Figure 10.2 were all created with the constraint <span class="math inline">\(\sigma^2 = 1\)</span>. But <span class="math inline">\(\sigma^2 \neq \alpha\)</span> and there’s no <span class="math inline">\(\sigma\)</span> in the equations in the text. However, it appears the variance for the generalized normal distribution follows the form</p>
+<p><span class="math display">\[\sigma^2 = \frac{\alpha^2 \Gamma (3/\beta)}{\Gamma (1/\beta)}.\]</span></p>
+<p>So if you do the algebra, you’ll see that you can compute <span class="math inline">\(\alpha\)</span> for a given <span class="math inline">\(\sigma^2\)</span> and <span class="math inline">\(\beta\)</span> with the equation</p>
+<p><span class="math display">\[\alpha = \sqrt{ \frac{\sigma^2 \Gamma (1/\beta)}{\Gamma (3/\beta)} }.\]</span></p>
+<p>I got the formula from <a href="https://en.wikipedia.org/wiki/Generalized_normal_distribution">Wikipedia.com</a>. Don’t judge. We can wrap that formula in a custom function, <code>alpha_per_beta()</code>, use it to solve for the desired <span class="math inline">\(\beta\)</span> values, and plot. But one more thing: McElreath didn’t tell us exactly which <span class="math inline">\(\beta\)</span> values the left panel of Figure 10.2 was based on. So the plot below is my best guess.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>alpha_per_beta <span class="ot">&lt;-</span> <span class="cf">function</span>(beta, <span class="at">variance =</span> <span class="dv">1</span>) {</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sqrt</span>((variance <span class="sc">*</span> <span class="fu">gamma</span>(<span class="dv">1</span> <span class="sc">/</span> beta)) <span class="sc">/</span> <span class="fu">gamma</span>(<span class="dv">3</span> <span class="sc">/</span> beta))</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="fu">crossing</span>(<span class="at">value =</span> <span class="fu">seq</span>(<span class="at">from =</span> <span class="sc">-</span><span class="dv">5</span>, <span class="at">to =</span> <span class="dv">5</span>, <span class="at">by =</span> <span class="fl">0.1</span>),</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>         <span class="co"># I arrived at these values by trial and error</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>         <span class="at">beta  =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="fl">1.5</span>, <span class="dv">2</span>, <span class="dv">4</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">mu    =</span> <span class="dv">0</span>,</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>         <span class="at">alpha =</span> <span class="fu">alpha_per_beta</span>(beta)) <span class="sc">|&gt;</span> </span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Behold the formula for the generalized normal distribution in code!</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">density =</span> (beta <span class="sc">/</span> (<span class="dv">2</span> <span class="sc">*</span> alpha <span class="sc">*</span> <span class="fu">gamma</span>(<span class="dv">1</span> <span class="sc">/</span> beta))) <span class="sc">*</span> </span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>           <span class="fu">exp</span>(<span class="dv">1</span>) <span class="sc">^</span> (<span class="sc">-</span><span class="dv">1</span> <span class="sc">*</span> (<span class="fu">abs</span>(value <span class="sc">-</span> mu) <span class="sc">/</span> alpha) <span class="sc">^</span> beta)) <span class="sc">|&gt;</span> </span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Plot</span></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> value, <span class="at">y =</span> density, <span class="at">group =</span> beta)) <span class="sc">+</span></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">color =</span> beta <span class="sc">==</span> <span class="dv">2</span>, <span class="at">linewidth =</span> beta <span class="sc">==</span> <span class="dv">2</span>)) <span class="sc">+</span></span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="fu">ghibli_palette</span>(<span class="st">"MarnieMedium2"</span>)[<span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">4</span>)])) <span class="sc">+</span></span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_linewidth_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="dv">1</span><span class="sc">/</span><span class="dv">4</span>, <span class="fl">1.25</span>)) <span class="sc">+</span></span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">subtitle =</span> <span class="st">"Guess which color denotes the Gaussian."</span>) <span class="sc">+</span></span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_cartesian</span>(<span class="at">xlim =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">4</span>, <span class="dv">4</span>)) <span class="sc">+</span></span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>,</span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>        <span class="at">panel.background =</span> <span class="fu">element_rect</span>(<span class="at">fill =</span> <span class="fu">ghibli_palette</span>(<span class="st">"MarnieMedium2"</span>)[<span class="dv">7</span>]),</span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>        <span class="at">panel.grid =</span> <span class="fu">element_blank</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="10_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid figure-img" width="336"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Once you have <span class="math inline">\(\alpha\)</span> and <span class="math inline">\(\beta\)</span>, the entropy equation for the generalized normal distribution is</p>
+<p><span class="math display">\[
+\text{entropy} = \frac{1}{\beta} -\log\left[\frac{\beta}{2\alpha\Gamma(1/\beta)}\right].
+\]</span></p>
+<p>Here’s how we can use that equation to make our version of right panel of Figure 10.2.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tibble</span>(<span class="at">beta =</span> <span class="fu">seq</span>(<span class="at">from =</span> <span class="dv">1</span>, <span class="at">to =</span> <span class="dv">4</span>, <span class="at">length.out =</span> <span class="dv">100</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">alpha =</span> <span class="fu">alpha_per_beta</span>(beta)) <span class="sc">|&gt;</span> </span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">entropy =</span> (<span class="dv">1</span> <span class="sc">/</span> beta) <span class="sc">-</span> <span class="fu">log</span>((beta) <span class="sc">/</span> (<span class="dv">2</span> <span class="sc">*</span> alpha <span class="sc">*</span> <span class="fu">gamma</span>(<span class="dv">1</span> <span class="sc">/</span> beta))))  <span class="sc">|&gt;</span> </span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> beta, <span class="at">y =</span> entropy)) <span class="sc">+</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="dv">2</span>, <span class="at">color =</span> <span class="st">"white"</span>) <span class="sc">+</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="dv">2</span>, <span class="at">color =</span> <span class="fu">ghibli_palette</span>(<span class="st">"MarnieMedium2"</span>)[<span class="dv">6</span>]) <span class="sc">+</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="fu">expression</span>(beta<span class="sc">~</span>(i.e.<span class="sc">*</span><span class="st">", "</span><span class="sc">*</span>shape))) <span class="sc">+</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">panel.background =</span> <span class="fu">element_rect</span>(<span class="at">fill =</span> <span class="fu">ghibli_palette</span>(<span class="st">"MarnieMedium2"</span>)[<span class="dv">7</span>]),</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>        <span class="at">panel.grid =</span> <span class="fu">element_blank</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="10_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid figure-img" width="336"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>I should note the solution to this plot was initially beyond me. However, fellow enthusiast <a href="https://github.com/hamedbh">Hamed Bastan-Hagh</a> generously shared the correct solution on <a href="https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed/issues/39">GitHub</a>.</p>
+<p>But getting back on track:</p>
+<blockquote class="blockquote">
+<p>The take-home lesson from all of this is that, if all we are willing to assume about a collection of measurements is that they have a finite variance, then the Gaussian distribution represents the most conservative probability distribution to assign to those measurements. But very often we are comfortable assuming something more. And in those cases, provided our assumptions are good ones, the principle of maximum entropy leads to distributions other than the Gaussian. (p.&nbsp;306)</p>
+</blockquote>
+</section>
+<section id="binomial" class="level3" data-number="10.1.2">
+<h3 data-number="10.1.2" class="anchored" data-anchor-id="binomial"><span class="header-section-number">10.1.2</span> Binomial</h3>
+<p>The binomial likelihood entails</p>
+<blockquote class="blockquote">
+<p>counting the numbers of ways that a given observation could arise, according to our assumptions. The resulting distribution is known as the <strong>binomial distribution</strong>. If only two things can happen (blue or white marble, for example), and there’s a constant chance <span class="math inline">\(p\)</span> of each across <span class="math inline">\(n\)</span> trials, then the probability of observing <span class="math inline">\(y\)</span> events of type 1 and <span class="math inline">\(n - y\)</span> events of type 2 is:</p>
+<p><span class="math display">\[\Pr (y \mid n, p) = \frac{n!}{y! (n - y)!} p^y (1 - p)^{n - y}\]</span></p>
+<p>It may help to note that the fraction with the factorials is just saying how many different ordered sequences of <span class="math inline">\(n\)</span> outcomes have a count of <span class="math inline">\(y\)</span>. (p.&nbsp;307, <strong>emphasis</strong> in the original)</p>
+</blockquote>
+<p>For me, that last sentence made more sense when I walked it out in an example. To do so, let’s wrap that fraction of factorials into a function.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>count_ways <span class="ot">&lt;-</span> <span class="cf">function</span>(n, y) {</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="co"># `n` is the total number of trials (i.e., the number of rows in your vector)</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="co"># `y` is the total number of 1s (i.e., successes) in your vector</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  (<span class="fu">factorial</span>(n) <span class="sc">/</span> (<span class="fu">factorial</span>(y) <span class="sc">*</span> <span class="fu">factorial</span>(n <span class="sc">-</span> y)))</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Now consider three sequences:</p>
+<ul>
+<li>0, 0, 0, 0 (i.e., <span class="math inline">\(n = 4\)</span> and <span class="math inline">\(y = 0\)</span>)</li>
+<li>1, 0, 0, 0 (i.e., <span class="math inline">\(n = 4\)</span> and <span class="math inline">\(y = 1\)</span>)</li>
+<li>1, 1, 0, 0 (i.e., <span class="math inline">\(n = 4\)</span> and <span class="math inline">\(y = 2\)</span>)</li>
+</ul>
+<p>We can organize that information in a little tibble and then demo our <code>count_ways()</code> function.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tibble</span>(<span class="at">sequence =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>,</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>       <span class="at">n        =</span> <span class="dv">4</span>,</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>       <span class="at">y        =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">2</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">n_ways =</span> <span class="fu">count_ways</span>(<span class="at">n =</span> n, <span class="at">y =</span> y))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 4
+  sequence     n     y n_ways
+     &lt;int&gt; &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;
+1        1     4     0      1
+2        2     4     1      4
+3        3     4     2      6</code></pre>
+</div>
+</div>
+<p>Here’s the pre-Figure 10.3 data McElreath presented on page 308.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Data</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">distribution =</span> letters[<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>],</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>            <span class="at">ww =</span> <span class="fu">c</span>(<span class="dv">1</span><span class="sc">/</span><span class="dv">4</span>, <span class="dv">2</span><span class="sc">/</span><span class="dv">6</span>, <span class="dv">1</span><span class="sc">/</span><span class="dv">6</span>, <span class="dv">1</span><span class="sc">/</span><span class="dv">8</span>),</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>            <span class="at">bw =</span> <span class="fu">c</span>(<span class="dv">1</span><span class="sc">/</span><span class="dv">4</span>, <span class="dv">1</span><span class="sc">/</span><span class="dv">6</span>, <span class="dv">2</span><span class="sc">/</span><span class="dv">6</span>, <span class="dv">4</span><span class="sc">/</span><span class="dv">8</span>),</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>            <span class="at">wb =</span> <span class="fu">c</span>(<span class="dv">1</span><span class="sc">/</span><span class="dv">4</span>, <span class="dv">1</span><span class="sc">/</span><span class="dv">6</span>, <span class="dv">2</span><span class="sc">/</span><span class="dv">6</span>, <span class="dv">2</span><span class="sc">/</span><span class="dv">8</span>),</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>            <span class="at">bb =</span> <span class="fu">c</span>(<span class="dv">1</span><span class="sc">/</span><span class="dv">4</span>, <span class="dv">2</span><span class="sc">/</span><span class="dv">6</span>, <span class="dv">1</span><span class="sc">/</span><span class="dv">6</span>, <span class="dv">1</span><span class="sc">/</span><span class="dv">8</span>))</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Table</span></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>d <span class="sc">|&gt;</span> </span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="at">.cols =</span> ww<span class="sc">:</span>bb, <span class="at">.fns =</span> \(x) MASS<span class="sc">::</span><span class="fu">fractions</span>(x) <span class="sc">|&gt;</span> <span class="fu">as.character</span>())) <span class="sc">|&gt;</span> </span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>  flextable<span class="sc">::</span><span class="fu">flextable</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="tabwid"><style>.cl-9acbcbe0{}.cl-9ac7e692{font-family:'Helvetica';font-size:11pt;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(0, 0, 0, 1.00);background-color:transparent;}.cl-9ac9791c{margin:0;text-align:left;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:5pt;padding-top:5pt;padding-left:5pt;padding-right:5pt;line-height: 1;background-color:transparent;}.cl-9ac9890c{width:0.75in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 1.5pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-9ac98916{width:0.75in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-9ac98917{width:0.75in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}</style><table data-quarto-disable-processing="true" class="cl-9acbcbe0"><thead><tr style="overflow-wrap:break-word;"><th class="cl-9ac9890c"><p class="cl-9ac9791c"><span class="cl-9ac7e692">distribution</span></p></th><th class="cl-9ac9890c"><p class="cl-9ac9791c"><span class="cl-9ac7e692">ww</span></p></th><th class="cl-9ac9890c"><p class="cl-9ac9791c"><span class="cl-9ac7e692">bw</span></p></th><th class="cl-9ac9890c"><p class="cl-9ac9791c"><span class="cl-9ac7e692">wb</span></p></th><th class="cl-9ac9890c"><p class="cl-9ac9791c"><span class="cl-9ac7e692">bb</span></p></th></tr></thead><tbody><tr style="overflow-wrap:break-word;"><td class="cl-9ac98916"><p class="cl-9ac9791c"><span class="cl-9ac7e692">a</span></p></td><td class="cl-9ac98916"><p class="cl-9ac9791c"><span class="cl-9ac7e692">1/4</span></p></td><td class="cl-9ac98916"><p class="cl-9ac9791c"><span class="cl-9ac7e692">1/4</span></p></td><td class="cl-9ac98916"><p class="cl-9ac9791c"><span class="cl-9ac7e692">1/4</span></p></td><td class="cl-9ac98916"><p class="cl-9ac9791c"><span class="cl-9ac7e692">1/4</span></p></td></tr><tr style="overflow-wrap:break-word;"><td class="cl-9ac98916"><p class="cl-9ac9791c"><span class="cl-9ac7e692">b</span></p></td><td class="cl-9ac98916"><p class="cl-9ac9791c"><span class="cl-9ac7e692">1/3</span></p></td><td class="cl-9ac98916"><p class="cl-9ac9791c"><span class="cl-9ac7e692">1/6</span></p></td><td class="cl-9ac98916"><p class="cl-9ac9791c"><span class="cl-9ac7e692">1/6</span></p></td><td class="cl-9ac98916"><p class="cl-9ac9791c"><span class="cl-9ac7e692">1/3</span></p></td></tr><tr style="overflow-wrap:break-word;"><td class="cl-9ac98916"><p class="cl-9ac9791c"><span class="cl-9ac7e692">c</span></p></td><td class="cl-9ac98916"><p class="cl-9ac9791c"><span class="cl-9ac7e692">1/6</span></p></td><td class="cl-9ac98916"><p class="cl-9ac9791c"><span class="cl-9ac7e692">1/3</span></p></td><td class="cl-9ac98916"><p class="cl-9ac9791c"><span class="cl-9ac7e692">1/3</span></p></td><td class="cl-9ac98916"><p class="cl-9ac9791c"><span class="cl-9ac7e692">1/6</span></p></td></tr><tr style="overflow-wrap:break-word;"><td class="cl-9ac98917"><p class="cl-9ac9791c"><span class="cl-9ac7e692">d</span></p></td><td class="cl-9ac98917"><p class="cl-9ac9791c"><span class="cl-9ac7e692">1/8</span></p></td><td class="cl-9ac98917"><p class="cl-9ac9791c"><span class="cl-9ac7e692">1/2</span></p></td><td class="cl-9ac98917"><p class="cl-9ac9791c"><span class="cl-9ac7e692">1/4</span></p></td><td class="cl-9ac98917"><p class="cl-9ac9791c"><span class="cl-9ac7e692">1/8</span></p></td></tr></tbody></table></div>
+</div>
+</div>
+<p>Those data take just a tiny bit of wrangling before they’re ready to plot in our version of Figure 10.3.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> d <span class="sc">|&gt;</span> </span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="sc">-</span>distribution,</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>               <span class="at">names_to =</span> <span class="st">"sequence"</span>, </span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>               <span class="at">values_to =</span> <span class="st">"probability"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">sequence =</span> <span class="fu">factor</span>(sequence, <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"ww"</span>, <span class="st">"bw"</span>, <span class="st">"wb"</span>, <span class="st">"bb"</span>)))</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>d  <span class="sc">|&gt;</span> </span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> sequence, <span class="at">y =</span> probability, <span class="at">group =</span> <span class="dv">1</span>)) <span class="sc">+</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">2</span>, <span class="at">color =</span> <span class="fu">ghibli_palette</span>(<span class="st">"PonyoMedium"</span>)[<span class="dv">4</span>]) <span class="sc">+</span></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">color =</span> <span class="fu">ghibli_palette</span>(<span class="st">"PonyoMedium"</span>)[<span class="dv">5</span>]) <span class="sc">+</span></span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="cn">NULL</span>, <span class="at">y =</span> <span class="cn">NULL</span>) <span class="sc">+</span></span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_cartesian</span>(<span class="at">ylim =</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> distribution) <span class="sc">+</span></span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.ticks.x =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>        <span class="at">panel.background =</span> <span class="fu">element_rect</span>(<span class="at">fill =</span> <span class="fu">ghibli_palette</span>(<span class="st">"PonyoMedium"</span>)[<span class="dv">2</span>]),</span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>        <span class="at">panel.grid =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>        <span class="at">strip.background =</span> <span class="fu">element_rect</span>(<span class="at">fill =</span> <span class="fu">ghibli_palette</span>(<span class="st">"PonyoMedium"</span>)[<span class="dv">6</span>]))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="10_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid figure-img" width="384"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>If we go step by step, we might count the expected value for each <code>distribution</code> like follows.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>d <span class="sc">|&gt;</span> </span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="co"># `str_count()` will count the number of times "b" occurs </span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="co"># within a given row of `sequence`</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">n_b =</span> <span class="fu">str_count</span>(sequence, <span class="st">"b"</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">product =</span> probability <span class="sc">*</span> n_b) <span class="sc">|&gt;</span> </span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(distribution) <span class="sc">|&gt;</span> </span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">expected_value =</span> <span class="fu">sum</span>(product))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 4 × 2
+  distribution expected_value
+  &lt;chr&gt;                 &lt;dbl&gt;
+1 a                         1
+2 b                         1
+3 c                         1
+4 d                         1</code></pre>
+</div>
+</div>
+<p>We can use the same <code>group_by()</code> strategy on the way to computing the entropy values.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>d <span class="sc">|&gt;</span> </span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(distribution) <span class="sc">|&gt;</span> </span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">entropy =</span> <span class="sc">-</span><span class="fu">sum</span>(probability <span class="sc">*</span> <span class="fu">log</span>(probability)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 4 × 2
+  distribution entropy
+  &lt;chr&gt;          &lt;dbl&gt;
+1 a               1.39
+2 b               1.33
+3 c               1.33
+4 d               1.21</code></pre>
+</div>
+</div>
+<p>Like in the text, <code>distribution == "a"</code> had the largest <code>entropy</code> of the four. In the next example, the <span class="math inline">\(\text{expected value} = 1.4\)</span> and <span class="math inline">\(p = 0.7\)</span>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fl">0.7</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>a <span class="ot">&lt;-</span> <span class="fu">c</span>((<span class="dv">1</span> <span class="sc">-</span> p)<span class="sc">^</span><span class="dv">2</span>, </span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>       p <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> p), </span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>       (<span class="dv">1</span> <span class="sc">-</span> p) <span class="sc">*</span> p, </span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>       p<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>a</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.09 0.21 0.21 0.49</code></pre>
+</div>
+</div>
+<p>Here’s the entropy for our distribution <code>a</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="sc">-</span><span class="fu">sum</span>(a <span class="sc">*</span> <span class="fu">log</span>(a))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1.221729</code></pre>
+</div>
+</div>
+<p>I’m going to alter McElreath’s simulation function from <strong>R</strong> code 10.9 to take a <code>seed</code> argument. In addition, I altered the names of the objects within the function and changed the output to a tibble that will also include the conditions “ww”, “bw”, “wb”, and “bb”.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>sim_p <span class="ot">&lt;-</span> <span class="cf">function</span>(seed, <span class="at">g =</span> <span class="fl">1.4</span>) {</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set.seed</span>(seed)</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>  x_123 <span class="ot">&lt;-</span> <span class="fu">runif</span>(<span class="dv">3</span>)</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>  x_4   <span class="ot">&lt;-</span> ((g) <span class="sc">*</span> <span class="fu">sum</span>(x_123) <span class="sc">-</span> x_123[<span class="dv">2</span>] <span class="sc">-</span> x_123[<span class="dv">3</span>]) <span class="sc">/</span> (<span class="dv">2</span> <span class="sc">-</span> g)</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>  z     <span class="ot">&lt;-</span> <span class="fu">sum</span>(<span class="fu">c</span>(x_123, x_4))</span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>  p     <span class="ot">&lt;-</span> <span class="fu">c</span>(x_123, x_4) <span class="sc">/</span> z</span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tibble</span>(<span class="at">h   =</span> <span class="sc">-</span><span class="fu">sum</span>(p <span class="sc">*</span> <span class="fu">log</span>(p)), </span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a>         <span class="at">p   =</span> p,</span>
+<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a>         <span class="at">key =</span> <span class="fu">factor</span>(<span class="fu">c</span>(<span class="st">"ww"</span>, <span class="st">"bw"</span>, <span class="st">"wb"</span>, <span class="st">"bb"</span>), <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"ww"</span>, <span class="st">"bw"</span>, <span class="st">"wb"</span>, <span class="st">"bb"</span>)))</span>
+<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>For a given <code>seed</code> and <code>g</code> value, our augmented <code>sim_p()</code> function returns a <span class="math inline">\(4 \times 3\)</span> tibble.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sim_p</span>(<span class="at">seed =</span> <span class="fl">9.9</span>, <span class="at">g =</span> <span class="fl">1.4</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 4 × 3
+      h      p key  
+  &lt;dbl&gt;  &lt;dbl&gt; &lt;fct&gt;
+1  1.02 0.197  ww   
+2  1.02 0.0216 bw   
+3  1.02 0.184  wb   
+4  1.02 0.597  bb   </code></pre>
+</div>
+</div>
+<p>So the next step is to determine how many replications we’d like, create a tibble with seed values ranging from 1 to that number, and then feed those <code>seed</code> values into <code>sim_p()</code> via <code>purrr::map2()</code>, which will return a nested tibble. We’ll then <code>unnest()</code> and take a peek.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co"># How many replications would you like?</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>n_rep <span class="ot">&lt;-</span> <span class="fl">1e5</span></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">seed =</span> <span class="dv">1</span><span class="sc">:</span>n_rep) <span class="sc">|&gt;</span> </span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">sim =</span> <span class="fu">map2</span>(<span class="at">.x =</span> seed, <span class="at">.y =</span> <span class="fl">1.4</span>, <span class="at">.f =</span> sim_p)) <span class="sc">|&gt;</span> </span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unnest</span>(sim)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Take a look.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(d)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 4
+   seed     h      p key  
+  &lt;int&gt; &lt;dbl&gt;  &lt;dbl&gt; &lt;fct&gt;
+1     1  1.21 0.108  ww   
+2     1  1.21 0.151  bw   
+3     1  1.21 0.233  wb   
+4     1  1.21 0.508  bb   
+5     2  1.21 0.0674 ww   
+6     2  1.21 0.256  bw   </code></pre>
+</div>
+</div>
+<p>In order to intelligently choose which four replications we want to highlight in Figure 10.4, we’ll want to rank order them by entropy, <code>h</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>ranked_d <span class="ot">&lt;-</span> d <span class="sc">|&gt;</span> </span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(seed) <span class="sc">|&gt;</span> </span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(h)) <span class="sc">|&gt;</span> </span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">|&gt;</span></span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Here's the rank order step</span></span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">rank =</span> <span class="fu">rep</span>(<span class="dv">1</span><span class="sc">:</span>n_rep, <span class="at">each =</span> <span class="dv">4</span>))</span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(ranked_d)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 5
+   seed     h      p key    rank
+  &lt;int&gt; &lt;dbl&gt;  &lt;dbl&gt; &lt;fct&gt; &lt;int&gt;
+1 55665  1.22 0.0903 ww        1
+2 55665  1.22 0.209  bw        1
+3 55665  1.22 0.210  wb        1
+4 55665  1.22 0.490  bb        1
+5 71132  1.22 0.0902 ww        2
+6 71132  1.22 0.210  bw        2</code></pre>
+</div>
+</div>
+<p>And we’ll also want a subset of the data to correspond to McElreath’s “A” through “D” distributions.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>subset_d <span class="ot">&lt;-</span> ranked_d <span class="sc">|&gt;</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>  <span class="co"># I arrived at these `rank` values by trial and error</span></span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(rank <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">87373</span>, n_rep <span class="sc">-</span> <span class="dv">1500</span>, n_rep <span class="sc">-</span> <span class="dv">10</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>  <span class="co"># I arrived at the `height` values by trial and error, too</span></span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">height       =</span> <span class="fu">rep</span>(<span class="fu">c</span>(<span class="dv">8</span>, <span class="fl">2.25</span>, <span class="fl">0.75</span>, <span class="fl">0.5</span>), <span class="at">each =</span> <span class="dv">4</span>),</span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>         <span class="at">distribution =</span> <span class="fu">rep</span>(letters[<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>], <span class="at">each =</span> <span class="dv">4</span>))</span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(subset_d)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 7
+   seed     h      p key    rank height distribution
+  &lt;int&gt; &lt;dbl&gt;  &lt;dbl&gt; &lt;fct&gt; &lt;int&gt;  &lt;dbl&gt; &lt;chr&gt;       
+1 55665 1.22  0.0903 ww        1   8    a           
+2 55665 1.22  0.209  bw        1   8    a           
+3 55665 1.22  0.210  wb        1   8    a           
+4 55665 1.22  0.490  bb        1   8    a           
+5 50981 1.000 0.0459 ww    87373   2.25 b           
+6 50981 1.000 0.0459 bw    87373   2.25 b           </code></pre>
+</div>
+</div>
+<p>We’re finally ready to make our version of the left panel of Figure 10.4.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> d <span class="sc">|&gt;</span> </span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> h)) <span class="sc">+</span></span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_density</span>(<span class="at">linewidth =</span> <span class="dv">0</span>, <span class="at">fill =</span> <span class="fu">ghibli_palette</span>(<span class="st">"LaputaMedium"</span>)[<span class="dv">3</span>],</span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>               <span class="at">adjust =</span> <span class="dv">1</span><span class="sc">/</span><span class="dv">4</span>) <span class="sc">+</span></span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Note the data statements for the next two geoms</span></span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_linerange</span>(<span class="at">data =</span> subset_d <span class="sc">|&gt;</span> <span class="fu">group_by</span>(seed) <span class="sc">|&gt;</span> <span class="fu">slice</span>(<span class="dv">1</span>),</span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>                 <span class="fu">aes</span>(<span class="at">ymin =</span> <span class="dv">0</span>, <span class="at">ymax =</span> height),</span>
+<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a>                 <span class="at">color =</span> <span class="fu">ghibli_palette</span>(<span class="st">"LaputaMedium"</span>)[<span class="dv">5</span>]) <span class="sc">+</span></span>
+<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="at">data =</span> subset_d <span class="sc">|&gt;</span> <span class="fu">group_by</span>(seed) <span class="sc">|&gt;</span> <span class="fu">slice</span>(<span class="dv">1</span>),</span>
+<span id="cb34-10"><a href="#cb34-10" aria-hidden="true" tabindex="-1"></a>            <span class="fu">aes</span>(<span class="at">y =</span> height <span class="sc">+</span> <span class="fl">0.5</span>, <span class="at">label =</span> distribution)) <span class="sc">+</span></span>
+<span id="cb34-11"><a href="#cb34-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="st">"Entropy"</span>, <span class="at">breaks =</span> <span class="fu">seq</span>(<span class="at">from =</span> <span class="fl">0.7</span>, <span class="at">to =</span> <span class="fl">1.2</span>, <span class="at">by =</span> <span class="fl">0.1</span>)) <span class="sc">+</span></span>
+<span id="cb34-12"><a href="#cb34-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">panel.background =</span> <span class="fu">element_rect</span>(<span class="at">fill =</span> <span class="fu">ghibli_palette</span>(<span class="st">"LaputaMedium"</span>)[<span class="dv">7</span>]),</span>
+<span id="cb34-13"><a href="#cb34-13" aria-hidden="true" tabindex="-1"></a>        <span class="at">panel.grid =</span> <span class="fu">element_blank</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Did you notice how our <code>adjust = 1/4</code> with <code>geom_density()</code> served a similar function to the <code>adj=0.1</code> in McElreath’s <code>dens()</code> code? Anyways, here we make the right panel and combine the two with <strong>patchwork</strong>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>p2 <span class="ot">&lt;-</span> ranked_d <span class="sc">|&gt;</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(rank <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">87373</span>, n_rep <span class="sc">-</span> <span class="dv">1500</span>, n_rep <span class="sc">-</span> <span class="dv">10</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">distribution =</span> <span class="fu">rep</span>(letters[<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>], <span class="at">each =</span> <span class="dv">4</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> key, <span class="at">y =</span> p, <span class="at">group =</span> <span class="dv">1</span>)) <span class="sc">+</span></span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">color =</span> <span class="fu">ghibli_palette</span>(<span class="st">"LaputaMedium"</span>)[<span class="dv">5</span>]) <span class="sc">+</span></span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">color =</span> <span class="fu">ghibli_palette</span>(<span class="st">"LaputaMedium"</span>)[<span class="dv">4</span>], <span class="at">size =</span> <span class="dv">2</span>, ) <span class="sc">+</span></span>
+<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="cn">NULL</span>, <span class="at">breaks =</span> <span class="cn">NULL</span>, <span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">0.75</span>)) <span class="sc">+</span></span>
+<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="cn">NULL</span>) <span class="sc">+</span></span>
+<span id="cb35-10"><a href="#cb35-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> distribution) <span class="sc">+</span></span>
+<span id="cb35-11"><a href="#cb35-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.ticks.x =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb35-12"><a href="#cb35-12" aria-hidden="true" tabindex="-1"></a>        <span class="at">panel.background =</span> <span class="fu">element_rect</span>(<span class="at">fill =</span> <span class="fu">ghibli_palette</span>(<span class="st">"LaputaMedium"</span>)[<span class="dv">7</span>]),</span>
+<span id="cb35-13"><a href="#cb35-13" aria-hidden="true" tabindex="-1"></a>        <span class="at">panel.grid =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb35-14"><a href="#cb35-14" aria-hidden="true" tabindex="-1"></a>        <span class="at">strip.background =</span> <span class="fu">element_rect</span>(<span class="at">fill =</span> <span class="fu">ghibli_palette</span>(<span class="st">"LaputaMedium"</span>)[<span class="dv">6</span>]))</span>
+<span id="cb35-15"><a href="#cb35-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-16"><a href="#cb35-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Combine and display</span></span>
+<span id="cb35-17"><a href="#cb35-17" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(patchwork)</span>
+<span id="cb35-18"><a href="#cb35-18" aria-hidden="true" tabindex="-1"></a>p1 <span class="sc">|</span> p2</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="10_files/figure-html/unnamed-chunk-24-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Because we simulated, our values won’t match up identically with those in the text. We got pretty close, eh?</p>
+<p>Since we saved our <code>sim_p()</code> output in a nested tibble, which we then <code>unnested()</code>, there’s no need to separate the entropy values from the distributional values the way McElreath did in his <strong>R</strong> code 10.11. If we wanted to determine our highest entropy value–and the corresponding <code>seed</code> and <code>p</code> values, while we’re at it–, we might execute something like this.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>ranked_d <span class="sc">|&gt;</span> </span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(key) <span class="sc">|&gt;</span> </span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(h)) <span class="sc">|&gt;</span> </span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice</span>(<span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 4 × 5
+# Groups:   key [4]
+   seed     h      p key    rank
+  &lt;int&gt; &lt;dbl&gt;  &lt;dbl&gt; &lt;fct&gt; &lt;int&gt;
+1 55665  1.22 0.0903 ww        1
+2 55665  1.22 0.209  bw        1
+3 55665  1.22 0.210  wb        1
+4 55665  1.22 0.490  bb        1</code></pre>
+</div>
+</div>
+<p>That maximum <code>h</code> value matched up nicely with the one in the text. If you look at the <code>p</code> column, you’ll see our values approximated McElreath’s <code>distribution</code> values, too. In both cases, they’re real close to the <code>a</code> values we computed, above.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>a</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.09 0.21 0.21 0.49</code></pre>
+</div>
+</div>
+<p>“All four of these distributions really do have expected value 1.4. But among the infinite distributions that satisfy this constraint, it is only the most even distribution, the exact one nominated by the binomial distribution, that has greatest entropy” (p.&nbsp;310).</p>
+</section>
+</section>
+<section id="generalized-linear-models" class="level2" data-number="10.2">
+<h2 data-number="10.2" class="anchored" data-anchor-id="generalized-linear-models"><span class="header-section-number">10.2</span> Generalized linear models</h2>
+<blockquote class="blockquote">
+<p>For an outcome variable that is continuous and far from any theoretical maximum or minimum, [a simple] Gaussian model has maximum entropy. But when the outcome variable is either discrete or bounded, a Gaussian likelihood is not the most powerful choice. (p.&nbsp;312)</p>
+</blockquote>
+<p>I winged the values for our Figure 10.5.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tibble</span>(<span class="at">x =</span> <span class="fu">seq</span>(<span class="at">from =</span> <span class="sc">-</span><span class="dv">1</span>, <span class="at">to =</span> <span class="dv">3</span>, <span class="at">by =</span> <span class="fl">0.01</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">probability =</span> <span class="fl">0.35</span> <span class="sc">+</span> x <span class="sc">*</span> <span class="fl">0.5</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> x, <span class="at">y =</span> probability)) <span class="sc">+</span></span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_rect</span>(<span class="at">xmin =</span> <span class="sc">-</span><span class="dv">1</span>, <span class="at">xmax =</span> <span class="dv">3</span>,</span>
+<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a>            <span class="at">ymin =</span> <span class="dv">0</span>,  <span class="at">ymax =</span> <span class="dv">1</span>,</span>
+<span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a>            <span class="at">fill =</span> <span class="fu">ghibli_palette</span>(<span class="st">"MononokeMedium"</span>)[<span class="dv">5</span>]) <span class="sc">+</span></span>
+<span id="cb40-8"><a href="#cb40-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">1</span>, <span class="at">linetype =</span> <span class="dv">2</span>, <span class="at">color =</span> <span class="fu">ghibli_palette</span>(<span class="st">"MononokeMedium"</span>)[<span class="dv">7</span>]) <span class="sc">+</span></span>
+<span id="cb40-9"><a href="#cb40-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">linetype =</span> probability <span class="sc">&gt;</span> <span class="dv">1</span>, <span class="at">color =</span> probability <span class="sc">&gt;</span> <span class="dv">1</span>),</span>
+<span id="cb40-10"><a href="#cb40-10" aria-hidden="true" tabindex="-1"></a>            <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb40-11"><a href="#cb40-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_segment</span>(<span class="at">x =</span> <span class="fl">1.3</span>, <span class="at">xend =</span> <span class="dv">3</span>,</span>
+<span id="cb40-12"><a href="#cb40-12" aria-hidden="true" tabindex="-1"></a>               <span class="at">y =</span> <span class="dv">1</span>, <span class="at">yend =</span> <span class="dv">1</span>,</span>
+<span id="cb40-13"><a href="#cb40-13" aria-hidden="true" tabindex="-1"></a>               <span class="at">linewidth =</span> <span class="dv">2</span><span class="sc">/</span><span class="dv">3</span>, <span class="at">color =</span> <span class="fu">ghibli_palette</span>(<span class="st">"MononokeMedium"</span>)[<span class="dv">3</span>]) <span class="sc">+</span></span>
+<span id="cb40-14"><a href="#cb40-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="at">geom =</span> <span class="st">"text"</span>,</span>
+<span id="cb40-15"><a href="#cb40-15" aria-hidden="true" tabindex="-1"></a>           <span class="at">x =</span> <span class="fl">1.28</span>, <span class="at">y =</span> <span class="fl">1.04</span>, <span class="at">hjust =</span> <span class="dv">1</span>,</span>
+<span id="cb40-16"><a href="#cb40-16" aria-hidden="true" tabindex="-1"></a>           <span class="at">label =</span> <span class="st">"This is why we need link functions"</span>,</span>
+<span id="cb40-17"><a href="#cb40-17" aria-hidden="true" tabindex="-1"></a>           <span class="at">color =</span> <span class="fu">ghibli_palette</span>(<span class="st">"MononokeMedium"</span>)[<span class="dv">4</span>], <span class="at">size =</span> <span class="fl">2.6</span>) <span class="sc">+</span> </span>
+<span id="cb40-18"><a href="#cb40-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">breaks =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">0.5</span>, <span class="dv">1</span>)) <span class="sc">+</span></span>
+<span id="cb40-19"><a href="#cb40-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="fu">ghibli_palette</span>(<span class="st">"MononokeMedium"</span>)[<span class="dv">3</span><span class="sc">:</span><span class="dv">4</span>])) <span class="sc">+</span></span>
+<span id="cb40-20"><a href="#cb40-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_cartesian</span>(<span class="at">xlim =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">2</span>),</span>
+<span id="cb40-21"><a href="#cb40-21" aria-hidden="true" tabindex="-1"></a>                  <span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">1.2</span>)) <span class="sc">+</span></span>
+<span id="cb40-22"><a href="#cb40-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>,</span>
+<span id="cb40-23"><a href="#cb40-23" aria-hidden="true" tabindex="-1"></a>        <span class="at">panel.background =</span> <span class="fu">element_rect</span>(<span class="at">fill =</span> <span class="fu">ghibli_palette</span>(<span class="st">"MononokeMedium"</span>)[<span class="dv">1</span>]),</span>
+<span id="cb40-24"><a href="#cb40-24" aria-hidden="true" tabindex="-1"></a>        <span class="at">panel.grid =</span> <span class="fu">element_blank</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="10_files/figure-html/unnamed-chunk-27-1.png" class="img-fluid figure-img" width="312"></p>
+</figure>
+</div>
+</div>
+</div>
+<blockquote class="blockquote">
+<p>Luckily, it’s easy to do better. By using all of our prior knowledge about the outcome variable, usually in the form of constraints on the possible values it can take, we can appeal to maximum entropy for the choice of distribution. Then all we have to do is generalize the linear regression strategy–replace a parameter describing the shape of the likelihood with a linear model–to probability distributions other than the Gaussian. (p.&nbsp;313)</p>
+</blockquote>
+<p>As we will see, doing better will often involve using link functions.</p>
+<section id="rethinking-the-scourge-of-histomancy" class="level4" data-number="10.2.0.1">
+<h4 data-number="10.2.0.1" class="anchored" data-anchor-id="rethinking-the-scourge-of-histomancy"><span class="header-section-number">10.2.0.1</span> Rethinking: The scourge of Histomancy</h4>
+<blockquote class="blockquote">
+<p>One strategy for choosing an outcome distribution is to plot the histogram of the outcome variable and, by gazing into its soul, decide what sort of distribution function to use. Call this strategy <strong>Histomancy</strong>, the ancient art of divining likelihood functions from empirical histograms. This sorcery is used, for example, when testing for normality before deciding whether or not to use a non-parametric procedure. Histomancy is a false god. (p.&nbsp;314, <strong>emphasis</strong> in the original)</p>
+</blockquote>
+<p>Stop worshiping at alter of this false god. Use domain knowledge and principles maximum entropy to pick your likelihoods.</p>
+</section>
+<section id="meet-the-family" class="level3" data-number="10.2.1">
+<h3 data-number="10.2.1" class="anchored" data-anchor-id="meet-the-family"><span class="header-section-number">10.2.1</span> Meet the family</h3>
+<blockquote class="blockquote">
+<p>The most common distributions used in statistical modeling are members of a family known as the <strong>exponential family</strong>. Every member of this family is a maximum entropy distribution, for some set of constraints. And conveniently, just about every other statistical modeling tradition employs the exact same distributions, even though they arrive at them via justifications other than maximum entropy. (p.&nbsp;314, <strong>emphasis</strong> in the original)</p>
+</blockquote>
+<p>Here are the Gamma and Exponential panels for Figure 10.6.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>length_out <span class="ot">&lt;-</span> <span class="dv">100</span></span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a><span class="fu">tibble</span>(<span class="at">x =</span> <span class="fu">seq</span>(<span class="at">from =</span> <span class="dv">0</span>, <span class="at">to =</span> <span class="dv">5</span>, <span class="at">length.out =</span> length_out)) <span class="sc">|&gt;</span> </span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Gamma       =</span> <span class="fu">dgamma</span>(x, <span class="at">shape =</span> <span class="dv">2</span>, <span class="at">rate =</span> <span class="dv">2</span>),</span>
+<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a>         <span class="at">Exponential =</span> <span class="fu">dexp</span>(x)) <span class="sc">|&gt;</span> </span>
+<span id="cb41-6"><a href="#cb41-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="sc">-</span>x, <span class="at">values_to =</span> <span class="st">"density"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb41-7"><a href="#cb41-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">label =</span> <span class="fu">ifelse</span>(name <span class="sc">==</span> <span class="st">"Gamma"</span>, <span class="st">"y %~% Gamma(lambda, kappa)"</span>, <span class="st">"y %~% Exponential(lambda)"</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb41-8"><a href="#cb41-8" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb41-9"><a href="#cb41-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> x, <span class="at">y =</span> density)) <span class="sc">+</span></span>
+<span id="cb41-10"><a href="#cb41-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_area</span>(<span class="at">fill =</span> <span class="fu">ghibli_palette</span>(<span class="st">"SpiritedMedium"</span>)[<span class="dv">3</span>]) <span class="sc">+</span></span>
+<span id="cb41-11"><a href="#cb41-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="cn">NULL</span>, <span class="at">breaks =</span> <span class="cn">NULL</span>) <span class="sc">+</span></span>
+<span id="cb41-12"><a href="#cb41-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="cn">NULL</span>, <span class="at">breaks =</span> <span class="cn">NULL</span>) <span class="sc">+</span></span>
+<span id="cb41-13"><a href="#cb41-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_cartesian</span>(<span class="at">xlim =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">4</span>)) <span class="sc">+</span></span>
+<span id="cb41-14"><a href="#cb41-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> label, <span class="at">scales =</span> <span class="st">"free_y"</span>, <span class="at">labeller =</span> label_parsed) <span class="sc">+</span></span>
+<span id="cb41-15"><a href="#cb41-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">panel.background =</span> <span class="fu">element_rect</span>(<span class="at">fill =</span> <span class="fu">ghibli_palette</span>(<span class="st">"SpiritedMedium"</span>)[<span class="dv">5</span>]),</span>
+<span id="cb41-16"><a href="#cb41-16" aria-hidden="true" tabindex="-1"></a>        <span class="at">panel.grid =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb41-17"><a href="#cb41-17" aria-hidden="true" tabindex="-1"></a>        <span class="at">strip.background =</span> <span class="fu">element_rect</span>(<span class="at">fill =</span> <span class="fu">ghibli_palette</span>(<span class="st">"SpiritedMedium"</span>)[<span class="dv">7</span>]))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="10_files/figure-html/unnamed-chunk-28-1.png" class="img-fluid figure-img" width="576"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The Gaussian:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tibble</span>(<span class="at">x =</span> <span class="fu">seq</span>(<span class="at">from =</span> <span class="sc">-</span><span class="dv">5</span>, <span class="at">to =</span> <span class="dv">5</span>, <span class="at">length.out =</span> length_out)) <span class="sc">|&gt;</span> </span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">density =</span> <span class="fu">dnorm</span>(x),</span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>         <span class="at">strip   =</span> <span class="st">"y %~% Normal(mu, sigma)"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb42-5"><a href="#cb42-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> x, <span class="at">y =</span> density)) <span class="sc">+</span></span>
+<span id="cb42-6"><a href="#cb42-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_area</span>(<span class="at">fill =</span> <span class="fu">ghibli_palette</span>(<span class="st">"SpiritedMedium"</span>)[<span class="dv">3</span>]) <span class="sc">+</span></span>
+<span id="cb42-7"><a href="#cb42-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="cn">NULL</span>, <span class="at">breaks =</span> <span class="cn">NULL</span>) <span class="sc">+</span></span>
+<span id="cb42-8"><a href="#cb42-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="cn">NULL</span>, <span class="at">breaks =</span> <span class="cn">NULL</span>) <span class="sc">+</span></span>
+<span id="cb42-9"><a href="#cb42-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_cartesian</span>(<span class="at">xlim =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">4</span>, <span class="dv">4</span>)) <span class="sc">+</span></span>
+<span id="cb42-10"><a href="#cb42-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> strip, <span class="at">labeller =</span> label_parsed) <span class="sc">+</span></span>
+<span id="cb42-11"><a href="#cb42-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">panel.background =</span> <span class="fu">element_rect</span>(<span class="at">fill =</span> <span class="fu">ghibli_palette</span>(<span class="st">"SpiritedMedium"</span>)[<span class="dv">5</span>]),</span>
+<span id="cb42-12"><a href="#cb42-12" aria-hidden="true" tabindex="-1"></a>        <span class="at">panel.grid =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb42-13"><a href="#cb42-13" aria-hidden="true" tabindex="-1"></a>        <span class="at">strip.background =</span> <span class="fu">element_rect</span>(<span class="at">fill =</span> <span class="fu">ghibli_palette</span>(<span class="st">"SpiritedMedium"</span>)[<span class="dv">7</span>]))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="10_files/figure-html/unnamed-chunk-29-1.png" class="img-fluid figure-img" width="288"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Here is the Poisson.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tibble</span>(<span class="at">x =</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">20</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">density =</span> <span class="fu">dpois</span>(x, <span class="at">lambda =</span> <span class="fl">2.5</span>),</span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>         <span class="at">strip   =</span> <span class="st">"y %~% Poisson(lambda)"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> x, <span class="at">y =</span> density)) <span class="sc">+</span></span>
+<span id="cb43-6"><a href="#cb43-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>(<span class="at">fill =</span> <span class="fu">ghibli_palette</span>(<span class="st">"SpiritedMedium"</span>)[<span class="dv">2</span>], <span class="at">width =</span> <span class="dv">1</span><span class="sc">/</span><span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb43-7"><a href="#cb43-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="cn">NULL</span>, <span class="at">breaks =</span> <span class="cn">NULL</span>) <span class="sc">+</span></span>
+<span id="cb43-8"><a href="#cb43-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="cn">NULL</span>, <span class="at">breaks =</span> <span class="cn">NULL</span>) <span class="sc">+</span></span>
+<span id="cb43-9"><a href="#cb43-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_cartesian</span>(<span class="at">xlim =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">10</span>)) <span class="sc">+</span></span>
+<span id="cb43-10"><a href="#cb43-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> strip, <span class="at">labeller =</span> label_parsed) <span class="sc">+</span></span>
+<span id="cb43-11"><a href="#cb43-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">panel.background =</span> <span class="fu">element_rect</span>(<span class="at">fill =</span> <span class="fu">ghibli_palette</span>(<span class="st">"SpiritedMedium"</span>)[<span class="dv">5</span>]),</span>
+<span id="cb43-12"><a href="#cb43-12" aria-hidden="true" tabindex="-1"></a>        <span class="at">panel.grid =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb43-13"><a href="#cb43-13" aria-hidden="true" tabindex="-1"></a>        <span class="at">strip.background =</span> <span class="fu">element_rect</span>(<span class="at">fill =</span> <span class="fu">ghibli_palette</span>(<span class="st">"SpiritedMedium"</span>)[<span class="dv">7</span>]))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="10_files/figure-html/unnamed-chunk-30-1.png" class="img-fluid figure-img" width="288"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Finally, the Binomial:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tibble</span>(<span class="at">x =</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">10</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">density =</span> <span class="fu">dbinom</span>(x, <span class="at">size =</span> <span class="dv">10</span>, <span class="at">prob =</span> <span class="fl">0.85</span>),</span>
+<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a>         <span class="at">strip   =</span> <span class="st">"y %~% Binomial(n, p)"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb44-4"><a href="#cb44-4" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb44-5"><a href="#cb44-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> x, <span class="at">y =</span> density)) <span class="sc">+</span></span>
+<span id="cb44-6"><a href="#cb44-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>(<span class="at">fill =</span> <span class="fu">ghibli_palette</span>(<span class="st">"SpiritedMedium"</span>)[<span class="dv">2</span>], <span class="at">width =</span> <span class="dv">1</span><span class="sc">/</span><span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb44-7"><a href="#cb44-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="cn">NULL</span>, <span class="at">breaks =</span> <span class="cn">NULL</span>) <span class="sc">+</span></span>
+<span id="cb44-8"><a href="#cb44-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="cn">NULL</span>, <span class="at">breaks =</span> <span class="cn">NULL</span>) <span class="sc">+</span></span>
+<span id="cb44-9"><a href="#cb44-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_cartesian</span>(<span class="at">xlim =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">10</span>)) <span class="sc">+</span></span>
+<span id="cb44-10"><a href="#cb44-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> strip, <span class="at">labeller =</span> label_parsed) <span class="sc">+</span></span>
+<span id="cb44-11"><a href="#cb44-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">panel.background =</span> <span class="fu">element_rect</span>(<span class="at">fill =</span> <span class="fu">ghibli_palette</span>(<span class="st">"SpiritedMedium"</span>)[<span class="dv">5</span>]),</span>
+<span id="cb44-12"><a href="#cb44-12" aria-hidden="true" tabindex="-1"></a>        <span class="at">panel.grid =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb44-13"><a href="#cb44-13" aria-hidden="true" tabindex="-1"></a>        <span class="at">strip.background =</span> <span class="fu">element_rect</span>(<span class="at">fill =</span> <span class="fu">ghibli_palette</span>(<span class="st">"SpiritedMedium"</span>)[<span class="dv">7</span>]))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="10_files/figure-html/unnamed-chunk-31-1.png" class="img-fluid figure-img" width="288"></p>
+</figure>
+</div>
+</div>
+</div>
+<section id="rethinking-a-likelihood-is-a-prior" class="level4" data-number="10.2.1.1">
+<h4 data-number="10.2.1.1" class="anchored" data-anchor-id="rethinking-a-likelihood-is-a-prior"><span class="header-section-number">10.2.1.1</span> Rethinking: A likelihood is a prior</h4>
+<blockquote class="blockquote">
+<p>In traditional statistics, likelihood functions are “objective” and prior distributions “subjective.” In Bayesian statistics, likelihoods are deeply related to prior probability distributions: They are priors for the data, conditional on the parameters. And just like with other priors, there is no correct likelihood. But there are better and worse likelihoods, depending upon the context. (p.&nbsp;316)</p>
+</blockquote>
+<p>For a little more in this, check out McElreath’s great lecture, <a href="https://youtu.be/yakg94HyWdE">Bayesian statistics without frequentist language</a>. This subsection also reminds me of the title of one of Gelman’s blog posts, <a href="https://statmodeling.stat.columbia.edu/2015/01/27/perhaps-merely-accident-history-skeptics-subjectivists-alike-strain-gnat-prior-distribution-swallowing-camel-likelihood/"><em>“It is perhaps merely an accident of history that skeptics and subjectivists alike strain on the gnat of the prior distribution while swallowing the camel that is the likelihood”</em></a>. The title, which itself is a quote, comes from one of his papers, which he linked to in the blog, along with several related papers. It’s taken some time for the weight of that quote to sink in with me, and indeed it’s still sinking. Perhaps you’ll benefit from it, too.</p>
+</section>
+</section>
+<section id="sec-Linking-linear-models-to-distributions" class="level3" data-number="10.2.2">
+<h3 data-number="10.2.2" class="anchored" data-anchor-id="sec-Linking-linear-models-to-distributions"><span class="header-section-number">10.2.2</span> Linking linear models to distributions</h3>
+<blockquote class="blockquote">
+<p>To build a regression model from any of the exponential family distributions is just a matter of attaching one or more linear models to one or more of the parameters that describe the distribution’s shape. But as hinted at earlier, usually we require a <strong>link function</strong> to prevent mathematical accidents like negative distances or probability masses that exceed 1. (p.&nbsp;316, <strong>emphasis</strong> in the original)</p>
+</blockquote>
+<p>These models generally follow the form</p>
+<p><span class="math display">\[\begin{align*}
+y_i         &amp; \sim \color{#4D6D93}{\operatorname{Some distribution}} (\theta_i, \phi) \\
+\color{#4D6D93}{f(\theta_i)} &amp; = \alpha + \beta (x_i - \bar x),
+\end{align*}\]</span></p>
+<p>where <span class="math inline">\(\theta_i\)</span> is a parameter of central interest (e.g., the probability of 1 in a Binomial distribution) and <span class="math inline">\(\phi\)</span> is a placeholder for any other parameters necessary for the likelihood but not typically of primary substantive interest (e.g., <span class="math inline">\(\sigma\)</span> in conventional Gaussian models). The <span class="math inline">\(f(\cdot)\)</span> portion is the link function.</p>
+<p>Speaking about links,</p>
+<blockquote class="blockquote">
+<p>the <strong>logit link</strong> maps a parameter that is defined as a probability mass, and therefore constrained to lie between zero and one, onto a linear model that can take on any real value. This link is extremely common when working with binomial GLMs. In the context of a model definition, it looks like this:</p>
+<p><span class="math display">\[\begin{align*}
+y_i &amp; \sim \color{#4D6D93}{\operatorname{Binomial}}(n, p_i) \\
+\color{#4D6D93}{\operatorname{logit}}(p_i) &amp; = \alpha + \beta x_i
+\end{align*}\]</span></p>
+<p>And the logit function itself is defined as the <em>log-odds:</em></p>
+<p><span class="math display">\[\operatorname{logit}(p_i) = \log \frac{p_i}{1 - p_i}\]</span></p>
+<p>The “odds” of an event are just the probability it happens divided by the probability it does not happen. So really all that is being stated here is:</p>
+<p><span class="math display">\[\log \frac{p_i}{1 - p_i} = \alpha + \beta x_i\]</span></p>
+</blockquote>
+<p>If we do the final algebraic manipulation on page 317, we can solve for <span class="math inline">\(p_i\)</span> in terms of the linear model</p>
+<p><span class="math display">\[p_i = \frac{\exp (\alpha + \beta x_i)}{1 + \exp (\alpha + \beta x_i)}.\]</span></p>
+<p>As we’ll see later, we will make great use of this formula via the <code>plogis()</code> function when making sense of logistic regression models. Now we have that last formula in hand, we can make the data necessary for Figure 10.7.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="co"># First, we'll make data for the horizontal lines</span></span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>alpha <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a>beta  <span class="ot">&lt;-</span> <span class="dv">4</span></span>
+<span id="cb45-4"><a href="#cb45-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb45-5"><a href="#cb45-5" aria-hidden="true" tabindex="-1"></a>lines <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">x =</span> <span class="fu">seq</span>(<span class="at">from =</span> <span class="sc">-</span><span class="dv">1</span>, <span class="at">to =</span> <span class="dv">1</span>, <span class="at">by =</span> <span class="fl">0.25</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb45-6"><a href="#cb45-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="st">`</span><span class="at">log-odds</span><span class="st">`</span>  <span class="ot">=</span> alpha <span class="sc">+</span> x <span class="sc">*</span> beta,</span>
+<span id="cb45-7"><a href="#cb45-7" aria-hidden="true" tabindex="-1"></a>         <span class="at">probability =</span> <span class="fu">exp</span>(alpha <span class="sc">+</span> x <span class="sc">*</span> beta) <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">+</span> <span class="fu">exp</span>(alpha <span class="sc">+</span> x <span class="sc">*</span> beta)))</span>
+<span id="cb45-8"><a href="#cb45-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb45-9"><a href="#cb45-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Now we're ready to make the primary data</span></span>
+<span id="cb45-10"><a href="#cb45-10" aria-hidden="true" tabindex="-1"></a>beta  <span class="ot">&lt;-</span> <span class="dv">2</span></span>
+<span id="cb45-11"><a href="#cb45-11" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">x =</span> <span class="fu">seq</span>(<span class="at">from =</span> <span class="sc">-</span><span class="fl">1.5</span>, <span class="at">to =</span> <span class="fl">1.5</span>, <span class="at">length.out =</span> <span class="dv">50</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb45-12"><a href="#cb45-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="st">`</span><span class="at">log-odds</span><span class="st">`</span>  <span class="ot">=</span> alpha <span class="sc">+</span> x <span class="sc">*</span> beta,</span>
+<span id="cb45-13"><a href="#cb45-13" aria-hidden="true" tabindex="-1"></a>         <span class="at">probability =</span> <span class="fu">exp</span>(alpha <span class="sc">+</span> x <span class="sc">*</span> beta) <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">+</span> <span class="fu">exp</span>(alpha <span class="sc">+</span> x <span class="sc">*</span> beta))) </span>
+<span id="cb45-14"><a href="#cb45-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb45-15"><a href="#cb45-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Now we make the individual plots</span></span>
+<span id="cb45-16"><a href="#cb45-16" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> d <span class="sc">|&gt;</span> </span>
+<span id="cb45-17"><a href="#cb45-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> x, <span class="at">y =</span> <span class="st">`</span><span class="at">log-odds</span><span class="st">`</span>)) <span class="sc">+</span></span>
+<span id="cb45-18"><a href="#cb45-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">data =</span> lines,</span>
+<span id="cb45-19"><a href="#cb45-19" aria-hidden="true" tabindex="-1"></a>             <span class="fu">aes</span>(<span class="at">yintercept =</span> <span class="st">`</span><span class="at">log-odds</span><span class="st">`</span>),</span>
+<span id="cb45-20"><a href="#cb45-20" aria-hidden="true" tabindex="-1"></a>             <span class="at">color =</span> <span class="fu">ghibli_palette</span>(<span class="st">"YesterdayMedium"</span>)[<span class="dv">6</span>]) <span class="sc">+</span></span>
+<span id="cb45-21"><a href="#cb45-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">color =</span> <span class="fu">ghibli_palette</span>(<span class="st">"YesterdayMedium"</span>)[<span class="dv">3</span>], <span class="at">linewidth =</span> <span class="fl">1.5</span>) <span class="sc">+</span></span>
+<span id="cb45-22"><a href="#cb45-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_cartesian</span>(<span class="at">xlim =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="dv">1</span>)) <span class="sc">+</span></span>
+<span id="cb45-23"><a href="#cb45-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">panel.background =</span> <span class="fu">element_rect</span>(<span class="at">fill =</span> <span class="fu">ghibli_palette</span>(<span class="st">"YesterdayMedium"</span>)[<span class="dv">5</span>]),</span>
+<span id="cb45-24"><a href="#cb45-24" aria-hidden="true" tabindex="-1"></a>        <span class="at">panel.grid =</span> <span class="fu">element_blank</span>())</span>
+<span id="cb45-25"><a href="#cb45-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb45-26"><a href="#cb45-26" aria-hidden="true" tabindex="-1"></a>p2 <span class="ot">&lt;-</span> d <span class="sc">|&gt;</span> </span>
+<span id="cb45-27"><a href="#cb45-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> x, <span class="at">y =</span> probability)) <span class="sc">+</span></span>
+<span id="cb45-28"><a href="#cb45-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">data =</span> lines,</span>
+<span id="cb45-29"><a href="#cb45-29" aria-hidden="true" tabindex="-1"></a>             <span class="fu">aes</span>(<span class="at">yintercept =</span> probability),</span>
+<span id="cb45-30"><a href="#cb45-30" aria-hidden="true" tabindex="-1"></a>             <span class="at">color =</span> <span class="fu">ghibli_palette</span>(<span class="st">"YesterdayMedium"</span>)[<span class="dv">6</span>]) <span class="sc">+</span></span>
+<span id="cb45-31"><a href="#cb45-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">color =</span> <span class="fu">ghibli_palette</span>(<span class="st">"YesterdayMedium"</span>)[<span class="dv">3</span>], <span class="at">linewidth =</span> <span class="fl">1.5</span>) <span class="sc">+</span></span>
+<span id="cb45-32"><a href="#cb45-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_cartesian</span>(<span class="at">xlim =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="dv">1</span>)) <span class="sc">+</span></span>
+<span id="cb45-33"><a href="#cb45-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">panel.background =</span> <span class="fu">element_rect</span>(<span class="at">fill =</span> <span class="fu">ghibli_palette</span>(<span class="st">"YesterdayMedium"</span>)[<span class="dv">7</span>]),</span>
+<span id="cb45-34"><a href="#cb45-34" aria-hidden="true" tabindex="-1"></a>        <span class="at">panel.grid =</span> <span class="fu">element_blank</span>())</span>
+<span id="cb45-35"><a href="#cb45-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb45-36"><a href="#cb45-36" aria-hidden="true" tabindex="-1"></a><span class="co"># Finally, we're ready to mash the plots together and behold their nerdy glory</span></span>
+<span id="cb45-37"><a href="#cb45-37" aria-hidden="true" tabindex="-1"></a>(p1 <span class="sc">|</span> p2) <span class="sc">+</span></span>
+<span id="cb45-38"><a href="#cb45-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot_annotation</span>(<span class="at">subtitle =</span> <span class="st">"The logit link transforms a linear model (left) into a probability (right)."</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="10_files/figure-html/unnamed-chunk-32-1.png" class="img-fluid figure-img" width="576"></p>
+</figure>
+</div>
+</div>
+</div>
+<blockquote class="blockquote">
+<p>The key lesson for now is just that no regression coefficient, such as <span class="math inline">\(\beta\)</span>, from a GLM ever produces a constant change on the outcome scale. Recall that we defined interaction (<a href="08.html" class="quarto-xref"><span>Chapter 8</span></a>) as a situation in which the effect of a predictor depends upon the value of another predictor. Well now every predictor essentially interacts with itself, because the impact of a change in a predictor depends upon the value of the predictor before the change….</p>
+<p>The second very common link function is the <strong>log link</strong>. This link function maps a parameter that is defined over only positive real values onto a linear model. For example, suppose we want to model the standard deviation <span class="math inline">\(\sigma\)</span> of a Gaussian distribution so it is a function of a predictor variable <span class="math inline">\(x\)</span>. The parameter <span class="math inline">\(\sigma\)</span> must be positive, because a standard deviation cannot be negative nor can it be zero. The model might look like:</p>
+<p><span class="math display">\[\begin{align*}
+y_i &amp; \sim \operatorname{Normal}(\mu, \color{#0E84B4}{\sigma_i}) \\
+\color{#0E84B4}{\log (\sigma_i)} &amp; = \alpha + \beta x_i
+\end{align*}\]</span></p>
+<p>In this model, the mean <span class="math inline">\(\mu\)</span> is constant, but the standard deviation scales with the value <span class="math inline">\(x_i\)</span>. (p.&nbsp;318, <strong>emphasis</strong> in the original)</p>
+</blockquote>
+<p>This kind of model is trivial in the <strong>brms</strong> framework, which you can learn more about in Bürkner’s <span class="citation" data-cites="Bürkner2022Distributional">(<a href="references.html#ref-Bürkner2022Distributional" role="doc-biblioref">2022</a>)</span> vignette, <a href="https://cran.r-project.org/package=brms/vignettes/brms_distreg.html"><em>Estimating distributional models with brms</em></a>. Before moving on with the text, let’s detour and see how we might fit such a model. First, we’ll simulate some continuous data <code>y</code> for which the <span class="math inline">\(\textit{SD}\)</span> is affected by a dummy variable <code>x</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">10</span>)</span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">x =</span> <span class="fu">rep</span>(<span class="dv">0</span><span class="sc">:</span><span class="dv">1</span>, <span class="at">each =</span> <span class="dv">100</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">y =</span> <span class="fu">rnorm</span>(<span class="at">n =</span> <span class="fu">n</span>(), <span class="at">mean =</span> <span class="dv">100</span>, <span class="at">sd =</span> <span class="dv">10</span> <span class="sc">+</span> x <span class="sc">*</span> <span class="dv">10</span>))</span>
+<span id="cb46-5"><a href="#cb46-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-6"><a href="#cb46-6" aria-hidden="true" tabindex="-1"></a>d</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 200 × 2
+       x     y
+   &lt;int&gt; &lt;dbl&gt;
+ 1     0 100. 
+ 2     0  98.2
+ 3     0  86.3
+ 4     0  94.0
+ 5     0 103. 
+ 6     0 104. 
+ 7     0  87.9
+ 8     0  96.4
+ 9     0  83.7
+10     0  97.4
+# ℹ 190 more rows</code></pre>
+</div>
+</div>
+<p>These data are based on IQ data. In psychology, general intelligence is often operationalized by and measured with standardized intelligence tests. The results from these tests are often summarized with an a single intelligence quotient (IQ) score, often called the full-scale IQ score. For many years now, the convention within among IQ test developers is to scale full-scale IQ scores so they have a population mean of 100 and a standard deviation of 15. One of the old and continuing controversies in the literature is whether men and women differ not in their means–they don’t–but in their standard deviations <span class="citation" data-cites="johnsonSexDifferencesVariability2008">(e.g., <a href="references.html#ref-johnsonSexDifferencesVariability2008" role="doc-biblioref">Johnson et al., 2008</a>)</span>. To give a sense of how one might explore such a controversy, we simulated data where the <code>y</code> variables have a mean of 100 and standard deviations of either 10 or 20, depending on one’s status on <code>x</code>. We can view what data like these look like with aid from <code>tidybayes::stat_halfeye()</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidybayes)</span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a>d <span class="sc">|&gt;</span> </span>
+<span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">x =</span> x <span class="sc">|&gt;</span> <span class="fu">as.character</span>()) <span class="sc">|&gt;</span> </span>
+<span id="cb48-5"><a href="#cb48-5" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb48-6"><a href="#cb48-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> y, <span class="at">y =</span> x, <span class="at">fill =</span> x)) <span class="sc">+</span></span>
+<span id="cb48-7"><a href="#cb48-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_halfeye</span>(<span class="at">point_interval =</span> mean_qi, <span class="at">.width =</span> <span class="fl">0.68</span>,</span>
+<span id="cb48-8"><a href="#cb48-8" aria-hidden="true" tabindex="-1"></a>               <span class="at">color =</span> <span class="fu">ghibli_palette</span>(<span class="st">"KikiMedium"</span>)[<span class="dv">2</span>]) <span class="sc">+</span></span>
+<span id="cb48-9"><a href="#cb48-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="fu">ghibli_palette</span>(<span class="st">"KikiMedium"</span>)[<span class="fu">c</span>(<span class="dv">4</span>, <span class="dv">6</span>)])) <span class="sc">+</span></span>
+<span id="cb48-10"><a href="#cb48-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_cartesian</span>(<span class="at">ylim =</span> <span class="fu">c</span>(<span class="fl">1.5</span>, <span class="dv">2</span>)) <span class="sc">+</span></span>
+<span id="cb48-11"><a href="#cb48-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.ticks.y =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb48-12"><a href="#cb48-12" aria-hidden="true" tabindex="-1"></a>        <span class="at">legend.position =</span> <span class="st">"none"</span>,</span>
+<span id="cb48-13"><a href="#cb48-13" aria-hidden="true" tabindex="-1"></a>        <span class="at">panel.background =</span> <span class="fu">element_rect</span>(<span class="at">fill =</span> <span class="fu">ghibli_palette</span>(<span class="st">"KikiMedium"</span>)[<span class="dv">7</span>]),</span>
+<span id="cb48-14"><a href="#cb48-14" aria-hidden="true" tabindex="-1"></a>        <span class="at">panel.grid =</span> <span class="fu">element_blank</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="10_files/figure-html/unnamed-chunk-34-1.png" class="img-fluid figure-img" width="336"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Even though the means of <code>y</code> are the same for both levels of the <code>x</code> dummy, the variance for <code>x == 1</code> is substantially larger than that for <code>x == 0</code>. Let’s open <strong>brms</strong>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(brms)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>For such a model, we have two formulas: one for <span class="math inline">\(\mu\)</span> and one for <span class="math inline">\(\sigma\)</span>. We wrap both within the <code>bf()</code> function.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a>b10<span class="fl">.1</span> <span class="ot">&lt;-</span> <span class="fu">brm</span>(</span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> d,</span>
+<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> gaussian,</span>
+<span id="cb50-4"><a href="#cb50-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bf</span>(y <span class="sc">~</span> <span class="dv">1</span>, sigma <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> x),</span>
+<span id="cb50-5"><a href="#cb50-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">prior =</span> <span class="fu">c</span>(<span class="fu">prior</span>(<span class="fu">normal</span>(<span class="dv">100</span>, <span class="dv">5</span>), <span class="at">class =</span> Intercept),</span>
+<span id="cb50-6"><a href="#cb50-6" aria-hidden="true" tabindex="-1"></a>            <span class="fu">prior</span>(<span class="fu">normal</span>(<span class="fl">2.70805</span>, <span class="fl">0.5</span>), <span class="at">class =</span> Intercept, <span class="at">dpar =</span> sigma),</span>
+<span id="cb50-7"><a href="#cb50-7" aria-hidden="true" tabindex="-1"></a>            <span class="fu">prior</span>(<span class="fu">normal</span>(<span class="dv">0</span>, <span class="fl">0.5</span>), <span class="at">class =</span> b, <span class="at">dpar =</span> sigma)),</span>
+<span id="cb50-8"><a href="#cb50-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">seed =</span> <span class="dv">10</span>,</span>
+<span id="cb50-9"><a href="#cb50-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">file =</span> <span class="st">"fits/b10.01"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Do note our use of the <code>dpar</code> arguments in the <code>prior()</code> functions Here’s the summary.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(b10<span class="fl">.1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> Family: gaussian 
+  Links: mu = identity; sigma = log 
+Formula: y ~ 1 
+         sigma ~ 1 + x
+   Data: d (Number of observations: 200) 
+  Draws: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
+         total post-warmup draws = 4000
+
+Regression Coefficients:
+                Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+Intercept          98.55      0.84    96.83   100.17 1.00     4288     2582
+sigma_Intercept     2.26      0.07     2.13     2.40 1.00     3856     2991
+sigma_x             0.69      0.10     0.50     0.88 1.00     4140     2963
+
+Draws were sampled using sampling(NUTS). For each parameter, Bulk_ESS
+and Tail_ESS are effective sample size measures, and Rhat is the potential
+scale reduction factor on split chains (at convergence, Rhat = 1).</code></pre>
+</div>
+</div>
+<p>Now we get an intercept for both <span class="math inline">\(\mu\)</span> and <span class="math inline">\(\sigma\)</span>, with the intercept for sigma labeled as <code>sigma_Intercept</code>. And note the <span class="math inline">\(\beta\)</span> coefficient for <span class="math inline">\(\sigma\)</span> was named <code>sigma_x</code>. Also notice the scale the <code>sigma_i</code> coefficients are on. These are not in the original metric, but rather based on a logarithmic transformation of <span class="math inline">\(\sigma\)</span>. You can confirm that by the second line of the <code>print()</code> output: <code>Links: mu = identity; sigma = log</code>. So if you want to get a sense of the effects of <code>x</code> on the <span class="math inline">\(\sigma\)</span> for <code>y</code>, you have to exponentiate the formula. Here we’ll do so with the output from <code>as_draws_df()</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a>post <span class="ot">&lt;-</span> <span class="fu">as_draws_df</span>(b10<span class="fl">.1</span>)</span>
+<span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(post)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A draws_df: 6 iterations, 1 chains, and 7 variables
+  b_Intercept b_sigma_Intercept b_sigma_x Intercept Intercept_sigma lprior lp__
+1          99               2.2      0.69        99             2.6   -4.0 -808
+2          99               2.2      0.74        99             2.6   -4.1 -808
+3         100               2.3      0.71       100             2.6   -4.0 -809
+4          97               2.3      0.60        97             2.6   -3.9 -810
+5          98               2.4      0.50        98             2.6   -3.6 -810
+6          99               2.2      0.89        99             2.6   -4.6 -810
+# ... hidden reserved variables {'.chain', '.iteration', '.draw'}</code></pre>
+</div>
+</div>
+<p>With the samples in hand, we’ll use the model formula to compute the model-implied standard deviations of <code>y</code> based on the <code>x</code> dummy and then examine them in a plot.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a>post <span class="sc">|&gt;</span> </span>
+<span id="cb55-2"><a href="#cb55-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="st">`</span><span class="at">x == 0</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">exp</span>(b_sigma_Intercept <span class="sc">+</span> b_sigma_x <span class="sc">*</span> <span class="dv">0</span>),</span>
+<span id="cb55-3"><a href="#cb55-3" aria-hidden="true" tabindex="-1"></a>         <span class="st">`</span><span class="at">x == 1</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">exp</span>(b_sigma_Intercept <span class="sc">+</span> b_sigma_x <span class="sc">*</span> <span class="dv">1</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb55-4"><a href="#cb55-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="fu">contains</span>(<span class="st">"=="</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb55-5"><a href="#cb55-5" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb55-6"><a href="#cb55-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> value, <span class="at">y =</span> name, <span class="at">fill =</span> name)) <span class="sc">+</span></span>
+<span id="cb55-7"><a href="#cb55-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_halfeye</span>(<span class="at">point_interval =</span> median_qi, <span class="at">.width =</span> <span class="fl">0.95</span>,</span>
+<span id="cb55-8"><a href="#cb55-8" aria-hidden="true" tabindex="-1"></a>               <span class="at">color =</span> <span class="fu">ghibli_palette</span>(<span class="st">"KikiMedium"</span>)[<span class="dv">2</span>]) <span class="sc">+</span></span>
+<span id="cb55-9"><a href="#cb55-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="fu">ghibli_palette</span>(<span class="st">"KikiMedium"</span>)[<span class="fu">c</span>(<span class="dv">4</span>, <span class="dv">6</span>)])) <span class="sc">+</span></span>
+<span id="cb55-10"><a href="#cb55-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="fu">expression</span>(sigma[x]), </span>
+<span id="cb55-11"><a href="#cb55-11" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="cn">NULL</span>,</span>
+<span id="cb55-12"><a href="#cb55-12" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"Model-implied standard deviations by group"</span>) <span class="sc">+</span></span>
+<span id="cb55-13"><a href="#cb55-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_cartesian</span>(<span class="at">ylim =</span> <span class="fu">c</span>(<span class="fl">1.5</span>, <span class="dv">2</span>)) <span class="sc">+</span></span>
+<span id="cb55-14"><a href="#cb55-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.ticks.y =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb55-15"><a href="#cb55-15" aria-hidden="true" tabindex="-1"></a>        <span class="at">legend.position =</span> <span class="st">"none"</span>,</span>
+<span id="cb55-16"><a href="#cb55-16" aria-hidden="true" tabindex="-1"></a>        <span class="at">panel.background =</span> <span class="fu">element_rect</span>(<span class="at">fill =</span> <span class="fu">ghibli_palette</span>(<span class="st">"KikiMedium"</span>)[<span class="dv">7</span>]),</span>
+<span id="cb55-17"><a href="#cb55-17" aria-hidden="true" tabindex="-1"></a>        <span class="at">panel.grid =</span> <span class="fu">element_blank</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="10_files/figure-html/unnamed-chunk-38-1.png" class="img-fluid figure-img" width="360"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>If we looked back at the data, those <span class="math inline">\(\textit{SD}\)</span> estimates are right about what we’d expect.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a>d <span class="sc">|&gt;</span> </span>
+<span id="cb56-2"><a href="#cb56-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(x) <span class="sc">|&gt;</span> </span>
+<span id="cb56-3"><a href="#cb56-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">sd =</span> <span class="fu">sd</span>(y) <span class="sc">|&gt;</span> <span class="fu">round</span>(<span class="at">digits =</span> <span class="dv">1</span>)) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 2 × 2
+      x    sd
+  &lt;int&gt; &lt;dbl&gt;
+1     0   9.4
+2     1  19.4</code></pre>
+</div>
+</div>
+<p>For more on models like this, check out Christakis’s blog post, <a href="https://www.edge.org/response-detail/25437"><em>2014: What scientific idea is ready for retirement?</em></a>, or his paper with Subramanian and Kim, <a href="http://humannaturelab.net/publications/the-average-treatment-effect-a-construct-ripe-for-retirement-a-commentary-on-deaton-and-cartwright"><em>The “average” treatment effect: A construct ripe for retirement. A commentary on Deaton and Cartwright</em></a>, <span class="citation" data-cites="subramanianAverageTreatmentEffect2018a">(<a href="references.html#ref-subramanianAverageTreatmentEffect2018a" role="doc-biblioref">Subramanian et al., 2018</a>)</span>. Kruschke covered modeling <span class="math inline">\(\sigma\)</span> a bit in his <span class="citation" data-cites="kruschkeDoingBayesianData2015">(<a href="references.html#ref-kruschkeDoingBayesianData2015" role="doc-biblioref">2015</a>)</span> <a href="https://sites.google.com/site/doingbayesiandataanalysis/"><em>Doing Bayesian data analysis, second edition: A tutorial with R, JAGS, and Stan</em></a>, my <span class="citation" data-cites="kurzDoingBayesianDataAnalysis2026">(<a href="references.html#ref-kurzDoingBayesianDataAnalysis2026" role="doc-biblioref">2026</a>)</span> translation for which lives <a href="https://solomon.quarto.pub/dbda2/">here</a>. Finally, this is foreshadowing a bit because it requires the multilevel model (see <a href="13.html" class="quarto-xref"><span>Chapter 13</span></a> and <a href="14.html" class="quarto-xref"><span>Chapter 14</span></a>), but you might also check out the <span class="citation" data-cites="williams2020BayesianMulitivariate">(<a href="references.html#ref-williams2020BayesianMulitivariate" role="doc-biblioref">2020</a>)</span> paper by Williams, Martin, Liu, and Rast, <a href="https://europepmc.org/articles/pmc8580300/bin/nihms1744407-supplement-supplementary_material.pdf"><em>Bayesian multivariate mixed-effects location scale modeling of longitudinal relations among affective traits, states, and physical activity</em></a> or Williams’s blog post, <a href="https://rstudio-pubs-static.s3.amazonaws.com/593838_838639e42b1643df9886a26cb922ab05.html"><em>A defining feature of cognitive interference tasks: Heterogeneous within-person variance</em></a>.</p>
+<p>But getting back to the text,</p>
+<blockquote class="blockquote">
+<p>What the log link effectively assumes is that the parameter’s value is the exponentiation of the linear model. Solving <span class="math inline">\(\log (\sigma_i) = \alpha + \beta x_i\)</span> for <span class="math inline">\(\sigma_i\)</span> yields the inverse link:</p>
+<p><span class="math display">\[\sigma_i = \exp (\alpha + \beta x_i)\]</span></p>
+<p>The impact of this assumption can be seen in [our version of] Figure 10.8. (pp.&nbsp;318–319)</p>
+</blockquote>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb58"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a><span class="co"># First, we'll make data that'll be make the horizontal lines</span></span>
+<span id="cb58-2"><a href="#cb58-2" aria-hidden="true" tabindex="-1"></a>alpha <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb58-3"><a href="#cb58-3" aria-hidden="true" tabindex="-1"></a>beta  <span class="ot">&lt;-</span> <span class="dv">2</span></span>
+<span id="cb58-4"><a href="#cb58-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb58-5"><a href="#cb58-5" aria-hidden="true" tabindex="-1"></a>lines <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="st">`</span><span class="at">log-measurement</span><span class="st">`</span>      <span class="ot">=</span> <span class="sc">-</span><span class="dv">3</span><span class="sc">:</span><span class="dv">3</span>,</span>
+<span id="cb58-6"><a href="#cb58-6" aria-hidden="true" tabindex="-1"></a>                <span class="st">`</span><span class="at">original measurement</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">exp</span>(<span class="sc">-</span><span class="dv">3</span><span class="sc">:</span><span class="dv">3</span>))</span>
+<span id="cb58-7"><a href="#cb58-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb58-8"><a href="#cb58-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Now we're ready to make the primary data</span></span>
+<span id="cb58-9"><a href="#cb58-9" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">x =</span> <span class="fu">seq</span>(<span class="at">from =</span> <span class="sc">-</span><span class="fl">1.5</span>, <span class="at">to =</span> <span class="fl">1.5</span>, <span class="at">length.out =</span> <span class="dv">50</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb58-10"><a href="#cb58-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="st">`</span><span class="at">log-measurement</span><span class="st">`</span>      <span class="ot">=</span> alpha <span class="sc">+</span> x <span class="sc">*</span> beta,</span>
+<span id="cb58-11"><a href="#cb58-11" aria-hidden="true" tabindex="-1"></a>         <span class="st">`</span><span class="at">original measurement</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">exp</span>(alpha <span class="sc">+</span> x <span class="sc">*</span> beta))</span>
+<span id="cb58-12"><a href="#cb58-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb58-13"><a href="#cb58-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Now we make the individual plots</span></span>
+<span id="cb58-14"><a href="#cb58-14" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> d <span class="sc">|&gt;</span> </span>
+<span id="cb58-15"><a href="#cb58-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> x, <span class="at">y =</span> <span class="st">`</span><span class="at">log-measurement</span><span class="st">`</span>)) <span class="sc">+</span></span>
+<span id="cb58-16"><a href="#cb58-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">data =</span> lines,</span>
+<span id="cb58-17"><a href="#cb58-17" aria-hidden="true" tabindex="-1"></a>             <span class="fu">aes</span>(<span class="at">yintercept =</span> <span class="st">`</span><span class="at">log-measurement</span><span class="st">`</span>),</span>
+<span id="cb58-18"><a href="#cb58-18" aria-hidden="true" tabindex="-1"></a>             <span class="at">color =</span> <span class="fu">ghibli_palette</span>(<span class="st">"YesterdayMedium"</span>)[<span class="dv">6</span>]) <span class="sc">+</span></span>
+<span id="cb58-19"><a href="#cb58-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">color =</span> <span class="fu">ghibli_palette</span>(<span class="st">"YesterdayMedium"</span>)[<span class="dv">3</span>], <span class="at">linewidth =</span> <span class="fl">1.5</span>) <span class="sc">+</span></span>
+<span id="cb58-20"><a href="#cb58-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_cartesian</span>(<span class="at">xlim =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="dv">1</span>)) <span class="sc">+</span></span>
+<span id="cb58-21"><a href="#cb58-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">panel.background =</span> <span class="fu">element_rect</span>(<span class="at">fill =</span> <span class="fu">ghibli_palette</span>(<span class="st">"YesterdayMedium"</span>)[<span class="dv">5</span>]),</span>
+<span id="cb58-22"><a href="#cb58-22" aria-hidden="true" tabindex="-1"></a>        <span class="at">panel.grid =</span> <span class="fu">element_blank</span>())</span>
+<span id="cb58-23"><a href="#cb58-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb58-24"><a href="#cb58-24" aria-hidden="true" tabindex="-1"></a>p2 <span class="ot">&lt;-</span> d <span class="sc">|&gt;</span> </span>
+<span id="cb58-25"><a href="#cb58-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> x, <span class="at">y =</span> <span class="st">`</span><span class="at">original measurement</span><span class="st">`</span>)) <span class="sc">+</span></span>
+<span id="cb58-26"><a href="#cb58-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">data =</span> lines,</span>
+<span id="cb58-27"><a href="#cb58-27" aria-hidden="true" tabindex="-1"></a>             <span class="fu">aes</span>(<span class="at">yintercept =</span> <span class="st">`</span><span class="at">original measurement</span><span class="st">`</span>),</span>
+<span id="cb58-28"><a href="#cb58-28" aria-hidden="true" tabindex="-1"></a>             <span class="at">color =</span> <span class="fu">ghibli_palette</span>(<span class="st">"YesterdayMedium"</span>)[<span class="dv">6</span>]) <span class="sc">+</span></span>
+<span id="cb58-29"><a href="#cb58-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">color =</span> <span class="fu">ghibli_palette</span>(<span class="st">"YesterdayMedium"</span>)[<span class="dv">3</span>], <span class="at">linewidth =</span> <span class="fl">1.5</span>) <span class="sc">+</span></span>
+<span id="cb58-30"><a href="#cb58-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">position =</span> <span class="st">"right"</span>, <span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">10</span>)) <span class="sc">+</span></span>
+<span id="cb58-31"><a href="#cb58-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_cartesian</span>(<span class="at">xlim =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="dv">1</span>)) <span class="sc">+</span></span>
+<span id="cb58-32"><a href="#cb58-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">panel.background =</span> <span class="fu">element_rect</span>(<span class="at">fill =</span> <span class="fu">ghibli_palette</span>(<span class="st">"YesterdayMedium"</span>)[<span class="dv">7</span>]),</span>
+<span id="cb58-33"><a href="#cb58-33" aria-hidden="true" tabindex="-1"></a>        <span class="at">panel.grid =</span> <span class="fu">element_blank</span>())</span>
+<span id="cb58-34"><a href="#cb58-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb58-35"><a href="#cb58-35" aria-hidden="true" tabindex="-1"></a><span class="co"># Combine the ggplots</span></span>
+<span id="cb58-36"><a href="#cb58-36" aria-hidden="true" tabindex="-1"></a>p1 <span class="sc">|</span> p2</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="10_files/figure-html/unnamed-chunk-40-1.png" class="img-fluid figure-img" width="576"></p>
+</figure>
+</div>
+</div>
+</div>
+<blockquote class="blockquote">
+<p>Using a log link for a linear model (left) implies an exponential scaling of the outcome with the predictor variable (right). Another way to think of this relationship is to remember that logarithms are <em>magnitudes</em>. An increase of one unit on the log scale means an increase of an order of magnitude on the untransformed scale. And this fact is reflected in the widening intervals between the horizontal lines in the right-hand plot of Figure 10.8. (p.&nbsp;319, <em>emphasis</em> in the original)</p>
+</blockquote>
+<section id="rethinking-when-in-doubt-play-with-assumptions" class="level4" data-number="10.2.2.1">
+<h4 data-number="10.2.2.1" class="anchored" data-anchor-id="rethinking-when-in-doubt-play-with-assumptions"><span class="header-section-number">10.2.2.1</span> Rethinking: When in doubt, play with assumptions</h4>
+<blockquote class="blockquote">
+<p>Link functions are assumptions. And like all assumptions, they are useful in different contexts. The conventional logit and log links are widely useful, but they can sometimes distort inference. If you ever have doubts, and want to reassure yourself that your conclusions are not sensitive to choice of link function, then you can use <strong>sensitivity analysis</strong>. A sensitivity analysis explores how changes in assumptions influence inference. (p.&nbsp;319, <strong>emphasis</strong> in the original)</p>
+</blockquote>
+<p>As an example, a common alternative to the logit link is the probit. Both are available with <strong>brms</strong>.</p>
+</section>
+</section>
+<section id="omitted-variable-bias-again" class="level3" data-number="10.2.3">
+<h3 data-number="10.2.3" class="anchored" data-anchor-id="omitted-variable-bias-again"><span class="header-section-number">10.2.3</span> Omitted variable bias again</h3>
+<blockquote class="blockquote">
+<p>Back in <a href="05.html" class="quarto-xref"><span>Chapter 5</span></a> and <a href="06.html" class="quarto-xref"><span>Chapter 6</span></a>, you saw some examples of omitted variable bias, where leaving a causally important variable out of a model leads to biased inference. The same thing can of course happen in GLMs. But it can be worse in GLMs, because even a variable that isn’t technically a confounder can bias inference, once we have a link function. The reason is that the ceiling and floor effects described above can distort estimates by suppressing the causal influence of a variable. (p.&nbsp;320)</p>
+</blockquote>
+</section>
+<section id="absolute-and-relative-differences" class="level3" data-number="10.2.4">
+<h3 data-number="10.2.4" class="anchored" data-anchor-id="absolute-and-relative-differences"><span class="header-section-number">10.2.4</span> Absolute and relative differences</h3>
+<p>Within the context of GLMs with non-identity link functions,</p>
+<blockquote class="blockquote">
+<p>parameter estimates do not by themselves tell you the importance of a predictor on the outcome. The reason is that each parameter represents a <em>relative</em> difference on the scale of the linear model, ignoring other parameters, while we are really interested in <em>absolute</em> differences in outcomes that must incorporate all parameters. (p.&nbsp;320, <em>emphasis</em> in the original)</p>
+</blockquote>
+<p>This will make more sense after we start playing around with logistic regression, count regression, and so on. For now, just file it away.</p>
+</section>
+</section>
+<section id="session-info" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="session-info">Session info</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb59"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>R version 4.5.1 (2025-06-13)
+Platform: aarch64-apple-darwin20
+Running under: macOS Ventura 13.4
+
+Matrix products: default
+BLAS:   /Library/Frameworks/R.framework/Versions/4.5-arm64/Resources/lib/libRblas.0.dylib 
+LAPACK: /Library/Frameworks/R.framework/Versions/4.5-arm64/Resources/lib/libRlapack.dylib;  LAPACK version 3.12.1
+
+locale:
+[1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+
+time zone: America/Chicago
+tzcode source: internal
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+other attached packages:
+ [1] brms_2.23.0     Rcpp_1.1.0      tidybayes_3.0.7 patchwork_1.3.2 ghibli_0.3.4    lubridate_1.9.4 forcats_1.0.1  
+ [8] stringr_1.6.0   dplyr_1.1.4     purrr_1.2.1     readr_2.1.5     tidyr_1.3.2     tibble_3.3.1    ggplot2_4.0.1  
+[15] tidyverse_2.0.0
+
+loaded via a namespace (and not attached):
+ [1] gridExtra_2.3           inline_0.3.21           sandwich_3.1-1          rlang_1.1.7             magrittr_2.0.4         
+ [6] multcomp_1.4-29         matrixStats_1.5.0       compiler_4.5.1          loo_2.9.0.9000          systemfonts_1.3.1      
+[11] vctrs_0.6.5             reshape2_1.4.5          pkgconfig_2.0.3         arrayhelpers_1.1-0      fastmap_1.2.0          
+[16] backports_1.5.0         labeling_0.4.3          utf8_1.2.6              rmarkdown_2.30          tzdb_0.5.0             
+[21] ragg_1.5.0              xfun_0.55               jsonlite_2.0.0          uuid_1.2-1              parallel_4.5.1         
+[26] R6_2.6.1                stringi_1.8.7           RColorBrewer_1.1-3      StanHeaders_2.36.0.9000 estimability_1.5.1     
+[31] rstan_2.36.0.9000       knitr_1.51              zoo_1.8-14              bayesplot_1.15.0.9000   Matrix_1.7-3           
+[36] splines_4.5.1           timechange_0.3.0        tidyselect_1.2.1        rstudioapi_0.17.1       abind_1.4-8            
+[41] yaml_2.3.12             codetools_0.2-20        curl_7.0.0              pkgbuild_1.4.8          lattice_0.22-7         
+[46] plyr_1.8.9              withr_3.0.2             bridgesampling_1.2-1    S7_0.2.1                flextable_0.9.10       
+[51] askpass_1.2.1           posterior_1.6.1.9000    coda_0.19-4.1           evaluate_1.0.5          survival_3.8-3         
+[56] RcppParallel_5.1.11-1   zip_2.3.3               ggdist_3.3.3            xml2_1.4.0              pillar_1.11.1          
+[61] tensorA_0.36.2.1        checkmate_2.3.3         stats4_4.5.1            distributional_0.5.0    generics_0.1.4         
+[66] hms_1.1.4               rstantools_2.5.0.9000   scales_1.4.0            xtable_1.8-4            glue_1.8.0             
+[71] gdtools_0.4.4           emmeans_1.11.2-8        tools_4.5.1             data.table_1.17.8       mvtnorm_1.3-3          
+[76] grid_4.5.1              QuickJSR_1.8.1          nlme_3.1-168            cli_3.6.5               textshaping_1.0.4      
+[81] officer_0.7.2           fontBitstreamVera_0.1.1 svUnit_1.0.8            Brobdingnag_1.2-9       V8_8.0.1               
+[86] gtable_0.3.6            digest_0.6.39           fontquiver_0.2.1        prismatic_1.1.2         TH.data_1.1-4          
+[91] htmlwidgets_1.6.4       farver_2.1.2            htmltools_0.5.9         lifecycle_1.0.5         fontLiberation_0.1.0   
+[96] openssl_2.3.4           MASS_7.3-65            </code></pre>
+</div>
+</div>
+
+
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" data-line-spacing="2" role="list" style="display: none">
+<div id="ref-Bürkner2022Distributional" class="csl-entry" role="listitem">
+Bürkner, P.-C. (2022). <em>Estimating distributional models with brms</em>. <a href="https://CRAN.R-project.org/package=brms/vignettes/brms_distreg.html">https://CRAN.R-project.org/package=brms/vignettes/brms_distreg.html</a>
+</div>
+<div id="ref-R-ghibli" class="csl-entry" role="listitem">
+Henderson, E. (2022). <em><span class="nocase">ghibli</span>: <span>Studio</span> ghibli colour palettes</em> [Manual]. <a href="https://CRAN.R-project.org/package=ghibli">https://CRAN.R-project.org/package=ghibli</a>
+</div>
+<div id="ref-johnsonSexDifferencesVariability2008" class="csl-entry" role="listitem">
+Johnson, W., Carothers, A., &amp; Deary, I. J. (2008). Sex differences in variability in general intelligence: <span>A</span> new look at the old question. <em>Perspectives on Psychological Science</em>, <em>3</em>(6), 518–531. <a href="https://doi.org/10.1111/j.1745-6924.2008.00096.x">https://doi.org/10.1111/j.1745-6924.2008.00096.x</a>
+</div>
+<div id="ref-kruschkeDoingBayesianData2015" class="csl-entry" role="listitem">
+Kruschke, J. K. (2015). <em>Doing <span>Bayesian</span> data analysis: <span>A</span> tutorial with <span>R</span>, <span>JAGS</span>, and <span>Stan</span></em>. Academic Press. <a href="https://sites.google.com/site/doingbayesiandataanalysis/">https://sites.google.com/site/doingbayesiandataanalysis/</a>
+</div>
+<div id="ref-kurzDoingBayesianDataAnalysis2026" class="csl-entry" role="listitem">
+Kurz, A. S. (2026). <em>Doing <span>Bayesian</span> data analysis in brms and the tidyverse</em> (Version 1.3.0). <a href="https://solomon.quarto.pub/dbda2/">https://solomon.quarto.pub/dbda2/</a>
+</div>
+<div id="ref-mcelreathStatisticalRethinkingBayesian2020" class="csl-entry" role="listitem">
+McElreath, R. (2020). <em>Statistical rethinking: <span>A Bayesian</span> course with examples in <span>R</span> and <span>Stan</span></em> (Second Edition). CRC Press. <a href="https://xcelab.net/rm/statistical-rethinking/">https://xcelab.net/rm/statistical-rethinking/</a>
+</div>
+<div id="ref-subramanianAverageTreatmentEffect2018a" class="csl-entry" role="listitem">
+Subramanian, S. V., Kim, R., &amp; Christakis, N. A. (2018). The <span>“average”</span> treatment effect: <span>A</span> construct ripe for retirement. <span>A</span> commentary on <span>Deaton</span> and <span>Cartwright</span>. <em>Social Science &amp; Medicine</em>, <em>210</em>, 77–82. <a href="https://doi.org/10.1016/j.socscimed.2018.04.027">https://doi.org/10.1016/j.socscimed.2018.04.027</a>
+</div>
+<div id="ref-williams2020BayesianMulitivariate" class="csl-entry" role="listitem">
+Williams, D. R., Martin, S. R., Liu, S., &amp; Rast, P. (2020). Bayesian multivariate mixed-effects location scale modeling of longitudinal relations among affective traits, states, and physical activity. <em>European Journal of Psychological Assessment</em>, <em>36</em>(6), 981–997. <a href="https://doi.org/10.1027/1015-5759/a000624">https://doi.org/10.1027/1015-5759/a000624</a>
+</div>
+</div>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<input type="hidden" id="giscus-base-theme" value="light">
+<input type="hidden" id="giscus-alt-theme" value="dark">
+<script>
+  function loadGiscus() {
+    // Function to get the theme based on body class
+    const getTheme = () => {
+      let baseTheme = document.getElementById('giscus-base-theme').value;
+      let altTheme = document.getElementById('giscus-alt-theme').value;
+      return document.body.classList.contains('quarto-dark') ? altTheme : baseTheme;
+    };
+    const script = document.createElement("script");
+    script.src = "https://giscus.app/client.js";
+    script.async = true;
+    script.dataset.repo = "ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed";
+    script.dataset.repoId = "";
+    script.dataset.category = "General";
+    script.dataset.categoryId = "";
+    script.dataset.mapping = "title";
+    script.dataset.reactionsEnabled = "1";
+    script.dataset.emitMetadata = "0";
+    script.dataset.inputPosition = "top";
+    script.dataset.theme = getTheme();
+    script.dataset.lang = "en";
+    script.crossOrigin = "anonymous";
+    // Append the script to the desired div instead of at the end of the body
+    document.getElementById("quarto-content").appendChild(script);
+  }
+  loadGiscus();
+</script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./09.html" class="pagination-link" aria-label="Markov Chain Monte Carlo">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Markov Chain Monte Carlo</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./11.html" class="pagination-link" aria-label="God Spiked the Integers">
+        <span class="nav-page-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">God Spiked the Integers</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>

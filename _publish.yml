@@ -1,0 +1,4 @@
+- source: project
+  quarto-pub:
+    - id: 1e5291ce-e3ad-49fc-b624-214ba7df2204
+      url: https://solomon.quarto.pub/sr2
