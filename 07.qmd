@@ -143,7 +143,7 @@ As we'll learn later on, **brms** already has a convenience function for computi
 R2_is_bad <- function(brm_fit, seed = 7, ...) {
   set.seed(seed)
   p <- predict(brm_fit, summary = F, ...)
-  # In my experience, it's more typical to define residuals as the criterion minus the predictions
+  # Nowadays it's more typical to define residuals as y minus yhat
   r <- d$brain_std - apply(p, 2, mean)
   1 - rethinking::var2(r) / rethinking::var2(d$brain_std)
 }
