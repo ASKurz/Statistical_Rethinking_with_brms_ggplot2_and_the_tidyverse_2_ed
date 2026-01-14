@@ -29,7 +29,7 @@ In this project, I use a handful of formatting conventions gleaned from [*R4DS*]
 * **R** and the names of specific package (e.g., **brms**) are in **boldface** font.
 * Functions are in a typewriter font and followed by parentheses, all atop a gray background (e.g., `brm()`).
 * When I want to make explicit the package a given function comes from, I insert the double-colon operator `::` between the package name and the function (e.g., `tidybayes::median_qi()`).
-* **R** objects, such as data or function arguments, are in typewriter font atop gray backgrounds (e.g., `chimpanzees`, `.width = .5`).
+* **R** objects, such as data or function arguments, are in typewriter font atop gray backgrounds (e.g., `chimpanzees`, `.width = 0.5`).
 * You can detect hyperlinks by their typical [blue-colored font](https://solomonkurz.netlify.app/).
 * In the text, McElreath indexed his models with names like `m4.1` (i.e., the first model of @sec-Geocentric-Models). I primarily followed that convention, but replaced the `m` with a `b` to stand for the **brms** package.
 
