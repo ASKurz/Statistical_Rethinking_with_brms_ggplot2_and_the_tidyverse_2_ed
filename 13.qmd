@@ -1,0 +1,1965 @@
+# Models With Memory {#sec-Models-With-Memory}
+
+> **Multilevel models**... remember features of each cluster in the data as they learn about all of the clusters. Depending upon the variation among clusters, which is learned from the data as well, the model pools information across clusters. This pooling tends to improve estimates about each cluster. This improved estimation leads to several, more pragmatic sounding, benefits of the multilevel approach. [@mcelreathStatisticalRethinkingBayesian2020, p. 400, **emphasis** in the original]
+
+These benefits include:
+
+* better estimates for repeated sampling (i.e., in longitudinal data),
+* better estimates when there are imbalances among subsamples,
+* estimates of the variation across subsamples, and
+* avoiding simplistic averaging by retaining variation across subsamples.
+
+> All of these benefits flow out of the same strategy and model structure. You learn one basic design and you get all of this for free.
+>
+> When it comes to regression, multilevel regression deserves to be the default approach. There are certainly contexts in which it would be better to use an old-fashioned single-level model. But the contexts in which multilevel models are superior are much more numerous. It is better to begin to build a multilevel analysis, and then realize it's unnecessary, than to overlook it. And once you grasp the basic multilevel strategy, it becomes much easier to incorporate related tricks such as allowing for measurement error in the data and even modeling missing data itself (@sec-Missing-Data-and-Other-Opportunities). (p. 400)
+
+I'm totally on board with this. After learning about the multilevel model, I see it everywhere. For more on the sentiment it should be the default, check out McElreath's blog post, [*Multilevel regression as default*](https://elevanth.org/blog/2017/08/24/multilevel-regression-as-default/).
+
+## Example: Multilevel tadpoles
+
+Let's load the `reedfrogs` data [see @voneshCompensatoryLarvalResponses2005] and fire up **brms**.
+
+```{r}
+#| message: false
+#| warning: false
+
+library(brms)
+data(reedfrogs, package = "rethinking")
+d <- reedfrogs
+rm(reedfrogs)
+```
+
+Go ahead and acquaint yourself with the `reedfrogs`.
+
+```{r}
+#| message: false
+#| warning: false
+
+library(tidyverse)
+
+d |>
+  glimpse()
+```
+
+Making the `tank` cluster variable is easy.
+
+```{r}
+d <- d |>
+  mutate(tank = 1:nrow(d))
+```
+
+Here's the formula for the un-pooled model in which each `tank` gets its own intercept:
+
+\begin{align*}
+\text{surv}_i             & \sim \operatorname{Binomial}(n_i, p_i) \\
+\operatorname{logit}(p_i) & = \alpha_{\text{tank}[i]} \\
+\alpha_j                  & \sim \operatorname{Normal} (0, 1.5) & \text{for } j = 1, \dots, 48,
+\end{align*}
+
+where $n_i$ is indexed by the `density` column. Its values are distributed like so.
+
+```{r}
+d |> 
+  count(density)
+```
+
+Now fit this simple aggregated binomial model much like we practiced in @sec-Chimpanzees-again-condensed.
+
+```{r b13.1}
+b13.1 <- brm(
+  data = d, 
+  family = binomial,
+  surv | trials(density) ~ 0 + factor(tank),
+  prior(normal(0, 1.5), class = b),
+  iter = 2000, warmup = 1000, chains = 4, cores = 4,
+  seed = 13,
+  file = "fits/b13.01")
+```
+
+We don't need a `depth=2` argument to discover we have 48 different intercepts. The default `print()` behavior will do.
+
+```{r}
+print(b13.1)
+```
+
+This is much like the models we've fit in earlier chapters using McElreath's index approach, but on steroids. It'll be instructive to take a look at distribution of the $\alpha_j$ parameters in density plots. We'll plot them in both their log-odds and probability metrics.
+
+For kicks and giggles, let's use a [FiveThirtyEight-like theme](https://github.com/alex23lemm/theme_fivethirtyeight) for this chapter's plots. An easy way to do so is with help from the [**ggthemes** package](https://cran.r-project.org/package=ggthemes).
+
+```{r}
+#| fig-width: 7
+#| fig-height: 3.5
+#| message: false
+#| warning: false
+
+library(ggthemes) 
+library(tidybayes)
+
+# Change the default
+theme_set(theme_gray() + theme_fivethirtyeight())
+
+tibble(estimate = fixef(b13.1)[, 1]) |> 
+  mutate(p = plogis(estimate)) |> 
+  pivot_longer(estimate:p) |> 
+  mutate(name = if_else(name == "p", "expected survival probability", "expected survival log-odds")) |> 
+  
+  ggplot(aes(x = value, fill = name)) +
+  stat_dots(size = 0) +
+  scale_y_continuous(breaks = NULL) +
+  scale_fill_manual(values = c("orange1", "orange4")) +
+  labs(title = "Tank-level intercepts from the no-pooling model",
+       subtitle = "Notice how inspecting the distributions of the posterior means can offer insights you\nmight not get if you looked at them one at a time.") +
+  facet_wrap(~ name, scales = "free_x") +
+  theme(legend.position = "none",
+        panel.grid = element_blank())
+```
+
+Even though it seems like we can derive important insights from how the `tank`-level intercepts are distributed, that information is not explicitly encoded in the statistical model. Keep that in mind as we now consider the multilevel alternative. Its formula is
+
+\begin{align*}
+\text{surv}_i             & \sim \operatorname{Binomial}(n_i, p_i) \\
+\operatorname{logit}(p_i) & = \alpha_{\text{tank}[i]} \\
+\alpha_j                  & \sim \operatorname{Normal}(\color{#CD8500}{\bar \alpha}, \color{#CD8500} \sigma) \\
+\color{#CD8500}{\bar \alpha} & \color{#CD8500} \sim \color{#CD8500}{\operatorname{Normal}(0, 1.5)} \\
+\color{#CD8500} \sigma       & \color{#CD8500} \sim \color{#CD8500}{\operatorname{Exponential}(1)},
+\end{align*}
+
+where
+
+> the prior for the tank intercepts is now a function of two parameters, $\bar \alpha$ and $\sigma$. You can say $\bar \alpha$ like "bar alpha." The bar means average. These two parameters inside the prior is where the "multi" in multilevel arises. The Gaussian distribution with mean $\bar \alpha$ standard deviation $\sigma$ is the prior for each tank’s intercept. But that prior itself has priors for $\bar \alpha$ and $\sigma$. So there are two levels in the model, each resembling a simpler model. (p. 403, *emphasis* in the original)
+
+With **brms**, you might specify the corresponding multilevel model like this.
+
+```{r b13.2}
+b13.2 <- brm(
+  data = d, 
+  family = binomial,
+  surv | trials(density) ~ 1 + (1 | tank),
+  prior = c(prior(normal(0, 1.5), class = Intercept),  # alpha bar
+            prior(exponential(1), class = sd)),        # sigma
+  iter = 5000, warmup = 1000, chains = 4, cores = 4,
+  sample_prior = "yes",
+  seed = 13,
+  file = "fits/b13.02")
+```
+
+The syntax for the varying effects follows the [**lme4** style](https://cran.r-project.org/package=brms/vignettes/brms_overview.pdf), `( <varying parameter(s)> | <grouping variable(s)> )`. In this case `(1 | tank)` indicates only the intercept, `1`, varies by `tank`. The extent to which parameters vary is controlled by the prior, `prior(exponential(1), class = sd)`, which is <u>parameterized in the standard deviation metric</u>. Do note that last part. It's common in multilevel software to model in the variance metric, instead. For technical reasons we won't really get into until @sec-Adventures-in-Covariance, Stan parameterizes this as a standard deviation.
+
+Let's compute the WAIC comparisons.
+
+```{r}
+b13.1 <- add_criterion(b13.1, criterion = "waic")
+b13.2 <- add_criterion(b13.2, criterion = "waic")
+
+w <- loo_compare(b13.1, b13.2, criterion = "waic")
+
+print(w, simplify = F)
+```
+
+The `se_diff` is small relative to the `elpd_diff`. If we convert the $\text{elpd}$ difference to the WAIC metric, the message stays the same.
+
+```{r}
+cbind(waic_diff = w[, 1] * -2,
+      se        = w[, 2] *  2)
+```
+
+Here are the WAIC weights.
+
+```{r}
+model_weights(b13.1, b13.2, weights = "waic") |> 
+  round(digits = 2)
+```
+
+I'm not going to show it here, but if you'd like a challenge, try comparing the models with the PSIS-LOO. You'll get some great practice with high `pareto_k` values and the moment matching for problematic observations [see @paananenMomentMatching2020; @paananenImplicitlyAdaptiveImportance2020].
+
+```{r}
+#| echo: false
+#| eval: false
+
+b13.1 <- add_criterion(b13.1, criterion = "loo")
+b13.2 <- add_criterion(b13.2, criterion = "loo")
+```
+
+But back on track, McElreath commented on the number of effective parameters for the two models. This, recall, is listed in the column for $p_\text{WAIC}$.
+
+```{r}
+w[, "p_waic"]
+```
+
+And indeed, even though our multilevel model (`b13.2`) technically had two more parameters than the conventional single-level model (`b13.1`), its $p_\text{WAIC}$ is substantially smaller, due to the regularizing level-2 $\sigma$ parameter. Speaking of which, let's examine the model summary.
+
+```{r}
+print(b13.2)
+```
+
+This time we don't get a list of 48 separate `tank`-level parameters. However, we do get a description of their distribution in terms of $\bar \alpha$ (i.e., `Intercept`) and $\sigma$ (i.e., `sd(Intercept)`). If you'd like the actual `tank`-level parameters, don't worry; they're coming in Figure 13.1. We'll need to do a little prep work, though.
+
+```{r}
+post <- as_draws_df(b13.2)
+
+post_mdn <- coef(b13.2, robust = T)$tank[, , ] |> 
+  data.frame() |> 
+  bind_cols(d) |>
+  mutate(post_mdn = plogis(Estimate))
+
+head(post_mdn)
+```
+
+Here's the **ggplot2** code to reproduce Figure 13.1.
+
+```{r}
+#| fig-width: 5
+#| fig-height: 4
+
+post_mdn |>
+  ggplot(aes(x = tank)) +
+  geom_hline(yintercept = plogis(median(post$b_Intercept)), linetype = 2, linewidth = 1/4) +
+  geom_vline(xintercept = c(16.5, 32.5), linewidth = 1/4, color = "grey25") +
+  geom_point(aes(y = propsurv), color = "orange2") +
+  geom_point(aes(y = post_mdn), shape = 1) +
+  annotate(geom = "text", 
+           x = c(8, 16 + 8, 32 + 8), y = 0, 
+           label = c("small tanks", "medium tanks", "large tanks")) +
+  scale_x_continuous(breaks = c(1, 16, 32, 48)) +
+  scale_y_continuous(breaks = 0:5 / 5, limits = c(0, 1)) +
+  labs(title = "Multilevel shrinkage!",
+       subtitle = "The empirical proportions are in orange while the model-\nimplied proportions are the black circles. The dashed line is\nthe model-implied average survival proportion.") +
+  theme(panel.grid.major = element_blank())
+```
+
+Here is the code for our version of Figure 13.2.a, where we visualize the model-implied population distribution of log-odds survival (i.e., the population distribution yielding all the `tank`-level intercepts).
+
+```{r}
+# This makes the output of `slice_sample()` reproducible
+set.seed(13)
+
+p1 <- post |> 
+  slice_sample(n = 100) |> 
+  expand_grid(x = seq(from = -4, to = 5, length.out = 100)) |>
+  mutate(density = dnorm(x, mean = b_Intercept, sd = sd_tank__Intercept)) |> 
+    
+  ggplot(aes(x = x, y = density, group = .draw)) +
+  geom_line(alpha = 0.2, color = "orange2") +
+  scale_y_continuous(NULL, breaks = NULL) +
+  labs(title = "Population survival distribution",
+       subtitle = "log-odds scale") +
+  coord_cartesian(xlim = c(-3, 4))
+```
+
+Now we make our Figure 13.2.b and then bind the two subplots with **patchwork**.
+
+```{r}
+#| fig-width: 6
+#| fig-height: 3.25
+
+set.seed(13)
+
+p2 <- post |> 
+  slice_sample(n = 8000, replace = T) |> 
+  mutate(sim_tanks = rnorm(n(), mean = b_Intercept, sd = sd_tank__Intercept)) |> 
+  
+  ggplot(aes(x = plogis(sim_tanks))) +
+  geom_density(linewidth = 0, fill = "orange2", adjust = 0.1) +
+  scale_y_continuous(NULL, breaks = NULL) +
+  labs(title = "Probability of survival",
+       subtitle = "transformed by the inverse-logit function")
+
+library(patchwork)
+
+(p1 + p2) &
+  theme(plot.title = element_text(size = 12),
+        plot.subtitle = element_text(size = 10))
+```
+
+Both plots show different ways of expressing the model uncertainty in terms of both location $\alpha$ and scale $\sigma$.
+
+#### Rethinking: Varying intercepts as over-dispersion
+
+> In the previous chapter (@sec-Over-dispersed-counts), the beta-binomial and gamma-Poisson models were presented as ways for coping with **over-dispersion** of count data. Varying intercepts accomplish the same thing, allowing count outcomes to be over-dispersed. They accomplish this, because when each observed count gets its own unique intercept, but these intercepts are pooled through a common distribution, the predictions expect over-dispersion just like a beta-binomial or gamma-Poisson model would. Multilevel models are also mixtures. Compared to a beta-binomial or gamma-Poisson model, a binomial or Poisson model with a varying intercept on every observed outcome will often be easier to estimate and easier to extend. (p. 407, **emphasis** in the original)
+
+#### Overthinking: Prior for variance components
+
+Yep, you can use the half-Normal distribution for your priors in **brms**, too. Here it is for model `b13.2`.
+
+```{r b13.2b}
+#| message: false
+
+b13.2b <- update(
+  b13.2,
+  prior = c(prior(normal(0, 1.5), class = Intercept),
+            prior(normal(0, 1), class = sd)),
+  iter = 5000, warmup = 1000, chains = 4, cores = 4,
+  sample_prior = "yes",
+  seed = 13,
+  file = "fits/b13.02b")
+```
+
+McElreath mentioned how one might set a lower bound at zero for the half-Normal prior when using `rethinking::ulam()`. There's no need to do so when using `brms::brm()`. The lower bounds for priors of `class = sd` are already set to zero by default.
+
+Check the model summary.
+
+```{r}
+print(b13.2b)
+```
+
+If you're curious how the exponential and half-Normal priors compare to one another and to their posteriors, you might just plot.
+
+```{r}
+#| fig-width: 5.5
+#| fig-height: 2.75
+
+# For annotation
+text <- tibble(
+  value        = c(0.5, 2.4),
+  density      = c(1, 1.85),
+  distribution = factor(c("prior", "posterior"), levels = c("prior", "posterior")),
+  prior        = "Exponential(1)")
+
+# Gather up and wrangle the prior and posterior draws
+tibble(`prior_Exponential(1)`        = prior_draws(b13.2)  |> pull(sd_tank),
+       `posterior_Exponential(1)`    = as_draws_df(b13.2)  |> pull(sd_tank__Intercept),
+       `prior_Half-Normal(0, 1)`     = prior_draws(b13.2b) |> pull(sd_tank),
+       `posterior_Half-Normal(0, 1)` = as_draws_df(b13.2b) |> pull(sd_tank__Intercept)) |> 
+  pivot_longer(everything(),
+               names_sep = "_",
+               names_to = c("distribution", "prior")) |> 
+  mutate(distribution = factor(distribution, levels = c("prior", "posterior"))) |> 
+  
+  # Plot
+  ggplot(aes(x = value, fill = distribution)) +
+  geom_density(linewidth = 0, alpha = 2/3, adjust = 0.25) +
+  geom_text(data = text,
+            aes(y = density, label = distribution, color = distribution)) +
+  scale_y_continuous(NULL, breaks = NULL) +
+  scale_fill_manual(NULL, values = c("orange4", "orange2")) +
+  scale_color_manual(NULL, values = c("orange4", "orange2")) +
+  labs(subtitle = expression(Hierarchical~sigma~parameter)) +
+  coord_cartesian(xlim = c(0, 4)) +
+  facet_wrap(~ prior) +
+  theme(legend.position = "none")
+```
+
+By the way, this is why we set `iter = 5000` and `sample_prior = "yes"` for the last two models. Neither were necessary to fit the models, but both helped us out with this plot.
+
+## Varying effects and the underfitting/overfitting trade-off
+
+> Varying intercepts are just regularized estimates, but adaptively regularized by estimating how diverse the clusters are while estimating the features of each cluster. This fact is not easy to grasp....
+>
+> A major benefit of using varying effects estimates, instead of the empirical raw estimates, is that they provide more accurate estimates of the individual cluster (tank) intercepts. On average, the varying effects actually provide a better estimate of the individual tank (cluster) means. The reason that the varying intercepts provide better estimates is that they do a better job of trading off underfitting and overfitting. (p. 408)
+
+In this section, we explicate this by contrasting three perspectives:
+
+* complete pooling (i.e., a single-$\alpha$ model),
+* no pooling (i.e., the single-level $\alpha_{\text{tank}[i]}$ model), and
+* partial pooling [i.e., the multilevel model for which $\alpha_j \sim \operatorname{Normal} (\bar \alpha, \sigma)$].
+
+> To demonstrate [the magic of the multilevel model], we'll simulate some tadpole data. That way, we'll know the true per-pond survival probabilities. Then we can compare the no-pooling estimates to the partial pooling estimates, by computing how close each gets to the true values they are trying to estimate. The rest of this section shows how to do such a simulation. (p. 409)
+
+### The model
+
+The simulation formula should look familiar.
+
+\begin{align*}
+\text{surv}_i & \sim \operatorname{Binomial}(n_i, p_i) \\
+\operatorname{logit}(p_i) & = \alpha_{\text{pond}[i]} \\
+\alpha_j                  & \sim \operatorname{Normal}(\bar \alpha, \sigma) \\
+\bar \alpha               & \sim \operatorname{Normal}(0, 1.5) \\
+\sigma                    & \sim \operatorname{Exponential}(1)
+\end{align*}
+
+### Assign values to the parameters
+
+Here we follow along with McElreath and "assign specific values representative of the actual tadpole data" (p. 409). Because he included a `set.seed()` line in his **R** code 13.8, our results should match his exactly.
+
+```{r}
+a_bar   <-  1.5
+sigma   <-  1.5
+n_ponds <- 60
+
+set.seed(5005)
+
+dsim <- tibble(
+  pond   = 1:n_ponds,
+  ni     = rep(c(5, 10, 25, 35), each = n_ponds / 4) |> as.integer(),
+  true_a = rnorm(n = n_ponds, mean = a_bar, sd = sigma))
+
+head(dsim)
+```
+
+McElreath twice urged us to inspect the contents of this simulation. In addition to looking at the data with `head()`, we might well plot.
+
+```{r}
+#| fig-width: 5
+#| fig-height: 3
+
+dsim |> 
+  mutate(ni = factor(ni)) |> 
+  
+  ggplot(aes(x = true_a, y = ni)) +
+  stat_dotsinterval(fill = "orange2", slab_size = 0, .width = 0.5) +
+  ggtitle("Log-odds varying by # tadpoles per pond") +
+  theme(plot.title = element_text(size = 14))
+```
+
+### Sumulate survivors
+
+> Each pond $i$ has $n_i$ potential survivors, and nature flips each tadpole's coin, so to speak, with probability of survival $p_i$. This probability $p_i$ is implied by the model definition, and is equal to:
+>
+> $$p_i = \frac{\exp (\alpha_i)}{1 + \exp (\alpha_i)}$$
+>
+> The model uses a logit link, and so the probability is defined by the [`plogis()`] function. (p. 411)
+
+Although McElreath shared his `set.seed()` number in the last section, he didn't share it for this bit. We'll go ahead and carry over the one from last time. However, in a moment we'll see this clearly wasn't the one he used here. As a consequence, our results will deviate a bit from his.
+
+```{r}
+set.seed(5005)
+
+dsim <- dsim |> 
+  mutate(si = rbinom(n = n(), prob = plogis(true_a), size = ni))
+
+dsim
+```
+
+### Compute the no-pooling estimates
+
+The no-pooling estimates (i.e., $\alpha_{\text{tank}[i]}$) are the results of simple algebra.
+
+```{r}
+dsim <- dsim |>
+  mutate(p_nopool = si / ni)
+
+dsim
+```
+
+"These are the same no-pooling estimates you'd get by fitting a model with a dummy variable for each pond and flat priors that induce no regularization" (p. 411). That is, these are the same kinds of estimates we got back when we fit `b13.1`.
+
+### Compute the partial-pooling estimates
+
+Fit the multilevel (partial-pooling) model.
+
+```{r b13.3}
+b13.3 <- brm(
+  data = dsim, 
+  family = binomial,
+  si | trials(ni) ~ 1 + (1 | pond),
+  prior = c(prior(normal(0, 1.5), class = Intercept),
+            prior(exponential(1), class = sd)),
+  iter = 2000, warmup = 1000, chains = 4, cores = 4,
+  seed = 13,
+  file = "fits/b13.03")
+```
+
+Here's our standard **brms** summary.
+
+```{r}
+print(b13.3)
+```
+
+I'm not aware that you can use McElreath's `depth=2` trick in **brms** for `summary()` or `print()`. However, you can get most of that information and more with the Stan-like summary using the `$fit` syntax.
+
+```{r}
+b13.3$fit
+```
+
+As an aside, notice how this summary still reports the old-style `n_eff` values, rather than the updated `Bulk_ESS` and `Tail_ESS` values. I suspect this will change sometime soon. In the meantime, here's a [thread on the Stan Forums](https://discourse.mc-stan.org/t/new-r-hat-and-ess/8165) featuring members of the Stan team discussing how.
+
+Let's get ready for the diagnostic plot of Figure 13.3. First we add the partially-pooled estimates, as summarized by their posterior means, to the `dsim` data. Then we compute error values.
+
+```{r}
+# We could have included this step in the block of code below, if we wanted to
+p_partpool <- coef(b13.3)$pond[, , ] |> 
+  data.frame() |>
+  transmute(p_partpool = plogis(Estimate))
+
+dsim <- dsim |>
+  bind_cols(p_partpool) |> 
+  mutate(p_true = plogis(true_a)) |>
+  mutate(nopool_error   = abs(p_nopool   - p_true),
+         partpool_error = abs(p_partpool - p_true)) |> 
+  mutate(ni_factor = factor(ni, 
+                            levels = c(5, 10, 25, 35),
+                            labels = c("tiny (5)", "small (10)", "medium (25)", "large (35)")))
+
+dsim |> 
+  glimpse()
+```
+
+Here is our code for Figure 13.3. The extra data processing for `dfline` is how we get the values necessary for the horizontal summary lines.
+
+```{r}
+#| fig-width: 5
+#| fig-height: 5
+#| message: false
+#| warning: false
+
+dfline <- dsim |>
+  select(ni_factor, nopool_error:partpool_error) |>
+  pivot_longer(nopool_error:partpool_error) |>
+  group_by(name, ni_factor) |>
+  summarise(mean_error = mean(value)) |>
+  mutate(x    = c( 1, 16, 31, 46),
+         xend = c(15, 30, 45, 60))
+  
+dsim |> 
+  ggplot(aes(x = pond)) +
+  geom_point(aes(y = nopool_error), color = "orange2") +
+  geom_point(aes(y = partpool_error), shape = 1) +
+  geom_segment(data = dfline, 
+               aes(x = x, xend = xend, 
+                   y = mean_error, yend = mean_error),
+               color = rep(c("orange2", "black"), each = 4),
+               linetype = rep(1:2, each = 4)) +
+  scale_x_continuous(breaks = c(1, 10, 20, 30, 40, 50, 60)) +
+  labs(y = "absolute error",
+       title = "Estimate error by model type",
+       subtitle = "The horizontal axis displays pond number. The vertical axis measures\nthe absolute error in the predicted proportion of survivors, compared to\nthe true value used in the simulation. The higher the point, the worse\nthe estimate. No-pooling shown in orange. Partial pooling shown in black.\nThe orange and dashed black lines show the average error for each kind\nof estimate, across each initial density of tadpoles (pond size).") +
+  facet_wrap(~ ni_factor, nrow = 1, scales = "free_x") +
+  theme(panel.grid.major = element_blank(),
+        plot.subtitle = element_text(size = 10))
+```
+
+If you wanted to quantify the difference in simple summaries, you might execute something like this.
+
+```{r}
+dsim |>
+  select(ni, nopool_error:partpool_error) |>
+  pivot_longer(-ni) |>
+  group_by(name) |>
+  summarise(mean_error   = mean(value) |> round(digits = 3),
+            median_error = median(value) |> round(digits = 3))
+```
+
+Although many years of work in statistics have shown that partially pooled estimates are better, on average, this is not always the case. Our results are an example of this. McElreath addressed this directly:
+
+> But there are some cases in which the no-pooling estimates are better. These exceptions often result from ponds with extreme probabilities of survival. The partial pooling estimates shrink such extreme ponds towards the mean, because few ponds exhibit such extreme behavior. But sometimes outliers really are outliers. (p. 414)
+
+I originally learned about the multilevel in order to work with [longitudinal data](https://gseacademic.harvard.edu/alda/). In that context, I found the basic principles of a multilevel structure quite intuitive. The concept of partial pooling, however, took me some time to wrap my head around. If you're struggling with this, be patient and keep chipping away.
+
+When McElreath [lectured on this topic in 2015](https://youtu.be/82TaniPgzQc?t=2048), he traced partial pooling to statistician [Charles M. Stein](https://imstat.org/2017/05/15/obituary-charles-m-stein-1920-2016/). Efron and Morris [-@efronSteinParadoxStatistics1977] wrote the now classic paper, [*Stein's paradox in statistics*](https://statweb.stanford.edu/~ckirby/brad/other/Article1977.pdf), which does a nice job breaking down why partial pooling can be so powerful. One of the primary examples they used in the paper was of 1970 batting average data. If you'd like more practice seeing how partial pooling works--or if you just like baseball--, check out my blog post, [*Stein's paradox and what partial pooling can do for you*](https://solomonkurz.netlify.app/blog/2019-02-23-stein-s-paradox-and-what-partial-pooling-can-do-for-you/).
+
+#### Overthinking: Repeating the pond simulation
+
+Within the **brms** workflow, we can reuse a compiled model with `update()`. But first, we'll simulate new data.
+
+```{r}
+a_bar   <- 1.5
+sigma   <- 1.5
+n_ponds <- 60
+
+set.seed(1999)  # For new data, set a new seed
+
+new_dsim <- tibble(
+  pond   = 1:n_ponds,
+  ni     = rep(c(5, 10, 25, 35), each = n_ponds / 4) |> as.integer(),
+  true_a = rnorm(n = n_ponds, mean = a_bar, sd = sigma)) |> 
+  mutate(si = rbinom(n = n(), prob = plogis(true_a), size = ni)) |> 
+  mutate(p_nopool = si / ni)
+
+glimpse(new_dsim)
+```
+
+Fit the new model.
+
+```{r b13.3_new}
+b13.3_new <- update(
+  b13.3,
+  newdata = new_dsim,
+  chains = 4, cores = 4,
+  seed = 13,
+  file = "fits/b13.03_new")
+```
+
+```{r}
+print(b13.3_new)
+```
+
+Why not plot the first simulation versus the second one?
+
+```{r}
+#| fig-width: 8
+#| fig-height: 5
+
+bind_rows(as_draws_df(b13.3),
+          as_draws_df(b13.3_new)) |>
+  mutate(model = rep(c("b13.3", "b13.3_new"), each = n() / 2)) |> 
+  ggplot(aes(x = b_Intercept, y = sd_pond__Intercept)) +
+  stat_density_2d(geom = "raster", 
+                  aes(fill = after_stat(density)), 
+                  contour = F, n = 200) +
+  geom_vline(xintercept = a_bar, color = "orange3", linetype = 3) +
+  geom_hline(yintercept = sigma, color = "orange3", linetype = 3) +
+  scale_fill_gradient(low = "grey25", high = "orange3") +
+  ggtitle("Our simulation posteriors contrast a bit",
+          subtitle = expression(alpha*" is on the x and "*sigma*" is on the y, both in log-odds. The dotted lines intersect at the true values.")) +
+  coord_cartesian(xlim = c(0.7, 2),
+                  ylim = c(0.8, 1.9)) +
+  facet_wrap(~ model, ncol = 2) +
+  theme(legend.position = "none",
+        panel.grid.major = element_blank())
+```
+
+If you'd like the `stanfit` portion of your `brm()` object, subset with `$fit`. Take `b13.3`, for example. You might check out its structure via `b13.3$fit |> str()`. Here's the actual Stan code.
+
+```{r}
+b13.3$fit@stanmodel
+```
+
+For more on how to fit this model with **rstan**, go to my companion book [here](https://solomon.quarto.pub/sr2rstan/13.html#varying-effects-and-the-underfittingoverfitting-trade-off).
+
+## More than one type of cluster {#sec-More-than-one-type-of-cluster}
+
+"We can use and often should use more than one type of cluster in the same model" (p. 415).
+
+#### Rethinking: Cross-classification and hierarchy
+
+> The kind of data structure in `data(chimpanzees)` is usually called a **cross-classified multilevel** model. It is cross-classified, because actors are not nested within unique blocks. If each chimpanzee had instead done all of his or her pulls on a single day, within a single block, then the data structure would instead be *hierarchical*. However, the model specification would typically be the same. So the model structure and code you'll see below will apply both to cross-classified designs and hierarchical designs. (p. 415, **emphasis** in the original)
+
+### Multilevel chimpanzees
+
+The initial multilevel update from model `b11.4` from @sec-Prosocial-chimpanzees follows the statistical formula
+
+\begin{align*}
+\text{left\_pull}_i         & \sim \operatorname{Binomial}(n_i = 1, p_i) \\
+\operatorname{logit} (p_i) & = \alpha_{\text{actor}[i]}  + \color{#CD8500}{\gamma_{\text{block}[i]}} + \beta_{\text{treatment}[i]} \\
+\beta_j  & \sim \operatorname{Normal}(0, 0.5) \;\;\; , \text{for } j = 1, \dots, 4 \\
+\alpha_j & \sim \operatorname{Normal}(\bar \alpha, \sigma_\alpha) \;\;\; , \text{for } j = 1, \dots, 7 \\
+\color{#CD8500}{\gamma_j} & \color{#CD8500} \sim \color{#CD8500}{\operatorname{Normal}(0, \sigma_\gamma) \;\;\; , \text{for } j = 1, \dots, 6} \\
+\bar \alpha   & \sim \operatorname{Normal}(0, 1.5) \\
+\sigma_\alpha & \sim \operatorname{Exponential}(1) \\
+\color{#CD8500}{\sigma_\gamma} & \color{#CD8500} \sim \color{#CD8500}{\operatorname{Exponential}(1)}.
+\end{align*}
+
+`r emo::ji("warning")` WARNING `r emo::ji("warning")`
+
+I am so sorry, but we are about to head straight into a load of confusion. If you follow along linearly in the text, we won't have the language to parse this all out until @sec-Divergent-transitions-and-non-centered-priors. In short, our difficulties will have to do with what are called the centered and the non-centered parameterizations for multilevel models. For the next several models in the text, McElreath used the **centered parameterization**. As we'll learn in Section 13.4, this often causes problems when you use Stan to fit your multilevel models. Happily, the solution to those problems is often the **non-centered parameterization**, which is well known among the Stan team. This issue is so well known, in fact, that Bürkner only supports the non-centered parameterization with **brms** (see [here](https://discourse.mc-stan.org/t/disable-non-centered-parameterization-in-brms/7184/7)). To my knowledge, there is no easy way around this. In the long run, this is a good thing. Your **brms** models will likely avoid some of the problems McElreath highlighted in this part of the text. In the short term, this also means that our results will not completely match up with those in the text. If you really want to reproduce McElreath's models `m13.4` through `m13.6`, you'll have to fit them with the **rethinking** package or directly in Stan. Our models `b13.4` through `b13.6` will be the non-centered **brms** alternatives. Either way, the models make the same predictions, but the nuts and bolts and gears we'll use to construct our multilevel golems will look a little different. With all that in mind, here's how we might express our statistical model using the non-centered parameterization more faithful to the way it will be expressed with `brms::brm()`:
+
+\begin{align*}
+\text{left\_pull}_i         & \sim \operatorname{Binomial}(n_i = 1, p_i) \\
+\operatorname{logit} (p_i) & = \bar \alpha + \beta_{\text{treatment}[i]} + \color{#CD8500}{z_{\text{actor}[i]} \sigma_\alpha + x_{\text{block}[i]} \sigma_\gamma} \\
+\bar \alpha   & \sim \operatorname{Normal}(0, 1.5) \\
+\beta_j       & \sim \operatorname{Normal}(0, 0.5) \;\;\; , \text{for } j = 1, \dots, 4 \\
+\color{#CD8500}{z_j} & \color{#CD8500}\sim \color{#CD8500}{\operatorname{Normal}(0, 1)} \\
+\color{#CD8500}{x_j} & \color{#CD8500}\sim \color{#CD8500}{\operatorname{Normal}(0, 1)} \\
+\sigma_\alpha & \sim \operatorname{Exponential}(1) \\
+\sigma_\gamma & \sim \operatorname{Exponential}(1).
+\end{align*}
+
+If you jump ahead to @sec-Non-centered-chimpanzees, you'll see this is just re-write of the formula on the top of page 424. For now, let's load the data.
+
+```{r}
+data(chimpanzees, package = "rethinking")
+d <- chimpanzees
+rm(chimpanzees)
+```
+
+Wrangle and view.
+
+```{r}
+d <- d |> 
+  mutate(actor     = factor(actor),
+         block     = factor(block),
+         treatment = factor(1 + prosoc_left + 2 * condition))
+
+glimpse(d)
+```
+
+Even when using the non-centered parameterization, McElreath's `m13.4` is a bit of an odd model to translate into **brms** syntax. To my knowledge, it can't be done with conventional syntax. But we can fit the model with careful use of the non-linear syntax, which might look like this.
+
+```{r b13.4}
+b13.4 <- brm(
+  data = d, 
+  family = binomial,
+  bf(pulled_left | trials(1) ~ a + b,
+     a ~ 1 + (1 | actor) + (1 | block), 
+     b ~ 0 + treatment,
+     nl = TRUE),
+  prior = c(prior(normal(0, 0.5), nlpar = b),
+            prior(normal(0, 1.5), class = b, coef = Intercept, nlpar = a),
+            prior(exponential(1), class = sd, group = actor, nlpar = a),
+            prior(exponential(1), class = sd, group = block, nlpar = a)),
+  iter = 2000, warmup = 1000, chains = 4, cores = 4,
+  seed = 13,
+  file = "fits/b13.04")
+```
+
+The `b ~ 0 + treatment` part of the `formula` is our expression of what we wrote above as $\beta_{\text{treatment}[i]}$. There's a lot going on with the `a ~ 1 + (1 | actor) + (1 | block)` part of the formula. The initial `1` outside of the parenthesis is $\bar \alpha$. The `(1 | actor)` and `(1 | block)` parts correspond to $z_{\text{actor}[i]} \sigma_\alpha$ and $x_{\text{block}[i]} \sigma_\gamma$, respectively.
+
+Check the trace plots.
+
+```{r}
+#| fig-width: 8
+#| fig-height: 6
+#| message: false
+#| warning: false
+
+library(bayesplot)
+
+color_scheme_set("orange")
+
+as_draws_df(b13.4) |> 
+  mcmc_trace(pars = vars(b_a_Intercept:`r_block__a[6,Intercept]`),
+             facet_args = list(ncol = 4), 
+             linewidth = 0.15) +
+  theme(legend.position = "none")
+```
+
+They all look fine. In the text (e.g., page 416), McElreath briefly mentioned warnings about divergent transitions. We didn't get any warnings like that. Keep following along and you'll soon learn why.
+
+Here's a look at the summary when using `print()`.
+
+```{r}
+print(b13.4)
+```
+
+When you use the `(1 | <group>)` syntax within `brm()`, the group-specific parameters are not shown with `print()`. You only get the hierarchical $\sigma_\text{<group>}$ summaries, shown here as the two rows for `sd(a_Intercept)`. However, you can get a summary of all the parameters with the `posterior_summary()` function.
+
+```{r}
+posterior_summary(b13.4) |> round(digits = 2)
+```
+
+We might make the coefficient plot of Figure 13.4.a with `bayesplot::mcmc_plot()`.
+
+```{r}
+#| fig-width: 3.75
+#| fig-height: 4
+
+b13.4 |> 
+  mcmc_plot(variable = c("^r_", "^b_", "^sd_"), regex = T) +
+  theme(axis.text.y = element_text(hjust = 0))
+```
+
+For a little more control, we might switch to a **tidybayes**-oriented approach.
+
+```{r}
+#| fig-width: 3.75
+#| fig-height: 4
+#| warning: false
+
+# Extract the posterior draws
+post <- as_draws_df(b13.4) 
+
+# Rhis is all stylistic fluff
+levels <- c(
+  "sd_block__a_Intercept", "sd_actor__a_Intercept", 
+  "b_a_Intercept", 
+  str_c("r_block__a[", 6:1, ",Intercept]"), 
+  str_c("r_actor__a[", 7:1, ",Intercept]"), 
+  str_c("b_b_treatment", 4:1))
+
+text <- tibble(
+  x     = posterior_summary(b13.4, probs = c(0.055, 0.955))["r_actor__a[2,Intercept]", c(3, 1)],
+  y     = c(13.5, 16.5),
+  label = c("89% CI", "mean"),
+  hjust = c(0.5, 0))
+
+arrow <- tibble(
+  x    = posterior_summary(b13.4, probs = c(0.055, 0.955))["r_actor__a[2,Intercept]", c(3, 1)] + c(-0.3, 0.2),
+  xend = posterior_summary(b13.4, probs = c(0.055, 0.955))["r_actor__a[2,Intercept]", c(3, 1)],
+  y    = c(14, 16),
+  yend = c(14.8, 15.35))
+
+# Here's the main event
+post |> 
+  pivot_longer(b_a_Intercept:`r_block__a[6,Intercept]`)|> 
+  mutate(name = factor(name, levels = levels)) |> 
+  
+  ggplot(aes(x = value, y = name)) +
+  stat_pointinterval(point_interval = mean_qi, .width = 0.89, 
+                     point_fill = "blue", point_size = 2, shape = 21, size = 1) +
+  geom_text(data = text,
+            aes(x = x, y = y, label = label, hjust = hjust)) +
+  geom_segment(data = arrow,
+               aes(x = x, xend = xend,
+                   y = y, yend = yend),
+               arrow = arrow(length = unit(0.15, "cm"))) +
+  theme(axis.text.y = element_text(hjust = 0),
+        panel.grid.major.y = element_line(linetype = 3))
+```
+
+Regardless of whether we use a **bayesplot**- or **tidybayes**-oriented workflow, a careful look at our coefficient plots will show the parameters are a little different from those McElreath reported. Again, this is because of the subtle differences between our non-centered parameterization and McElreath's centered parameterization. This will all make more sense in Section 13.4.
+
+Now use `post` to compare the group-level $\sigma$ parameters as in Figure 13.4.b.
+
+```{r}
+#| fig-width: 3
+#| fig-height: 3
+#| warning: false
+
+post |>
+  pivot_longer(starts_with("sd")) |> 
+  
+  ggplot(aes(x = value, fill = name)) +
+  geom_density(adjust = 2/3, alpha = 3/4, linewidth = 0, show.legend = F) +
+  annotate(geom = "text", x = 0.67, y = 2, color = "orange4", label = "block") +
+  annotate(geom = "text", x = 2.725, y = 0.5, color = "orange1", label = "actor") +
+  scale_y_continuous(NULL, breaks = NULL) +
+  scale_fill_manual(values = str_c("orange", c(1, 4))) +
+  ggtitle(expression(sigma["<group>"])) +
+  coord_cartesian(xlim = c(0, 4))
+```
+
+Since both the coefficient plots and the density plots indicate there is much more variability among the `actor` parameters than in the `block` parameters, we might fit a model that ignores the variation among the levels of `block`.
+
+```{r b13.5}
+b13.5 <- brm(
+  data = d, 
+  family = binomial,
+  bf(pulled_left | trials(1) ~ a + b,
+     a ~ 1 + (1 | actor), 
+     b ~ 0 + treatment,
+     nl = TRUE),
+  prior = c(prior(normal(0, 0.5), nlpar = b),
+            prior(normal(0, 1.5), class = b, coef = Intercept, nlpar = a),
+            prior(exponential(1), class = sd, group = actor, nlpar = a)),
+  iter = 2000, warmup = 1000, chains = 4, cores = 4,
+  seed = 13,
+  file = "fits/b13.05")
+```
+
+We might compare our models by their WAIC estimates.
+
+```{r}
+b13.4 <- add_criterion(b13.4, criterion = "waic")
+b13.5 <- add_criterion(b13.5, criterion = "waic")
+
+loo_compare(b13.4, b13.5, criterion = "waic") |> 
+  print(simplify = F)
+
+model_weights(b13.4, b13.5, weights = "waic") |> 
+  round(digits = 2)
+```
+
+The two models yield nearly-equivalent WAIC estimates. Just as in the text, our `p_waic` column shows the models differ by about 2 effective parameters due to the shrinkage from the multilevel partial pooling. Yet recall what McElreath wrote:
+
+> There is nothing to gain here by selecting either model. The comparison of the two models tells a richer story... Since this is an experiment, there is nothing to really select. The experimental design tells us the relevant causal model to inspect. (pp. 418--419)
+
+### Even more clusters
+
+We can extend partial pooling to the `treatment` conditions, too. With **brms**, it will be more natural to revert to the conventional `formula` syntax.
+
+```{r b13.6}
+b13.6 <- brm(
+  data = d,
+  family = binomial,
+  pulled_left | trials(1) ~ 1 + (1 | actor) + (1 | block) + (1 | treatment),
+  prior = c(prior(normal(0, 1.5), class = Intercept),
+            prior(exponential(1), class = sd)),
+  iter = 2000, warmup = 1000, chains = 4, cores = 4,
+  seed = 13,
+  file = "fits/b13.06")
+```
+
+Recall that with **brms**, we don't have a `coeftab()` like with McElreath's **rethinking**. For us, one approach would be to compare the relevent rows from `fixef(b13.4)` to the relevant elements from `ranef(b13.6)`.
+
+```{r}
+tibble(parameter = str_c("b[", 1:4, "]"),
+       `b13.4`   = fixef(b13.4)[2:5, 1],
+       `b13.6`   = ranef(b13.6)$treatment[, 1, "Intercept"]) |> 
+  mutate_if(is.double, round, digits = 2)
+```
+
+Like in the text, "these are not identical, but they are very close" (p. 419). We might compare the group-level $\sigma$ parameters with a plot.
+
+```{r}
+#| fig-width: 5.25
+#| fig-height: 3
+#| warning: false
+
+as_draws_df(b13.6) |> 
+  pivot_longer(starts_with("sd")) |> 
+  mutate(group = str_remove(name, "sd_") |> str_remove("__Intercept")) |> 
+  mutate(parameter = str_c("sigma[", group,"]")) |> 
+  
+  ggplot(aes(x = value, y = parameter)) +
+  stat_halfeye(.width = 0.95,
+               adjust = 0.1, fill = "orange", size = 1) +
+  scale_y_discrete(labels = ggplot2:::parse_safe, expand = expansion(add = 0.1)) +
+  labs(subtitle = "The variation among treatment levels is small, but the\nvariation among the levels of block is still the smallest.") +
+  theme(axis.text.y = element_text(hjust = 0))
+```
+
+Among the three $\sigma_\text{<group>}$ parameters, $\sigma_\text{block}$ is the smallest. Now we'll compare `b13.6` to the last two models with the WAIC.
+
+```{r}
+b13.6 <- add_criterion(b13.6, criterion = "waic")
+
+loo_compare(b13.4, b13.5, b13.6, criterion = "waic") |> 
+  print(simplify = F)
+
+model_weights(b13.4, b13.5, b13.6, weights = "loo") |> 
+  round(digits = 2)
+```
+
+The models show little difference "on purely predictive criteria. This is the typical result, when each cluster (each treatment here) has a lot of data to inform its parameters" (p. 419). Unlike in the text, we didn't have a problem with divergent transitions. We'll see why in the next section.
+
+Before we move on, this section just hints at a historical software difficulty. In short, it's not uncommon to have a theory-based model that includes multiple sources of clustering (i.e., requiring many `( <varying parameter(s)> | <grouping variable(s)> )` parts in the model `formula`). This can make for all kinds of computational difficulties and result in software error messages, inadmissible solutions, and so on. One of the practical solutions to difficulties like these has been to simplify the statistical models by removing some of the clustering terms. Even though such simpler models were not the theory-based ones, at least they yielded solutions. Nowadays, Stan (via **brms** or otherwise) is making it easier to fit the full theoretically-based model. To learn more about this topic, check out this nice blog post by [Michael Frank](https://web.stanford.edu/~mcfrank/), [*Mixed effects models: Is it time to go Bayesian by default?*](http://babieslearninglanguage.blogspot.com/2018/02/mixed-effects-models-is-it-time-to-go.html). Make sure to check out the discussion in the comments section, which includes all-stars like Bürkner and [Douglas Bates](http://pages.stat.wisc.edu/~bates/). You can get more context for the issue from @barrRandomEffectsStructure2013,  [*Random effects structure for confirmatory hypothesis testing: Keep it maximal*](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3881361/).
+
+## Divergent transitions and non-centered priors {#sec-Divergent-transitions-and-non-centered-priors}
+
+Although we did not get divergent transitions warnings in from our last few models the way McElreath did with his, the issues is still relevant for **brms**.
+
+> One of the best things about Hamiltonian Monte Carlo is that it provides internal checks of efficiency and accuracy. One of these checks comes free, arising from the constraints on the physics simulation. Recall that HMC simulates the frictionless flow of a particle on a surface. In any given transition, which is just a single flick of the particle, the total energy at the start should be equal to the total energy at the end. That's how energy in a closed system works. And in a purely mathematical system, the energy is always conserved correctly. It's just a fact about the physics.
+>
+> But in a numerical system, it might not be. Sometimes the total energy is not the same at the end as it was at the start. In these cases, the energy is *divergent.* How can this happen? It tends to happen when the posterior distribution is very steep in some region of parameter space. Steep changes in probability are hard for a discrete physics simulation to follow. When that happens, the algorithm notices by comparing the energy at the start to the energy at the end. When they don't match, it indicates numerical problems exploring that part of the posterior distribution.
+>
+> Divergent transitions are rejected. They don't directly damage your approximation of the posterior distribution. But they do hurt it indirectly, because the region where divergent transitions happen is hard to explore correctly. (p. 420, *emphasis* in the original)
+
+Two primary ways to handle divergent transitions are by increasing the `adapt_delta` parameter, which we've already done a few times in previous chapters, or reparameterizing the model. As McElreath will cover in a bit, switching from the centered to the non-centered parameterization will often work when using multilevel models.
+
+### The Devil's Funnel
+
+McElreath posed a joint distribution
+
+\begin{align*}
+v & \sim \operatorname{Normal}(0, 3) \\
+x & \sim \operatorname{Normal}(0, \exp(v)),
+\end{align*}
+
+where the scale of $x$ depends on another variable, $v$. In **R** code 13.26, McElreath then proposed fitting the following model with `rethinking::ulam()`.
+
+```{r}
+#| eval: false
+
+m13.7 <- ulam(
+  data = list(N = 1),
+  alist(
+    v ~ normal(0, 3),
+    x ~ normal(0, exp(v))
+  ), 
+  chains = 4 
+)
+```
+
+I'm not aware that you can do something like this with **brms**. If you think I'm in error, [please share your solution](https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed/issues). We can at least get a sense of the model by simulating from the joint distribution and plotting.
+
+```{r}
+#| fig-width: 5
+#| fig-height: 2.75
+#| warning: false
+
+set.seed(13)
+
+tibble(v = rnorm(1e3, mean = 0, sd = 3)) |> 
+  mutate(x = rnorm(1e3, mean = 0, sd = exp(v))) |> 
+  
+  ggplot(aes(x = x)) +
+  geom_histogram(binwidth = 1, fill = "orange2") +
+  annotate(geom = "text",
+           x = -100, y = 490, hjust = 0,
+           label = expression(italic(v)%~%Normal(0, 3))) +
+  annotate(geom = "text",
+           x = -100, y = 440, hjust = 0,
+           label = expression(italic(x)%~%Normal(0, exp(italic(v))))) +
+  coord_cartesian(xlim = c(-100, 100)) +
+  scale_y_continuous(breaks = NULL)
+```
+
+The distribution looks something like a Student-$t$ with a very low $\nu$ parameter. We can express the joint likelihood of $p(v, x)$ as
+
+$$p(v, x) = p(x \mid v)\ p(v).$$
+
+Here that is in a plot.
+
+```{r}
+#| fig-width: 3.5
+#| fig-height: 3.5
+
+# Define the parameter space
+parameter_space <- seq(from = -4, to = 4, length.out = 200)
+
+# Simulate
+crossing(v = parameter_space,
+         x = parameter_space) |> 
+  mutate(likelihood_v = dnorm(v, mean = 0, sd = 3),
+         likelihood_x = dnorm(x, mean = 0, sd = exp(v))) |> 
+  mutate(joint_likelihood = likelihood_v * likelihood_x) |> 
+  
+  # Plot
+  ggplot(aes(x = x, y = v, fill = joint_likelihood)) +
+  geom_raster(interpolate = T) +
+  scale_fill_viridis_c(option = "B") +
+  labs(subtitle = "Centered parameterization") +
+  theme(legend.position = "none")
+```
+
+This ends up as a version of McElreath's Figure 13.5.a.
+
+> At low values of $v$, the distribution of $x$ contracts around zero. This forms a very steep valley that the Hamiltonian particle needs to explore. Steep surfaces are hard to simulate, because the simulation is not actually continuous. It happens in discrete steps. If the steps are too big, the simulation will overshoot. (p. 421)
+
+To avoid the divergent transitions than can arise from steep valleys like this, we can switch from our original formula to a non-centered parameterization, such as:
+
+\begin{align*}
+v & \sim \operatorname{Normal}(0, 3) \\
+z & \sim \operatorname{Normal}(0, 1) \\
+x & = z \exp(v),
+\end{align*}
+
+where $x$ is now the product of two independent distributions, $v$ and $z$. With this parameterization, we can express the joint likelihood $p(v, z)$ as
+
+$$p(v, z) = p(z)\ p(v),$$
+
+where $p(z)$ is not conditional on $v$ and $p(v)$ is not conditional on $z$. Here's what that looks like in a plot.
+
+```{r}
+#| fig-width: 3.5
+#| fig-height: 3.5
+
+# Simulate
+crossing(v = parameter_space,
+         z = parameter_space / 2) |> 
+  mutate(likelihood_v = dnorm(v, mean = 0, sd = 3),
+         likelihood_z = dnorm(z, mean = 0, sd = 1)) |> 
+  mutate(joint_likelihood = likelihood_v * likelihood_z) |> 
+  
+  # Plot
+  ggplot(aes(x = z, y = v, fill = joint_likelihood)) +
+  geom_raster(interpolate = T) +
+  scale_fill_viridis_c(option = "B") +
+  labs(subtitle = "Non-centered parameterization") +
+  theme(legend.position = "none")
+```
+
+This is our version of the right-hand panel of McElreath's Figure 13.5. No nasty funnel--just a friendly glowing likelihood orb.
+
+### Non-centered chimpanzees {#sec-Non-centered-chimpanzees}
+
+At the top of the section, McElreath reported the `rethinking::ulam()` default is to set `adapt_delta = 0.95`. Readers should be aware that the `brms::brm()` default is `adapt_delta = 0.80`. A consequence of this difference is `rethinking::ulam()` will tend to take smaller step sizes than `brms::brm()`, at the cost of slower exploration of the posterior. I don't know that one is inherently better than the other. They're just defaults.
+
+Recall that due to how **brms** only supports the non-centered parameterization, we have already fit our version of McElreath's `m13.4nc`. We called it `b13.4`. Here is the model summary, again.
+
+```{r}
+print(b13.4)
+```
+
+Because we only fit this model using the non-centered parameterization, we won't be able to fully reproduce McElreath's Figure 13.6. But we can still plot our effective sample sizes. Recall that unlike the way **rethinking** only reports `n_eff`, **brms** now reports both `Bulk_ESS` and `Tail_ESS` [see @vehtariRanknormalizationFoldingLocalization2019]. At the moment, **brms** does not offer a convenience function that allows users to collect those values in a data frame. However you can do so with help from the [**posterior** package](https://github.com/stan-dev/posterior). For our purposes, the function of interest is `summarise_draws()`, which will take the output from `as_draws_df()` as input.
+
+```{r}
+#| message: false
+#| warning: false
+
+library(posterior)
+
+as_draws_df(b13.4) |> 
+  summarise_draws()
+```
+
+Note how the last three columns are the `rhat`, the `ess_bulk`, and the `ess_tail`. Here we summarize those two effective sample size columns in a scatter plot similar to Figure 13.6, but based only on our `b13.4`, which used the non-centered parameterization.
+
+```{r}
+#| fig-width: 3.5
+#| fig-height: 3.5
+
+as_draws_df(b13.4) |> 
+  summarise_draws() |> 
+
+  ggplot(aes(x = ess_bulk, y = ess_tail)) +
+  geom_abline(linetype = 2) +
+  geom_point(color = "blue") +
+  xlim(0, 4700) +
+  ylim(0, 4700) +
+  ggtitle("Effective sample size summaries for b13.4",
+          subtitle = "ess_bulk is on the x and ess_tail is on the y") +
+  theme(plot.subtitle = element_text(size = 10),
+        plot.title = element_text(size = 11.5),
+        plot.title.position = "plot")
+```
+
+Both measures of effective sample size are fine.
+
+> So should we always use the non-centered parameterization? No. Sometimes the centered form is better. It could even be true that the centered form is better for one cluster in a model while the non-centered form is better for another cluster in the same model. It all depends upon the details. Typically, a cluster with low variation, like the blocks in `m13.4`, will sample better with a non-centered prior. And if you have a large number of units inside a cluster, but not much data for each unit, then the non-centered is also usually better. But being able to switch back and forth as needed is very useful. (p. 425)
+
+I won't argue with McElreath, here. But if you run into a situation where you'd like to use the centered parameterization, you will have to use **rethinking** or fit your model directly in Stan. **brms** won't support you, there.
+
+## Multilevel posterior predictions
+
+> Every model is a merger of sense and nonsense. When we understand a model, we can find its sense and control its nonsense. But as models get more complex, it is very difficult to impossible to understand them just by inspecting tables of posterior means and intervals. Exploring implied posterior predictions helps much more....
+>
+> The introduction of varying effects does introduce nuance, however.
+>
+> First, we should no longer expect the model to exactly retrodict the sample, because adaptive regularization has as its goal to trade off poorer fit in sample for better inference and hopefully better fit out of sample. That is what shrinkage does for us. Of course, we should never be trying to really retrodict the sample. But now you have to expect that even a perfectly good model fit will differ from the raw data in a systematic way.
+>
+> Second, "prediction" in the context of a multilevel model requires additional choices. If we wish to validate a model against the specific clusters used to fit the model, that is one thing. But if we instead wish to compute predictions for new clusters, other than the ones observed in the sample, that is quite another. We'll consider each of these in turn, continuing to use the chimpanzees model from the previous section. (p. 426)
+
+### Posterior prediction for same clusters
+
+Like McElreath did in the text, we'll do this two ways. Recall we use `brms::fitted()` in place of `rethinking::link()`.
+
+```{r}
+chimp <- 2
+
+nd <- d |> 
+  distinct(treatment) |> 
+  mutate(actor = chimp,
+         block = 1)
+
+labels <- c("R/N", "L/N", "R/P", "L/P")
+
+f <- fitted(b13.4, newdata = nd) |> 
+  data.frame() |> 
+  bind_cols(nd) |> 
+  mutate(treatment = factor(treatment, labels = labels))
+
+f
+```
+
+Here are the empirical probabilities computed directly from the data (i.e., the no-pooling model).
+
+```{r}
+chimp_2_d <- d |> 
+  filter(actor == chimp) |> 
+  group_by(treatment) |> 
+  summarise(prob = mean(pulled_left)) |> 
+  ungroup() |> 
+  mutate(treatment = factor(treatment, labels = labels))
+
+chimp_2_d
+```
+
+McElreath didn't show the corresponding plot in the text. It might look like this.
+
+```{r}
+#| fig-width: 2.5
+#| fig-height: 4
+
+f |>
+  # If you want to use `geom_line()` or `geom_ribbon()` with a factor on the x-axis,
+  # you need to code something like `group = 1` in `aes()`
+  ggplot(aes(x = treatment, y = Estimate, group = 1)) +
+  geom_ribbon(aes(ymin = Q2.5, ymax = Q97.5), fill = "orange1") +
+  geom_line(color = "blue") +
+  geom_point(data = chimp_2_d,
+             aes(y = prob),
+             color = "grey25") +
+  ggtitle("Chimp #2",
+          subtitle = "The posterior mean and 95%\nintervals are the blue line\nand orange band, respectively.\nThe empirical means are\nthe charcoal dots.") +
+  coord_cartesian(ylim = c(0.75, 1)) +
+  theme(plot.subtitle = element_text(size = 10))
+```
+
+Do note how severely we've restricted the $y$-axis range. But okay, now let's do things by hand. We'll need to extract the posterior draws and look at the structure of the data.
+
+```{r}
+post <- as_draws_df(b13.4)
+
+glimpse(post)
+```
+
+McElreath didn't show what his **R** code 13.33 `dens( post$a[,5] )` would look like. But here's our analogue.
+
+```{r}
+#| fig-width: 4
+#| fig-height: 2.5
+#| warning: false
+
+post |>
+  transmute(actor_5 = `r_actor__a[5,Intercept]`) |> 
+  
+  ggplot(aes(x = actor_5)) +
+  geom_density(linewidth = 0, fill = "blue") +
+  scale_y_continuous(breaks = NULL) +
+  ggtitle("Chimp #5's density")
+```
+
+And because we made the density only using the `r_actor__a[5,Intercept]` values (i.e., we didn't add `b_Intercept` to them), the density is in a deviance-score metric.
+
+McElreath built his own `link()` function in **R** code 13.34. With this particular model, it will be easiest for us to just work directly with `post`.
+
+```{r}
+#| warning: false
+
+f <- post |> 
+  pivot_longer(b_b_treatment1:b_b_treatment4) |> 
+  mutate(fitted = plogis(b_a_Intercept + value + `r_actor__a[1,Intercept]` + `r_block__a[1,Intercept]`)) |> 
+  mutate(treatment = factor(str_remove(name, "b_b_treatment"),
+                            labels = labels)) |> 
+  select(name:treatment)
+
+f
+```
+
+Now we'll summarize those values and compute their empirical analogues directly from the data.
+
+```{r}
+#| message: false
+#| warning: false
+
+(
+  f <- f |>
+    group_by(treatment) |>
+    tidybayes::mean_qi(fitted)
+)
+
+# The empirical summaries
+chimp <- 5
+
+(
+  chimp_5_d <-d |> 
+    filter(actor == chimp) |> 
+    group_by(treatment) |> 
+    summarise(prob = mean(pulled_left)) |> 
+    ungroup() |> 
+    mutate(treatment = factor(treatment, labels = labels))
+)
+```
+
+Okay, let's see how good we are at retrodicting the `pulled_left` probabilities for `actor == 5`.
+
+```{r}
+#| fig-width: 2.5
+#| fig-height: 3.75
+
+f |>
+  ggplot(aes(x = treatment, y = fitted, group = 1)) +
+  geom_ribbon(aes(ymin = .lower, ymax = .upper), 
+              fill = "orange1") +
+  geom_line(color = "blue") +
+  geom_point(data = chimp_5_d,
+             aes(y = prob),
+             color = "grey25") +
+  ggtitle("Chimp #5",
+          subtitle = "This plot is like the last except\nwe did more by hand.") +
+  coord_cartesian(ylim = 0:1) +
+  theme(plot.subtitle = element_text(size = 10))
+```
+
+Not bad.
+
+### Posterior prediction for new clusters
+
+By average actor, McElreath referred to a chimp with an intercept exactly at the population mean $\bar \alpha$. Given our non-centered parameterization for `b13.4`, this means we'll leave out the random effects for `actor`. Since we're predicting what might happen in new experimental blocks, we'll leave out the random effects for `block`, too. When doing this by hand, the workflow is much like is was before, just with fewer columns added together within the first `mutate()` line.
+
+```{r}
+#| warning: false
+
+f <- post |> 
+  pivot_longer(b_b_treatment1:b_b_treatment4) |> 
+  mutate(fitted = plogis(b_a_Intercept + value)) |> 
+  mutate(treatment = factor(str_remove(name, "b_b_treatment"),
+                            labels = labels)) |> 
+  select(name:treatment) |>
+  group_by(treatment) |>
+  # Note we're using 80% intervals
+  mean_qi(fitted, .width = 0.8)
+
+f
+```
+
+Make Figure 13.7.a.
+
+```{r}
+#| fig-width: 2.5
+#| fig-height: 3.25
+
+p1 <- f |>
+  ggplot(aes(x = treatment, y = fitted, group = 1)) +
+  geom_ribbon(aes(ymin = .lower, ymax = .upper), 
+              fill = "orange1") +
+  geom_line(color = "blue") +
+  ggtitle("Average actor") +
+  coord_cartesian(ylim = 0:1) +
+  theme(plot.title = element_text(hjust = 0.5, size = 14))
+
+p1
+```
+
+If we want to depict the variability across the chimps, we need to include `sd_actor__a_Intercept` into the calculations. In the first block of code, below, we simulate a bundle of new intercepts defined by
+
+$$\text{simulated chimpanzees} \sim \operatorname{Normal}(\bar \alpha, \sigma_\alpha).$$
+
+As before, we are also averaging over `block`.
+
+```{r}
+#| warning: false
+
+set.seed(13)
+
+f <- post |> 
+  # Simulated chimpanzees
+  mutate(a_sim = rnorm(n(), mean = b_a_Intercept, sd = sd_actor__a_Intercept)) |> 
+  pivot_longer(b_b_treatment1:b_b_treatment4) |> 
+  mutate(fitted = plogis(a_sim + value)) |> 
+  mutate(treatment = factor(str_remove(name, "b_b_treatment"),
+                            labels = labels)) |> 
+  group_by(treatment) |>
+  # Note we're using 80% intervals
+  mean_qi(fitted, .width = 0.8)
+
+f
+```
+
+Behold Figure 13.7.b.
+
+```{r}
+#| fig-width: 2.5
+#| fig-height: 3.25
+
+p2 <- f |>
+  ggplot(aes(x = treatment, y = fitted, group = 1)) +
+  geom_ribbon(aes(ymin = .lower, ymax = .upper), 
+              fill = "orange1") +
+  geom_line(color = "blue") +
+  ggtitle("Marginal of actor") +
+  coord_cartesian(ylim = 0:1) +
+  theme(plot.title = element_text(hjust = 0.5, size = 14))
+
+p2
+```
+
+The big difference between this workflow and the last is now we start of by marking off the rows in `post` with an `iter` index and then use `slice_sample()` to randomly sample 100 posterior rows. We also omit the `group_by()` and `mean_qi()` lines at the end.
+
+```{r}
+#| warning: false
+
+# How many simulated chimps would you like?
+n_chimps <- 100
+
+set.seed(13)
+
+f <- post |> 
+  slice_sample(n = n_chimps) |> 
+  # Simulated chimpanzees
+  mutate(a_sim = rnorm(n(), mean = b_a_Intercept, sd = sd_actor__a_Intercept)) |> 
+  pivot_longer(b_b_treatment1:b_b_treatment4) |> 
+  mutate(fitted = plogis(a_sim + value)) |> 
+  mutate(treatment = str_remove(name, "b_b_treatment") |> 
+           factor(labels = labels)) |> 
+  select(.draw:treatment)
+
+f
+```
+
+Make Figure 13.7.c.
+
+```{r}
+#| fig-width: 2.5
+#| fig-height: 3.25
+
+p3 <- f |>
+  ggplot(aes(x = treatment, y = fitted, group = .draw)) +
+  geom_line(alpha = 1/2, color = "orange3") +
+  ggtitle("100 simulated actors") +
+  coord_cartesian(ylim = 0:1) +
+  theme(plot.title = element_text(hjust = 0.5, size = 14))
+
+p3
+```
+
+For the finale, we'll combine the three plots with **patchwork**.
+
+```{r}
+#| fig-width: 7.5
+#| fig-height: 3.25
+#| message: false
+#| warning: false
+
+library(patchwork)
+
+p1 | p2 | p3
+```
+
+#### Bonus: Let's use `fitted()` this time {#sec-Lets-use-fitted-this-time}
+
+We just made those plots using various wrangled versions of `post`, the data frame returned by `as_draws_df(b.13.4)`. If you followed along closely, part of what made that a great exercise is that it forced you to consider what the various vectors in `post` meant with respect to the model formula. But it's also handy to see how to do that from a different perspective. So in this section, we'll repeat that process by relying on the `fitted()` function, instead. We'll go in the same order, starting with the average actor.
+
+```{r}
+#| message: false
+#| warning: false
+
+nd <- distinct(d, treatment)
+
+(
+  f <- fitted(b13.4,
+              newdata = nd,
+              re_formula = NA,
+              probs = c(0.1, 0.9)) |> 
+    data.frame() |> 
+    bind_cols(nd) |> 
+    mutate(treatment = factor(treatment, labels = labels))
+)
+```
+
+You should notice a few things. Since `b13.4` is a cross-classified multilevel model, it had three predictors: `treatment`, `block`, and `actor`. However, our `nd` data only included the first of those three. The reason `fitted()` permitted that was because we set `re_formula = NA`. When you do that, you tell `fitted()` to ignore group-level effects (i.e., focus only on the fixed effects). This was our `fitted()` version of ignoring the `r_` vectors returned by `as_draws_df()`. Here's the plot.
+
+```{r}
+#| fig-width: 2.5
+#| fig-height: 3.25
+
+p4 <- f |>
+  ggplot(aes(x = treatment, y = Estimate, group = 1)) +
+  geom_ribbon(aes(ymin = Q10, ymax = Q90), 
+              fill = "blue") +
+  geom_line(color = "orange1") +
+  ggtitle("Average actor") +
+  coord_cartesian(ylim = 0:1) +
+  theme(plot.title = element_text(hjust = 0.5, size = 14))
+
+p4
+```
+
+For marginal of actor, we can continue using the same `nd` data. This time we'll be sticking with the default `re_formula` setting, which will accommodate the multilevel nature of the model. However, we'll also be adding `allow_new_levels = T` and `sample_new_levels = "gaussian"`. The former will allow us to marginalize across the specific actors and blocks in our data and the latter will instruct `fitted()` to use the multivariate normal distribution implied by the random effects. It'll make more sense why I say *multivariate* normal by the end of @sec-Adventures-in-Covariance. For now, just go with it.
+
+```{r}
+(
+  f <- fitted(b13.4,
+              newdata = nd,
+              probs = c(0.1, 0.9),
+              allow_new_levels = T,
+              sample_new_levels = "gaussian") |> 
+    data.frame() |> 
+    bind_cols(nd) |> 
+    mutate(treatment = factor(treatment, labels = labels))
+)
+```
+
+Here's our `fitted()`-based marginal of `actor` plot.
+
+```{r}
+#| fig-width: 2.5
+#| fig-height: 3.25
+
+p5 <- f |>
+  ggplot(aes(x = treatment, y = Estimate, group = 1)) +
+  geom_ribbon(aes(ymin = Q10, ymax = Q90), 
+              fill = "blue") +
+  geom_line(color = "orange1") +
+  ggtitle("Marginal of actor") +
+  coord_cartesian(ylim = 0:1) +
+  theme(plot.title = element_text(hjust = 0.5, size = 14))
+
+p5
+```
+
+We'll have to amend our workflow a bit to make a `fitted()` version of the third panel. First we redefine our `nd` data and execute the `fitted()` code.
+
+```{r}
+# How many simulated chimps would you like?
+n_chimps <- 100
+
+nd <- distinct(d, treatment) |> 
+  # Define 100 new actors
+  expand_grid(actor = str_c("new", 1:n_chimps)) |> 
+  arrange(actor, treatment) |> 
+  # This adds a row number, which will come in handy, later
+  mutate(row = 1:n())
+
+# Fitted
+set.seed(13)
+
+f <- fitted(b13.4,
+            newdata = nd,
+            allow_new_levels = T,
+            sample_new_levels = "gaussian",
+            summary = F,
+            ndraws = n_chimps)
+```
+
+Our `f` object will need a lot of wrangling. Before I walk out the wrangling steps, we should reiterate what McElreath originally did in the text (pp. 429--430). He based the new actors on the deviation scores from `post$sigma_a`. That was the first working line in his **R** code 13.38. In the remaining lines in that code block, he used the model formula to compute the actor-level trajectories. Then in his plot code in **R** code 13.39, he just used the first 100 rows from that output.
+
+In our `fitted()` code, above, we saved a little time and computer memory by setting `ndraws = n_chimps`, which equaled 100. That's functionally the same as when McElreath used the first 100 posterior draws in the plot. A difficulty for us is the way `brms::fitted()` returns the output, the 100 new levels of `actor` and the four levels of `treatment` are confounded in the 400 columns. In the code block, below, the `data.frame()` through `left_join()` lines are meant to disentangle those two. After that, we'll make an `actor_number` variable, which which we'll filter the data such that the first row returned by `fitted()` is only assigned to the new actor #1, the second row is only assigned to the new actor #2, and so on. The result is that we have 100 new simulated actors, each of which corresponds to a different iteration of the posterior draws from the fixed effects.^[The `fitted()` version of the code for the third panel is cumbersome. Indeed, this in one of those cases where it seems more straightforward to work directly with the `as_draws_df()` output, rather than with `fitted()`. The workflow in this section from previous editions of this ebook was more streamlined and superficially seemed to work. However, fellow researcher [Ladislas Nalborczyk](https://twitter.com/lnalborczyk) kindly pointed out I was taking 100 draws from one new simulated `actor`, rather than one simulated draw from 100 new levels of `actor`. To my knowledge, if you want 100 new levels of `actor` AND want each one to be from a different posterior iteration, you'll need a lot of post-processing code when working with `fitted()`.]
+
+```{r}
+#| fig-width: 2.5
+#| fig-height: 3.25
+
+p6 <- f |>
+  data.frame() |> 
+  # Name the columns by the `row` values in `nd`
+  set_names(pull(nd, row)) |> 
+  # Add a draw index
+  mutate(draw = row_number()) |> 
+  # Make it long
+  pivot_longer(-draw, names_to = "row") |> 
+  mutate(row = as.double(row)) |> 
+  # Add the new data
+  left_join(nd, by = "row") |> 
+  # Extract the numbers from the names of the new actors
+  mutate(actor_number = str_extract(actor, "\\d+") |> as.double()) |> 
+  # Only keep the posterior iterations that match the `actor_number` values
+  filter(actor_number == draw) |> 
+  # Add the `treatment` labels
+  mutate(treatment = factor(treatment, labels = labels)) |> 
+  
+  # plot!
+  ggplot(aes(x = treatment, y = value, group = actor)) +
+  geom_line(alpha = 1/2, color = "blue") +
+  ggtitle("100 simulated actors") +
+  theme(plot.title = element_text(hjust = 0.5, size = 14))
+
+p6
+```
+
+Here they are altogether.
+
+```{r}
+#| fig-width: 7.5
+#| fig-height: 3.25
+
+p4 | p5 | p6
+```
+
+### Post-stratification {#sec-Post-stratification}
+
+If you have estimates $p_i$ for each relevant demographic category $i$, the post-stratified prediction for the whole population just re-weights these estimates using the number of individuals $N_i$ in each category with the formula
+
+$$\frac{\sum_i N_i p_i}{\sum_i N_i}.$$
+
+You can find a more comprehensive introduction to post-stratification in Chapter 17 of @gelmanRegressionOtherStories2020. Within the multilevel context, this is approach is called **multilevel regression and post-stratification** (MRP, pronounced "Mister P"). Gelman is a long-time advocate for MRP [e.g., @gelmanPostratificationManyCategories1997; @parkBayesianMultilevelEstimation2004]. He mentions MRP a lot in his blog (e.g., [here](https://statmodeling.stat.columbia.edu/2019/01/10/mrp-multilevel-regression-poststratification-mister-p-clearing-misunderstandings/), [here](https://statmodeling.stat.columbia.edu/2019/11/09/australian-polls-failed-they-didnt-do-mister-p/), [here](https://statmodeling.stat.columbia.edu/2019/07/27/the-economist-does-mister-p/), [here](https://statmodeling.stat.columbia.edu/2019/05/14/scandal-mrp-appears-in-british-tabloid/), [here](https://statmodeling.stat.columbia.edu/2019/03/25/mister-p-surveys-epidemiology-using-stan/),
+[here](https://statmodeling.stat.columbia.edu/2016/10/12/31398/), [here](https://statmodeling.stat.columbia.edu/2016/09/09/q-is-a-50-state-poll-as-good-as-50-state-polls-a-use-mister-p/), [here](https://statmodeling.stat.columbia.edu/2016/06/12/29344/)).
+
+## ~~Summary~~ Bonus: Post-stratification in an example
+
+Though I was excited to see McElreath introduce MRP, I was disappointed he did not work through an example. Happily, MRP tutorials have been popping up all over the place online. In this bonus section, we'll draw heavily from the great blog post from demographer [Monica Alexander](https://www.monicaalexander.com/), [*Analyzing name changes after marriage using a non-representative survey*](https://www.monicaalexander.com/posts/2019-08-07-mrp/). From the introduction of her post, we read:
+
+> Recently on Twitter, sociologist [Phil Cohen](https://socy.umd.edu/facultyprofile/cohen/philip-n) put out a survey asking people about their decisions to change their name (or not) after marriage. The response was impressive - there are currently over 5,000 responses. Thanks to Phil, the data from the survey are publicly available and downloadable [here](https://osf.io/uzqdn/) for anyone to do their own analysis.
+>
+> However, there's an issue with using the raw data without lots of caveats: the respondents are not very representative of the broader population, and in particular tend to have a higher education level and are younger than average....
+>
+> This is a very common problem for social scientists: trying to come up with representative estimates using non-representative data. In this post I'll introduce one particular technique of trying to do this: multilevel regression and post-stratification (MRP). In particular, I'll use data from the marital name change survey to estimate the proportion of women in the US who kept their maiden name after marriage.
+
+### Meet the data
+
+Alexander used two data sources in her example. As alluded to in the block quote, above, she used a subset of the data from Cohen's Twitter poll. She derived her post-stratification weights from the 2017 5-year ACS data from [IPUMS-USA](https://usa.ipums.org/usa/index.shtml), which provides U.S. census data for research use. Alexander provided some of her data wrangling code in her post and her full **R** code is available on her GitHub repo, [marriage-name-change](https://github.com/MJAlexander/marriage-name-change). For the sake of space, I downloaded the data, wrangled them similarly to how they were used in her blog, and saved the tidied data as external files in my [data folder](https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed/tree/master/data) on GitHub. You can download them from there.
+
+Load the data.
+
+```{r}
+load("data/mrp_data_ch13.rds")
+
+glimpse(d)
+glimpse(cell_counts)
+```
+
+Our primary data file, which contains the survey responses to whether women changed their names after marriage, is `d`. Our criterion variable will be `kept_name`, which is dummy coded 0 = "no" 1 = "yes." We have four grouping variables:
+
+* `age_group`, which ranges from 25 to 75 and is discretized such that 25 = [25, 30), 30 = [30, 35), and so on;
+* `decade_married`, which ranges from 1979 to 2019 and is discretized such that 1979 = [1979, 1989), 1989 = [1989, 1999), and so on;
+* `educ_group`, which is coded as <BA = no bachelor's degree, BA = bachelor's degree, and >BA = above a bachelor's degree; and
+* `state_name`, which includes the names of the 50 US states, the District of Columbia, and Puerto Rico.
+
+The `cell_counts` data contains the relevant information from the US census. The first four columns, `state_name`, `age_group`, `decade_married`, and `educ_group` are the same demographic categories from the survey data. The fifth column, `n`, has the counts of women falling within those categories from the US census. There were 6,058 unique combinations of the demographic categories represented in the census data.
+
+```{r}
+cell_counts |> count()
+```
+
+We can use a histogram to get a sense of how those counts vary.
+
+```{r}
+#| fig-width: 4.5
+#| fig-height: 2.5
+
+cell_counts |> 
+  ggplot(aes(x = n)) +
+  geom_histogram(binwidth = 2000, fill = "blue") +
+  scale_x_continuous(breaks = 0:3 * 100000, labels = c(0, "100K", "200K", "300K"))
+```
+
+Though some of the categories are large with an excess of 100,000 persons in them, many are fairly small. It seems unlikely that the women who participated in Cohen's Twitter poll fell into these categories in the same proportions. This is where post-stratification will help.
+
+### Settle the MR part of MRP
+
+Like in the earlier examples in this chapter, we will model the data with multilevel logistic regression. Alexander fit her model with **brms** and kept things simple by using default priors. Here we'll continue on with McElreath's recommendations and use weakly regularizing priors. Though I am no expert on the topic of women's name-changing practices following marriage, my layperson's sense is that most do not keep their maiden name after they marry. I'm not quite sure what the proportion might be, but I'd like my $\bar \alpha$ prior to tend closer to 0 than to 1. Recall that the $\bar \alpha$ for a multilevel logistic model is typically a Gaussian set on the log-odds scale. If we were to use $\operatorname{Normal}(-1, 1)$, here's what that would look like when converted back to the probability metric.
+
+```{r}
+#| fig-width: 4
+#| fig-height: 2.25
+
+set.seed(13)
+
+tibble(n = rnorm(1e6, mean = -1, sd = 1)) |> 
+  mutate(p = plogis(n)) |> 
+  
+  ggplot(aes(x = p)) +
+  geom_histogram(binwidth = 0.02, boundary = 0, fill = "blue") +
+  scale_y_continuous(breaks = NULL)
+```
+
+To my eye, this looks like a good place to start. Feel free to experiment with different priors on your end. As to the hierarchical $\sigma_\text{<group>}$ priors, we will continue our practice of setting them to $\operatorname{Exponential}(1)$. Here’s how to fit the model.
+
+```{r b13.7}
+b13.7 <- brm(
+  data = d,
+  family = binomial,
+  kept_name | trials(1) ~ 1 + (1 | age_group) + (1 | decade_married) + (1 | educ_group) + (1 | state_name),
+  prior = c(prior(normal(-1, 1), class = Intercept),
+            prior(exponential(1), class = sd)),
+  iter = 2000, warmup = 1000, chains = 4, cores = 4,
+  seed = 13,
+  control = list(adapt_delta = 0.95),
+  file = "fits/b13.07")
+```
+
+Note how, like Alexander did in the blog, we had to adjust the `adept_delta` setting to stave off a few divergent transitions. In my experience, this is common when your hierarchical grouping variables have few levels. Our `decade_married` has five levels and `educ_group` has only four. Happily, `brms::brm()` came through in the end. You can see by checking the summary.
+
+```{r}
+print(b13.7)
+```
+
+Even with 4,373 cases in the data, the uncertainty around $\bar \alpha$ is massive, `r str_c(round(fixef(b13.7)[, 1], 2), " [", round(fixef(b13.7)[, 3], 2), ", ", round(fixef(b13.7)[, 4], 2), "]")`, suggesting a lot of the action is lurking in the $\sigma_\text{<group>}$ parameters. It might be easier to compare the $\sigma_\text{<group>}$ parameters with an interval plot.
+
+```{r}
+#| fig-width: 6
+#| fig-height: 2
+#| warning: false
+
+as_draws_df(b13.7) |> 
+  select(starts_with("sd_")) |> 
+  set_names(str_c("sigma[", c("age", "decade~married", "education", "state"), "]")) |> 
+  pivot_longer(everything()) |> 
+  group_by(name) |>
+  median_qi(.width = seq(from = 0.5, to = 0.9, by = 0.1)) |>
+  
+  ggplot(aes(x = value, xmin = .lower, xmax = .upper, y = reorder(name, value))) +
+  geom_interval(aes(alpha = .width), 
+                color = "orange3") +
+  scale_y_discrete(labels = ggplot2:::parse_safe) +
+  scale_alpha_continuous("CI width", range = c(0.7, 0.15)) +
+  xlim(0, NA) +
+  theme(axis.text.y = element_text(hjust = 0),
+        panel.grid.major.y = element_blank())
+```
+
+It seems the largest share of the variation is to be found among the age groups. Since there was relatively less variation across states, we can expect more aggressive regularization along those lines.
+
+### Post-stratify to put the P in MRP
+
+In her post, Alexander contrasted the MRP results with the empirical proportions from the Twitter survey in a series of four plots, one for each of the four grouping variables. We will take a slightly different approach. For simplicity, we will only focus on the results for `age_group` and `state`. However, we will examine the results for each using three estimation methods: the empirical proportions, the naïve results from the multilevel model, and the MRP estimates.
+
+#### Estimates by age group
+
+To warm up, here is the plot of the empirical proportions for `kept_name`, by `age_group`.
+
+```{r}
+#| fig-width: 3
+#| fig-height: 3
+#| message: false
+#| warning: false
+
+levels <- c("raw data", "multilevel", "MRP")
+
+# Compute the proportions from the data
+p1 <- d |> 
+  group_by(age_group, kept_name) |>
+  summarise(n = n()) |> 
+  group_by(age_group) |> 
+  mutate(prop = n / sum(n),
+         type = factor("raw data", levels = levels)) |> 
+  filter(kept_name == 1, age_group < 80, age_group > 20) |>
+
+  # Plot
+  ggplot(aes(x = prop, y = age_group)) + 
+  geom_point() +
+  scale_x_continuous(breaks = c(0, 0.5, 1), limits = 0:1) +
+  facet_wrap(~ type)
+
+p1
+```
+
+We'll combine that plot with the next two, in a bit. I just wanted to give a preview of what we're doing. The second plot will showcase the typical multilevel estimates for the same. The most straightforward way to do this with **brms** is with the `fitted()` function. We'll use the `re_formula` argument to average over the levels of all grouping variables other than `age_group`. Relatedly, we'll feed in the unique levels of `age_group` into the `newdata` argument. Then we just wrangle and plot.
+
+```{r}
+nd <- distinct(d, age_group) |> arrange(age_group)
+
+p2 <- fitted(
+  b13.7,
+  re_formula = ~ (1 | age_group),
+  newdata = nd) |> 
+  data.frame() |> 
+  bind_cols(nd) |> 
+  mutate(prop = Estimate,
+         type = factor("multilevel", levels = levels)) |> 
+  
+  ggplot(aes(x = prop, xmin = Q2.5, xmax = Q97.5, y = age_group)) + 
+  geom_pointrange(color = "blue2", linewidth = 0.8, size = 1/4) +
+  scale_x_continuous(breaks = c(0, 0.5, 1), limits = c(0, 1)) +
+  scale_y_discrete(labels = NULL) +
+  facet_wrap(~ type)
+```
+
+We will take a look at the multilevel coefficient plot in just a bit. Now we turn our focus to computing the MRP estimates. As a first step, we'll follow Alexander's lead and add a `prop` column to the `cell_counts` data, which will give us the proportions of the combinations of the other three demographic categories, within each level of `age_group`. We'll save the results as `age_prop`.
+
+```{r}
+age_prop <- cell_counts |> 
+  group_by(age_group) |> 
+  mutate(prop = n / sum(n)) |> 
+  ungroup()
+
+age_prop
+```
+
+These results are then fed into the `newdata` argument within the `add_predicted_draws()` function, which we'll save as `p`.
+
+```{r}
+p <- add_predicted_draws(
+  b13.7, 
+  newdata = age_prop |> 
+    filter(age_group > 20, 
+           age_group < 80, 
+           decade_married > 1969),
+  allow_new_levels = T)
+
+glimpse(p)
+```
+
+The `tidybayes::add_predicted_draws()` function is somewhat analogous to `brms::predict()`. It allowed us to compute the posterior predictions from our model, given the levels of the predictors we fed into `newdata`. The results were returned in a tidy data format, including the levels of the predictors from the `newdata` argument. Because there were 6,058 unique predictor values and 4,000 posterior draws, this produced a 24,232,000-row data frame. The posterior predictions are in the `.prediction` column on the end. Since we used a binomial regression model, we got a series of 0's and 1's.
+
+Next comes the MRP magic. If we group the results by `age_group` and `.draw`, we can sum the product of the posterior predictions and the weights, which will leave us with 4,000 stratified posterior draws for each of the 11 levels of `age_group`. This is the essence of the post-stratification equation McElreath presented in @sec-Post-stratification,
+
+$$\frac{\sum_i N_i p_i}{\sum_i N_i}.$$
+
+We will follow Alexander and call these summary values `kept_name_predict`. We then complete the project by grouping by `age_group` and summarizing each stratified posterior predictive distribution by its mean and 95% interval.
+
+```{r}
+#| message: false
+
+p <- p |> 
+  group_by(age_group, .draw) |> 
+  summarise(kept_name_predict = sum(.prediction * prop)) |> 
+  group_by(age_group) |> 
+  mean_qi(kept_name_predict)
+
+p
+```
+
+Now we are finally ready to plot our MRP estimates and combine the three subplots into a coherent whole with **patchwork** syntax.
+
+```{r}
+#| fig-width: 8
+#| fig-height: 3.5
+
+# MRP plot
+p3 <- p |>
+  mutate(type = factor("MRP", levels = levels)) |> 
+
+  ggplot(aes(x = kept_name_predict, xmin = .lower, xmax = .upper, y = age_group)) + 
+  geom_pointrange(color = "orange2", linewidth = 0.8, size = 1/4) +
+  scale_x_continuous(breaks = c(0, 0.5, 1), limits = 0:1) +
+  scale_y_discrete(labels = NULL) +
+  facet_wrap(~ type)
+
+# Combine, entitle, and display
+(p1 | p2 | p3) +
+  plot_annotation(title = "Proportion of women keeping name after marriage, by age",
+                  subtitle = "Proportions are on the x-axis and age groups are on the y-axis.")
+```
+
+Both multilevel and MRP estimates tended to be a little lower than the raw proportions, particularly for women in the younger age groups. Alexander mused this was "likely due to the fact that the survey has an over-sample of highly educated women, who are more likely to keep their name." The MRP estimates were more precise than the multilevel predictions, which averaged across the grouping variables other than age. All three estimates show something of an inverted U-shape curve across age, which Alexander noted "is consistent with past observations that there was a [peak in name retention in the 80s and 90s](https://www.nytimes.com/2015/06/28/upshot/maiden-names-on-the-rise-again.html)."
+
+#### Estimates by US state
+
+Now we turn out attention to variation across states. The workflow, here, will only deviate slightly from what we just did. This time, of course, we will be grouping the estimates by `state_name` instead of by `age_group`. The other notable difference is since we're plotting data clustered by US states, it might be fun to show the results in a map format. Alexander used the `geom_statebins()` function from the [**statebins** package](https://CRAN.R-project.org/package=statebins) [@R-statebins]. I thought the results were pretty cool, we will do the same. To give you a sense of what we're building, here's the plot of the empirical proportions.
+
+```{r}
+#| fig-width: 3
+#| fig-height: 2.75
+#| message: false
+#| warning: false
+
+library(statebins)
+
+p1 <- d |>
+  group_by(state_name, kept_name) |>
+  summarise(n = n()) |>
+  group_by(state_name) |>
+  mutate(prop = n/sum(n)) |>
+  filter(kept_name == 1,
+         state_name != "puerto rico") |> 
+  mutate(type = factor("raw data", levels = levels),
+         statename = str_to_title(state_name)) |>
+  
+  ggplot(aes(fill = prop, state = statename)) + 
+  geom_statebins(lbl_size = 2.5, border_size = 1/4, radius = grid::unit(2, "pt")) +
+  scale_x_continuous(breaks = NULL) +
+  scale_y_continuous(breaks = NULL) +
+  scale_fill_viridis_c("proportion\nkeeping\nname", option = "B", limits = c(0, 0.8)) +
+  facet_wrap(~ type) +
+  theme(legend.position = "none")
+
+p1
+```
+
+For the naïve multilevel estimates, we'll continue using `fitted()`.
+
+```{r}
+nd <- distinct(d, state_name)
+
+p2 <- fitted(b13.7,
+             newdata = nd,
+             re_formula = ~ (1 | state_name),
+             allow_new_levels = T) |> 
+  data.frame() |> 
+  bind_cols(nd) |> 
+  filter(state_name != "puerto rico") |> 
+  mutate(prop = Estimate,
+         type = factor("multilevel", levels = levels),
+         statename = str_to_title(state_name)) |> 
+  
+  ggplot(aes(fill = prop, state = statename)) + 
+  geom_statebins(lbl_size = 2.5, border_size = 1/4, radius = grid::unit(2, "pt")) +
+  scale_x_continuous(breaks = NULL) +
+  scale_y_continuous(breaks = NULL) +
+  scale_fill_viridis_c("proportion\nkeeping\nname", option = "B", limits = c(0, 0.8)) +
+  facet_wrap(~ type)
+```
+
+In preparation for the MRP estimates, we’ll first wrangle `cell_counts`, this time grouping by `state_name` before computing the weights.
+
+```{r}
+state_prop <- cell_counts |> 
+  group_by(state_name) |> 
+  mutate(prop = n/sum(n))  |> 
+  ungroup()
+
+state_prop
+```
+
+Now we'll feed those `state_prop` values into `add_predicted_draws()`, wrangle, and plot the MRP plot in one step.
+
+```{r}
+#| message: false
+#| warning: false
+
+p3 <- add_predicted_draws(
+  b13.7,
+  newdata = state_prop |> 
+    filter(age_group > 20, 
+           age_group < 80, 
+           decade_married > 1969),
+  allow_new_levels = T) |>
+  group_by(state_name, .draw) |> 
+  summarise(kept_name_predict = sum(.prediction * prop)) |> 
+  group_by(state_name) |> 
+  mean_qi(kept_name_predict) |> 
+  mutate(prop      = kept_name_predict,
+         type      = factor("MRP", levels = levels),
+         statename = str_to_title(state_name)) |> 
+  
+  ggplot(aes(fill = kept_name_predict, state = statename)) + 
+  geom_statebins(lbl_size = 2.5, border_size = 1/4, radius = grid::unit(2, "pt")) +
+  scale_x_continuous(breaks = NULL) +
+  scale_y_continuous(breaks = NULL) +
+  scale_fill_viridis_c("proportion\nkeeping\nname", option = "B", limits = c(0, 0.8)) +
+  facet_wrap(~ type) +
+  theme(legend.position = "none")
+```
+
+We're finally ready to combine our three panels into one grand plot.
+
+```{r}
+#| fig-width: 9
+#| fig-height: 4
+#| warning: false
+
+(p1 | p2 | p3) +
+  plot_annotation(title = "Proportion off women keeping name after marriage, by state",
+                  theme = theme(plot.margin = margin(0.2, 0, 0.01, 0, "cm")))
+```
+
+Remember how small the posterior for $\sigma_\text{state}$ was relative to the other $\sigma_\text{<group>}$ posteriors? We said that would imply more aggressive regularization across states. You can really see that regularization in the panels showing the multilevel and MRP estimates. They are much more uniform than the proportions from the raw data, which are all over the place. This is why you use multilevel models and/or stratify. When you divide the responses up at the state level, the proportions get jerked all around due to small and unrepresentative samples. Even with the regularization from the multilevel partial pooling, you can still see some interesting differences in the multilevel and MRP panels. Both suggest women keep their maiden names in relatively low proportions in Utah and relatively high proportions in New York. For those acquainted with American culture, this shouldn't be a great surprise.
+
+### Wrap this MRP up
+
+Interested readers should practice exploring the MRP estimates by the other two grouping variables, `educ_group` and `decate_married`. Both contain interesting results. Also, there are many other great free resources for learning about MRP.
+
+* [Tim Mastny](https://timmastny.com/) showed how to use MRP via **brms** with data of US state level opinions for gay marriage in his blog post, [*MRP Using brms and tidybayes*](https://timmastny.rbind.io/blog/multilevel-mrp-tidybayes-brms-stan/).
+* [Rohan Alexander](https://rohanalexander.com/) showed how to fit political poling data with both **lme4** and **brms** in his post, [*Getting started with MRP*](https://rohanalexander.com/posts/2019-12-04-getting_started_with_mrp/).
+* [Lauren Kennedy](https://jazzystats.com/about/) and Andrew Gelman have a [-@kennedy2021know] paper called [*Know your population and know your model: Using model-based regression and post-stratification to generalize findings beyond the observed sample*](https://doi.org/10.1037/met0000362), which shows how to use **brms** to apply MRP to Big Five personality data. [Here](https://arxiv.org/pdf/1906.11323.pdf)'s a link to the preprint.
+
+For a more advanced application, check out the paper by [Kolczynska](https://martakolczynska.com/), Bürkner, [Kennedy](https://jazzystats.com/about/), and Vehtari [-@kolczynskaTrustStateInstitutions2020], which combines MRP with a model with ordinal outcomes (recall @sec-Ordered-categorical-outcomes). Their supplemental material, which includes their **R** code, lives at [https://osf.io/dz4y7/](https://osf.io/dz4y7/). With all this good stuff, it seems we have an embarrassment of riches when it comes to **brms** and MRP! To wrap this section up, we'll give Monica Alexander the last words:
+
+> MRP is probably most commonly used in political analysis to reweight polling [data](https://www.monicaalexander.com/posts/2019-08-07-mrp/#fn5), but it is a useful technique for many different survey responses. Many modeling extensions are possible. For example, the multilevel regression need not be limited to just using random effects, as was used here, and other model set ups could be [investigated](https://www.monicaalexander.com/posts/2019-08-07-mrp/#fn6). MRP is a relatively easy and quick way of trying to get more representative estimates out of non-representative data, while giving you a sense of the uncertainty around the estimates (unlike traditional post-stratification).
+
+## Session info {-}
+
+```{r}
+sessionInfo()
+```
+
+```{r}
+#| eval: false
+#| echo: false
+
+# For all you super nerds, here is my data wrangling code for the MRP example
+
+# Load and wrangle Cohen's twitter poll data
+mncs <- haven::read_dta(file = "data/MNCS-PV2.dta")
+
+d <- mncs |> 
+  filter(!is.na(agemar), !is.na(yrmar),
+         genmar == 2 & spgenmar == 1) |> 
+  mutate(kept_name = as.numeric(namechg == 1),
+         state_name = factor(
+           state, 
+           levels = attributes(state)$labels,
+           labels = names(attributes(state)$labels)) |> 
+           as.character() |> str_to_lower(),
+         age = agemar + (2019 - yrmar),
+         age_group = cut(
+           age, 
+           breaks = c(seq(15, 80, by = 5), Inf),
+           labels = seq(15, 80, by = 5), right = FALSE
+         ) |> 
+           as.character(),
+         decade_married = cut(
+           yrmar, 
+           breaks = c(seq(1969, 2019, by = 10), Inf),
+           labels = seq(1969, 2019, by = 10), right = FALSE
+         ) |> 
+           as.character(),
+         educ_group = case_when(
+           ednow < 5  ~ "<BA",
+           ednow == 5 ~ "BA",
+           ednow > 5  ~ ">BA",
+           TRUE ~ "NA"
+         )) |> 
+  select(kept_name, state_name, age_group, decade_married, educ_group) |> 
+  filter(age_group > 20, age_group < 80, decade_married > 1969)
+
+# Load and wrangle the IPUMS-USA census data
+ddi <- ipumsr::read_ipums_ddi("/Users/solomonkurz/Dropbox/Recoding Statistical Rethinking/2nd ed/data/usa_00001.xml")
+data <- ipumsr::read_ipums_micro(ddi)
+
+data <- data |> 
+  rename_all(.funs = tolower) |> 
+  filter(sex == 2, age > 14, marst != 6, yrmarr > 1968)
+
+d_acs <- data |> 
+  # filter(sex == 2, age > 14, marst != 6, yrmarr > 1968) |> 
+  mutate(age_group = cut(
+    age, 
+    breaks = c(seq(15, 80, by = 5), Inf),
+    labels = seq(15, 80, by = 5), right = FALSE
+  ) |> 
+    as.character(),
+  decade_married = cut(
+    yrmarr, 
+    breaks = c(seq(1969, 2019, by = 10), Inf),
+    labels = seq(1969, 2019, by = 10), right = FALSE
+  ) |> 
+    as.character(),
+  educ_group = case_when(
+    educ < 10  ~ "<BA",
+    educ == 10 ~ "BA",
+    educ > 10  ~ ">BA",
+    TRUE       ~ "NA"
+  ))
+
+cell_counts <- d_acs |> 
+  group_by(age_group, statefip, educ_group, decade_married) |> 
+  summarise(n = sum(perwt))  |> 
+  filter(age_group > 20, age_group < 80, decade_married > 1969) |> 
+  mutate(state_name = factor(statefip, 
+                             levels = attributes(statefip)$labels, 
+                             labels = names(attributes(statefip)$labels)) |> 
+           as.character() |> 
+           str_to_lower()) |> 
+  ungroup() |> 
+  select(state_name, age_group, decade_married, educ_group, n)
+
+# Save the data
+save(list = c("d", "cell_counts"), 
+     file = "data/mrp_data_ch13.rds")
+```
+
+## Comments {-}
+
