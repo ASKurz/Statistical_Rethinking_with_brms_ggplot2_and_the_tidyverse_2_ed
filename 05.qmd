@@ -865,7 +865,7 @@ r |>
 
 Look at that. If you were to fit a follow-up model based on only the point estimates (posterior means) of those residuals, you'd be ignoring a lot of uncertainty. For more on the topic of residuals, see @freckleton2002misuse, [*On the misuse of residuals in ecology: regression of residuals vs. multiple regression*](https://doi.org/10.1046/j.1365-2656.2002.00618.x).
 
-##### Bonus: Rethinking residuals
+##### Bonus: Rethinking residuals {#sec-Bonus-Rethinking-residuals}
 
 McElreath was a little inconsistent with how he talked about residuals in the text. The typical definition of residuals nowadays is
 
@@ -1369,13 +1369,14 @@ print(b5.5)
 The results are very similar to those returned earlier from `print(b5.5_draft)`. It's not in the text, but let's compare the parameter estimates between the two models with another version of our homemade `coeftab()` plot.
 
 ```{r}
-all.equal(bind_rows(
-  as_draws_df(b5.5_draft_cc) |> select(b_Intercept:sigma),
-  as_draws_df(b5.5) |> select(b_Intercept:sigma)
-  ) 
-,
-bind_rows(as_draws_df(b5.5_draft_cc), as_draws_df(b5.5)) |> 
-  select(b_Intercept:sigma)
+#| warning: false
+
+all.equal(
+  bind_rows(
+    as_draws_df(b5.5_draft_cc) |> select(b_Intercept:sigma),
+    as_draws_df(b5.5) |> select(b_Intercept:sigma)),
+  bind_rows(as_draws_df(b5.5_draft_cc), as_draws_df(b5.5)) |> 
+    select(b_Intercept:sigma)
 )
 ```
 

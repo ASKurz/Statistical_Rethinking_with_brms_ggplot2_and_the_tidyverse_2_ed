@@ -137,7 +137,7 @@ Check the model summary.
 print(b7.1)
 ```
 
-As we'll learn later on, **brms** already has a convenience function for computing the Bayesian $R^2$. At this point in the chapter, we'll follow along and make a **brms**-centric version of McElreath's `R2_is_bad()`. But because part of our version of `R2_is_bad()` will contain the `brms::predict()` function, I'm going to add a `seed` argument to make the results more reproducible.
+As we'll learn later on, **brms** already has a convenience function for computing the Bayesian $R^2$. At this point in the chapter, we'll follow along and make a **brms**-centric version of McElreath's `R2_is_bad()`. But because part of our version of `R2_is_bad()` will contain the `brms::predict()` function, I'm going to add a `seed` argument to make the results more reproducible.^[For more context for my ordering in the `r <- ...` portion of the code, see @sec-Bonus-Rethinking-residuals.]
 
 ```{r}
 R2_is_bad <- function(brm_fit, seed = 7, ...) {
@@ -414,10 +414,7 @@ b7.1.1 <- update(
 print(b7.1.1)
 ```
 
-You can see by the `newdata` statement that `b7.1.1` is fit on the `d` data after dropping the first row. Here's how we might amend out plotting strategy from before to visualize the posterior mean for the model-implied trajectory.
-
-alpha = 1/2, color = carto_pal(7, "BurgYl")[7], linewidth = 1/2
-alpha = 1/2, color = carto_pal(7, "BurgYl")[7], linewidth = 1/2
+You can see by the `newdata` statement that `b7.1.1` is fit on the `d` data after dropping the first row. Here's how we might amend our plotting strategy from before to visualize the posterior mean for the model-implied trajectory.
 
 ```{r}
 #| fig-width: 3.25
@@ -500,7 +497,8 @@ load("fits/b07.04_fits.rda")
 #| eval: false
 
 b7.1_fits <- tibble(row = 1:7) |> 
-  mutate(post = purrr::map(.x = row, .f = \(x) brain_loo_lines(brms_fit = b7.1, row = x))) |> 
+  mutate(post = purrr::map(.x = row, 
+                           .f = \(x) brain_loo_lines(brms_fit = b7.1, row = x))) |> 
   unnest(post)
 
 b7.4_fits <- tibble(row = 1:7) |> 
