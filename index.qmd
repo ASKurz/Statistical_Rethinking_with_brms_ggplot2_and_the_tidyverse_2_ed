@@ -2,7 +2,7 @@
 
 # What and why {-}
 
-This ebook is based on the second edition of [Richard McElreath](https://twitter.com/rlmcelreath)'s [-@mcelreathStatisticalRethinkingBayesian2020] text, [*Statistical rethinking: A Bayesian course with examples in R and Stan*](https://xcelab.net/rm/statistical-rethinking/). My contributions show how to fit the models he covered with [Paul Bürkner](https://www.simtech.uni-stuttgart.de/exc/people/Buerkner/)'s [**brms** package](https://github.com/paul-buerkner/brms) [@R-brms; @burknerBrmsPackageBayesian2017; @burknerAdvancedBayesianMultilevel2018], which makes it easy to fit Bayesian regression models in **R** [@R-base] using Hamiltonian Monte Carlo. I also prefer plotting and data wrangling with the packages from the [**tidyverse**](https://www.tidyverse.org/) [@R-tidyverse; @wickhamWelcomeTidyverse2019]. So we'll be using those methods, too.
+This ebook is based on the second edition of [Richard McElreath](https://xcelab.net/rm/)'s [-@mcelreathStatisticalRethinkingBayesian2020] text, [*Statistical rethinking: A Bayesian course with examples in R and Stan*](https://xcelab.net/rm/statistical-rethinking/). My contributions show how to fit the models he covered with [Paul Bürkner](https://www.simtech.uni-stuttgart.de/exc/people/Buerkner/)'s [**brms** package](https://github.com/paul-buerkner/brms) [@R-brms; @burknerBrmsPackageBayesian2017; @burknerAdvancedBayesianMultilevel2018], which makes it easy to fit Bayesian regression models in **R** [@R-base] using Hamiltonian Monte Carlo. I also prefer plotting and data wrangling with the packages from the [**tidyverse**](https://www.tidyverse.org/) [@R-tidyverse; @wickhamWelcomeTidyverse2019]. So we'll be using those methods, too.
 
 Are you looking for the companion ebook for McElreath's 1st edition? [Click here.](https://bookdown.org/content/3890/)
 
@@ -83,7 +83,7 @@ I released the 0.1.0 version of this project in November 24, 2020. It was the fi
 
 On December 2, 2020, I released a mini update designed to 
 
-* fix code breaks resulting from updates to the [**broom** package](https://CRAN.R-project.org/package=broom) [@R-broom], caught by [Jenny Bigman](https://twitter.com/jennybigman);
+* fix code breaks resulting from updates to the [**broom** package](https://CRAN.R-project.org/package=broom) [@R-broom], caught by [Jenny Bigman](https://github.com/jennybigman);
 * replace the soon-to-be retired `sample_n()` code with `slice_sample()`, caught by [Randall Pruim](https://github.com/rpruim);
 * and correct a few typos along the way.
 
