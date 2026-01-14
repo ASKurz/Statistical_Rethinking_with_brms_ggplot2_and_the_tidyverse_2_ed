@@ -1,0 +1,2557 @@
+
+```{r, echo = F, cache = F}
+knitr::opts_chunk$set(fig.retina = 2.5)
+knitr::opts_chunk$set(fig.align = "center")
+options(width = 100)
+```
+
+# Geocentric Models
+
+> **Linear regression** is the geocentric model of applied statistics. By "linear regression," we will mean a family of simple statistical golems that attempt to learn about the mean and variance of some measurement, using an additive combination of other measurements. Like geocentrism, linear regression can usefully describe a very large variety of natural phenomena. Like geocentrism, linear regression is a descriptive model that corresponds to many different process models. If we read its structure too literally, we're likely to make mistakes. But used wisely, these little linear golems continue to be useful. [@mcelreathStatisticalRethinkingBayesian2020, p. 71, **emphasis**, in the original]
+
+## Why normal distributions are normal
+
+After laying out his soccer field coin toss shuffle premise, McElreath wrote:
+
+> It's hard to say where any individual person will end up, but you can say with great confidence what the collection of positions will be. The distances will be distributed in approximately normal, or Gaussian, fashion. This is true even though the underlying distribution is binomial. It does this because there are so many more possible ways to realize a sequence of left-right steps that sums to zero. There are slightly fewer ways to realize a sequence that ends up one step left or right of zero, and so on, with the number of possible sequences declining in the characteristic bell curve of the normal distribution. (p. 72)
+
+### Normal by addition.
+
+Here's a way to do the simulation necessary for the plot in the top panel of Figure 4.2.
+
+```{r, warning = F, message = F}
+library(tidyverse)
+
+# we set the seed to make the results of `runif()` reproducible.
+set.seed(4)
+
+pos <- 
+  # make data with 100 people, 16 steps each with a starting point of `step == 0` (i.e., 17 rows per person)
+  crossing(person = 1:100,
+           step   = 0:16) %>% 
+  # for all steps above `step == 0` simulate a `deviation`
+  mutate(deviation = map_dbl(step, ~if_else(. == 0, 0, runif(1, -1, 1)))) %>% 
+  # after grouping by `person`, compute the cumulative sum of the deviations, then `ungroup()`
+  group_by(person) %>%
+  mutate(position = cumsum(deviation)) %>% 
+  ungroup() 
+```
+
+That `map_dbl()` code within the first `mutate()` line might look odd. Go [here](https://purrr.tidyverse.org/reference/map.html) to learn more about iterating with `purrr::map_dbl()`.
+
+We might `glimpse()` at the data.
+
+```{r}
+glimpse(pos)
+```
+
+Here's the code to make the top panel of Figure 4.2.
+
+```{r, fig.height = 2, fig.width = 6.4}
+ggplot(data = pos, 
+       aes(x = step, y = position, group = person)) +
+  geom_vline(xintercept = c(4, 8, 16), linetype = 2) +
+  geom_line(aes(color = person < 2, alpha  = person < 2)) +
+  scale_color_manual(values = c("skyblue4", "black")) +
+  scale_alpha_manual(values = c(1/5, 1)) +
+  scale_x_continuous("step number", breaks = 0:4 * 4) +
+  theme(legend.position = "none")
+```
+
+Here's the code for the bottom three plots of Figure 4.2.
+
+```{r, fig.width = 8, fig.height = 2.75}
+# Figure 4.2.a.
+p1 <-
+  pos %>%
+  filter(step == 4) %>%
+  ggplot(aes(x = position)) +
+  geom_line(stat = "density", color = "dodgerblue1") +
+  labs(title = "4 steps")
+
+# Figure 4.2.b.
+p2 <-
+  pos %>%
+  filter(step == 8) %>%
+  ggplot(aes(x = position)) +
+  geom_density(color = "dodgerblue2", outline.type = "full") +
+  labs(title = "8 steps")
+
+# this is an intermediary step to get an SD value
+sd <-
+  pos %>%
+  filter(step == 16) %>%
+  summarise(sd = sd(position)) %>% 
+  pull(sd)
+
+# Figure 4.2.c.
+p3 <-
+  pos %>%
+  filter(step == 16) %>%
+  ggplot(aes(x = position)) +
+  stat_function(fun = dnorm, 
+                args = list(mean = 0, sd = sd),
+                linetype = 2) +
+  geom_density(color = "transparent", fill = "dodgerblue3", alpha = 1/2) +
+  labs(title = "16 steps",
+       y = "density")
+
+# combine the ggplots
+library(patchwork)
+
+(p1 | p2 | p3) & coord_cartesian(xlim = c(-6, 6))
+```
+
+While we were at it, we explored a few ways to express densities. The main action was with the `geom_line()`, `geom_density()`, and `stat_function()` functions, respectively.
+
+> Any process that adds together random values from the same distribution converges to a normal. But it's not easy to grasp why addition should result in a bell curve of sums. Here's a conceptual way to think of the process. Whatever the average value of the source distribution, each sample from it can be thought of as a fluctuation from that average value. When we begin to add these fluctuations together, they also begin to cancel one another out. A large positive fluctuation will cancel a large negative one. (p. 73)
+
+### Normal by multiplication.
+
+Here's McElreath's simple random growth rate.
+
+```{r}
+set.seed(4)
+
+prod(1 + runif(12, 0, 0.1))
+```
+
+In the `runif()` part of that code, we generated 12 random draws from the uniform distribution with bounds $[0, 0.1]$. Within the `prod()` function, we first added `1` to each of those values and then computed their product. Consider a more explicit variant of the code.
+
+```{r}
+set.seed(4)
+
+tibble(a = 1,
+       b = runif(12, 0, 0.1)) %>% 
+  mutate(c = a + b) %>% 
+  summarise(p = prod(c))
+```
+
+Same result. Rather than using base **R** `replicate()` to do this many times, let's practice with `purrr::map_dbl()` like before.
+
+```{r, fig.width = 3.25, fig.height = 3}
+set.seed(4)
+
+growth <- 
+  tibble(growth = map_dbl(1:10000, ~ prod(1 + runif(12, min = 0, max = 0.1))))
+
+ggplot(data = growth, aes(x = growth)) +
+  geom_density()
+```
+
+"The smaller the effect of each locus, the better this additive approximation will be" (p. 74). Let's compare big and small.
+
+```{r, fig.width = 6, fig.height = 2.5}
+# simulate
+set.seed(4)
+
+samples <-
+  tibble(big   = map_dbl(1:10000, ~ prod(1 + runif(12, min = 0, max = 0.5))),
+         small = map_dbl(1:10000, ~ prod(1 + runif(12, min = 0, max = 0.01))))
+
+# wrangle
+samples %>% 
+  pivot_longer(everything(), values_to = "samples") %>% 
+  
+  # plot
+  ggplot(aes(x = samples)) +
+  geom_density(fill = "black") +
+  facet_wrap(~ name, scales = "free") 
+```
+
+Yep, the `small` samples were more Gaussian. "The interacting growth deviations, as long as they are sufficiently small, converge to a Gaussian distribution. In this way, the range of causal forces that tend towards Gaussian distributions extends well beyond purely additive interactions" (p. 74).
+
+### Normal by log-multiplication.
+
+Instead of saving our tibble, we'll just feed it directly into our plot.
+
+```{r, fig.width = 3.25, fig.height = 3}
+samples %>% 
+  mutate(log_big = log(big)) %>% 
+  
+  ggplot(aes(x = log_big)) +
+  geom_density(fill = "gray33") +
+  xlab("the log of the big")
+```
+
+> Yet another Gaussian distribution. We get the Gaussian distribution back, because adding logs is equivalent to multiplying the original numbers. So even multiplicative interactions of large deviations can produce Gaussian distributions, once we measure the outcomes on the log scale. (p. 75)
+
+### Using Gaussian distributions.
+
+"The justifications for using the Gaussian distribution fall into two broad categories: (1) ontological and (2) epistemological" (p. 75). I'm a fan of the justifications to follow.
+
+#### Ontological justification.
+
+The Gaussian is
+
+> a widespread pattern, appearing again and again at different scales and in different domains. Measurement errors, variations in growth, and the velocities of molecules all tend towards Gaussian distributions. These processes do this because at their heart, these processes add together fluctuations. And repeatedly adding finite fluctuations results in a distribution of sums that have shed all information about the underlying process, aside from mean and spread.
+>
+> [However,] one consequence of this is that statistical models based on Gaussian distributions cannot reliably identify micro-process. (p. 75)
+
+But like Ptolemy's circles within circles, the Gaussian can still be useful even if it sheds information.
+
+#### Epistemological justification.
+
+> By the epistemological justification, the Gaussian represents a particular state of ignorance. When all we know or are willing to say about a distribution of measures (measures are continuous values on the real number line) is their mean and variance, then the Gaussian distribution arises as the most consistent with our assumptions.
+>
+> That is to say that the Gaussian distribution is the most natural expression of our state of ignorance, because if all we are willing to assume is that a measure has finite variance, the Gaussian distribution is the shape that can be realized in the largest number of ways and does not introduce any new assumptions. It is the least surprising and least informative assumption to make. In this way, the Gaussian is the distribution most consistent with our assumptions. Or rather, it is the most consistent with our golem's assumptions. If you don't think the distribution should be Gaussian, then that implies that you know something else that you should tell your golem about, something that would improve inference. (p. 75)
+
+We'll dive deeper into why the Gaussian is such a natural expression of ignorance in these contexts when we cover maximum entropy in [Chapter 7][Ulysses' Compass].
+
+#### Rethinking: Heavy tails.
+
+> The Gaussian distribution is common in nature and has some nice properties. But there are some risks in using it as a default data model. The extreme ends of a distribution are known as its tails. And the Gaussian distribution has some very thin tails--there is very little probability in them. Instead most of the mass in the Gaussian lies within one standard deviation of the mean. Many natural (and unnatural) processes have much heavier tails. (p. 76)
+
+You have no idea how excited I am that we'll be covering some of these heavy-tailed alternatives!
+
+#### Overthinking: Gaussian distribution.
+
+In this section McElreath gave the formula for the Gaussian probability density function. Let $y$ be the criterion, $\mu$ be the mean, and $\sigma$ be the standard deviation. Then the probability density of some Gaussian value $y$ is
+
+$$p(y|\mu, \sigma) = \frac{1}{\sqrt{2 \pi \sigma^2}} \exp \left (- \frac{(y - \mu)^2}{2 \sigma^2} \right).$$
+
+McElreath's right. "This looks monstrous" (p. 76). Why not demystify that monster with a little **R** code? For simplicity, we'll compute $p(y|\mu, \sigma)$ for a series of $y$-values ranging from -1 to 1, holding $\mu = 0$ and $\sigma = 0.1$. Then we'll plot.
+
+```{r, fig.width = 4, fig.height = 2.75}
+tibble(y     = seq(from = -1, to = 1, by = .01),
+       mu    = 0,
+       sigma = 0.1) %>% 
+  # compute p(y) with a hand-made Gaussian probability density function
+  mutate(p = (1 / sqrt(2 * pi * sigma^2)) * exp(-((y - mu)^2 / (2 * sigma^2)))) %>% 
+  
+  ggplot(aes(x = y, y = p)) +
+  geom_line() + 
+  ylab(expression(italic(p)(italic("y|")*mu==0*","~sigma==0.1)))
+```
+
+Notice how $p(y|\mu, \sigma)$ peaks around 4 when $y = 0$. We can also get that value with the `dnorm()` function, which will return the $p(y)$ value for a given combination of $y$, $\mu$, and $\sigma$.
+
+```{r}
+dnorm(0, mean = 0, sd = 0.1)
+```
+
+> The answer, about 4, is no mistake. Probability *density* is the rate of change in cumulative probability. So where cumulative probability is increasing rapidly, density can easily exceed 1. But if we calculate the area under the density function, it will never exceed 1. Such areas are also called probability mass. You can usually ignore these density/mass details while doing computational work. But it’s good to be aware of the distinction. (p. 76, *emphasis* in the original)
+
+## A language for describing models
+
+Our mathy ways of summarizing models will be something like
+
+\begin{align*}
+\text{criterion}_i & \sim \operatorname{Normal}(\mu_i, \sigma) \\
+\mu_i  & = \beta \times \text{predictor}_i \\
+\beta  & \sim \operatorname{Normal}(0, 10) \\
+\sigma & \sim \operatorname{Exponential}(1) \\
+x_i    & \sim \operatorname{Normal}(0, 1).
+\end{align*}
+
+"If that doesn't make much sense, good. That indicates that you are holding the right textbook" (p. 77). Welcome applied statistics! `r emo::ji("nerd")`
+
+### Re-describing the globe tossing model.
+
+For the globe tossing model, the probability $p$ of a count of water $w$ based on $n$ trials was
+
+\begin{align*}
+w & \sim \operatorname{Binomial}(n, p) \\
+p & \sim \operatorname{Uniform}(0, 1),
+\end{align*}
+
+where the top line indicates we're using the Binomial likelihood function to model $w$ given unique combinations of $n$ and $p$. In our example, $w$ and $n$ were already defined in the data, so all we need to do is compute $p$. Since $p$ is the only parameter, it's the only element that gets a prior, which is what that second line was.
+
+#### Overthinking: From model definition to Bayes' theorem.
+
+We can use grid approximation to work through our globe tossing model.
+
+```{r}
+# how many `p_grid` points would you like?
+n_points <- 100
+
+d <-
+  tibble(p_grid = seq(from = 0, to = 1, length.out = n_points),
+         w      = 6, 
+         n      = 9) %>% 
+  mutate(prior      = dunif(p_grid, min = 0, max = 1),
+         likelihood = dbinom(w, size = n, prob = p_grid)) %>%
+  mutate(posterior = likelihood * prior / sum(likelihood * prior))
+
+head(d)
+```
+
+In case you were curious, here's what they look like.
+
+```{r, fig.width = 8, fig.height = 2.25}
+d %>% 
+  pivot_longer(prior:posterior) %>% 
+  # this line allows us to dictate the order in which the panels will appear
+  mutate(name = factor(name, levels = c("prior", "likelihood", "posterior"))) %>% 
+  
+  ggplot(aes(x = p_grid, y = value, fill = name)) +
+  geom_area() +
+  scale_fill_manual(values = c("blue", "red", "purple")) +
+  scale_y_continuous(NULL, breaks = NULL) +
+  theme(legend.position = "none") +
+  facet_wrap(~ name, scales = "free")
+```
+
+The posterior is a combination of the prior and the likelihood. When the prior is flat across the parameter space, the posterior is just the likelihood re-expressed as a probability. As we go along, you'll see we almost never use flat priors in practice. Be warned that eschewing flat priors is a recent development, however. You only have to look at the literature from a couple decades ago to see mounds and mounds of flat priors.
+
+## A Gaussian model of height
+
+> There are an infinite number of possible Gaussian distributions. Some have small means. Others have large means. Some are wide, with a large $\sigma$. Others are narrow. We want our Bayesian machine to consider every possible distribution, each defined by a combination of $\mu$ and $\sigma$, and rank them by posterior plausibility. Posterior plausibility provides a measure of the logical compatibility of each possible distribution with the data and model. (p. 79)
+
+### The data.
+
+Let's load the Howell [-@howell2001demography; -@howell2010life] data from McElreath's [-@R-rethinking] [**rethinking** package](https://xcelab.net/rm/software/).
+
+```{r, message = F}
+library(rethinking)
+data(Howell1)
+d <- Howell1
+```
+
+Here we open our focal statistical package, Bürkner's [**brms**](https://github.com/paul-buerkner/brms). But before we do, we'll want to detach the **rethinking** package. **R** will not allow us to use a function from one package that shares the same name as a different function from another package if both packages are open at the same time. The **rethinking** and **brms** packages are designed for similar purposes and, unsurprisingly, overlap in some of their function names. To prevent problems, we will always make sure **rethinking** is detached before using **brms**. To learn more on the topic, see [this R-bloggers post](https://www.r-bloggers.com/2015/04/r-and-package-masking-a-real-life-example/).
+
+```{r, message = F}
+rm(Howell1)
+detach(package:rethinking, unload = T)
+library(brms)
+```
+
+Go ahead and investigate the data with `str()`, the **tidyverse** analogue for which is `glimpse()`.
+
+```{r}
+d %>%
+  str()
+```
+
+The **brms** package does not have a function that works like `rethinking::precis()` for providing numeric and graphical summaries of variables, as see in McElreath's **R** code 4.9. We can get some of that information with `summary()`.
+
+```{r}
+d %>%
+  summary()
+```
+
+We might make the histograms like this.
+
+```{r, fig.width = 4.5, fig.height = 4.25, message = F}
+d %>%
+  pivot_longer(everything()) %>% 
+  mutate(name = factor(name, levels = c("height", "weight", "age", "male"))) %>% 
+  
+  ggplot(aes(x = value)) +
+  geom_histogram(bins = 10) +
+  facet_wrap(~ name, scales = "free", ncol = 1)
+```
+
+If you're curious, McElreath made those tiny histograms with help from Wickham's [`histospark()` function](https://github.com/hadley/precis/blob/master/R/histospark.R). Here's the code.
+
+```{r}
+sparks <- c("\u2581", "\u2582", "\u2583", "\u2585", "\u2587")
+
+histospark <- function(x, width = 10) {
+  bins <- graphics::hist(x, breaks = width, plot = FALSE)
+
+  factor <- cut(
+    bins$counts / max(bins$counts),
+    breaks = seq(0, 1, length = length(sparks) + 1),
+    labels = sparks,
+    include.lowest = TRUE
+  )
+
+  paste0(factor, collapse = "")
+}
+```
+
+Here's how it works.
+
+```{r}
+histospark(d$weight)
+```
+
+One of the neat things about the `histospark()` function is you can insert the output right in your R Markdown prose. For example, we can use is to casually show how left skewed the our `height` variable is: `r histospark(d$height)`. But it's time to get back on track. You can isolate `height` values with the `dplyr::select()` function.
+
+```{r}
+d %>%
+  select(height) %>% 
+  glimpse()
+```
+
+If you want the values in a numeric vector rather than in a data fame, try `pull(d, height)`.
+
+We can use the `dplyr::filter()` function to make an adults-only data frame.
+
+```{r}
+d2 <- 
+  d %>%
+  filter(age >= 18)
+```
+
+Our reduced `d2` does indeed have $n = 352$ cases.
+
+```{r}
+d2 %>% 
+  count()
+```
+
+#### Overthinking: Data frames and indexes.
+
+For more on indexing, check out [Chapter 9](https://bookdown.org/rdpeng/rprogdatascience/subsetting-r-objects.html) of Peng's [-@pengProgrammingDataScience2022] *R programming for data science*, or even the [Subsetting](http://r4ds.had.co.nz/vectors.html#subsetting-1) subsection in *R4DS*.
+
+This probably reflects my training history, but the structure of a data frame seems natural and inherently appealing. If you're in the other camp, do check out either of these two data wrangling talks ([here](https://youtu.be/4MfUCX_KpdE) and [here](https://youtu.be/GapSskrtUzU?t=1249)) by the ineffable [Jenny Bryan](https://twitter.com/JennyBryan).
+
+### The model.
+
+Please heed McElreath's warnings to
+
+> be careful about choosing the Gaussian distribution only when the plotted outcome variable looks Gaussian to you. Gawking at the raw data, to try to decide how to model them, is usually not a good idea. The data could be a mixture of different Gaussian distributions, for example, and in that case you won't be able to detect the underlying normality just by eyeballing the outcome distribution. Furthermore, as mentioned earlier in this chapter, the empirical distribution needn't be actually Gaussian in order to justify using a Gaussian probability distribution. (p. 81)
+
+Anyway, the likelihood for our model is
+
+$$\text{heights}_i \sim \operatorname{Normal}(\mu, \sigma),$$
+
+where the $i$ subscript indexes the individual cases in the data. Our two parameters are $\mu$ and $\sigma$, which we will estimate using Bayes' formula. Our prior for $\mu$ will be
+
+$$\mu \sim \operatorname{Normal}(178, 20)$$
+
+and our prior for $\sigma$ will be
+
+$$\sigma \sim \operatorname{Uniform}(0, 50).$$
+
+Here's the shape of the prior for $\mu$, $\mathcal N(178, 20)$.
+
+```{r, fig.width = 3, fig.height = 2.5}
+p1 <-
+  tibble(x = seq(from = 100, to = 250, by = .1)) %>% 
+  
+  ggplot(aes(x = x, y = dnorm(x, mean = 178, sd = 20))) +
+  geom_line() +
+  scale_x_continuous(breaks = seq(from = 100, to = 250, by = 75)) +
+  labs(title = "mu ~ dnorm(178, 20)",
+       y = "density")
+
+p1
+```
+
+And here's the **ggplot2** code for our prior for $\sigma$, a uniform distribution with a minimum value of 0 and a maximum value of 50. We don't really need the $y$-axis when looking at the shapes of a density, so we'll just remove it with `scale_y_continuous()`.
+
+```{r, fig.width = 3, fig.height = 2.5}
+p2 <-
+  tibble(x = seq(from = -10, to = 60, by = .1)) %>%
+  
+  ggplot(aes(x = x, y = dunif(x, min = 0, max = 50))) +
+  geom_line() +
+  scale_x_continuous(breaks = c(0, 50)) +
+  scale_y_continuous(NULL, breaks = NULL) +
+  ggtitle("sigma ~ dunif(0, 50)")
+
+p2
+```
+
+We can simulate from both priors at once to get a prior probability distribution of `heights`.
+
+```{r, fig.width = 3, fig.height = 2.5}
+n <- 1e4
+
+set.seed(4)
+
+sim <-
+  tibble(sample_mu    = rnorm(n, mean = 178, sd  = 20),
+         sample_sigma = runif(n, min = 0, max = 50)) %>% 
+  mutate(height = rnorm(n, mean = sample_mu, sd = sample_sigma))
+  
+p3 <- sim %>% 
+  ggplot(aes(x = height)) +
+  geom_density(fill = "grey33") +
+  scale_x_continuous(breaks = c(0, 73, 178, 283)) +
+  scale_y_continuous(NULL, breaks = NULL) +
+  ggtitle("height ~ dnorm(mu, sigma)") +
+  theme(panel.grid = element_blank())
+
+p3
+```
+
+If you look at the $x$-axis breaks on the plot in McElreath's lower left panel in Figure 4.3, you'll notice they're intentional. To compute the mean and 3 standard deviations above and below, you might do this.
+
+```{r}
+sim %>% 
+  summarise(ll   = mean(height) - sd(height) * 3,
+            mean = mean(height),
+            ul   = mean(height) + sd(height) * 3) %>% 
+  mutate_all(round, digits = 1)
+```
+
+Our values are very close to his, but are off by just a bit due to simulation variation.
+
+Here's the work to make the lower right panel of Figure 4.3. Watch out; we're starting to get fancy.
+
+```{r, fig.width = 3, fig.height = 2.5}
+# simulate
+set.seed(4)
+
+sim <-
+  tibble(sample_mu    = rnorm(n, mean = 178, sd = 100),
+         sample_sigma = runif(n, min = 0, max = 50)) %>% 
+  mutate(height = rnorm(n, mean = sample_mu, sd = sample_sigma))
+
+# compute the values we'll use to break on our x axis
+breaks <-
+  c(mean(sim$height) - 3 * sd(sim$height), 0, mean(sim$height), mean(sim$height) + 3 * sd(sim$height)) %>% 
+  round(digits = 0)
+
+# this is just for aesthetics
+text <-
+  tibble(height = 272 - 25,
+         y      = .0013,
+         label  = "tallest man",
+         angle  = 90)
+
+# plot
+p4 <-
+  sim %>% 
+  ggplot(aes(x = height)) +
+  geom_density(fill = "black", linewidth = 0) +
+  geom_vline(xintercept = 0, color = "grey92") +
+  geom_vline(xintercept = 272, color = "grey92", linetype = 3) +
+  geom_text(data = text,
+            aes(y = y, label = label, angle = angle),
+            color = "grey92") +
+  scale_x_continuous(breaks = breaks) +
+  scale_y_continuous(NULL, breaks = NULL) +
+  ggtitle("height ~ dnorm(mu, sigma)\nmu ~ dnorm(178, 100)") +
+  theme(panel.grid = element_blank())
+
+p4
+```
+
+You may have noticed how we were saving each of the four last plots as `p1` through `p4`. Let's combine the four to make our version of McElreath's Figure 4.3.
+
+```{r, fig.width = 6, fig.height = 5}
+(p1 + xlab("mu") | p2 + xlab("sigma")) / (p3 | p4)
+```
+
+On page 84, McElreath said his prior simulation indicated 4% of the heights would be below zero. Here's how we might determe that percentage for our simulation.
+
+```{r}
+sim %>% 
+  count(height < 0) %>% 
+  mutate(percent = 100 * n / sum(n))
+```
+
+Here's the break down compared to the tallest man on record, [Robert Pershing Wadlow](https://en.wikipedia.org/wiki/Robert_Wadlow) (1918--1940).
+
+```{r}
+sim %>% 
+  count(height < 272) %>% 
+  mutate(percent = 100 * n / sum(n))
+```
+
+> Does this matter? In this case, we have so much data that the silly prior is harmless. But that won't always be the case. There are plenty of inference problems for which the data alone are not sufficient, no matter how numerous. Bayes lets us proceed in these cases. But only if we use our scientific knowledge to construct sensible priors. Using scientific knowledge to build priors is not cheating. The important thing is that your prior not be based on the values in the data, but only on what you know about the data before you see it. (p. 84)
+
+#### Rethinking: A farewell to epsilon.
+
+> Some readers will have already met an alternative notation for a Gaussian linear model:
+>
+> \begin{align*}
+> h_i & = \mu + \epsilon_i \\
+> \epsilon_i & \sim \operatorname{Normal}(0, \sigma)
+> \end{align*}
+> 
+> This is equivalent to the $h_i \sim \operatorname{Normal}(\mu, \sigma)$ form, with the $\epsilon$ standing in for the Gaussian density. But this $\epsilon$ form is poor form. The reason is that it does not usually generalize to other types of models. This means it won't be possible to express non-Gaussian models using tricks like $\epsilon$. Better to learn one system that does generalize. (p. 84)
+
+Agreed.
+
+### Grid approximation of the posterior distribution.
+
+As McElreath explained, you'll never use this for practical data analysis. But I found this helped me better understanding what exactly we're doing with Bayesian estimation. So let's play along.
+
+```{r}
+n <- 200
+
+d_grid <-
+  # we'll accomplish with `tidyr::crossing()` what McElreath did with base R `expand.grid()`
+  crossing(mu    = seq(from = 140, to = 160, length.out = n),
+           sigma = seq(from = 4, to = 9, length.out = n))
+
+glimpse(d_grid)
+```
+
+`d_grid` contains every combination of `mu` and `sigma` across their specified values. Instead of base **R** `sapply()`, we'll do the computations by making a custom function which we'll then plug into `purrr::map2()`.
+
+```{r}
+grid_function <- function(mu, sigma) {
+  
+  dnorm(d2$height, mean = mu, sd = sigma, log = T) %>% 
+    sum()
+  
+}
+```
+
+Now we're ready to complete the tibble.
+
+```{r}
+d_grid <-
+  d_grid %>% 
+  mutate(log_likelihood = map2(mu, sigma, grid_function)) %>%
+  unnest(log_likelihood) %>% 
+  mutate(prior_mu    = dnorm(mu, mean = 178, sd = 20, log = T),
+         prior_sigma = dunif(sigma, min = 0, max = 50, log = T)) %>% 
+  mutate(product = log_likelihood + prior_mu + prior_sigma) %>% 
+  mutate(probability = exp(product - max(product)))
+  
+head(d_grid)
+```
+
+In the final `d_grid`, the `probability` vector contains the posterior probabilities across values of `mu` and `sigma`. We can make a contour plot with `geom_contour()`.
+
+```{r, fig.width = 4, fig.height = 3.5}
+d_grid %>% 
+  ggplot(aes(x = mu, y = sigma, z = probability)) + 
+  geom_contour() +
+  labs(x = expression(mu),
+       y = expression(sigma)) +
+  coord_cartesian(xlim = range(d_grid$mu),
+                  ylim = range(d_grid$sigma)) +
+  theme(panel.grid = element_blank())
+```
+
+We'll make our heat map with `geom_raster()`.
+
+```{r, fig.width = 5, fig.height = 3.5}
+d_grid %>% 
+  ggplot(aes(x = mu, y = sigma, fill = probability)) + 
+  geom_raster(interpolate = T) +
+  scale_fill_viridis_c(option = "B") +
+  labs(x = expression(mu),
+       y = expression(sigma)) +
+  theme(panel.grid = element_blank())
+```
+
+### Sampling from the posterior.
+
+We can use `dplyr::sample_n()` to sample rows, with replacement, from `d_grid`.
+
+```{r, fig.width = 4, fig.height = 3.5}
+set.seed(4)
+
+d_grid_samples <- 
+  d_grid %>% 
+  sample_n(size = 1e4, replace = T, weight = probability)
+
+d_grid_samples %>% 
+  ggplot(aes(x = mu, y = sigma)) + 
+  geom_point(size = .9, alpha = 1/15) +
+  scale_fill_viridis_c() +
+  labs(x = expression(mu[samples]),
+       y = expression(sigma[samples])) +
+  theme(panel.grid = element_blank())
+```
+
+We can use `pivot_longer()` and then `facet_wrap()` to plot the densities for both `mu` and `sigma` at once.
+
+```{r, fig.width = 6, fig.height = 2.5}
+d_grid_samples %>% 
+  pivot_longer(mu:sigma) %>% 
+
+  ggplot(aes(x = value)) + 
+  geom_density(fill = "grey33") +
+  scale_y_continuous(NULL, breaks = NULL) +
+  xlab(NULL) +
+  theme(panel.grid = element_blank()) +
+  facet_wrap(~ name, scales = "free", labeller = label_parsed)
+```
+
+We'll use the **tidybayes** package to compute their posterior modes and 95% HDIs.
+
+```{r, warning = F, message = F}
+library(tidybayes)
+
+d_grid_samples %>% 
+  pivot_longer(mu:sigma) %>% 
+  group_by(name) %>% 
+  mode_hdi(value)
+```
+
+Let's say you wanted their posterior medians and 50% quantile-based intervals, instead. Just switch out the last line for `median_qi(value, .width = .5)`.
+
+#### Overthinking: Sample size and the normality of $\sigma$'s posterior.
+
+Since we'll be fitting models with **brms** almost exclusively from here on out, this section is largely mute. But we'll do it anyway for the sake of practice. I'm going to break the steps up like before rather than compress the code together. Here's `d3`.
+
+```{r}
+set.seed(4)
+(d3 <- sample(d2$height, size = 20))
+```
+
+For our first step using `d3`, we'll redefine `d_grid`.
+
+```{r}
+n <- 200
+
+# note we've redefined the ranges of `mu` and `sigma`
+d_grid <-
+  crossing(mu    = seq(from = 150, to = 170, length.out = n),
+           sigma = seq(from = 4, to = 20, length.out = n))
+```
+
+Second, we'll redefine our custom `grid_function()` function to operate over the `height` values of `d3`.
+
+```{r}
+grid_function <- function(mu, sigma) {
+  
+  dnorm(d3, mean = mu, sd = sigma, log = T) %>% 
+    sum()
+  
+}
+```
+
+Now we'll use the amended `grid_function()` to make the posterior.
+
+```{r}
+d_grid <-
+  d_grid %>% 
+  mutate(log_likelihood = map2_dbl(mu, sigma, grid_function)) %>% 
+  mutate(prior_mu    = dnorm(mu, mean = 178, sd = 20, log = T),
+         prior_sigma = dunif(sigma, min = 0, max = 50, log = T)) %>% 
+  mutate(product = log_likelihood + prior_mu + prior_sigma) %>% 
+  mutate(probability = exp(product - max(product)))
+```
+
+Did you catch our use of `purrr::map2_dbl()`, there, in place of `purrr::map2()`? It turns out that `purrr::map()` and `purrr::map2()` always return a list (see [here](https://purrr.tidyverse.org/reference/map.html) and [here](https://purrr.tidyverse.org/reference/map2.html)). But we can add the `_dbl` suffix to those functions, which will instruct the **purrr** package to return a double vector (i.e., a [common kind of numeric vector](http://r4ds.had.co.nz/vectors.html#important-types-of-atomic-vector)). The advantage of that approach is we no longer need to follow our `map()` or `map2()` lines with `unnest()`. To learn more about the ins and outs of the `map()` family, check out [this section](http://r4ds.had.co.nz/iteration.html#the-map-functions) from *R4DS* or Jenny Bryan's [*purrr tutorial*](https://jennybc.github.io/purrr-tutorial/).
+
+Next we'll `sample_n()` and plot.
+
+```{r, fig.width = 4, fig.height = 3.5}
+set.seed(4)
+
+d_grid_samples <- 
+  d_grid %>% 
+  sample_n(size = 1e4, replace = T, weight = probability)
+
+d_grid_samples %>% 
+  ggplot(aes(x = mu, y = sigma)) + 
+  geom_point(size = .9, alpha = 1/15) +
+  labs(x = expression(mu[samples]),
+       y = expression(sigma[samples])) +
+  theme(panel.grid = element_blank())
+```
+
+Behold the updated densities.
+
+```{r, fig.width = 6, fig.height = 2.5}
+d_grid_samples %>% 
+  pivot_longer(mu:sigma) %>% 
+
+  ggplot(aes(x = value)) + 
+  geom_density(fill = "grey33", linewidth = 0) +
+  scale_y_continuous(NULL, breaks = NULL) +
+  xlab(NULL) +
+  theme(panel.grid = element_blank()) +
+  facet_wrap(~ name, scales = "free", labeller = label_parsed)
+```
+
+That `labeller = label_parsed` bit in the `facet_wrap()` function is what converted our subplot strip labels into Greek. You can learn more about `labeller` [here](https://ggplot2.tidyverse.org/reference/labeller.html). Anyway, our posterior for $\sigma$ isn't so Gaussian with that small $n$.
+
+This is the point in the project where we hop off the grid-approximation train. On the one hand, I think this is a great idea. Most of y'all reading this will never use grid approximation in a real-world applied data analysis. On the other hand, there is some pedagogical utility in practicing with it. It can help you grasp what it is we're doing when we apply Bayes' theorem. If you'd like more practice, check out the first several chapters in John Kruschke's [-@kruschkeDoingBayesianData2015] [textbook](https://sites.google.com/site/doingbayesiandataanalysis/) and the corresponding chapters in my [-@kurzDoingBayesianDataAnalysis2023] [ebook](https://bookdown.org/content/3686/) translating it into **brms** and **tidyverse**.
+
+### Finding the posterior distribution with ~~`quap`~~ `brm()`.
+
+Here we rewrite the statistical model, this time using font color to help differentiate the likelihood from the prior(s).
+
+\begin{align*}
+\color{red}{\text{heights}_i} & \color{red}\sim \color{red}{\operatorname{Normal}(\mu, \sigma)} && \color{red}{\text{likelihood}} \\
+\color{blue}\mu & \color{blue}\sim \color{blue}{\operatorname{Normal}(178, 20)} && \color{blue}{\text{prior}} \\
+\color{blue}\sigma & \color{blue}\sim \color{blue}{\operatorname{Uniform}(0, 50)}
+\end{align*}
+
+We won't actually use `rethinking::quap()`. It's time to jump straight to the primary **brms** modeling function, `brm()`. In the text, McElreath indexed his models with names like `m4.1`. I will largely follow that convention, but will replace the *m* with a *b* to stand for the **brms** package. Here's how to fit the first model for this chapter.
+
+```{r b4.1}
+b4.1 <- 
+  brm(data = d2, 
+      family = gaussian,
+      height ~ 1,
+      prior = c(prior(normal(178, 20), class = Intercept),
+                prior(uniform(0, 50), class = sigma, ub = 50)),
+      iter = 2000, warmup = 1000, chains = 4, cores = 4,
+      seed = 4,
+      file = "fits/b04.01")
+```
+
+Note our use of the `ub` parameter for the uniform prior on $\sigma$. If you want to use an upper-bound prior on $\sigma$ with a `brm()` model, the `up` setting will help out a lot. We'll start to get a sense of why when we cover Hamiltonian Monte Carlo (HMC) in [Chapter 9][Markov Chain Monte Carlo]. This leads to an important point. After running a model fit with HMC, it's a good idea to inspect the chains. As we'll see, McElreath covered visual chain diagnostics in [Chapter 9][Markov Chain Monte Carlo]. Here's a typical way to do so with **brms**.
+
+```{r, fig.width = 6, fig.height = 2.5}
+plot(b4.1)
+```
+
+If you want detailed diagnostics for the HMC chains, call `launch_shinystan(b4.1)`. That'll keep you busy for a while. But anyway, the chains look good. We can reasonably trust the results. Here's how to get the model summary of our `brm()` object.
+
+```{r}
+print(b4.1)
+```
+
+The `summary()` function works in a similar way. You can also get a Stan-like summary [see the [*RStan: the R interface to Stan*](https://CRAN.R-project.org/package=rstan/vignettes/rstan.html) vignette; @standevelopmentteamRStanInterfaceStan2023] with a little indexing.
+
+```{r}
+b4.1$fit
+```
+
+Whereas **rethinking** defaults to 89% intervals, using `print()` or `summary()` with **brms** models defaults to 95% intervals. Unless otherwise specified, I will stick with 95% intervals throughout. However, if you really want those 89% intervals, an easy way is with the `prob` argument within `brms::summary()` or `brms::print()`.
+
+```{r}
+summary(b4.1, prob = .89)
+```
+
+Anyways, here's the `brms::brm()` code for the model with the very-narrow-$\mu$-prior corresponding to the `rethinking::quap()` code in McElreath's **R** code 4.31.
+
+```{r b4.2}
+b4.2 <- 
+  brm(data = d2, 
+      family = gaussian,
+      height ~ 1,
+      prior = c(prior(normal(178, 0.1), class = Intercept),
+                prior(uniform(0, 50), class = sigma, ub = 50)),
+      iter = 2000, warmup = 1000, chains = 4, cores = 4,
+      seed = 4,
+      file = "fits/b04.02")
+```
+
+```{r, fig.width = 6, fig.height = 2.5}
+plot(b4.2, widths = c(1, 2))
+```
+
+The chains look great. Here's the model `summary()`.
+
+```{r}
+summary(b4.2)
+```
+
+Subsetting the `summary()` output with `$fixed` provides a convenient way to compare the `Intercept` summaries between `b4.1_hc` and `b4.2`.
+
+```{r}
+rbind(summary(b4.1)$fixed,
+      summary(b4.2)$fixed)
+```
+
+### Sampling from a ~~`quap()`~~ `brm()` fit.
+
+**brms** doesn't seem to have a convenience function that works the way `vcov()` does for **rethinking**. For example:
+
+```{r}
+vcov(b4.1)
+```
+
+This only returns the first element in the matrix it did for **rethinking**. That is, it appears `brms::vcov()` only returns the variance/covariance matrix for the single-level $\beta$ parameters. However, if you really wanted this information, you could get it after putting the HMC chains in a data frame. We do that with the `as_draws_df()` function, which we'll be using a lot of as we go along.
+
+```{r}
+post <- as_draws_df(b4.1)
+
+head(post)
+```
+
+Now `select()` the columns containing the draws from the desired parameters and feed them into `cov()`.
+
+```{r, warning = F}
+select(post, b_Intercept:sigma) %>% 
+  cov()
+```
+
+That was "(1) a vector of variances for the parameters and (2) a correlation matrix" for them (p. 90). Here are just the variances (i.e., the diagonal elements) and the correlation matrix.
+
+```{r, warning = F}
+# variances
+select(post, b_Intercept:sigma) %>%
+  cov() %>%
+  diag()
+
+# correlation
+post %>%
+  select(b_Intercept, sigma) %>%
+  cor()
+```
+
+With our `post <- as_draws_df(b4.1)` code from a few lines above, we've already produced the **brms** version of what McElreath achieved with `extract.samples()` on page 90. However, what happened under the hood was different. Whereas **rethinking** used the `mvnorm()` function from the [**MASS** package](https://cran.r-project.org/package=MASS) [@R-MASS; @MASS2002], with **brms** we just extracted the iterations of the HMC chains and put them in a data frame. It's also noteworthy that the `as_draws_df()` is part of a larger class of `as_draws()` functions **brms** currently imports from the [**posterior** package](https://github.com/stan-dev/posterior) [@R-posterior].
+
+```{r}
+str(post)
+```
+
+Thus, our `post` object is not just a data frame, but also of class draws_df, which means it contains three metadata variables--`.chain`, `.iteration`, and `.draw`--which will are often hidden from view, but are there in the background when needed. As you'll see, we'll make good use of the `.draw` variable in the future. Notice how our `post` data frame also includes a vector named `lp__`. That's the log posterior. For details, see the [**brms** reference manual](https://CRAN.R-project.org/package=brms/brms.pdf) [@brms2022RM], the "[The Log-Posterior (function and gradient)](https://cran.r-project.org/package=rstan/vignettes/rstan.html#the-log-posterior-function-and-gradient)" section of the Stan Development Team's [-@standevelopmentteamRStanInterfaceStan2023] vignette, [*RStan: the R interface to Stan*](https://cran.r-project.org/package=rstan/vignettes/rstan.html), or [Stephen Martin](https://twitter.com/smartin2018)'s [nice explanation](https://discourse.mc-stan.org/t/basic-question-what-is-lp-in-posterior-samples-of-a-brms-regression/17567/2) of the log posterior on the Stan Forums. The log posterior will largely be outside of our focus in this ebook.
+
+The `summary()` function doesn't work for **brms** posterior data frames quite the way `precis()` does for posterior data frames from the **rethinking package**. Behold the results.
+
+```{r, warning = F}
+summary(post[, 1:2])
+```
+
+Here's one option using the transpose of a `quantile()` call nested within `apply()`, which is a very general function you can learn more about [here](https://www.datacamp.com/community/tutorials/r-tutorial-apply-family#gs.f7fyw2s) or [here](https://www.r-bloggers.com/r-tutorial-on-the-apply-family-of-functions/).
+
+```{r, warning = F}
+t(apply(post[, 1:2], 2, quantile, probs = c(.5, .025, .75)))
+```
+
+The base **R** code is compact, but somewhat opaque. Here's how to do something similar with more explicit **tidyverse** code.
+
+```{r, message = F, warning = F}
+post %>%
+  pivot_longer(b_Intercept:sigma) %>% 
+  group_by(name) %>%
+  summarise(mean = mean(value),
+            sd   = sd(value),
+            `2.5%`  = quantile(value, probs = .025),
+            `97.5%` = quantile(value, probs = .975)) %>%
+  mutate_if(is.numeric, round, digits = 2)
+```
+
+You can always get pretty similar information by just putting the `brm()` fit object into `posterior_summary()`.
+
+```{r}
+posterior_summary(b4.1)
+```
+
+And if you're willing to drop the posterior $\textit{SD}$s, you can use `tidybayes::mean_hdi()`, too.
+
+```{r, warning = F}
+post %>% 
+  pivot_longer(b_Intercept:sigma) %>% 
+  group_by(name) %>%
+  mean_qi(value)
+```
+
+Though none of these solutions get you those sweet little histograms, you can always make those for your HMC models by inserting the desired posterior draws into `histospark()`.
+
+```{r}
+rbind(histospark(post$b_Intercept),
+      histospark(post$sigma))
+```
+
+Hell, you can even tack those onto the output from our verbose **tidyverse** code from a few blocks up.
+
+```{r, message = F, warning = F}
+post %>%
+  pivot_longer(b_Intercept:sigma) %>% 
+  group_by(name) %>%
+  summarise(mean = mean(value),
+            sd   = sd(value),
+            `2.5%`  = quantile(value, probs = .025),
+            `97.5%` = quantile(value, probs = .975)) %>%
+  mutate_if(is.numeric, round, digits = 2) %>% 
+  mutate(histospark = c(histospark(post$b_Intercept), histospark(post$sigma)))
+```
+#### Overthinking: Start values for ~~`quap()`~~ `brm()`.
+
+We won't be emphasizing start values in this ebook. But, yes, you can set start values for the HMC chains from **brms**, too. Within the `brm()` function, you do so with the `init` argument. From the `brm` section within the [**brms** reference manual](https://CRAN.R-project.org/package=brms/brms.pdf), we read:
+
+> Initial values for the sampler. If `NULL` (the default) or `"random"`, Stan will randomly generate initial values for parameters in a reasonable range. If `0`, all parameters are initialized to zero on the unconstrained space. This option is sometimes useful for certain families, as it happens that default random initial values cause draws to be essentially constant. Generally, setting `init = 0` is worth a try, if chains do not initialize or behave well. Alternatively, `init` can be a list of lists containing the initial values, or a function (or function name) generating initial values. The latter options are mainly implemented for internal testing but are available to users if necessary. If specifying initial values using a list or a function then currently the parameter names must correspond to the names used in the generated Stan code (not the names used in `R`).
+
+#### Overthinking: Under the hood with multivariate sampling.
+
+Again, `brms::as_draws_df()` is not the same as `rethinking::extract.samples()`. Rather than use the `MASS::mvnorm()`, **brms** takes the draws from the HMC chains. McElreath covered all of this in [Chapter 9][Markov Chain Monte Carlo] and we will too. You might also look at the [**brms** reference manual](https://cran.r-project.org/package=brms/brms.pdf) or [GitHub page](https://github.com/paul-buerkner/brms) for details. To get documentation in a hurry, you could also just execute `?as_draws_df`.
+
+## Linear prediction
+
+Here's our scatter plot of `weight` and `height`.
+
+```{r, fig.width = 3, fig.height = 2.8}
+ggplot(data = d2, 
+       aes(x = weight, y = height)) +
+  geom_point(shape = 1, size = 2) +
+  theme_bw() +
+  theme(panel.grid = element_blank())
+```
+
+> There's obviously a relationship: Knowing a person's weight helps you predict height.
+>
+> To make this vague observation into a more precise quantitative model that relates values of `weight` to plausible values of `height`, we need some more technology. How do we take our Gaussian model from the previous section and incorporate predictor variables? (p. 92)
+
+### The linear model strategy.
+
+> The strategy is to make the parameter for the mean of a Gaussian distribution, $\mu$, into a linear function of the predictor variable and other, new parameters that we invent. This strategy is often simply called the **linear model**. The linear model strategy instructs the golem to assume that the predictor variable has a constant and additive relationship to the mean of the outcome. The golem then computes the posterior distribution of this constant relationship. (p. 92, **emphasis** in the original)
+
+Like we did for our first model without a predictor, we'll use font color to help differentiate between the likelihood and prior(s) of our new univariable model,
+
+\begin{align*}
+\color{red}{\text{height}_i} & \color{red}\sim \color{red}{\operatorname{Normal}(\mu_i, \sigma)} && \color{red}{\text{likelihood}} \\
+\color{red}{\mu_i} & \color{red}= \color{red}{\alpha + \beta (\text{weight}_i - \overline{\text{weight}})}  && \color{red}{\text{\{the linear model is just a special part of the likelihood\}} } \\
+\color{blue}\alpha & \color{blue}\sim \color{blue}{\operatorname{Normal}(178, 20)} && \color{blue}{\text{prior(s)}} \\
+\color{blue}\beta  & \color{blue}\sim \color{blue}{\operatorname{Normal}(0, 10)} \\
+\color{blue}\sigma & \color{blue}\sim \color{blue}{\operatorname{Uniform}(0, 50)}.
+\end{align*}
+
+Do note that $(\text{weight}_i - \overline{\text{weight}})$ part. As we'll see, it's often advantageous to mean center our predictors.
+
+#### Probability of the data.
+
+> Let's begin with just the probability of the observed height, the first line of the model. This is nearly identical to before, except now there is a little index $i$ on the $\mu$ as well as the [$\text{height}$]. You can read [$\text{height}_i$] as "each [$\text{height}$]" and $\mu_i$ as "each $\mu$." The mean $\mu$ now depends upon unique values on each row $i$. So the little $i$ on $\mu_i$ indicates that *the mean depends upon the row*. (p. 93, *emphasis* in the original)
+
+#### Linear model.
+
+> The mean $\mu$ is no longer a parameter to be estimated. Rather, as seen in the second line of the model, $\mu_i$ is constructed from other parameters, $\alpha$ and $\beta$, and the observed variable [$\text{weight}$]. This line is not a stochastic relationship--there is no $\sim$ in it, but rather an $=$ in it--because the definition of $\mu_i$ is deterministic. That is to say that, once we know $\alpha$ and $\beta$ and [$\text{weight}_i$], we know $\mu_i$ with certainty.
+>
+> The value [$\text{weight}_i$] is just the weight value on row $i$. It refers to the same individual as the height value, [$\text{height}_i$], on the same row. The parameters $\alpha$ and $\beta$ are more mysterious. Where did they come from? We made them up....
+>
+> You'll be making up all manner of parameters as your skills improve. (p. 93)
+
+##### Rethinking: Nothing special or natural about linear models.
+
+> Note that there's nothing special about the linear model, really. You can choose a different relationship between $\alpha$ and $\beta$ and $\mu$. For example, the following is a perfectly legitimate definition for $\mu_i$:
+>
+> $$\mu_i = \alpha \exp(- \beta x_i)$$
+>
+> This does not define a linear regression, but it does define a regression model. The linear relationship we are using instead is conventional, but nothing requires that you use it. (p. 94)
+
+#### Priors.
+
+> The remaining lines in the model define distributions for the unobserved variables. These variables are commonly known as parameters, and their distributions as priors. There are three parameters: $\alpha$, $\beta$, and $\sigma$. You've seen priors for $\alpha$ and $\sigma$ before, although $\alpha$ was called $\mu$ back then.
+>
+> The prior for $\beta$ deserves explanation. Why have a Gaussian prior with mean zero? (p. 94)
+
+We'll simulate to find out. Instead of using a loop to make our data for Figure 4.5, we'll stay within the **tidyverse**.
+
+```{r}
+set.seed(2971)
+# how many lines would you like?
+n_lines <- 100
+
+lines <-
+  tibble(n = 1:n_lines,
+         a = rnorm(n_lines, mean = 178, sd = 20),
+         b = rnorm(n_lines, mean = 0, sd = 10)) %>% 
+  expand_grid(weight = range(d2$weight)) %>% 
+  mutate(height = a + b * (weight - mean(d2$weight)))
+
+head(lines)
+```
+
+Now we'll plot the left panel from Figure 4.5.
+
+```{r, fig.width = 3, fig.height = 2.8}
+lines %>% 
+  ggplot(aes(x = weight, y = height, group = n)) +
+  geom_hline(yintercept = c(0, 272), linetype = 2:1, linewidth = 1/3) +
+  geom_line(alpha = 1/10) +
+  coord_cartesian(ylim = c(-100, 400)) +
+  ggtitle("b ~ dnorm(0, 10)") +
+  theme_classic()
+```
+
+> The pattern doesn't look like any human population at all. It essentially says that the relationship between weight and height could be absurdly positive or negative. Before we've even seen the data, this is a bad model. Can we do better?
+>
+> We can do better immediately. (pp. 95--96)
+
+One thing we know from the outset is that the correlation between human height and weight is positive. We might not be sure of the magnitude, but it's definitely the case that, on average, taller people are heavier people. Within the univariable regression context, this implies that the regression coefficient for `weight` predicting `height` will be positive. It might be unclear how large that coefficient will be, but it will certainly be above zero. One way we might encode this information in our data is by using the log-normal distribution for our $\beta$ prior. Here's what $\operatorname{Log-Normal}(0, 1)$ looks like.
+
+```{r, fig.width = 3, fig.height = 2.8}
+set.seed(4)
+
+tibble(b = rlnorm(1e4, mean = 0, sd = 1)) %>% 
+  ggplot(aes(x = b)) +
+  geom_density(fill = "grey92") +
+  coord_cartesian(xlim = c(0, 5)) +
+  theme_classic()
+```
+
+If you're unfamiliar with the log-normal distribution, it is the distribution whose logarithm is normally distributed. For example, here's what happens when we compare $\operatorname{Normal}(0, 1)$ with $\log \big ( \operatorname{Log-Normal}(0, 1) \big)$.
+
+```{r, fig.width = 3, fig.height = 3}
+set.seed(4)
+
+tibble(rnorm           = rnorm(1e5, mean = 0, sd = 1),
+       `log(rlognorm)` = log(rlnorm(1e5, mean = 0, sd = 1))) %>% 
+  pivot_longer(everything()) %>% 
+
+  ggplot(aes(x = value)) +
+  geom_density(fill = "grey92") +
+  coord_cartesian(xlim = c(-3, 3)) +
+  theme_classic() +
+  facet_wrap(~ name, nrow = 2)
+```
+
+They are the same within simulation variance. Also, did you notice how we simulated those log-normal data with `mean = 0, sd = 1`? Those values are what the mean and standard deviation of the output from the `rlnorm()` function **after** they are log transformed. The formulas for the actual mean and standard deviation for the log-normal distribution itself are complicated (see [here](https://en.wikipedia.org/wiki/Log-normal_distribution)). They are
+
+\begin{align*}
+\text{mean}               & = \exp \left (\mu + \frac{\sigma^2}{2} \right) & \text{and} \\
+\text{standard deviation} & = \sqrt{[\exp(\sigma ^{2})-1] \; \exp(2\mu +\sigma ^{2})}.
+\end{align*}
+
+Let's try our hand at those formulas and compute the mean and standard deviation for $\operatorname{Log-Normal}(0, 1)$.
+
+```{r}
+mu    <- 0
+sigma <- 1
+
+# mean
+exp(mu + (sigma^2) / 2)
+# sd
+sqrt((exp(sigma^2) - 1) * exp(2 * mu + sigma^2))
+```
+
+Let's confirm with simulated draws from `rlnorm()`.
+
+```{r rlnorm_sim}
+set.seed(4)
+
+tibble(x = rlnorm(1e7, mean = 0, sd = 1)) %>% 
+  summarise(mean = mean(x),
+            sd   = sd(x))
+```
+
+But okay, "so what [do all these complications] earn us? Do the prior predictive simulation again, now with the Log-Normal prior:" (p. 96).
+
+```{r, fig.width = 3, fig.height = 2.8}
+# make a tibble to annotate the plot
+text <-
+  tibble(weight = c(34, 43),
+         height = c(0 - 25, 272 + 25),
+         label  = c("Embryo", "World's tallest person (272 cm)"))
+
+# simulate
+set.seed(2971)
+
+tibble(n = 1:n_lines,
+       a = rnorm(n_lines, mean = 178, sd = 20),
+       b = rlnorm(n_lines, mean = 0, sd = 1)) %>% 
+  expand_grid(weight = range(d2$weight)) %>% 
+  mutate(height = a + b * (weight - mean(d2$weight))) %>%
+  
+  # plot
+  ggplot(aes(x = weight, y = height, group = n)) +
+  geom_hline(yintercept = c(0, 272), linetype = 2:1, linewidth = 1/3) +
+  geom_line(alpha = 1/10) +
+  geom_text(data = text,
+            aes(label = label),
+            size = 3) +
+  coord_cartesian(ylim = c(-100, 400)) +
+  ggtitle("log(b) ~ dnorm(0, 1)") +
+  theme_classic()
+```
+
+"This is much more sensible. There is still a rare impossible relationship. But nearly all lines in the joint prior for $\alpha$ and $\beta$ are now within human reason" (p. 96)
+
+##### Rethinking: What's the correct prior?
+
+Good luck with that question. Hang around on academic Twitter long enough and you'll see folks debating this.
+
+> This is a mistake. There is no more a uniquely correct prior than there is a uniquely correct likelihood. Statistical models are machines for inference. Many machines will work, but some work better than others. Priors can be wrong, but only in the same sense that a kind of hammer can be wrong for building a table. (p. 96)
+
+##### Rethinking: Prior predictive simulation and $p$-hacking.
+
+"We don't pay any attention to $p$-values in this book" (p. 97). Off hand, I'm not sure of the exact origin of the term $p$-hacking. But the paper by Simmons, Nelson and Simonsohn [-@simmonsFalsepositivePsychologyUndisclosed2011], [*False-positive psychology: Undisclosed flexibility in data collection and analysis allows presenting anything as significant*](https://doi.org/10.1177/0956797611417632), is often cited as an introduction to the problem.
+
+### Finding the posterior distribution.
+
+Unlike with McElreath's `quap()` formula syntax, I'm not aware that you can just specify something like `weight – xbar` in the `formula` argument in `brm()`. However, the alternative is easy: Just make a new variable in the data that is equivalent to `weight – mean(weight)`. We'll call it `weight_c`.
+
+```{r}
+d2 <-
+  d2 %>% 
+  mutate(weight_c = weight - mean(weight))
+```
+
+Unlike with McElreath's **rethinking** package, the conventional `brms::brm()` syntax doesn't mirror the statistical notation. But here are the analogues to the exposition at the bottom of page 97:
+
+* $\text{height}_i \sim \operatorname{Normal}(\mu_i, \sigma)$: `family = gaussian`,
+* $\mu_i = \alpha + \beta \text{weight}_i$: `height ~ 1 + weight_c`,
+* $\alpha \sim \operatorname{Normal}(178, 20)$: `prior(normal(178, 20), class = Intercept`,
+* $\beta \sim \operatorname{Log-Normal}(0, 1)$: `prior(lognormal(0, 1), class = b)`, and
+* $\sigma \sim \operatorname{Uniform}(0, 50)$: `prior(uniform(0, 50), class = sigma)`.
+
+Thus, to add a predictor you just the `+` operator in the model `formula`.
+
+```{r b4.3}
+b4.3 <- 
+  brm(data = d2, 
+      family = gaussian,
+      height ~ 1 + weight_c,
+      prior = c(prior(normal(178, 20), class = Intercept),
+                prior(lognormal(0, 1), class = b),
+                prior(uniform(0, 50), class = sigma, ub = 50)),
+      iter = 2000, warmup = 1000, chains = 4, cores = 4,
+      seed = 4,
+      file = "fits/b04.03")
+```
+
+Here are the trace plots.
+
+```{r, fig.width = 6, fig.height = 3.5}
+plot(b4.3, widths = c(1, 2))
+```
+
+#### Overthinking: Logs and exps, oh my.
+
+**brms** does not allow users to insert coefficients into functions like $\exp()$ within the conventional `formula` syntax. We can fit a **brms** model like McElreath's `m4.3b` if we adopt what's called the non-linear syntax [@Bürkner2022Non_linear]. The non-linear syntax is a lot like the syntax McElreath uses in **rethinking** in that it typically includes both predictor and variable names in the `formula`. Since this is so early in the book and we're just working through a problem in an **Overthinking** tangent, I won't go into a full-blown explanation, here. There will be many more opportunities to practice with the non-linear syntax in the chapters to come (e.g., [Section 5.3.2][Many categories.], [Section 6.2.1][A prior is born.]). For now, here's how we might fit the model.
+
+```{r b4.3b}
+b4.3b <- 
+  brm(data = d2, 
+      family = gaussian,
+      bf(height ~ a + exp(lb) * weight_c,
+         a ~ 1,
+         lb ~ 1,
+         nl = TRUE),
+      prior = c(prior(normal(178, 20), class = b, nlpar = a),
+                prior(normal(0, 1), class = b, nlpar = lb),
+                prior(uniform(0, 50), class = sigma, ub = 50)),
+      iter = 2000, warmup = 1000, chains = 4, cores = 4,
+      seed = 4,
+      file = "fits/b04.03b")
+```
+
+If you execute `summary(b4.3b)`, you'll see the intercept and $\sigma$ summaries for this model are about the same as those for `b4.3`, above. The difference is for the $\beta$ parameter, which we called `lb` in the `b4.3b` model. If we term that parameter from `b4.3` as $\beta^\text{b4.3}$ and the one from our new model $\beta^\text{b4.3b}$, it turns out that $\beta^\text{b4.3} = \exp \left (\beta^\text{b4.3b} \right )$.
+
+```{r}
+fixef(b4.3)["weight_c", "Estimate"]
+fixef(b4.3b)["lb_Intercept", "Estimate"] %>% exp()
+```
+
+They're the same within simulation variance.
+
+### Interpreting the posterior distribution.
+
+"One trouble with statistical models is that they are hard to understand" (p. 99). Welcome to the world of applied statistics, friends. `r emo::ji("sweat_smile")`
+
+##### Rethinking: What do parameters mean?
+
+> A basic issue with interpreting model-based estimates is in knowing the meaning of parameters. There is no consensus about what a parameter means, however, because different people take different philosophical stances towards models, probability, and prediction. The perspective in this book is a common Bayesian perspective: *Posterior probabilities of parameter values describe the relative compatibility of different states of the world with the data, according to the model*. (p. 99, *emphasis* in the original)
+
+#### Tables of marginal distributions.
+
+With a little `[]` subsetting we can exclude the log posterior from our summary for `b4.3`.
+
+```{r}
+posterior_summary(b4.3)[1:3, ] %>% 
+  round(digits = 2)
+```
+
+If we put our **brms** fit into the `vcov()` function, we'll get the variance/covariance matrix of the intercept and `weight_c` coefficient.
+
+```{r}
+vcov(b4.3) %>% 
+  round(3)
+```
+
+No $\sigma$, however. To get that, we'll have to extract the posterior draws and use the `cov()` function, instead.
+
+```{r, fig.width = 4, fig.height = 3.5, warning = F}
+as_draws_df(b4.3) %>%
+  select(b_Intercept:sigma) %>%
+  cov() %>%
+  round(digits = 3)
+```
+
+The `pairs()` function will work for a **brms** fit much like it would one from **rethinking**. It will show "both the marginal posteriors and the covariance" (p. 100).
+
+```{r, fig.width = 4.5, fig.height = 4}
+pairs(b4.3)
+```
+
+#### Plotting posterior inference against the data.
+
+"It's almost always much more useful to plot the posterior inference against the data. Not only does plotting help in interpreting the posterior, but it also provides an informal check on model assumptions" (p. 100).
+
+Here is the code for Figure 4.6. Note our use of the `fixef()` function within `geom_abline()`.
+
+```{r, fig.width = 3, fig.height = 2.8}
+d2 %>%
+  ggplot(aes(x = weight_c, y = height)) +
+  geom_abline(intercept = fixef(b4.3)[1], 
+              slope     = fixef(b4.3)[2]) +
+  geom_point(shape = 1, size = 2, color = "royalblue") +
+  theme_classic()
+```
+
+Note how the breaks on our $x$-axis look off. That's because we fit the model with `weight_c` and we plotted the points in that metric, too. Since we computed `weight_c` by subtracting the mean of `weight` from the data, we can adjust the $x$-axis break point labels by simply adding that value back.
+
+```{r, fig.width = 3, fig.height = 2.8}
+labels <-
+  c(-10, 0, 10) + mean(d2$weight) %>% 
+  round(digits = 0)
+
+d2 %>%
+  ggplot(aes(x = weight_c, y = height)) +
+  geom_abline(intercept = fixef(b4.3)[1], 
+              slope     = fixef(b4.3)[2]) +
+  geom_point(shape = 1, size = 2, color = "royalblue") +
+  scale_x_continuous("weight",
+                     breaks = c(-10, 0, 10),
+                     labels = labels) +
+  theme_bw() +
+  theme(panel.grid = element_blank())
+```
+
+#### Adding uncertainty around the mean.
+
+Be default, we extract all the posterior draws with `as_draws_df()`.
+
+```{r}
+post <- as_draws_df(b4.3)
+
+post %>%
+  slice(1:5)  # this serves a similar function as `head()`
+```
+
+Here are the four models leading up to McElreath's Figure 4.7.
+
+```{r b10_through_b352, cache = T, message = F, warning = F}
+N <- 10
+
+b4.3_010 <- 
+  brm(data = d2 %>%
+        slice(1:N),  # note our tricky use of `N` and `slice()`
+      family = gaussian,
+      height ~ 1 + weight_c,
+      prior = c(prior(normal(178, 20), class = Intercept),
+                prior(lognormal(0, 1), class = b),
+                prior(uniform(0, 50), class = sigma, ub = 50)),
+      iter = 2000, warmup = 1000, chains = 4, cores = 4,
+      seed = 4,
+      file = "fits/b04.03_010")
+
+N <- 50
+
+b4.3_050 <- 
+  brm(data = d2 %>%
+        slice(1:N), 
+      family = gaussian,
+      height ~ 1 + weight_c,
+      prior = c(prior(normal(178, 20), class = Intercept),
+                prior(lognormal(0, 1), class = b),
+                prior(uniform(0, 50), class = sigma, ub = 50)),
+      iter = 2000, warmup = 1000, chains = 4, cores = 4,
+      seed = 4,
+      file = "fits/b04.03_050")
+
+N <- 150
+
+b4.3_150 <- 
+  brm(data = d2 %>%
+        slice(1:N), 
+      family = gaussian,
+      height ~ 1 + weight_c,
+      prior = c(prior(normal(178, 20), class = Intercept),
+                prior(lognormal(0, 1), class = b),
+                prior(uniform(0, 50), class = sigma, ub = 50)),
+      iter = 2000, warmup = 1000, chains = 4, cores = 4,
+      seed = 4,
+      file = "fits/b04.03_150")
+
+N <- 352
+
+b4.3_352 <- 
+  brm(data = d2 %>%
+        slice(1:N), 
+      family = gaussian,
+      height ~ 1 + weight_c,
+      prior = c(prior(normal(178, 20), class = Intercept),
+                prior(lognormal(0, 1), class = b),
+                prior(uniform(0, 50), class = sigma, ub = 50)),
+      iter = 2000, warmup = 1000, chains = 4, cores = 4,
+      seed = 4,
+      file = "fits/b04.03_352")
+```
+
+I'm not going to clutter up the document with all the trace plots and coefficient summaries from these four models. But here's how to get that information.
+
+```{r, eval = F}
+plot(b4.3_010)
+print(b4.3_010)
+
+plot(b4.3_050)
+print(b4.3_050)
+
+plot(b4.3_150)
+print(b4.3_150)
+
+plot(b4.3_352)
+print(b4.3_352)
+```
+
+We'll need to put the chains of each model into data frames.
+
+```{r} 
+post010 <- as_draws_df(b4.3_010)
+post050 <- as_draws_df(b4.3_050)
+post150 <- as_draws_df(b4.3_150)
+post352 <- as_draws_df(b4.3_352)
+```
+
+Here is the code for the four individual plots.
+
+```{r, warning = F}
+p1 <- 
+  ggplot(data =  d2[1:10, ], 
+         aes(x = weight_c, y = height)) +
+  geom_abline(data = post010 %>% slice(1:20),
+              aes(intercept = b_Intercept, slope = b_weight_c),
+              linewidth = 1/3, alpha = .3) +
+  geom_point(shape = 1, size = 2, color = "royalblue") +
+  coord_cartesian(xlim = range(d2$weight_c),
+                  ylim = range(d2$height)) +
+  labs(subtitle = "N = 10")
+
+p2 <-
+  ggplot(data =  d2[1:50, ], 
+         aes(x = weight_c, y = height)) +
+  geom_abline(data = post050 %>% slice(1:20),
+              aes(intercept = b_Intercept, slope = b_weight_c),
+              linewidth = 1/3, alpha = .3) +
+  geom_point(shape = 1, size = 2, color = "royalblue") +
+  coord_cartesian(xlim = range(d2$weight_c),
+                  ylim = range(d2$height)) +
+  labs(subtitle = "N = 50")
+
+p3 <-
+  ggplot(data =  d2[1:150, ], 
+         aes(x = weight_c, y = height)) +
+  geom_abline(data = post150 %>% slice(1:20),
+              aes(intercept = b_Intercept, slope = b_weight_c),
+              linewidth = 1/3, alpha = .3) +
+  geom_point(shape = 1, size = 2, color = "royalblue") +
+  coord_cartesian(xlim = range(d2$weight_c),
+                  ylim = range(d2$height)) +
+  labs(subtitle = "N = 150")
+
+p4 <- 
+  ggplot(data =  d2[1:352, ], 
+         aes(x = weight_c, y = height)) +
+  geom_abline(data = post352 %>% slice(1:20),
+              aes(intercept = b_Intercept, slope = b_weight_c),
+              linewidth = 1/3, alpha = .3) +
+  geom_point(shape = 1, size = 2, color = "royalblue") +
+  coord_cartesian(xlim = range(d2$weight_c),
+                  ylim = range(d2$height)) +
+  labs(subtitle = "N = 352")
+```
+
+Now we can combine the ggplots with **patchwork** syntax to make the full version of Figure 4.7.
+
+```{r, fig.width = 5, fig.height = 5}
+(p1 + p2 + p3 + p4) &
+  scale_x_continuous("weight",
+                     breaks = c(-10, 0, 10),
+                     labels = labels) &
+  theme_classic()
+```
+
+"Notice that the cloud of regression lines grows more compact as the sample size increases. This is a result of the model growing more confident about the location of the mean" (p. 102).
+
+#### Plotting regression intervals and contours.
+
+Since we used `weight_c` to fit our model, we might first want to understand what exactly the mean value is for `weight`.
+
+```{r}
+mean(d2$weight)
+```
+
+Just a hair under 45. If we're interested in $\mu$ at `weight` = 50, that implies we're also interested in $\mu$ at `weight_c` + 5.01. Within the context of our model, we compute this with $\alpha + \beta \cdot 5.01$. Here's what that looks like with `post`.
+
+```{r, warning = F}
+mu_at_50 <- 
+  post %>% 
+  transmute(mu_at_50 = b_Intercept + b_weight_c * 5.01)
+ 
+head(mu_at_50)
+```
+
+And here is a version McElreath's Figure 4.8 density plot.
+
+```{r, fig.width = 3, fig.height = 3}
+mu_at_50 %>%
+  ggplot(aes(x = mu_at_50)) +
+  geom_density(linewidth = 0, fill = "royalblue") +
+  scale_y_continuous(NULL, breaks = NULL) +
+  xlab(expression(mu["height | weight = 50"])) +
+  theme_classic()
+```
+
+We'll use `mean_hdi()` to get both 89% and 95% HPDIs along with the mean.
+
+```{r}
+mean_hdi(mu_at_50[, 1], .width = c(.89, .95))
+```
+
+If you wanted to express those sweet 95% HPDIs on your density plot, you might use `tidybayes::stat_halfeye()`. Since `stat_halfeye()` also returns a point estimate, we'll throw in the mode.
+
+```{r, fig.width = 3, fig.height = 3, warning = F}
+mu_at_50 %>%
+  ggplot(aes(x = mu_at_50, y = 0)) +
+  stat_halfeye(point_interval = mode_hdi, .width = .95,
+               fill = "royalblue") +
+  scale_y_continuous(NULL, breaks = NULL) +
+  xlab(expression(mu["height | weight = 50"])) +
+  theme_classic()
+```
+
+With **brms**, you would use `fitted()` to do what McElreath accomplished with `link()`.
+
+```{r}
+mu <- fitted(b4.3, summary = F)
+
+str(mu)
+```
+
+When you specify `summary = F`, `fitted()` returns a matrix of values with as many rows as there were post-warmup draws across your HMC chains and as many columns as there were cases in your analysis. Because we had 4,000 post-warmup draws and $n = 352$, `fitted()` returned a matrix of 4,000 rows and 352 vectors. If you omitted the `summary = F` argument, the default is `TRUE` and `fitted()` will return summary information instead.
+
+Much like **rethinking**'s `link()`, `brms::fitted()` can accommodate custom predictor values with its `newdata` argument.
+
+```{r, results = "hide"}
+weight_seq <- 
+  tibble(weight = 25:70) %>% 
+  mutate(weight_c = weight - mean(d2$weight))
+
+mu <-
+  fitted(b4.3,
+         summary = F,
+         newdata = weight_seq) %>%
+  data.frame() %>%
+  # here we name the columns after the `weight` values from which they were computed
+  set_names(25:70) %>% 
+  mutate(iter = 1:n())
+```
+
+Anticipating **ggplot2**, we went ahead and converted the output to a data frame. But we might do a little more data processing with the aid of `tidyr::pivot_longer()`, which will convert the data from the wide format to the long format. If you are new to the distinction between wide and long data, you can learn more from the [*Pivot data from wide to long*](https://tidyr.tidyverse.org/reference/pivot_longer.html) vignette from the **tidyverse** team [-@PivotDataWide2020]; Simon Ejdemyr's blog post, [*Wide & long data*](https://sejdemyr.github.io/r-tutorials/basics/wide-and-long/); or Karen Grace-Martin's blog post, [*The wide and long data format for repeated measures data*](https://www.theanalysisfactor.com/wide-and-long-data/).
+
+```{r}
+mu <- 
+  mu %>%
+  pivot_longer(-iter,
+               names_to = "weight",
+               values_to = "height") %>% 
+  # we might reformat `weight` to numerals
+  mutate(weight = as.numeric(weight))
+
+head(mu)
+```
+
+Now our data processing is done, here we reproduce McElreath's Figure 4.9.a.
+
+```{r, warning = F, fig.width = 3, fig.height = 2.8}
+d2 %>%
+  ggplot(aes(x = weight, y = height)) +
+  geom_point(data = mu %>% filter(iter < 101), 
+             color = "navyblue", alpha = .05) +
+  coord_cartesian(xlim = c(30, 65)) +
+  theme(panel.grid = element_blank())
+```
+
+With `fitted()`, it's quite easy to plot a regression line and its intervals. Just omit the `summary = T` argument.
+
+```{r}
+mu_summary <-
+  fitted(b4.3, 
+         newdata = weight_seq) %>%
+  data.frame() %>%
+  bind_cols(weight_seq)
+
+head(mu_summary)
+```
+
+Here it is, our analogue to Figure 4.9.b.
+
+```{r, warning = F, fig.width = 3, fig.height = 2.8}
+d2 %>%
+  ggplot(aes(x = weight, y = height)) +
+  geom_smooth(data = mu_summary,
+              aes(y = Estimate, ymin = Q2.5, ymax = Q97.5),
+              stat = "identity",
+              fill = "grey70", color = "black", alpha = 1, linewidth = 1/2) +
+  geom_point(color = "navyblue", shape = 1, linewidth = 1.5, alpha = 2/3) +
+  coord_cartesian(xlim = range(d2$weight)) +
+  theme(text = element_text(family = "Times"),
+        panel.grid = element_blank())
+```
+
+If you wanted to use intervals other than the default 95% ones, you'd include the `probs` argument like this: `fitted(b4.3, newdata = weight.seq, probs = c(.25, .75))`. The resulting third and fourth vectors from the `fitted()` object would be named `Q25` and `Q75` instead of the default `Q2.5` and `Q97.5`. The [`Q` prefix](https://github.com/paul-buerkner/brms/issues/425) stands for quantile.
+
+##### Rethinking: Overconfident intervals.
+
+> The compatibility interval for the regression line in Figure 4.9 clings tightly to the MAP line. Thus there is very little uncertainty about the average height as a function of average weight. But you have to keep in mind that these inferences are always conditional on the model. Even a very bad model can have very tight compatibility intervals. It may help if you think of the regression line in Figure 4.9 as saying: *Conditional on the assumption that height and weight are related by a straight line, then this is the most plausible line, and these are its plausible bounds*. (p. 107, *emphasis* in the original)
+
+##### Overthinking: How ~~link~~ `fitted()` works.
+
+Similar to `rethinking::link()`, `brms::fitted()` uses the formula from your model to compute the model expectations for a given set of predictor values. I use it a lot in this project. If you follow along, you'll get a good handle on it. But to dive deeper, you can go [here](https://rdrr.io/cran/brms/man/fitted.brmsfit.html) for the documentation. Though we won't be using it in this project, **brms** users might want to know that `fitted()` is also an alias for the `posterior_epred()` function, about which you might learn more [here](https://rdrr.io/cran/brms/man/posterior_epred.brmsfit.html). Users can always learn more about them and other functions in the [**brms** reference manual](https://CRAN.R-project.org/package=brms/brms.pdf).
+
+#### Prediction intervals.
+
+Even though our statistical model (omitting priors for the sake of simplicity) is
+
+$$\text{height}_i \sim \operatorname{Normal}(\mu_i = \alpha + \beta x_, \sigma),$$
+
+we've only been plotting the $\mu$ part. In order to bring in the variability expressed by $\sigma$, we'll have to switch to the `predict()` function. Much as `brms::fitted()` was our analogue to `rethinking::link()`, `brms::predict()` is our analogue to `rethinking::sim()`.
+
+We can reuse our `weight_seq` data from before. But in case you forgot, here's that code again.
+
+```{r}
+weight_seq <- 
+  tibble(weight = 25:70) %>% 
+  mutate(weight_c = weight - mean(d2$weight))
+```
+
+The `predict()` code looks a lot like what we used for `fitted()`.
+
+```{r}
+pred_height <-
+  predict(b4.3,
+          newdata = weight_seq) %>%
+  data.frame() %>%
+  bind_cols(weight_seq)
+  
+pred_height %>%
+  slice(1:6)
+```
+
+This time the summary information in our data frame is for, as McElreath put it, "simulated heights, not distributions of plausible average height, $\mu$" (p. 108). Another way of saying that is that these simulations are the joint consequence of both $\mu$ and $\sigma$, unlike the results of `fitted()`, which only reflect $\mu$. Figure 4.10 shows how you might visualize them.
+
+```{r, warning = F, fig.width = 3, fig.height = 2.8}
+d2 %>%
+  ggplot(aes(x = weight)) +
+  geom_ribbon(data = pred_height, 
+              aes(ymin = Q2.5, ymax = Q97.5),
+              fill = "grey83") +
+  geom_smooth(data = mu_summary,
+              aes(y = Estimate, ymin = Q2.5, ymax = Q97.5),
+              stat = "identity",
+              fill = "grey70", color = "black", alpha = 1, linewidth = 1/2) +
+  geom_point(aes(y = height),
+             color = "navyblue", shape = 1, size = 1.5, alpha = 2/3) +
+  coord_cartesian(xlim = range(d2$weight),
+                  ylim = range(d2$height)) +
+  theme(text = element_text(family = "Times"),
+        panel.grid = element_blank())
+```
+
+> Notice that the outline for the wide shaded interval is a little rough. This is the simulation variance in the tails of the sampled Gaussian values. If it really bothers you, increase the number of samples you take from the posterior distribution. (p. 109)
+
+With our **brms** model fitting approach, that would mean we'd have to refit `b4.3` after specifying a larger number of post-warmup iterations with alterations to the `iter` and `warmup` parameters.
+
+##### Overthinking: Rolling your own ~~sim~~ `predict()`.
+
+Here we follow McElreath's example and do our model-based predictions by hand. Instead of relying on base **R** `apply()` and `sapply()`, here the main action is in `expand_grid()`, the second `mutate()` line and the `group_by()` + `summarise()` combination.
+
+```{r, fig.width = 3, fig.height = 2.8, warning = F, message = F}
+# `predict()` by hand
+set.seed(4)
+
+post %>% 
+  expand_grid(weight = 25:70) %>% 
+  mutate(weight_c = weight - mean(d2$weight)) %>% 
+  mutate(sim_height = rnorm(n(),
+                            mean = b_Intercept + b_weight_c * weight_c,
+                            sd   = sigma)) %>% 
+  group_by(weight) %>% 
+  summarise(mean = mean(sim_height),
+            ll   = quantile(sim_height, prob = .025),
+            ul   = quantile(sim_height, prob = .975)) %>% 
+  
+  # plot
+  ggplot(aes(x = weight)) +
+  geom_smooth(aes(y = mean, ymin = ll, ymax = ul),
+              stat = "identity",
+              fill = "grey83", color = "black", alpha = 1, linewidth = 1/2) +
+  geom_point(data = d2,
+             aes(y = height),
+             color = "navyblue", shape = 1, size = 1.5, alpha = 2/3) +
+  coord_cartesian(xlim = range(d2$weight),
+                  ylim = range(d2$height)) +
+  theme(text = element_text(family = "Times"),
+        panel.grid = element_blank())
+```
+
+We specifically left out the `fitted()` intervals to make it more apparent what we were simulating. You might also note that we could have easily replaced that three-line `summarise()` code with a single line of `tidybayes::mean_qi(sim_height)`, or whatever combination of central tendency and interval type you wanted (e.g., `mode_hdi(sim_height, .width = .89)`).
+
+## Curves from lines
+
+"The models so far all assume that a straight line describes the relationship. But there's nothing special about straight lines, aside from their simplicity." (p. 110).
+
+### Polynomial regression.
+
+Remember `d`?
+
+```{r}
+d %>%
+  glimpse()
+```
+
+McElreath suggested we plot `height` against `weight` using the full sample.
+
+```{r, fig.width = 3, fig.height = 2.8}
+d %>% 
+  ggplot(aes(x = weight, y = height)) +
+  geom_point(color = "navyblue", shape = 1, size = 1.5, alpha = 2/3) +
+  annotate(geom = "text",
+           x = 42, y = 115,
+           label = "This relation is\nvisibly curved.",
+           family = "Times") +
+  theme(text = element_text(family = "Times"),
+        panel.grid = element_blank())
+```
+
+Those variables two appear to follow an orderly relation, but whatever it is, it's clearly not a simple straight line. The quadratic model is probably the most commonly used polynomial regression model. It follows the generic form
+
+$$\mu = \alpha + \beta_1 x_i + \color{navy}{\beta_2 x_i^2}.$$
+
+McElreath warned: "Fitting these models to data is easy. Interpreting them can be hard" (p. 111). Standardizing will help `brm()` fit the model. We might standardize our `weight` variable like so.
+
+```{r}
+d <-
+  d %>%
+  mutate(weight_s = (weight - mean(weight)) / sd(weight)) %>% 
+  mutate(weight_s2 = weight_s^2)
+```
+
+While we were at it, we just went ahead and computed the `weight_s2` variable. We can express our statistical model as
+
+\begin{align*}
+\text{height}_i & \sim \operatorname{Normal}(\mu_i, \sigma) \\
+\mu_i   & = \alpha + \beta_1 \text{weight_s}_i + \color{navy}{\beta_2 \text{weight_s}^2_i} \\
+\alpha  & \sim \operatorname{Normal}(178, 20) \\
+\beta_1 & \sim \operatorname{Log-Normal}(0, 1) \\
+\color{navy}{\beta_2} & \color{navy}\sim \color{navy}{\operatorname{Normal}(0, 1)} \\
+\sigma  & \sim \operatorname{Uniform}(0, 50).
+\end{align*}
+
+Here's how we might fit the quadratic model with **brms**.
+
+```{r b4.5}
+b4.5 <- 
+  brm(data = d, 
+      family = gaussian,
+      height ~ 1 + weight_s + weight_s2,
+      prior = c(prior(normal(178, 20), class = Intercept),
+                prior(lognormal(0, 1), class = b, coef = "weight_s"),
+                prior(normal(0, 1), class = b, coef = "weight_s2"),
+                prior(uniform(0, 50), class = sigma, ub = 50)),
+      iter = 2000, warmup = 1000, chains = 4, cores = 4,
+      seed = 4,
+      file = "fits/b04.05")
+```
+
+Note our use of the `coef` argument within our prior statements. Since $\beta_1$ and $\beta_2$ are both parameters of `class = b` within the **brms** set-up, we need to use the `coef` argument when we want their priors to differ.
+
+```{r, fig.width = 6, fig.height = 4.5}
+plot(b4.5, widths = c(1, 2))
+print(b4.5)
+```
+
+Our quadratic plot requires new `fitted()`- and `predict()`-oriented wrangling.
+
+```{r}
+weight_seq <- 
+  tibble(weight_s = seq(from = -2.5, to = 2.5, length.out = 30)) %>% 
+  mutate(weight_s2 = weight_s^2)
+
+fitd_quad <-
+  fitted(b4.5, 
+         newdata = weight_seq) %>%
+  data.frame() %>%
+  bind_cols(weight_seq)
+
+pred_quad <-
+  predict(b4.5, 
+          newdata = weight_seq) %>%
+  data.frame() %>%
+  bind_cols(weight_seq)  
+```
+
+Behold the code for our version of Figure 4.11.b.
+
+```{r, warning = F, fig.width = 3, fig.height = 3}
+p2 <-
+  ggplot(data = d, 
+         aes(x = weight_s)) +
+  geom_ribbon(data = pred_quad, 
+              aes(ymin = Q2.5, ymax = Q97.5),
+              fill = "grey83") +
+  geom_smooth(data = fitd_quad,
+              aes(y = Estimate, ymin = Q2.5, ymax = Q97.5),
+              stat = "identity",
+              fill = "grey70", color = "black", alpha = 1, linewidth = 1/2) +
+  geom_point(aes(y = height),
+             color = "navyblue", shape = 1, size = 1.5, alpha = 1/3) +
+  labs(subtitle = "quadratic",
+       y = "height") +
+  coord_cartesian(xlim = range(d$weight_s),
+                  ylim = range(d$height)) +
+  theme(text = element_text(family = "Times"),
+        panel.grid = element_blank())
+
+p2
+```
+
+From a formula perspective, the cubic model is a simple extension of the quadratic:
+
+$$\mu = \alpha + \beta_1 x_i + \beta_2 x_i^2 + \beta_3 x_i^3.$$
+
+Before we fit the model, we need to wrangle the data again.
+
+```{r}
+d <-
+  d %>% 
+  mutate(weight_s3 = weight_s^3)
+```
+
+Now fit the model like so.
+
+```{r b4.6}
+b4.6 <- 
+  brm(data = d, 
+      family = gaussian,
+      height ~ 1 + weight_s + weight_s2 + weight_s3,
+      prior = c(prior(normal(178, 20), class = Intercept),
+                prior(lognormal(0, 1), class = b, coef = "weight_s"),
+                prior(normal(0, 1), class = b, coef = "weight_s2"),
+                prior(normal(0, 1), class = b, coef = "weight_s3"),
+                prior(uniform(0, 50), class = sigma, ub = 50)),
+      iter = 2000, warmup = 1000, chains = 4, cores = 4,
+      seed = 4,
+      file = "fits/b04.06")
+```
+
+And now we'll fit the good old linear model.
+
+```{r b4.7}
+b4.7 <- 
+  brm(data = d, 
+      family = gaussian,
+      height ~ 1 + weight_s,
+      prior = c(prior(normal(178, 20), class = Intercept),
+                prior(lognormal(0, 1), class = b, coef = "weight_s"),
+                prior(uniform(0, 50), class = sigma, ub = 50)),
+      iter = 2000, warmup = 1000, chains = 4, cores = 4,
+      seed = 4,
+      file = "fits/b04.07")
+```
+
+Here's the `fitted()`, `predict()`, and **ggplot2** code for Figure 4.11.c, the cubic model.
+
+```{r, warning = F, fig.width = 3, fig.height = 3}
+weight_seq <- 
+  weight_seq %>% 
+  mutate(weight_s3 = weight_s^3)
+
+fitd_cub <-
+  fitted(b4.6, 
+         newdata = weight_seq) %>%
+  as_tibble() %>%
+  bind_cols(weight_seq)
+
+pred_cub <-
+  predict(b4.6, 
+          newdata = weight_seq) %>%
+  as_tibble() %>%
+  bind_cols(weight_seq) 
+
+p3 <-
+  ggplot(data = d, 
+       aes(x = weight_s)) +
+  geom_ribbon(data = pred_cub, 
+              aes(ymin = Q2.5, ymax = Q97.5),
+              fill = "grey83") +
+  geom_smooth(data = fitd_cub,
+              aes(y = Estimate, ymin = Q2.5, ymax = Q97.5),
+              stat = "identity",
+              fill = "grey70", color = "black", alpha = 1, linewidth = 1/4) +
+  geom_point(aes(y = height),
+             color = "navyblue", shape = 1, size = 1.5, alpha = 1/3) +
+  labs(subtitle = "cubic",
+       y = "height") +
+  coord_cartesian(xlim = range(d$weight_s),
+                  ylim = range(d$height)) +
+  theme(text = element_text(family = "Times"),
+        panel.grid = element_blank())
+
+p3
+```
+
+And here's the `fitted()`, `predict()`, and **ggplot2** code for Figure 4.11.a, the linear model.
+
+```{r, warning = F, fig.width = 3, fig.height = 3}
+fitd_line <-
+  fitted(b4.7, 
+         newdata = weight_seq) %>%
+  as_tibble() %>%
+  bind_cols(weight_seq)
+
+pred_line <-
+  predict(b4.7, 
+          newdata = weight_seq) %>%
+  as_tibble() %>%
+  bind_cols(weight_seq) 
+
+p1 <-
+  ggplot(data = d, 
+       aes(x = weight_s)) +
+  geom_ribbon(data = pred_line, 
+              aes(ymin = Q2.5, ymax = Q97.5),
+              fill = "grey83") +
+  geom_smooth(data = fitd_line,
+              aes(y = Estimate, ymin = Q2.5, ymax = Q97.5),
+              stat = "identity",
+              fill = "grey70", color = "black", alpha = 1, linewidth = 1/4) +
+  geom_point(aes(y = height),
+             color = "navyblue", shape = 1, size = 1.5, alpha = 1/3) +
+  labs(subtitle = "linear",
+       y = "height") +
+  coord_cartesian(xlim = range(d$weight_s),
+                  ylim = range(d$height)) +
+  theme(text = element_text(family = "Times"),
+        panel.grid = element_blank())
+
+p1
+```
+
+Did you notice how we labeled each of the past three plots as `p1`, `p2`, and `p3`? Here we use those names to plot them all together with **patchwork** syntax.
+
+```{r, fig.width = 7, fig.height = 3}
+p1 | p2 | p3
+```
+
+As fun as this all has been,
+
+> it's not clear that any of these models make a lot of sense. They are good geocentric descriptions of the sample, yes. But there are two problems. First, a better fit to the sample might not actually be a better model. That's the subject of Chapter 7. Second, the model contains no biological information. We aren't learning any causal relationship between height and weight. We’ll deal with this second problem much later, in Chapter 16. (p. 113)
+
+##### Overthinking: Converting back to natural scale.
+
+You can apply McElreath's conversion trick within the **ggplot2** environment, too. Here it is with the cubic model.
+
+```{r, warning = F, fig.width = 3, fig.height = 3}
+at <- c(-2, -1, 0, 1, 2)
+
+ggplot(data = d, 
+       aes(x = weight_s)) +
+  geom_ribbon(data = pred_cub, 
+              aes(ymin = Q2.5, ymax = Q97.5),
+              fill = "grey83") +
+  geom_point(aes(y = height),
+             color = "navyblue", shape = 1, size = 1.5, alpha = 1/3) +
+  coord_cartesian(xlim = range(d$weight_s)) +
+  theme(text = element_text(family = "Times"),
+        panel.grid = element_blank()) +
+  
+  # here it is!
+  scale_x_continuous("standardized weight converted back",
+                     breaks = at,
+                     labels = round(at*sd(d$weight) + mean(d$weight), 1))
+```
+
+### Splines.
+
+Load the `cherry_blossoms` data [@aonoPhenologicalDataSeries2008; @aonoClarifyingSpringtimeTemperature2010; @aonoLongTermChange2012].
+
+```{r, warning = F, message = F}
+library(rethinking)
+
+data(cherry_blossoms)
+d <- cherry_blossoms
+rm(cherry_blossoms)
+detach(package:rethinking, unload = T)
+```
+
+Minus the mini histograms, here is our ground-up **tidyverse** way to summarize our new `d` data the way McElreath did with his `precis()`.
+
+```{r, warning = F, message = F}
+d %>% 
+  gather() %>% 
+  group_by(key) %>% 
+  summarise(mean = mean(value, na.rm = T),
+            sd   = sd(value, na.rm = T),
+            ll   = quantile(value, prob = .055, na.rm = T),
+            ul   = quantile(value, prob = .945, na.rm = T)) %>% 
+  mutate_if(is.double, round, digits = 2)
+```
+
+McElreath encouraged us to plot `doy` against `year`.
+
+```{r, fig.width = 6, fig.height = 1.5, warning = F}
+d %>% 
+  ggplot(aes(x = year, y = doy)) +
+  # color from here: https://www.colorhexa.com/ffb7c5
+  geom_point(color = "#ffb7c5", alpha = 1/2) +
+  theme_bw() +
+  theme(panel.grid = element_blank(),
+        # color from here: https://www.colordic.org/w/, inspired by https://chichacha.netlify.com/2018/11/29/plotting-traditional-colours-of-japan/
+        panel.background = element_rect(fill = "#4f455c"))
+```
+
+It looks like there are some wiggly trends, but it's hard to tell with a scatter plot.
+
+> Our goal is to approximate the blossom trend with a wiggly function. With B-splines, just like with polynomial regression, we do this by generating new predictor variables and using those in the linear model, $\mu_i$. Unlike polynomial regression, B-splines do not directly transform the predictor by squaring or cubing it. Instead they invent a series of entirely new, synthetic predictor variables. Each of these synthetic variables exists only to gradually turn a specific parameter on and off within a specific range of the real predictor variable. Each of the synthetic variables is called a **basis function**. The linear model ends up looking very familiar:
+>
+> $$\mu_i = \alpha + w_1 B_{i, 1} + w_2 B_{i, 2} + w_3 B_{i, 3} + \dots$$
+>
+> where $B_{i,n}$ is the $n$-th basis function's value on row $i$, and the $w$ parameters are corresponding weights for each. The parameters act like slopes, adjusting the influence of each basis function on the mean $\mu_i$. So really this is just another linear regression, but with some fancy, synthetic predictor variables. (p. 115, **emphasis** in the original)
+
+It turns out there are cases with missing data for the `doy` variable.
+
+```{r}
+d %>% 
+  count(is.na(doy)) %>% 
+  mutate(percent = 100 * n / sum(n))
+```
+
+Let's follow McElreath and make a subset of the data that excludes cases with missing data in `doy`. Within the **tidyverse**, we might do so with the `tidyr::drop_na()` function.
+
+```{r}
+d2 <-
+  d %>% 
+  drop_na(doy)
+```
+
+On page 117 in the text, McElreath indirectly explained how to make Figure 4.12 by walking through the workflow for making Figure 4.13. Here we mimic that ordering.
+
+> First, we choose the knots. Remember, the knots are just values of year that serve as pivots for our spline. Where should the knots go? There are different ways to answer this question. You can, in principle, put the knots wherever you like. Their locations are part of the model, and you are responsible for them. Let's do what we did in the simple example above, place the knots at different evenlyspaced quantiles of the predictor variable. This gives you more knots where there are more observations. We used only 5 knots in the first example. Now let’s go for 15:
+
+```{r}
+num_knots <- 15
+knot_list <- quantile(d2$year, probs = seq(from = 0, to = 1, length.out = num_knots))
+```
+
+Our `knot_list` contains 15 `year` values.
+
+```{r}
+knot_list
+```
+
+Here's what it looks like if we use those `knot_list` values to chop up our `year`/`doy` scatter plot, from above.
+
+```{r, fig.width = 6, fig.height = 1.5, warning = F}
+d %>% 
+  ggplot(aes(x = year, y = doy)) +
+  geom_vline(xintercept = knot_list, color = "white", alpha = 1/2) +
+  geom_point(color = "#ffb7c5", alpha = 1/2) +
+  theme_bw() +
+  theme(panel.background = element_rect(fill = "#4f455c"),
+        panel.grid = element_blank())
+```
+
+> The next choice is polynomial degree. This determines how basis functions combine, which determines how the parameters interact to produce the spline. For degree 1, as in Figure 4.12, two basis functions combine at each point. For degree 2, three functions combine at each point. For degree 3, four combine. R already has a nice function that will build basis functions for any list of knots and degree. This code will construct the necessary basis functions for a degree 3 (cubic) spline: (p. 117)
+
+```{r}
+library(splines)
+
+B <- bs(d2$year,
+        knots = knot_list[-c(1, num_knots)], 
+        degree = 3, 
+        intercept = TRUE)
+```
+
+Look closely at McElreath's tricky `knot_list[-c(1, num_knots)]` code. Whereas `knot_list` contains 15 ordered `year` values, McElreath shaved off the first and last `year` values with `knot_list[-c(1, num_knots)]`, leaving 13. This is because, by default, the `bs()` function places knots at the boundaries. Since the first and 15^th^ values in `knot_list` were boundary values for `year`, we removed them to avoid redundancies. We can confirm this with the code, below.
+
+```{r}
+B %>% str()
+```
+
+Look at the second to last line, `- attr(*, "Boundary.knots")= int [1:2] 812 2015`. Those default `"Boundary.knots"` are the same as `knot_list[c(1, num_knots)]`. Let's confirm.
+
+```{r}
+knot_list[c(1, num_knots)]
+```
+
+By the `degree = 3` argument, we indicated we wanted a cubic spline. McElreath used `degree = 1` for Figure 4.12. For reasons I'm not prepared to get into, here, splines don't always include intercept parameters. Indeed, the `bs()` default is `intercept = FALSE`. McElreath's code indicated he wanted to fit a B-spline that included an intercept. Thus: `intercept = TRUE`.
+
+Here's how we might make our version of the top panel of Figure 4.13.
+
+```{r, fig.width = 6, fig.height = 1.5, warning = F}
+# wrangle a bit
+b <-
+  B %>% 
+  data.frame() %>% 
+  set_names(str_c(0, 1:9), 10:17) %>%  
+  bind_cols(select(d2, year)) %>% 
+  pivot_longer(-year,
+               names_to = "bias_function",
+               values_to = "bias")
+
+# plot
+b %>% 
+  ggplot(aes(x = year, y = bias, group = bias_function)) +
+  geom_vline(xintercept = knot_list, color = "white", alpha = 1/2) +
+  geom_line(color = "#ffb7c5", alpha = 1/2, linewidth = 1.5) +
+  ylab("bias value") +
+  theme_bw() +
+  theme(panel.background = element_rect(fill = "#4f455c"),
+        panel.grid = element_blank())
+```
+
+To elucidate what's going on in that plot, we might break it up with `facet_wrap()`.
+
+```{r, fig.width = 6, fig.height = 10}
+b %>% 
+  mutate(bias_function = str_c("bias function ", bias_function)) %>% 
+  
+  ggplot(aes(x = year, y = bias)) +
+  geom_vline(xintercept = knot_list, color = "white", alpha = 1/2) +
+  geom_line(color = "#ffb7c5", linewidth = 1.5) +
+  ylab("bias value") +
+  theme_bw() +
+  theme(panel.background = element_rect(fill = "#4f455c"),
+        panel.grid = element_blank(),
+        strip.background = element_rect(fill = scales::alpha("#ffb7c5", .25), color = "transparent"),
+        strip.text = element_text(size = 8, margin = margin(0.1, 0, 0.1, 0, "cm"))) +
+  facet_wrap(~ bias_function, ncol = 1)
+```
+
+> Now to get the parameter weights for each basis function, we need to actually define the model and make it run. The model is just a linear regression. The synthetic basis functions do all the work. We'll use each column of the matrix `B` as a variable. We'll also have an intercept to capture the average blossom day. This will make it easier to define priors on the basis weights, because then we can just conceive of each as a deviation from the intercept. (p. 117)
+
+That last line is another indication for why we set `intercept = TRUE`. Our model will follow the form
+
+\begin{align*}
+\text{day_in_year}_i & \sim \operatorname{Normal} (\mu_i, \sigma) \\
+\mu_i  & = \alpha + \color{#4f455c}{\sum_{k=1}^K w_k B_{k, i}} \\
+\alpha & \sim \operatorname{Normal}(100, 10) \\
+\color{#4f455c}{w_j} & \color{#4f455c}\sim \color{#4f455c}{\operatorname{Normal}(0, 10)} \\
+\sigma & \sim \operatorname{Exponential}(1),
+\end{align*}
+
+where $\alpha$ is the intercept, $B_{k, i}$ is the value of the $k^\text{th}$ bias function on the $i^\text{th}$ row of the data, and $w_k$ is the estimated regression weight for the corresponding $k^\text{th}$ bias function.
+
+As for the new parameter type for $\sigma$, the exponential distribution is controlled by a single parameter, $\lambda$, which is also called the *rate*. As it turns out, the mean of the exponential distribution is the inverse of the rate, $1 / \lambda$. Here we use the `dexp()` function to get a sense of what that prior looks like.
+      
+```{r, fig.width = 4, fig.height = 2.5}
+tibble(x = seq(from = 0, to = 10, by = 0.1)) %>% 
+  mutate(d = dexp(x, rate = 1)) %>% 
+  
+  ggplot(aes(x = x, y = d)) +
+  geom_area(fill = "#ffb7c5") +
+  scale_y_continuous(NULL, breaks = NULL) +
+  theme_bw() +
+  theme(panel.background = element_rect(fill = "#4f455c"),
+        panel.grid = element_blank())
+```
+
+"We'll use exponential priors for the rest of the book, in place of uniform priors. It is much more common to have a sense of the average deviation than of the maximum" (p. 119). `r emo::ji("tada")`
+
+**Acknowledgment**: The workflow to follow is heavily influenced by the [helpful contributions](https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed/issues/22) from [Stephen Wild](https://github.com/sjwild). My first pass through the material in this section was a mess. Wild's insights knocked it out of the park and I couldn't be more grateful. `r emo::ji("beers")`
+
+Before fitting this model in **brms**, well take a minor detour on the data structure. In his **R** code 4.76, McElreath defined his data in a list, `list( D=d2$doy , B=B )`. Our approach will be a little different. Here, we'll add the `B` matrix to our `d2` data frame and name the results as `d3`.
+
+```{r}
+d3 <-
+  d2 %>% 
+  mutate(B = B) 
+
+# take a look at the structure of `d3
+d3 %>% glimpse()
+```
+
+In our `d3` data, columns `year` through `temp_lower` are all standard data columns. The `B` column is a *matrix column*, which contains the same number of rows as the others, but also smuggled in 17 columns *within* that column. Each of those 17 columns corresponds to one of our synthetic $B_k$ variables. The advantage of such a data structure is we can simply define our `formula` argument as `doy ~ 1 + B`, where `B` is a stand-in for `B.1 + B.2 + ... + B.17`.
+
+Here's how to fit the model.
+
+```{r b4.8}
+b4.8 <- 
+  brm(data = d3,
+      family = gaussian,
+      doy ~ 1 + B,
+      prior = c(prior(normal(100, 10), class = Intercept),
+                prior(normal(0, 10), class = b),
+                prior(exponential(1), class = sigma)),
+      iter = 2000, warmup = 1000, chains = 4, cores = 4,
+      seed = 4,
+      file = "fits/b04.08")
+```
+
+Here's the model summary.
+
+```{r}
+print(b4.8)
+```
+
+Look at that. Each of the 17 columns in our `B` matrix was assigned its own parameter. If you fit this model using McElreath's **rethinking** code, you'll see the results are very similar. Anyway, McElreath's comments are in line with the general consensus on spline modes: the parameter estimates are very difficult to interpret directly. It's often easier to just plot the results. First we'll use `as_draws_df()`.
+
+```{r, eval = F, echo = F}
+# if you fit the model both with brms and with rethinking,
+# you'll see the parameter estimates are very similar
+
+# fit
+m4.7 <- rethinking::quap( 
+  alist(
+    D ~ dnorm(mu, sigma), 
+    mu <- a + B %*% w,
+    a ~ dnorm(100, 10),
+    w ~ dnorm(0, 10),
+    sigma ~ dexp(1)
+  ), 
+  data = list(D = d2$doy, B = B), 
+  start = list(w = rep(0 , ncol(B)))
+)
+
+bind_rows(
+  # brms
+  fixef(b4.8)[-1, ] %>% 
+    data.frame() %>% 
+    mutate(param = 1:n(),
+           fit = "brms"),
+  # rethinking
+  precis(m4.7, depth = 2, prob = .95)[1:17, ] %>% 
+    set_names(c("Estimate", "Est.Error", "Q2.5", "Q97.5")) %>% 
+    mutate(param = 1:n(),
+           fit = "rethinking")
+) %>% 
+  
+  ggplot(aes(x = param, y = Estimate, ymin = Q2.5, ymax = Q97.5, color = fit)) +
+  geom_pointrange(position = position_dodge(width = 0.4), fatten = 1) +
+  scale_color_viridis_d(option = "A", end = 0.6) +
+  coord_flip() +
+  theme_classic()
+```
+
+```{r}
+post <- as_draws_df(b4.8)
+
+glimpse(post)
+```
+
+With a little wrangling, we can use summary information from `post` to make our version of the middle panel of Figure 4.13.
+
+```{r, fig.width = 6, fig.height = 1.5, message = F, warning = F}
+post %>% 
+  select(b_B1:b_B17) %>% 
+  set_names(c(str_c(0, 1:9), 10:17)) %>% 
+  pivot_longer(everything(), names_to = "bias_function") %>% 
+  group_by(bias_function) %>% 
+  summarise(weight = mean(value)) %>% 
+  full_join(b, by = "bias_function") %>% 
+  
+  # plot
+  ggplot(aes(x = year, y = bias * weight, group = bias_function)) +
+  geom_vline(xintercept = knot_list, color = "white", alpha = 1/2) +
+  geom_line(color = "#ffb7c5", alpha = 1/2, linewidth = 1.5) +
+  theme_bw() +
+  theme(panel.background = element_rect(fill = "#4f455c"),
+        panel.grid = element_blank()) 
+```
+
+In case you missed it, the main action in the **ggplot2** code was `y = bias * weight`, where we defined the $y$-axis as the product of `bias` and `weight`. This is fulfillment of the $w_k B_{k, i}$ parts of the model. Now here's how we might use `brms::fitted()` to make the lower plot of Figure 4.13.
+
+```{r, fig.width = 6, fig.height = 1.5, message = F}
+f <- fitted(b4.8)
+
+f %>% 
+  data.frame() %>% 
+  bind_cols(d2) %>% 
+  
+  ggplot(aes(x = year, y = doy, ymin = Q2.5, ymax = Q97.5)) + 
+  geom_vline(xintercept = knot_list, color = "white", alpha = 1/2) +
+  geom_hline(yintercept = fixef(b4.8)[1, 1], color = "white", linetype = 2) +
+  geom_point(color = "#ffb7c5", alpha = 1/2) +
+  geom_ribbon(fill = "white", alpha = 2/3) +
+  labs(x = "year",
+       y = "day in year") +
+  theme_bw() +
+  theme(panel.background = element_rect(fill = "#4f455c"),
+        panel.grid = element_blank())
+```
+
+If it wasn't clear, the dashed horizontal line intersecting a little above 100 on the $y$-axis is the posterior mean for the intercept. Now let's use our skills to remake the simpler model expressed in Figure 4.12. This model, recall, is based on 5 knots.
+
+```{r b4.9}
+# redo the `B` splines
+num_knots <- 5
+knot_list <- quantile(d2$year, probs = seq(from = 0, to = 1, length.out = num_knots))
+
+B <- bs(d2$year,
+        knots = knot_list[-c(1, num_knots)], 
+        # this makes the splines liner rater than cubic
+        degree = 1, 
+        intercept = TRUE)
+
+# define a new `d4` data
+d4 <- 
+  d2 %>% 
+  mutate(B = B)
+
+b4.9 <- 
+  brm(data = d4,
+      family = gaussian,
+      formula = doy ~ 1 + B,
+      prior = c(prior(normal(100, 10), class = Intercept),
+                prior(normal(0, 10), class = b),
+                prior(exponential(1), class = sigma)),
+      iter = 2000, warmup = 1000, chains = 4, cores = 4,
+      seed = 4,
+      file = "fits/b04.09")
+```
+
+Review the new model summary.
+
+```{r}
+print(b4.9)
+```
+
+Here we do all the work in bulk to make and save the three subplots for Figure 4.12.
+
+```{r, message = F, warning = F}
+## top
+# wrangle a bit
+b <-
+  invoke(data.frame, d4) %>% 
+  pivot_longer(starts_with("B"),
+               names_to = "bias_function",
+               values_to = "bias")
+
+# plot
+p1 <- 
+  b %>% 
+  ggplot(aes(x = year, y = bias, group = bias_function)) +
+  geom_vline(xintercept = knot_list, color = "white", alpha = 1/2) +
+  geom_line(color = "#ffb7c5", alpha = 1/2, linewidth = 1.5) +
+  scale_x_continuous(NULL, breaks = NULL) +
+  ylab("bias value")
+
+## middle
+# wrangle
+p2 <-
+  as_draws_df(b4.9) %>% 
+  select(b_B1:b_B5) %>% 
+  set_names(str_c("B.", 1:5)) %>% 
+  pivot_longer(everything(), names_to = "bias_function") %>% 
+  group_by(bias_function) %>% 
+  summarise(weight = mean(value)) %>% 
+  full_join(b, by = "bias_function") %>% 
+  
+  # plot
+  ggplot(aes(x = year, y = bias * weight, group = bias_function)) +
+  geom_vline(xintercept = knot_list, color = "white", alpha = 1/2) +
+  geom_line(color = "#ffb7c5", alpha = 1/2, linewidth = 1.5) +
+  scale_x_continuous(NULL, breaks = NULL)
+
+## bottom
+# wrangle
+f <- fitted(b4.9)
+
+p3 <-
+  f %>% 
+  data.frame() %>% 
+  bind_cols(d2) %>% 
+  
+  # plot
+  ggplot(aes(x = year, y = doy, ymin = Q2.5, ymax = Q97.5)) + 
+  geom_vline(xintercept = knot_list, color = "white", alpha = 1/2) +
+  geom_hline(yintercept = fixef(b4.9)[1, 1], color = "white", linetype = 2) +
+  geom_point(color = "#ffb7c5", alpha = 1/2) +
+  geom_ribbon(fill = "white", alpha = 2/3) +
+  labs(x = "year",
+       y = "day in year")
+```
+
+Now combine the subplots with **patchwork** syntax and behold their glory.
+
+```{r, fig.width = 6, fig.height = 4.5, message = F}
+(p1 / p2 / p3) &
+  theme_bw() &
+  theme(panel.background = element_rect(fill = "#4f455c"),
+        panel.grid = element_blank())
+```
+
+```{r, warning = F, message = F, eval = F, echo = F}
+# an easy insight to miss is the parameters in these models are 
+# highly correlated, which isn't a bad thing, but it is a thing.
+# here's an example with the simpler model b4.9
+
+post <- as_draws_df(b4.9)
+
+head(post)
+
+post %>% 
+  select(b_Intercept:b_B5) %>% 
+  set_names("alpha", str_c("italic(w)[", 1:5, "]")) %>% 
+  GGally::ggpairs(upper = list(continuous = GGally::wrap("cor", stars = FALSE)),
+                  labeller = "label_parsed")
+```
+
+### Smooth functions for a rough world.
+
+> The splines in the previous section are just the beginning. A entire class of models, **generalized additive models** (GAMs), focuses on predicting an outcome variable using smooth functions of some predictor variables. The topic is deep enough to deserve its own book. (p. 120, **emphasis** in the original)
+
+McElreath ended that block quote with a reference to his endnote #78. On page 562, we read: "A very popular and comprehensive text is Wood [-@woodGeneralizedAdditiveModels2017]."
+
+## ~~Summary~~ First bonus: Smooth functions with `brms::s()`
+
+It's convenient for us how McElreath ended that last section with a reference to Simon Wood's work because **brms** allows for a variety of non-linear models by borrowing functions from Woods's [**mgcv** package](https://CRAN.R-project.org/package=mgcv) [@R-mgcv; @mgcv2003; @mgcv2004; @mgcv2011; @mgcv2017; @mgcv2016]. The two smooth functions **brms** imports from **mgcv** are `s()` and `t2()`. We'll be exploring `s()`. We might use the `brms::get_prior()` function to get a sense of how to set up the priors when using `s()`.
+
+```{r, warning = F, message = F}
+get_prior(data = d2,
+          family = gaussian,
+          doy ~ 1 + s(year))
+```
+
+We have an overall intercept (`class = Intercept`), a single $\beta$ parameter for `year` (`class = b`), a $\sigma$ parameter (`class = sigma`), and an unfamiliar parameter of `class = sds`. I'm not going to go into that last parameter in any detail, here. We'll need to work our way up through [Chapter 13][Models With Memory] and the multilevel model to get a full picture of what it means. The important thing to note here is that the priors for our `s()`-based alternative to the B-spline models, above, are going to look a little different. Here's how we might fit an alternative to `b4.8`
+
+```{r b4.10}
+b4.10 <-
+  brm(data = d2,
+      family = gaussian,
+      doy ~ 1 + s(year),
+      prior = c(prior(normal(100, 10), class = Intercept),
+                prior(normal(0, 10), class = b),
+                prior(student_t(3, 0, 5.9), class = sds),
+                prior(exponential(1), class = sigma)),
+      iter = 2000, warmup = 1000, chains = 4, cores = 4,
+      seed = 4,
+      control = list(adapt_delta = .99),
+      file = "fits/b04.10")
+```
+
+Check out the model summary.
+
+```{r}
+print(b4.10)
+```
+
+Our intercept and $\sigma$ summaries are similar to those we got from `b4.8`. The rest looks different and maybe a little disorienting. Here's what happens when we use `brms::fitted()` to plot the implications of the model.
+
+```{r, fig.width = 6, fig.height = 1.67, message = F}
+fitted(b4.10) %>% 
+  data.frame() %>% 
+  bind_cols(select(d2, year, doy)) %>% 
+  
+  ggplot(aes(x = year, y = doy, ymin = Q2.5, ymax = Q97.5)) +
+  geom_hline(yintercept = fixef(b4.10)[1, 1], color = "white", linetype = 2) +
+  geom_point(color = "#ffb7c5", alpha = 1/2) +
+  geom_ribbon(fill = "white", alpha = 2/3) +
+  labs(subtitle = "b4.7 using s(year)",
+       y = "day in year") +
+  theme_bw() +
+  theme(panel.background = element_rect(fill = "#4f455c"), 
+        panel.grid = element_blank())
+```
+
+That smooth doesn't look quite the same. Hopefully this isn't terribly surprising. We used a function from a different package and ended up with a different underlying statistical model. In fact, we didn't even use a B-spline. The default for `s()` is to use what's called a *thin plate* regression spline. If we'd like to fit a B-spline, we have to set `bs = "bs"`. Here's an example.
+
+```{r b4.11}
+b4.11 <-
+  brm(data = d2,
+      family = gaussian,
+      doy ~ 1 + s(year, bs = "bs", k = 19),
+      prior = c(prior(normal(100, 10), class = Intercept),
+                prior(normal(0, 10), class = b),
+                prior(student_t(3, 0, 5.9), class = sds),
+                prior(exponential(1), class = sigma)),
+      iter = 2000, warmup = 1000, chains = 4, cores = 4,
+      seed = 4,
+      control = list(adapt_delta = .99),
+      file = "fits/b04.11")
+```
+
+```{r}
+print(b4.11)
+```
+
+Now here's the depiction of our `s()`-based B-spline model.
+
+```{r, fig.width = 6, fig.height = 1.67, message = F}
+fitted(b4.11) %>% 
+  data.frame() %>% 
+  bind_cols(select(d2, year, doy)) %>% 
+  
+  ggplot(aes(x = year, y = doy, ymin = Q2.5, ymax = Q97.5)) +
+  geom_hline(yintercept = fixef(b4.11)[1, 1], color = "white", linetype = 2) +
+  geom_point(color = "#ffb7c5", alpha = 1/2) +
+  geom_ribbon(fill = "white", alpha = 2/3) +
+  labs(subtitle = 'b4.7_bs using s(year, bs = "bs")',
+       y = "day in year") +
+  theme_bw() +
+  theme(panel.background = element_rect(fill = "#4f455c"), 
+        panel.grid = element_blank())
+```
+
+There are still other important differences between the underlying statistical model for `b4.11` and the earlier `b4.8` that I'm just not going to go into, here.
+
+For more on the B-splines and smooths, more generally, check out the blog post by the great [Gavin Simpson](https://twitter.com/ucfagls), [*Extrapolating with B splines and GAMs*](https://fromthebottomoftheheap.net/2020/06/03/extrapolating-with-gams/). For a high-level introduction to the models you can fit with **mgcv**, check out the nice talk by [Noam Ross](https://twitter.com/noamross), [*Nonlinear models in R: The wonderful world of mgcv*](https://youtu.be/q4_t8jXcQgc), or the equally-nice presentation by Simpson, [*Introduction to generalized additive models with R and mgcv*](https://youtu.be/sgw4cu8hrZM). Ross offers a free online course covering **mgcv**, called [GAMS in R](https://noamross.github.io/gams-in-r-course/), and he maintains a GitHub repo cataloguing other GAM-related resources, called [*Resources for learning about and using GAMs in R*](https://github.com/noamross/gam-resources). For specific examples of fitting various GAMS with **brms**, check out Simpson's blog post, [**Fitting GAMs with brms: part 1**](https://fromthebottomoftheheap.net/2018/04/21/fitting-gams-with-brms/). Finally, [Tristan Mahr](https://twitter.com/tjmahr) has a nice blog post called [*Random effects and penalized splines are the same thing*](https://www.tjmahr.com/random-effects-penalized-splines-same-thing/), where he outlined the connections between penalized smooths, such as you might fit with **mgcv**, with the multilevel model, which we'll learn all about starting in [Chapter 13][Models With Memory], which helps explain what's going on with the `s()` function in our last two models, `b4.10` and `b4.11`.
+
+## Second bonus: Group predictors with matrix columns
+
+When we fit `b4.8`, our direct **brms** analogue to McElreath's `m4.7`[^1], we used a compact syntax to pass a matrix column of predictors into the `formula`. If memory serves, this is one of the only places in the text where we see this. It would be easy for the casual reader to think this was only appropriate for something like a spline model. But that's not the case. One could use the matrix-column trick as a general approach. In this bonus section, we'll explore how.
+
+In Section 11.2.6 of their [-@gelmanRegressionOtherStories2020] text, Gelman, Hill, and Vehtari worked through an example of a multiple regression model,
+
+$$
+\begin{align*}
+y_i & \sim \operatorname{Normal}(\mu_i, \sigma) \\
+\mu_i & = \alpha + \theta z_i + \sum_{k = 1}^K b_k x_{k, i} \\
+& \text{<priors>},
+\end{align*}
+$$
+
+where $y_i$ was some continuous variable collected across participants, $i$. The $\alpha$ term was the intercept and the $\theta$ term was the regression slope for a binary variable $z$--we'll practice with binary predictors in [Section 5.3][Categorical variables]. More to our interest, the last portion of the equation is a compact way to convey there are $K$ additional predictors and their associated regression coefficients, which we might more explicitly express as $\beta_1 x_{1, i} + \cdots + \beta_k x_{k, i}$, where $K \geq 1$. In this particular example, $K = 10$, meaning there were ten $x_{k, i}$ predictors, making this an example of a model with 11 total predictor variables.
+
+Riffing off of Gelman and colleagues, here's how you might simulate data of this kind.
+
+```{r}
+# how many cases would you like?
+n <- 100
+
+# how many continuous x predictor variables would you like?
+k <- 10
+
+# simulate a dichotomous dummy variable for z
+# simulate an n by k array for X
+set.seed(4)
+
+d <- 
+  tibble(z = sample(0:1, size = n, replace = T),
+         X = array(runif(n * k, min = 0, max = 1), dim = c(n, k)))
+
+# set the data-generating parameter values
+a     <- 1
+theta <- 5
+b     <- 1:k
+sigma <- 2
+
+# simulate the criterion
+d <-
+  d %>% 
+  mutate(y = as.vector(a + X %*% b + theta * z + rnorm(n, mean = 0, sd = sigma)))
+
+# check the data structure
+d %>% 
+  glimpse()
+```
+
+Although our `d` tibble has only three columns, the `X` column is a matrix column into which we've smuggled ten columns more. Here's how we might access them more directly.
+
+```{r}
+d %>% 
+  pull(X) %>% 
+  glimpse()
+```
+
+See? There's an $100 \times 10$ data matrix in there. *Tricky*. Here's how to fit the full model with **brms** where we use the compact matrix-column syntax in the `formula` argument.
+
+```{r b4.12}
+b4.12 <-
+  brm(data = d,
+      family = gaussian,
+      y ~ 1 + z + X,
+      prior = c(prior(normal(0, 2), class = Intercept),
+                prior(normal(0, 10), class = b),
+                prior(exponential(1), class = sigma)),
+      iter = 2000, warmup = 1000, chains = 4, cores = 4,
+      seed = 4,
+      file = "fits/b04.12")
+```
+
+Check the parameter summary.
+
+```{r}
+print(b4.12)
+```
+
+**brms** automatically numbered our $K = 10$ `X` variables as `X1` through `X10`. As far as applications go, I'm not sure where I'd use this way of storing and modeling data in real life. But maybe some of y'all work in domains where this is just the right way to approach your data needs. If so, good luck and happy modeling.
+
+## Session info {-}
+
+```{r}
+sessionInfo()
+```
+
+```{r, warning = F, echo = F}
+rm(pos, p1, p2, sd, p3, growth, samples, p_grid, d, n_points, sparks, histospark, d2, n, sim, breaks, text, p4, d_grid, grid_function, d_grid_samples, d3, b4.1, b4.2, post, n_lines, lines, mu, sigma, b4.3, b4.3b, labels, N, b4.3_010, b4.3_050, b4.3_150, b4.3_352, post010, post050, post150, post352, mu_at_50, weight_seq, mu_summary, pred_height, b4.5, fitd_quad, pred_quad, b4.6, b4.7, fitd_cub, pred_cub, fitd_line, pred_line, at, num_knots, knot_list, B, b, d3, b4.8, f, d4, b4.9, b4.10, b4.11, k, a, theta, b, b4.12)
+```
+
+```{r, echo = F, message = F, warning = F, results = "hide"}
+ggplot2::theme_set(ggplot2::theme_grey())
+# pacman::p_unload(pacman::p_loaded(), character.only = TRUE)
+```
+
+[^1]: I know. I'm sorry our model numbering diverged from the numbering in the text. The problem popped up in [Section 4.5.1.][Polynomial regression.] where McElreath fit a linear model with the `weight_s` predictor, but didn't show the code in the text and, as a consequence, didn't assign that model a number. Since we explicitly fit that linear model, we assigned it the next number in the sequence. So it goes. But yes, I am correct in comparing our `b4.8` to McElreath's `m4.7`.
+
