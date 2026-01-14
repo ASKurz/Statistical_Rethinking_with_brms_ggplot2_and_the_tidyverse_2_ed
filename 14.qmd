@@ -367,17 +367,17 @@ Like McElreath, we'll compute the unpooled estimates directly from the data.
 
 # Compute unpooled estimates directly from data
 un_pooled_params <- d |>
-  # With these two lines, we compute the mean value for each cafe's wait time 
-  # in the morning and then the afternoon
+  # With these two lines, we compute the mean value for each cafe's 
+  # wait time in the morning and then the afternoon
   group_by(afternoon, cafe) |>
   summarise(mean = mean(wait)) |>
-  ungroup() |>  # Ungrouping allows us to alter afternoon, one of the grouping variables
+  ungroup() |>  # Ungrouping lets us to alter the grouping variable `afternoon`
   mutate(afternoon = ifelse(afternoon == 0, "Intercept", "Slope")) |>
-  spread(key = afternoon, value = mean) |>  # Use `spread()` just as in the previous block
+  spread(key = afternoon, value = mean) |>  # Use `spread()` just like above
   mutate(Slope = Slope - Intercept)         # Finally, here's our slope!
 
-# Here we combine the partially-pooled and unpooled means into a single data object, 
-# which will make plotting easier.
+# Here we combine the partially-pooled and unpooled means into a single 
+# data object, which will make plotting easier.
 # `bind_rows()` will stack the second tibble below the first
 params <- bind_rows(partially_pooled_params, un_pooled_params) |>
   # Index whether the estimates are pooled
@@ -428,18 +428,18 @@ partially_pooled_estimates <- coef(b14.1)$cafe[ , 1, 1:2] |>
   rename(morning = Intercept) |>
   # `afternoon` wait time is the `morning` wait time plus the afternoon slope
   mutate(afternoon = morning + afternoon,
-         cafe      = row_number()) |>  # add the `cafe` index
+         cafe      = row_number()) |>  # Add the `cafe` index
   select(cafe, everything()) 
 
 # Compute unpooled estimates directly from data
 un_pooled_estimates <- d |>
-  # As above, with these two lines, we compute each cafe's mean wait value by time of day
+  # As above, these two lines compute each cafe's mean wait value by time of day
   group_by(afternoon, cafe) |> 
   summarise(mean = mean(wait)) |>
-  # Ungrouping allows us to alter the grouping variable, afternoon
+  # Ungrouping lets us alter the grouping variable, `afternoon`
   ungroup() |> 
   mutate(afternoon = ifelse(afternoon == 0, "morning", "afternoon")) |>
-  # This separates out the values into morning and afternoon columns
+  # This separates out the values into `morning` and `afternoon` columns
   spread(key = afternoon, value = mean)
 
 estimates <- bind_rows(partially_pooled_estimates, un_pooled_estimates) |>
@@ -1129,19 +1129,19 @@ m14.7 <- ulam(
     log(lambdaBA) <- a + gr[hidB, 1] + gr[hidA, 2] + d[did, 2] , 
     a ~ normal(0, 1),
     
-    ## gr matrix of varying effects
+    # `gr` matrix of varying effects
     vector[2]:gr[N_households] ~ multi_normal(0, Rho_gr, sigma_gr), 
     Rho_gr ~ lkj_corr(4),
     sigma_gr ~ exponential(1),
     
-    ## dyad effects
+    # Dyad effects
     transpars> matrix[N,2]:d <-
       compose_noncentered(rep_vector(sigma_d, 2), L_Rho_d, z), 
     matrix[2,N]:z ~ normal(0, 1),
     cholesky_factor_corr[2]:L_Rho_d ~ lkj_corr_cholesky(8), 
     sigma_d ~ exponential(1),
     
-    ## compute correlation matrix for dyads
+    # Compute correlation matrix for dyads
     gq> matrix[2, 2]:Rho_d <<- Chol_to_Corr(L_Rho_d)
   ), 
   data = kl_data, 
@@ -1566,6 +1566,8 @@ p1 + p2
 The two aren't quite inverses of one another, but the overall pattern is when one is large, the other is small. Now we have a sense of how they compare and how to covert one to the other, let's see how our posterior for $lscale$ looks when we convert it to the scale of McElreath's $\rho^2$.
 
 ```{r}
+#| warning: false
+
 post <- post |> 
   mutate(rhosq = 1 / (2 * lscale_a_gplat_adjlon2_adj^2))
 
@@ -2120,6 +2122,8 @@ print(b14.9)
 If you want $\sigma$ in the $\sigma^2$ metric, you can square that by hand.
 
 ```{r}
+#| warning: false
+
 as_draws_df(b14.9) |> 
   mutate(sigma_sq = sigma^2) |> 
   mean_qi(sigma_sq) |> 
@@ -2238,6 +2242,8 @@ print(b14.10)
 Since our residual variance is still in the $\sigma$ metric, it will be easier to compare it to McElreath's `sigma_sq` parameter after transforming the posterior samples.
 
 ```{r}
+#| warning: false
+
 as_draws_df(b14.10) |> 
   mutate(sigma_sq = sigma^2) |> 
   mean_hdi(sigma_sq, .width = 0.89) |> 

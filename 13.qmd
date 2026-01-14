@@ -1479,7 +1479,7 @@ p6 <- f |>
   # Add the `treatment` labels
   mutate(treatment = factor(treatment, labels = labels)) |> 
   
-  # plot!
+  # Plot!
   ggplot(aes(x = treatment, y = value, group = actor)) +
   geom_line(alpha = 1/2, color = "blue") +
   ggtitle("100 simulated actors") +

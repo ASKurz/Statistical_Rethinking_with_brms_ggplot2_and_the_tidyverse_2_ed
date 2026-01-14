@@ -213,12 +213,12 @@ Second, we've become accustomed to using the `y | trials() ~ ...` syntax when de
 ```{r b12.1}
 b12.1 <- brm(
   data = d, 
-  family = beta_binomial2,  # here's our custom likelihood
+  family = beta_binomial2,  # Here's our custom likelihood
   admit | vint(applications) ~ 0 + gid,
   prior = c(prior(normal(0, 1.5), class = b),
             prior(exponential(1), class = phi)),
   iter = 2000, warmup = 1000, cores = 4, chains = 4,
-  stanvars = stanvars,  # note our `stanvars`
+  stanvars = stanvars,  # Note our `stanvars`
   seed = 12,
   file = "fits/b12.01")
 ```

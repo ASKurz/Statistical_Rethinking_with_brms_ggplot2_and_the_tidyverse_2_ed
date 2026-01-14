@@ -137,7 +137,7 @@ Check the model summary.
 print(b7.1)
 ```
 
-As we'll learn later on, **brms** already has a convenience function for computing the Bayesian $R^2$. At this point in the chapter, we'll follow along and make a **brms**-centric version of McElreath's `R2_is_bad()`. But because part of our version of `R2_is_bad()` will contain the `brms::predict()` function, I'm going to add a `seed` argument to make the results more reproducible.^[For more context for my ordering in the `r <- ...` portion of the code, see @sec-Bonus-Rethinking-residuals.]
+As we'll learn later on, **brms** already has a convenience function for computing the Bayesian $R^2$. At this point in the chapter, we'll follow along and make a **brms**-centric version of McElreath's `R2_is_bad()`. But because part of our version of `R2_is_bad()` will contain the `brms::predict()` function, I'm going to add a `seed` argument to make the results more reproducible.^[For more context for my ordering in the residuals portion of the code, see @sec-Bonus-Rethinking-residuals.]
 
 ```{r}
 R2_is_bad <- function(brm_fit, seed = 7, ...) {
