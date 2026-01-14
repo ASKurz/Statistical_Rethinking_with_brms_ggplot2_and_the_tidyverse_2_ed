@@ -131,7 +131,7 @@ Welcome to version 0.5.0! Noteworthy changes include:
 * switching to a [Quarto ebook](https://quarto.org/docs/books/) format;
 * updating the code to better reflect [tidyverse-style guidelines](https://style.tidyverse.org/);
 * switching to the base pipe (`|>`);
-* adding comments sections via [giscus](https://giscus.app/);
+* adding comments sections (e.g., [here](https://solomon.quarto.pub/sr2/04.html#comments)) via [giscus](https://giscus.app/);
 * updating all **brms** model fits with version 2.23.0;
 * updating the Stan code for two of the bespoke models in @sec-Generalized-Linear-Madness;
 * introduced the very flat $\operatorname{logistic}(0, 1)$ prior for logistic regression models in @sec-A-truly-flat-prior; 
@@ -202,7 +202,9 @@ This book is licensed under the Creative Commons Zero v1.0 Universal license. Yo
   year = {2026},
   month = {jan},
   edition = {version 0.5.0},
-  url = {https://bookdown.org/content/4857/}
+  url = {https://solomon.quarto.pub/sr2/}
 }
 ```
+
+## Comments {-}
 
