@@ -871,11 +871,11 @@ McElreath was a little inconsistent with how he talked about residuals in the te
 
 $$r_i = y_i - \hat y_i.$$
 
-That is, residuals are the observed values $(y_i)$ minus the predicted values $(\hat y_i)$. This is the opposite of what McElreath wrote at the bottom of page 135: "We compute the residuals by subtracting the observed marriage rate in each State from the predicted rate, based upon the model."cBut to McElreath's credit, in page 9 of @mccullagh1989generalized, we read: "Gauss defined the residuals with opposite sign to that in current use, i.e. by $X \beta - y$," which we might express in the notation above as
+That is, residuals are the observed values $(y_i)$ minus the predicted values $(\hat y_i)$. This is the opposite of what McElreath wrote at the bottom of page 135: "We compute the residuals by subtracting the observed marriage rate in each State from the predicted rate, based upon the model." But to McElreath's credit, in page 9 of @mccullagh1989generalized, we read: "Gauss defined the residuals with opposite sign to that in current use, i.e. by $X \beta - y$," which we might express in the notation above as
 
 $$r_{i \text{, old}} = \hat y_i - y_i$$
 
-which is a formal expression of what we read in McElreath's quote. The confusion continues because in McElreath's version of Figure 5.4 in the text (as well as our version), it appears he used the contemporary definition of residuals $(r_i)$, but when he introduced his `R2_is_bad()` function in @sec-More-parameters-almost-always, he used the older Gaussian definition $(r_{i \text{, old}})$. I don't think it matters at all for the `R2_is_bad()` function, and it matters very little for residual plots like this in this chapter.
+which is a formal expression of what we read in McElreath's quote. The confusion continues because in McElreath's version of Figure 5.4 in the text (as well as our version), it appears he used the contemporary definition of residuals $(r_i)$, but when he introduced his `R2_is_bad()` function in @sec-More-parameters-almost-always, he used the older Gaussian definition $(r_{i \text{, old}})$. I don't think it matters at all for the `R2_is_bad()` function, and it matters very little for residual plots like this in this chapter. But it would have been nice is the text was more consistent, and I can empathize with any confused readers.
 
 #### Posterior prediction plots
 
