@@ -2,12 +2,14 @@ project:
   type: book
 
 book:
-  title: "*Statistical rethinking* 2 with rstan and the tidyverse"
+  title: "*Statistical rethinking* 2 with brms and the tidyverse"
   subtitle: "version 0.5.0"
   author: "A. Solomon Kurz"
   date: now
   favicon: mischa_favicon.png
   search: true
+  open-graph: true
+  site-url: https://solomon.quarto.pub/sr2/
   repo-url: https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed
   repo-actions: issue
   chapters:
