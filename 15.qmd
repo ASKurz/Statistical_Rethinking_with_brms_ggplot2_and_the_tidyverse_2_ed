@@ -77,7 +77,6 @@ Going forward, let's amend McElreath's `sim_pancake()` function so it will take 
 # Simulate a `pancake` and return randomly ordered `sides`
 sim_pancake <- function(seed) {
   set.seed(seed)
-  
   pancake <- sample(x = 1:3, size = 1)
   sides   <- matrix(c(1, 1, 1, 0, 0, 0), nrow = 2, ncol = 3)[, pancake]
   sample(sides)
@@ -728,7 +727,7 @@ b15.2b <- brm(
             prior(exponential(1), class = sigma)),
   iter = 2000, warmup = 1000, cores = 4, chains = 4,
   seed = 15,
-  # note this line
+  # Note this line
   save_pars = save_pars(latent = TRUE),
   file = "fits/b15.02b")
 
@@ -742,7 +741,7 @@ b15.2c <- brm(
             prior(exponential(1), class = sigma)),
   iter = 2000, warmup = 1000, cores = 4, chains = 4,
   seed = 15,
-  # note this line
+  # Note this line
   save_pars = save_pars(latent = TRUE),
   file = "fits/b15.02c")
 ```
@@ -1270,7 +1269,7 @@ With the one-step Bayesian imputation procedure in **brms**, you might need to u
 b15.5 <- brm(
   data = d, 
   family = gaussian,
-  b_model,  # here we insert the model
+  b_model,  # Here we insert the model
   prior = c(prior(normal(0, 0.5), class = Intercept, resp = k),
             prior(normal(0, 0.5), class = Intercept, resp = b),
             prior(normal(0, 0.5), class = b,         resp = k),
@@ -1844,7 +1843,7 @@ The data were collected in 59 locations with sample sizes ranging from 34 to 325
 
 ```{r}
 #| fig-width: 4
-#| fig-height: 3
+#| fig-height: 2.75
 
 d |> 
   count(Location) |> 
