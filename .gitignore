@@ -3,6 +3,7 @@
 .Rhistory
 .RData
 .Ruserdata
+.DS_Store
 McElreath (2020 TEXT) Statistical rethinking 2nd ed (official).pdf
 data/MNCS-PV2.dta
 data/usa_00001.dat
