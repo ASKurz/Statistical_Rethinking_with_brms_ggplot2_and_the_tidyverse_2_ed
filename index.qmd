@@ -39,7 +39,7 @@ To get the full benefit from this ebook, you'll need some software. Happily, eve
 
 First, you'll need to install **R**, which you can learn about at [https://cran.r-project.org/](https://cran.r-project.org/).
 
-Though not necessary, your **R** experience might be more enjoyable if done through the free RStudio interface, which you can learn about at [https://rstudio.com/products/rstudio/](https://rstudio.com/products/rstudio/).
+Though not necessary, your **R** experience might be more enjoyable if done through the free RStudio interface, which you can learn about at [https://posit.co/products/open-source/rstudio/](https://posit.co/products/open-source/rstudio/).
 
 Once you have installed **R**, execute the following to install the bulk of the add-on packages. This will probably take a few minutes to finish. Go make yourself a coffee.
 
