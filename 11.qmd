@@ -644,6 +644,8 @@ Well look at that. The posteriors were very similar overall. But for good old ch
 Based on the full model, `b11.4`, here's how you might compute the posterior mean and 95% intervals for the proportional odds of switching from `treatment == 2` to `treatment == 4`.
 
 ```{r}
+#| warning: false
+
 as_draws_df(b11.4) |> 
   mutate(proportional_odds = exp(b_b_treatment4 - b_b_treatment2)) |> 
   mean_qi(proportional_odds)
