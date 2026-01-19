@@ -2485,7 +2485,7 @@ where $\beta_0$ is the intercept (i.e., starting point) and $u_{0i}$ captures va
 
 We have two variables measuring time in these data. The `day` variable measures time by integers, ranging from 2 to 100. To make it a little easier to set the priors and fit the model with Stan, we have a rescaled version of the variable, `day01`, which ranges from 0 to 1. In this way, $\beta_0$ is the value for the first day in the data set and $\beta_1$ is the expected change by the end of the collection (i.e., the 100th day). For consistency, we are largely following McElreath's weakly-regularizing approach to priors.
 
-You may have noticed my statistical notation differs a bit from McElreath's, here. It follows a blend of sensibilities from McElreath, Williams, and from the notation I used in [my translation](https://bookdown.org/content/4253/) of Singer and Willett's [-@singerAppliedLongitudinalData2003] text, [*Applied longitudinal data analysis: Modeling change and event occurrence*](https://oxford.universitypressscholarship.com/view/10.1093/acprof:oso/9780195152968.001.0001/acprof-9780195152968). I hope it's clear.
+You may have noticed my statistical notation differs a bit from McElreath's, here. It follows a blend of sensibilities from McElreath, Williams, and from the notation I used in my [-@kurzAppliedLongitudinalDataAnalysis2026] translation](https://solomon.quarto.pub/alda/) of Singer and Willett's [-@singerAppliedLongitudinalData2003] text, [*Applied longitudinal data analysis: Modeling change and event occurrence*](https://oxford.universitypressscholarship.com/view/10.1093/acprof:oso/9780195152968.001.0001/acprof-9780195152968). I hope it's clear.
 
 Here is how to fit our simple multilevel growth model with **brms**.
 

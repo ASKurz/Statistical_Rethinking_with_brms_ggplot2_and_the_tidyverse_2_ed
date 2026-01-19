@@ -1619,7 +1619,7 @@ In his endnote #130, McElreath discussed how these WAIC weights can be used for 
 
 > The first edition had a section on model averaging, but the topic has been dropped in this edition to save space. The approach is really focused on prediction, not inference, and so it doesn't fit the flow of the second edition. But it is an important approach. (p. 565)
 
-A variety of approaches to model averaging are available with **brms** and I covered them in my [-@kurzStatisticalRethinkingBrms2023] ebook translation of the first edition of McElreath's text.
+A variety of approaches to model averaging are available with **brms** and I covered them in my [-@kurzStatisticalRethinking2026] ebook translation of the first edition of McElreath's text.
 
 #### Rethinking: WAIC metaphors
 
