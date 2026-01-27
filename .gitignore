@@ -9,5 +9,6 @@ data/MNCS-PV2.dta
 data/usa_00001.dat
 data/usa_00001.xml
 notes.R
+/fits
 /.quarto/
 
