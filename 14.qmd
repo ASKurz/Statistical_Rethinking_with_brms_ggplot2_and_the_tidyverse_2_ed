@@ -3092,7 +3092,7 @@ From Kay's GitHub repo, we read: "This is akin to something like an icon array. 
 This bonus section introduced a lot of material. To learn more about the conventional multilevel growth model and its extensions, check out
 
 * Singer and Willett's [-@singerAppliedLongitudinalData2003] text, [*Applied longitudinal data analysis: Modeling change and event occurrence*](https://oxford.universitypressscholarship.com/view/10.1093/acprof:oso/9780195152968.001.0001/acprof-9780195152968);
-* My **brms**/**tidyverse** translation of that text, [*Applied Longitudinal Data Analysis in brms and the tidyverse *](https://bookdown.org/content/4253/); or
+* My **brms**/**tidyverse** translation of that text, [*Applied Longitudinal Data Analysis in brms and the tidyverse *](https://solomon.quarto.pub/alda/); or
 * Hoffman's [-@hoffmanLongitudinalAnalysisModeling2015] text, [*Longitudinal analysis: Modeling within-person fluctuation and change*](https://www.routledge.com/Longitudinal-Analysis-Modeling-Within-Person-Fluctuation-and-Change/Hoffman/p/book/9780415876025).
 
 To learn more about the MELSM approach and its extensions, check out

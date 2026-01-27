@@ -47,7 +47,7 @@ d |>
   width(width = c(1, 1, 4))
 ```
 
-It would be conventional to include these two variables and their interaction using dummy variables. We're going to follow McElreath and use an index variable approach, instead. If you'd like to see what this would look like using the dummy variable approach, check out my [-@kurzStatisticalRethinking2026] [translation of the corresponding section](https://bookdown.org/content/3890/counting-and-classification.html#logistic-regression-prosocial-chimpanzees.) from McElreath's first [-@mcelreathStatisticalRethinkingBayesian2015] edition. For now, make the index, which we'll be saving as a factor.
+It would be conventional to include these two variables and their interaction using dummy variables. We're going to follow McElreath and use an index variable approach, instead. If you'd like to see what this would look like using the dummy variable approach, check out my [-@kurzStatisticalRethinking2026] [translation of the corresponding section](https://solomon.quarto.pub/sr/10.html#sec-Prosocial-chimpanzees) from McElreath's first [-@mcelreathStatisticalRethinkingBayesian2015] edition. For now, make the index, which we'll be saving as a factor.
 
 ```{r}
 d <- d |> 
@@ -906,7 +906,7 @@ The model better suited to answer that question follows the form
 \delta_k          & \sim \operatorname{Normal} (0, 1.5),
 \end{align*}
 
-where departments are indexed by $k$. To fit a model including two index variables like this in **brms**, we'll need to switch back to the non-linear syntax. Though if you'd like to see an analogous approach using conventional **brms** syntax, check out model `b10.9` in [Section 10.1.3](https://bookdown.org/content/3890/counting-and-classification.html#aggregated-binomial-graduate-school-admissions.) of my translation of McElreath's first edition. 
+where departments are indexed by $k$. To fit a model including two index variables like this in **brms**, we'll need to switch back to the non-linear syntax. Though if you'd like to see an analogous approach using conventional **brms** syntax, check out model `b10.9` in [Section 10.1.3](https://solomon.quarto.pub/sr/10.html#aggregated-binomial-graduate-school-admissions) of my translation of McElreath's first edition. 
 
 ```{r b11.8}
 b11.8 <- brm(
@@ -2771,7 +2771,7 @@ The model suggests it takes about six days longer for the half of the black cats
 
 ### Survival summary
 
-We've really just scratched the surface on survival models. In addition to those which use the exponential likelihood, **brms** supports a variety of survival models. Some of the more popular likelihoods are the log-Normal, the gamma, and the Weibull. For details, see the [*Time-to-event models*](https://cran.r-project.org/web/packages/brms/vignettes/brms_families.html#time-to-event-models) section of Bürkner's [-@Bürkner2022Parameterization] vignette, [*Parameterization of response distributions in brms*](https://CRAN.R-project.org/package=brms/vignettes/brms_families.html). Starting with the release of [version 2.13.5](https://github.com/paul-buerkner/brms/blob/master/NEWS.md#brms-2135), **brms** now supports the Cox proportional hazards model via `family = cox`. If you're tricky with your coding, you can also fit discrete-time survival models with the binomial likelihood (see [here](https://bookdown.org/content/4253/fitting-basic-discrete-time-hazard-models.html)). For some examples of discrete and continuous-time survival models, you might check out my [-@kurzAppliedLongitudinalDataAnalysis2026] ebook translation of Singer and Willett's [-@singerAppliedLongitudinalData2003] text, [*Applied longitudinal data analysis: Modeling change and event occurrence*](https://oxford.universitypressscholarship.com/view/10.1093/acprof:oso/9780195152968.001.0001/acprof-9780195152968), the later chapters of which provide an exhaustive introduction to survival analysis.
+We've really just scratched the surface on survival models. In addition to those which use the exponential likelihood, **brms** supports a variety of survival models. Some of the more popular likelihoods are the log-Normal, the gamma, and the Weibull. For details, see the [*Time-to-event models*](https://cran.r-project.org/web/packages/brms/vignettes/brms_families.html#time-to-event-models) section of Bürkner's [-@Bürkner2022Parameterization] vignette, [*Parameterization of response distributions in brms*](https://CRAN.R-project.org/package=brms/vignettes/brms_families.html). Starting with the release of [version 2.13.5](https://github.com/paul-buerkner/brms/blob/master/NEWS.md#brms-2135), **brms** now supports the Cox proportional hazards model via `family = cox`. If you're tricky with your coding, you can also fit discrete-time survival models with the binomial likelihood (see [here](https://solomon.quarto.pub/alda/11.html)). For some examples of discrete and continuous-time survival models, you might check out my [-@kurzAppliedLongitudinalDataAnalysis2026] ebook translation of Singer and Willett's [-@singerAppliedLongitudinalData2003] text, [*Applied longitudinal data analysis: Modeling change and event occurrence*](https://oxford.universitypressscholarship.com/view/10.1093/acprof:oso/9780195152968.001.0001/acprof-9780195152968), the later chapters of which provide an exhaustive introduction to survival analysis.
 
 ## Session info {-}
 
