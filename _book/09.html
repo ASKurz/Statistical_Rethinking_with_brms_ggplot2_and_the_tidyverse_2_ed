@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>9&nbsp; Markov Chain Monte Carlo – *Statistical rethinking* 2 with rstan and the tidyverse</title>
+<title>9&nbsp; Markov Chain Monte Carlo – *Statistical rethinking* 2 with brms and the tidyverse</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -156,6 +156,12 @@ window.Quarto = {
 };
 </script>
 
+<meta property="og:title" content="9&nbsp; Markov Chain Monte Carlo – Statistical rethinking 2 with brms and the tidyverse">
+<meta property="og:description" content="">
+<meta property="og:image" content="https://solomon.quarto.pub/sr2/09_files/figure-html/unnamed-chunk-4-1.png">
+<meta property="og:site_name" content="*Statistical rethinking* 2 with brms and the tidyverse">
+<meta property="og:image:height" content="576">
+<meta property="og:image:width" content="624">
 </head>
 
 <body class="nav-sidebar floating quarto-light">
@@ -182,7 +188,7 @@ window.Quarto = {
   <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
     <div class="pt-lg-2 mt-2 text-left sidebar-header">
     <div class="sidebar-title mb-0 py-0">
-      <a href="./"><em>Statistical rethinking</em> 2 with rstan and the tidyverse</a> 
+      <a href="./"><em>Statistical rethinking</em> 2 with brms and the tidyverse</a> 
         <div class="sidebar-tools-main">
     <a href="https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
 </div>
@@ -1805,7 +1811,7 @@ loaded via a namespace (and not attached):
 [41] scales_1.4.0            rethinking_2.42         MASS_7.3-65             isoband_0.3.0           cli_3.6.5              
 [46] mvtnorm_1.3-3           rmarkdown_2.30          generics_0.1.4          RcppParallel_5.1.11-1   rstudioapi_0.17.1      
 [51] reshape2_1.4.5          tzdb_0.5.0              rstan_2.36.0.9000       splines_4.5.1           parallel_4.5.1         
-[56] matrixStats_1.5.0       vctrs_0.6.5             V8_8.0.1                Matrix_1.7-3            sandwich_3.1-1         
+[56] matrixStats_1.5.0       vctrs_0.7.0             V8_8.0.1                Matrix_1.7-3            sandwich_3.1-1         
 [61] jsonlite_2.0.0          arrayhelpers_1.1-0      hms_1.1.4               ggdist_3.3.3            glue_1.8.0             
 [66] ggstats_0.11.0          codetools_0.2-20        ps_1.9.1                distributional_0.5.0    stringi_1.8.7          
 [71] shape_1.4.6.1           gtable_0.3.6            QuickJSR_1.8.1          extrafont_0.20          pillar_1.11.1          
@@ -1962,7 +1968,7 @@ Weber, S., &amp; Bürkner, P.-C. (2022). <em>Running brms models with within-cha
     }
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
-        var filterRegex = new RegExp('/' + window.location.host + '/');
+        var filterRegex = new RegExp("https:\/\/solomon\.quarto\.pub\/sr2\/");
       var isInternal = (href) => {
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }
@@ -2303,9 +2309,9 @@ Weber, S., &amp; Bürkner, P.-C. (2022). <em>Running brms models with within-cha
     script.src = "https://giscus.app/client.js";
     script.async = true;
     script.dataset.repo = "ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed";
-    script.dataset.repoId = "";
+    script.dataset.repoId = "MDEwOlJlcG9zaXRvcnkxNjE5MTg0MTE=";
     script.dataset.category = "General";
-    script.dataset.categoryId = "";
+    script.dataset.categoryId = "DIC_kwDOCaaty84C1AJZ";
     script.dataset.mapping = "title";
     script.dataset.reactionsEnabled = "1";
     script.dataset.emitMetadata = "0";

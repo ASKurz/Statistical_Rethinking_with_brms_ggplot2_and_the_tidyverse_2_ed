@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>7&nbsp; Ulysses’ Compass – *Statistical rethinking* 2 with rstan and the tidyverse</title>
+<title>7&nbsp; Ulysses’ Compass – *Statistical rethinking* 2 with brms and the tidyverse</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -156,9 +156,15 @@ window.Quarto = {
 };
 </script>
 
+<meta property="og:title" content="7&nbsp; Ulysses’ Compass – Statistical rethinking 2 with brms and the tidyverse">
+<meta property="og:description" content="">
+<meta property="og:image" content="https://solomon.quarto.pub/sr2/07_files/figure-html/unnamed-chunk-3-1.png">
+<meta property="og:site_name" content="*Statistical rethinking* 2 with brms and the tidyverse">
+<meta property="og:image:height" content="432">
+<meta property="og:image:width" content="1152">
 </head>
 
-<body class="nav-sidebar floating quarto-light">
+<body class="nav-sidebar floating slimcontent quarto-light">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
@@ -182,7 +188,7 @@ window.Quarto = {
   <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
     <div class="pt-lg-2 mt-2 text-left sidebar-header">
     <div class="sidebar-title mb-0 py-0">
-      <a href="./"><em>Statistical rethinking</em> 2 with rstan and the tidyverse</a> 
+      <a href="./"><em>Statistical rethinking</em> 2 with brms and the tidyverse</a> 
         <div class="sidebar-tools-main">
     <a href="https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
 </div>
@@ -383,7 +389,7 @@ window.Quarto = {
 <div class="toc-actions"><ul><li><a href="https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
     </div>
 <!-- main -->
-<main class="content" id="quarto-document-content">
+<main class="content page-columns page-full" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
@@ -419,14 +425,14 @@ window.Quarto = {
 <p>The most common form of model selection among practicing scientists is to search for a model in which every coefficient is statistically significant. Statisticians sometimes call this <strong>stargazing</strong>, as it is embodied by scanning for asterisks (<span class="math inline">\(^{\star \star}\)</span>) trailing after estimates….</p>
 <p>Whatever you think about null hypothesis significance testing in general, using it to select among structurally different models is a mistake–<span class="math inline">\(p\)</span>-values are not designed to help you navigate between underfitting and overfitting. (p.&nbsp;193, <strong>emphasis</strong> in the original).</p>
 </blockquote>
-<p>McElreath spent little time discussing <span class="math inline">\(p\)</span>-values and null hypothesis testing in the text. If you’d like to learn more from a Bayesian perspective, you might check out the first several chapters (particularly 10–13) in Kruschke’s <span class="citation" data-cites="kruschkeDoingBayesianData2015">(<a href="references.html#ref-kruschkeDoingBayesianData2015" role="doc-biblioref">2015</a>)</span> <a href="https://sites.google.com/site/doingbayesiandataanalysis/">text</a> and my <span class="citation" data-cites="kurzDoingBayesianDataAnalysis2026">(<a href="references.html#ref-kurzDoingBayesianDataAnalysis2026" role="doc-biblioref">2026</a>)</span> <a href="https://solomon.quarto.pub/dbda2/">ebook translating it to <strong>brms</strong> and the tidyverse</a>. The great <a href="https://www.fharrell.com/">Frank Harrell</a> has complied <a href="https://www.fharrell.com/post/pval-litany/"><em>A Litany of Problems With p-values</em></a>. Also, don’t miss the statement on <span class="math inline">\(p\)</span>-values released by the <a href="https://www.amstat.org/">American Statistical Association</a> <span class="citation" data-cites="wassersteinASAStatementPvalues2016">(<a href="references.html#ref-wassersteinASAStatementPvalues2016" role="doc-biblioref">Wasserstein &amp; Lazar, 2016</a>)</span>.</p>
+<p>McElreath spent little time discussing <span class="math inline">\(p\)</span>-values and null hypothesis testing in the text. If you’d like to learn more from a Bayesian perspective, you might check out the first several chapters (particularly 10–13) in Kruschke’s <span class="citation" data-cites="kruschkeDoingBayesianData2015">(<a href="references.html#ref-kruschkeDoingBayesianData2015" role="doc-biblioref">2015</a>)</span> <a href="https://sites.google.com/site/doingbayesiandataanalysis/">text</a> and my <span class="citation" data-cites="kurzDoingBayesianDataAnalysis2026">(<a href="references.html#ref-kurzDoingBayesianDataAnalysis2026" role="doc-biblioref">2026a</a>)</span> <a href="https://solomon.quarto.pub/dbda2/">ebook translating it to <strong>brms</strong> and the tidyverse</a>. The great <a href="https://www.fharrell.com/">Frank Harrell</a> has complied <a href="https://www.fharrell.com/post/pval-litany/"><em>A Litany of Problems With p-values</em></a>. Also, don’t miss the statement on <span class="math inline">\(p\)</span>-values released by the <a href="https://www.amstat.org/">American Statistical Association</a> <span class="citation" data-cites="wassersteinASAStatementPvalues2016">(<a href="references.html#ref-wassersteinASAStatementPvalues2016" role="doc-biblioref">Wasserstein &amp; Lazar, 2016</a>)</span>.</p>
 </section>
-<section id="the-problem-with-parameters" class="level2" data-number="7.1">
+<section id="the-problem-with-parameters" class="level2 page-columns page-full" data-number="7.1">
 <h2 data-number="7.1" class="anchored" data-anchor-id="the-problem-with-parameters"><span class="header-section-number">7.1</span> The problem with parameters</h2>
 <p>The <span class="math inline">\(R^2\)</span> is a popular way to measure how well you can retrodict the data. It traditionally follows the form</p>
 <p><span class="math display">\[R^2 = \frac{\text{var(outcome)} - \text{var(residuals)}}{\text{var(outcome)}} = 1 - \frac{\text{var(residuals)}}{\text{var(outcome)}}.\]</span></p>
 <p>By <span class="math inline">\(\operatorname{var}()\)</span>, of course, we meant variance (i.e., what you get from the <code>var()</code> function in <strong>R</strong>). McElreath is not a fan of the <span class="math inline">\(R^2\)</span>. But it’s important in my field, so instead of a summary at the end of the chapter, we will cover the Bayesian version of <span class="math inline">\(R^2\)</span> and how to use it in <strong>brms</strong>.</p>
-<section id="sec-More-parameters-almost-always" class="level3" data-number="7.1.1">
+<section id="sec-More-parameters-almost-always" class="level3 page-columns page-full" data-number="7.1.1">
 <h3 data-number="7.1.1" class="anchored" data-anchor-id="sec-More-parameters-almost-always"><span class="header-section-number">7.1.1</span> More parameters (almost) always improve fit</h3>
 <p>We’ll start off by making the data with brain size and body size for seven <code>species</code>.</p>
 <div class="cell">
@@ -557,12 +563,12 @@ and Tail_ESS are effective sample size measures, and Rhat is the potential
 scale reduction factor on split chains (at convergence, Rhat = 1).</code></pre>
 </div>
 </div>
-<p>As we’ll learn later on, <strong>brms</strong> already has a convenience function for computing the Bayesian <span class="math inline">\(R^2\)</span>. At this point in the chapter, we’ll follow along and make a <strong>brms</strong>-centric version of McElreath’s <code>R2_is_bad()</code>. But because part of our version of <code>R2_is_bad()</code> will contain the <code>brms::predict()</code> function, I’m going to add a <code>seed</code> argument to make the results more reproducible.</p>
-<div class="cell">
+<p>As we’ll learn later on, <strong>brms</strong> already has a convenience function for computing the Bayesian <span class="math inline">\(R^2\)</span>. At this point in the chapter, we’ll follow along and make a <strong>brms</strong>-centric version of McElreath’s <code>R2_is_bad()</code>. But because part of our version of <code>R2_is_bad()</code> will contain the <code>brms::predict()</code> function, I’m going to add a <code>seed</code> argument to make the results more reproducible.<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a></p>
+<div class="no-row-height column-margin column-container"><div id="fn1"><p><sup>1</sup>&nbsp;For more context for my ordering in the residuals portion of the code, see <a href="05.html#sec-Bonus-Rethinking-residuals" class="quarto-xref"><span>Section 5.1.5.1.2</span></a>.</p></div></div><div class="cell">
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>R2_is_bad <span class="ot">&lt;-</span> <span class="cf">function</span>(brm_fit, <span class="at">seed =</span> <span class="dv">7</span>, ...) {</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set.seed</span>(seed)</span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  p <span class="ot">&lt;-</span> <span class="fu">predict</span>(brm_fit, <span class="at">summary =</span> F, ...)</span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  <span class="co"># In my experience, it's more typical to define residuals as the criterion minus the predictions</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Nowadays it's more typical to define residuals as y minus yhat</span></span>
 <span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>  r <span class="ot">&lt;-</span> d<span class="sc">$</span>brain_std <span class="sc">-</span> <span class="fu">apply</span>(p, <span class="dv">2</span>, mean)</span>
 <span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>  <span class="dv">1</span> <span class="sc">-</span> rethinking<span class="sc">::</span><span class="fu">var2</span>(r) <span class="sc">/</span> rethinking<span class="sc">::</span><span class="fu">var2</span>(d<span class="sc">$</span>brain_std)</span>
 <span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -835,7 +841,7 @@ scale reduction factor on split chains (at convergence, Rhat = 1).</code></pre>
     model_name &lt;- deparse(match.call()[[2]])
     mtext(model_name, adj = 0)
 }
-&lt;bytecode: 0x314cfbdd0&gt;
+&lt;bytecode: 0x33136bee8&gt;
 &lt;environment: namespace:rethinking&gt;</code></pre>
 </div>
 </div>
@@ -871,8 +877,7 @@ and Tail_ESS are effective sample size measures, and Rhat is the potential
 scale reduction factor on split chains (at convergence, Rhat = 1).</code></pre>
 </div>
 </div>
-<p>You can see by the <code>newdata</code> statement that <code>b7.1.1</code> is fit on the <code>d</code> data after dropping the first row. Here’s how we might amend out plotting strategy from before to visualize the posterior mean for the model-implied trajectory.</p>
-<p>alpha = 1/2, color = carto_pal(7, “BurgYl”)[7], linewidth = 1/2 alpha = 1/2, color = carto_pal(7, “BurgYl”)[7], linewidth = 1/2</p>
+<p>You can see by the <code>newdata</code> statement that <code>b7.1.1</code> is fit on the <code>d</code> data after dropping the first row. Here’s how we might amend our plotting strategy from before to visualize the posterior mean for the model-implied trajectory.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">fitted</span>(b7.<span class="fl">1.1</span>, <span class="at">newdata =</span> nd) <span class="sc">|&gt;</span> </span>
 <span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>() <span class="sc">|&gt;</span> </span>
@@ -933,16 +938,17 @@ $ mass_std &lt;dbl&gt; -2.0000000, -1.9595960, -1.9191919, -1.8787879, -1.838383
 <p>Working within the <strong>tidyverse</strong> paradigm, we’ll make a tibble with the predefined <code>row</code> values. We will then use <code>purrr::map()</code> to plug those <code>row</code> values into <code>brain_loo_lines()</code>, which will return the desired posterior <code>mean</code> values for each corresponding value of <code>mass_std</code>. Here we do that for both <code>b7.1</code> and <code>b7.4</code>.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>b7<span class="fl">.1</span>_fits <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">row =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">7</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">post =</span> purrr<span class="sc">::</span><span class="fu">map</span>(<span class="at">.x =</span> row, <span class="at">.f =</span> \(x) <span class="fu">brain_loo_lines</span>(<span class="at">brms_fit =</span> b7<span class="fl">.1</span>, <span class="at">row =</span> x))) <span class="sc">|&gt;</span> </span>
-<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unnest</span>(post)</span>
-<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>b7<span class="fl">.4</span>_fits <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">row =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">7</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">post =</span> purrr<span class="sc">::</span><span class="fu">map</span>(<span class="at">.x =</span> row, <span class="at">.f =</span> <span class="cf">function</span>(x) {</span>
-<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">brain_loo_lines</span>(<span class="at">brms_fit =</span> b7<span class="fl">.4</span>, </span>
-<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a>                    <span class="at">row =</span> x,</span>
-<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a>                    <span class="at">control =</span> <span class="fu">list</span>(<span class="at">adapt_delta =</span> <span class="fl">0.999</span>))</span>
-<span id="cb34-10"><a href="#cb34-10" aria-hidden="true" tabindex="-1"></a>  })) <span class="sc">|&gt;</span> </span>
-<span id="cb34-11"><a href="#cb34-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unnest</span>(post)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">post =</span> purrr<span class="sc">::</span><span class="fu">map</span>(<span class="at">.x =</span> row, </span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>                           <span class="at">.f =</span> \(x) <span class="fu">brain_loo_lines</span>(<span class="at">brms_fit =</span> b7<span class="fl">.1</span>, <span class="at">row =</span> x))) <span class="sc">|&gt;</span> </span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unnest</span>(post)</span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>b7<span class="fl">.4</span>_fits <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">row =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">7</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">post =</span> purrr<span class="sc">::</span><span class="fu">map</span>(<span class="at">.x =</span> row, <span class="at">.f =</span> <span class="cf">function</span>(x) {</span>
+<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">brain_loo_lines</span>(<span class="at">brms_fit =</span> b7<span class="fl">.4</span>, </span>
+<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a>                    <span class="at">row =</span> x,</span>
+<span id="cb34-10"><a href="#cb34-10" aria-hidden="true" tabindex="-1"></a>                    <span class="at">control =</span> <span class="fu">list</span>(<span class="at">adapt_delta =</span> <span class="fl">0.999</span>))</span>
+<span id="cb34-11"><a href="#cb34-11" aria-hidden="true" tabindex="-1"></a>  })) <span class="sc">|&gt;</span> </span>
+<span id="cb34-12"><a href="#cb34-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unnest</span>(post)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Now for each, pump those values into <code>ggplot()</code>, customize the settings, and combine the two ggplots to make the full Figure 7.4.</p>
 <div class="cell">
@@ -1660,7 +1666,7 @@ $ mass_std &lt;dbl&gt; -2.0000000, -1.9595960, -1.9191919, -1.8787879, -1.838383
 <blockquote class="blockquote">
 <p>The horseshoe prior is a special shrinkage prior initially proposed by <span class="citation" data-cites="carvalho2009handling">Carvalho et al. (<a href="references.html#ref-carvalho2009handling" role="doc-biblioref">2009</a>)</span>. It is symmetric around zero with fat tails and an infinitely large spike at zero. This makes it ideal for sparse models that have many regression coefficients, although only a minority of them is nonzero. The horseshoe prior can be applied on all population-level effects at once (excluding the intercept) by using <code>set_prior("horseshoe(1)")</code>. ()p.&nbsp;105</p>
 </blockquote>
-<p>To dive even deeper into the horseshoe prior, check out Michael Betancourt’s <span class="citation" data-cites="betancourtBayesSparse2018">(<a href="references.html#ref-betancourtBayesSparse2018" role="doc-biblioref">2018</a>)</span> tutorial, <a href="https://betanalpha.github.io/assets/case_studies/bayes_sparse_regression.html#35_the_horseshoe"><em>Bayes sparse regression</em></a>. Gelman, Hill, and Vehtari cover the horseshoe prior with <strong>rstanarm</strong> in Section 12.7 of their <span class="citation" data-cites="gelmanRegressionOtherStories2020">(<a href="references.html#ref-gelmanRegressionOtherStories2020" role="doc-biblioref">2020</a>)</span> text, <a href="https://avehtari.github.io/ROS-Examples/"><em>Regression and other stories</em></a>. I also have an example of the horseshoe prior (<code>fit18.5</code>) in <a href="https://solomon.quarto.pub/dbda2/18.html#shrinkage-of-regression-coefficients">Section 18.3</a> of my <span class="citation" data-cites="kurzDoingBayesianDataAnalysis2026">(<a href="references.html#ref-kurzDoingBayesianDataAnalysis2026" role="doc-biblioref">2026</a>)</span> ebook translation of Kruschke’s <span class="citation" data-cites="kruschkeDoingBayesianData2015">(<a href="references.html#ref-kruschkeDoingBayesianData2015" role="doc-biblioref">2015</a>)</span> text.</p>
+<p>To dive even deeper into the horseshoe prior, check out Michael Betancourt’s <span class="citation" data-cites="betancourtBayesSparse2018">(<a href="references.html#ref-betancourtBayesSparse2018" role="doc-biblioref">2018</a>)</span> tutorial, <a href="https://betanalpha.github.io/assets/case_studies/bayes_sparse_regression.html#35_the_horseshoe"><em>Bayes sparse regression</em></a>. Gelman, Hill, and Vehtari cover the horseshoe prior with <strong>rstanarm</strong> in Section 12.7 of their <span class="citation" data-cites="gelmanRegressionOtherStories2020">(<a href="references.html#ref-gelmanRegressionOtherStories2020" role="doc-biblioref">2020</a>)</span> text, <a href="https://avehtari.github.io/ROS-Examples/"><em>Regression and other stories</em></a>. I also have an example of the horseshoe prior (<code>fit18.5</code>) in <a href="https://solomon.quarto.pub/dbda2/18.html#shrinkage-of-regression-coefficients">Section 18.3</a> of my <span class="citation" data-cites="kurzDoingBayesianDataAnalysis2026">(<a href="references.html#ref-kurzDoingBayesianDataAnalysis2026" role="doc-biblioref">2026a</a>)</span> ebook translation of Kruschke’s <span class="citation" data-cites="kruschkeDoingBayesianData2015">(<a href="references.html#ref-kruschkeDoingBayesianData2015" role="doc-biblioref">2015</a>)</span> text.</p>
 </section>
 </section>
 <section id="predicting-predictive-accuracy" class="level2" data-number="7.4">
@@ -2156,7 +2162,7 @@ b6.6 -1.7       2.4   </code></pre>
 <blockquote class="blockquote">
 <p>The first edition had a section on model averaging, but the topic has been dropped in this edition to save space. The approach is really focused on prediction, not inference, and so it doesn’t fit the flow of the second edition. But it is an important approach. (p.&nbsp;565)</p>
 </blockquote>
-<p>A variety of approaches to model averaging are available with <strong>brms</strong> and I covered them in my <span class="citation" data-cites="kurzStatisticalRethinkingBrms2023">(<a href="references.html#ref-kurzStatisticalRethinkingBrms2023" role="doc-biblioref">2023</a>)</span> ebook translation of the first edition of McElreath’s text.</p>
+<p>A variety of approaches to model averaging are available with <strong>brms</strong> and I covered them in my <span class="citation" data-cites="kurzStatisticalRethinking2026">(<a href="references.html#ref-kurzStatisticalRethinking2026" role="doc-biblioref">2026b</a>)</span> ebook translation of the first edition of McElreath’s text.</p>
 <section id="rethinking-waic-metaphors" class="level4" data-number="7.5.1.1">
 <h4 data-number="7.5.1.1" class="anchored" data-anchor-id="rethinking-waic-metaphors"><span class="header-section-number">7.5.1.1</span> Rethinking: WAIC metaphors</h4>
 <blockquote class="blockquote">
@@ -2513,7 +2519,7 @@ b5.3t  -2.6       3.0   -66.5      5.8         6.2   1.0    132.9  11.5   </code
 </div>
 </div>
 </div>
-<p>As <span class="math inline">\(\nu \rightarrow \infty\)</span>, the standard deviation approaches the scale, <span class="math inline">\(\sigma\)</span>. We’ll have more practice with robust Student’s <span class="math inline">\(t\)</span> regression later on. In the mean time, you might check out chapters <a href="https://solomon.quarto.pub/dbda2/16.html#sec-Outliers-and-robust-estimation-The-t-distribution">16</a>, <a href="https://solomon.quarto.pub/dbda2/17.html#sec-Robust-linear-regression">17</a>, <a href="https://solomon.quarto.pub/dbda2/18.html#sec-The-model-and-implementation">18</a>, <a href="https://solomon.quarto.pub/dbda2/19.html#the-two-group-case">19</a>, and <a href="https://solomon.quarto.pub/dbda2/20.html#heterogeneous-variances-and-robustness-against-outliers">20</a> from my <span class="citation" data-cites="kurzDoingBayesianDataAnalysis2026">(<a href="references.html#ref-kurzDoingBayesianDataAnalysis2026" role="doc-biblioref">2026</a>)</span> ebook translation of Kruschke’s text. I’ve also blogged on using the robust Student’s <span class="math inline">\(t\)</span> for <a href="https://solomonkurz.netlify.app/blog/2019-02-02-robust-linear-regression-with-student-s-t-distribution/">regression</a> and <a href="https://solomonkurz.netlify.app/blog/2019-02-10-bayesian-robust-correlations-with-brms-and-why-you-should-love-student-s-t/">correlations</a>. <span class="citation" data-cites="gelmanRegressionOtherStories2020">Gelman et al. (<a href="references.html#ref-gelmanRegressionOtherStories2020" role="doc-biblioref">2020</a>)</span> covered robust Student’s <span class="math inline">\(t\)</span> regression in Section 15.6, too.</p>
+<p>As <span class="math inline">\(\nu \rightarrow \infty\)</span>, the standard deviation approaches the scale, <span class="math inline">\(\sigma\)</span>. We’ll have more practice with robust Student’s <span class="math inline">\(t\)</span> regression later on. In the mean time, you might check out chapters <a href="https://solomon.quarto.pub/dbda2/16.html#sec-Outliers-and-robust-estimation-The-t-distribution">16</a>, <a href="https://solomon.quarto.pub/dbda2/17.html#sec-Robust-linear-regression">17</a>, <a href="https://solomon.quarto.pub/dbda2/18.html#sec-The-model-and-implementation">18</a>, <a href="https://solomon.quarto.pub/dbda2/19.html#the-two-group-case">19</a>, and <a href="https://solomon.quarto.pub/dbda2/20.html#heterogeneous-variances-and-robustness-against-outliers">20</a> from my <span class="citation" data-cites="kurzDoingBayesianDataAnalysis2026">(<a href="references.html#ref-kurzDoingBayesianDataAnalysis2026" role="doc-biblioref">2026a</a>)</span> ebook translation of Kruschke’s text. I’ve also blogged on using the robust Student’s <span class="math inline">\(t\)</span> for <a href="https://solomonkurz.netlify.app/blog/2019-02-02-robust-linear-regression-with-student-s-t-distribution/">regression</a> and <a href="https://solomonkurz.netlify.app/blog/2019-02-10-bayesian-robust-correlations-with-brms-and-why-you-should-love-student-s-t/">correlations</a>. <span class="citation" data-cites="gelmanRegressionOtherStories2020">Gelman et al. (<a href="references.html#ref-gelmanRegressionOtherStories2020" role="doc-biblioref">2020</a>)</span> covered robust Student’s <span class="math inline">\(t\)</span> regression in Section 15.6, too.</p>
 <section id="rethinking-the-curse-of-tippecanoe" class="level4" data-number="7.5.2.1">
 <h4 data-number="7.5.2.1" class="anchored" data-anchor-id="rethinking-the-curse-of-tippecanoe"><span class="header-section-number">7.5.2.1</span> Rethinking: The Curse of Tippecanoe</h4>
 <blockquote class="blockquote">
@@ -2651,7 +2657,7 @@ loaded via a namespace (and not attached):
 [36] xtable_1.8-4            inline_0.3.21           emmeans_1.11.2-8        scales_1.4.0            MASS_7.3-65            
 [41] cli_3.6.5               mvtnorm_1.3-3           rmarkdown_2.30          generics_0.1.4          RcppParallel_5.1.11-1  
 [46] rstudioapi_0.17.1       reshape2_1.4.5          tzdb_0.5.0              rstan_2.36.0.9000       splines_4.5.1          
-[51] bayesplot_1.15.0.9000   matrixStats_1.5.0       vctrs_0.6.5             V8_8.0.1                Matrix_1.7-3           
+[51] bayesplot_1.15.0.9000   matrixStats_1.5.0       vctrs_0.7.0             V8_8.0.1                Matrix_1.7-3           
 [56] sandwich_3.1-1          jsonlite_2.0.0          callr_3.7.6             arrayhelpers_1.1-0      hms_1.1.4              
 [61] ggdist_3.3.3            glue_1.8.0              ps_1.9.1                codetools_0.2-20        distributional_0.5.0   
 [66] shape_1.4.6.1           stringi_1.8.7           gtable_0.3.6            QuickJSR_1.8.1          pillar_1.11.1          
@@ -2705,11 +2711,11 @@ Kruschke, J. K. (2015). <em>Doing <span>Bayesian</span> data analysis: <span>A</
 <div id="ref-kullbackInformationSufficiency1951" class="csl-entry" role="listitem">
 Kullback, S., &amp; Leibler, R. A. (1951). On information and sufficiency. <em>Annals of Mathematical Statistics</em>, <em>22</em>(1), 79–86. <a href="https://doi.org/10.1214/aoms/1177729694">https://doi.org/10.1214/aoms/1177729694</a>
 </div>
-<div id="ref-kurzStatisticalRethinkingBrms2023" class="csl-entry" role="listitem">
-Kurz, A. S. (2023). <em>Statistical <span>Rethinking</span> with <span class="nocase">brms</span>, <span class="nocase">ggplot2</span>, and the <span class="nocase">tidyverse</span></em> (version 1.3.0). <a href="https://bookdown.org/content/3890/">https://bookdown.org/content/3890/</a>
-</div>
 <div id="ref-kurzDoingBayesianDataAnalysis2026" class="csl-entry" role="listitem">
-Kurz, A. S. (2026). <em>Doing <span>Bayesian</span> data analysis in brms and the tidyverse</em> (Version 1.3.0). <a href="https://solomon.quarto.pub/dbda2/">https://solomon.quarto.pub/dbda2/</a>
+Kurz, A. S. (2026a). <em>Doing <span>Bayesian</span> data analysis in brms and the tidyverse</em> (Version 1.3.0). <a href="https://solomon.quarto.pub/dbda2/">https://solomon.quarto.pub/dbda2/</a>
+</div>
+<div id="ref-kurzStatisticalRethinking2026" class="csl-entry" role="listitem">
+Kurz, A. S. (2026b). <em>Statistical rethinking with brms, <span class="nocase">ggplot2</span>, and the tidyverse</em> (version 1.4.0). <a href="https://solomon.quarto.pub/sr/">https://solomon.quarto.pub/sr/</a>
 </div>
 <div id="ref-mcelreathStatisticalRethinkingBayesian2020" class="csl-entry" role="listitem">
 McElreath, R. (2020). <em>Statistical rethinking: <span>A Bayesian</span> course with examples in <span>R</span> and <span>Stan</span></em> (Second Edition). CRC Press. <a href="https://xcelab.net/rm/statistical-rethinking/">https://xcelab.net/rm/statistical-rethinking/</a>
@@ -2749,6 +2755,7 @@ Zhang, Y., &amp; Yang, Y. (2015). Cross-validation for selecting a model selecti
 </div>
 </div>
 </section>
+
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
@@ -2823,7 +2830,7 @@ Zhang, Y., &amp; Yang, Y. (2015). Cross-validation for selecting a model selecti
     }
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
-        var filterRegex = new RegExp('/' + window.location.host + '/');
+        var filterRegex = new RegExp("https:\/\/solomon\.quarto\.pub\/sr2\/");
       var isInternal = (href) => {
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }
@@ -3164,9 +3171,9 @@ Zhang, Y., &amp; Yang, Y. (2015). Cross-validation for selecting a model selecti
     script.src = "https://giscus.app/client.js";
     script.async = true;
     script.dataset.repo = "ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed";
-    script.dataset.repoId = "";
+    script.dataset.repoId = "MDEwOlJlcG9zaXRvcnkxNjE5MTg0MTE=";
     script.dataset.category = "General";
-    script.dataset.categoryId = "";
+    script.dataset.categoryId = "DIC_kwDOCaaty84C1AJZ";
     script.dataset.mapping = "title";
     script.dataset.reactionsEnabled = "1";
     script.dataset.emitMetadata = "0";

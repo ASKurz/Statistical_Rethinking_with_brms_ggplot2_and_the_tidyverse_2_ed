@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>13&nbsp; Models With Memory – *Statistical rethinking* 2 with rstan and the tidyverse</title>
+<title>13&nbsp; Models With Memory – *Statistical rethinking* 2 with brms and the tidyverse</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -156,6 +156,12 @@ window.Quarto = {
 };
 </script>
 
+<meta property="og:title" content="13&nbsp; Models With Memory – Statistical rethinking 2 with brms and the tidyverse">
+<meta property="og:description" content="">
+<meta property="og:image" content="https://solomon.quarto.pub/sr2/13_files/figure-html/unnamed-chunk-6-1.png">
+<meta property="og:site_name" content="*Statistical rethinking* 2 with brms and the tidyverse">
+<meta property="og:image:height" content="672">
+<meta property="og:image:width" content="1344">
 </head>
 
 <body class="nav-sidebar floating slimcontent quarto-light">
@@ -182,7 +188,7 @@ window.Quarto = {
   <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
     <div class="pt-lg-2 mt-2 text-left sidebar-header">
     <div class="sidebar-title mb-0 py-0">
-      <a href="./"><em>Statistical rethinking</em> 2 with rstan and the tidyverse</a> 
+      <a href="./"><em>Statistical rethinking</em> 2 with brms and the tidyverse</a> 
         <div class="sidebar-tools-main">
     <a href="https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
 </div>
@@ -2398,7 +2404,7 @@ $ .draw                     &lt;int&gt; 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 1
 <span id="cb122-16"><a href="#cb122-16" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Add the `treatment` labels</span></span>
 <span id="cb122-17"><a href="#cb122-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">treatment =</span> <span class="fu">factor</span>(treatment, <span class="at">labels =</span> labels)) <span class="sc">|&gt;</span> </span>
 <span id="cb122-18"><a href="#cb122-18" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb122-19"><a href="#cb122-19" aria-hidden="true" tabindex="-1"></a>  <span class="co"># plot!</span></span>
+<span id="cb122-19"><a href="#cb122-19" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Plot!</span></span>
 <span id="cb122-20"><a href="#cb122-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> treatment, <span class="at">y =</span> value, <span class="at">group =</span> actor)) <span class="sc">+</span></span>
 <span id="cb122-21"><a href="#cb122-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">alpha =</span> <span class="dv">1</span><span class="sc">/</span><span class="dv">2</span>, <span class="at">color =</span> <span class="st">"blue"</span>) <span class="sc">+</span></span>
 <span id="cb122-22"><a href="#cb122-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">"100 simulated actors"</span>) <span class="sc">+</span></span>
@@ -2933,7 +2939,7 @@ loaded via a namespace (and not attached):
 [36] xtable_1.8-4            inline_0.3.21           emmeans_1.11.2-8        scales_1.4.0            MASS_7.3-65            
 [41] cli_3.6.5               mvtnorm_1.3-3           crayon_1.5.3            rmarkdown_2.30          generics_0.1.4         
 [46] RcppParallel_5.1.11-1   rstudioapi_0.17.1       reshape2_1.4.5          tzdb_0.5.0              rstan_2.36.0.9000      
-[51] splines_4.5.1           assertthat_0.2.1        parallel_4.5.1          matrixStats_1.5.0       vctrs_0.6.5            
+[51] splines_4.5.1           assertthat_0.2.1        parallel_4.5.1          matrixStats_1.5.0       vctrs_0.7.0            
 [56] V8_8.0.1                Matrix_1.7-3            sandwich_3.1-1          jsonlite_2.0.0          hms_1.1.4              
 [61] arrayhelpers_1.1-0      ggdist_3.3.3            glue_1.8.0              codetools_0.2-20        distributional_0.5.0   
 [66] stringi_1.8.7           gtable_0.3.6            QuickJSR_1.8.1          quadprog_1.5-8          pillar_1.11.1          
@@ -3064,7 +3070,7 @@ Vonesh, J. R., &amp; Bolker, B. M. (2005). Compensatory larval responses shift t
     }
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
-        var filterRegex = new RegExp('/' + window.location.host + '/');
+        var filterRegex = new RegExp("https:\/\/solomon\.quarto\.pub\/sr2\/");
       var isInternal = (href) => {
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }
@@ -3405,9 +3411,9 @@ Vonesh, J. R., &amp; Bolker, B. M. (2005). Compensatory larval responses shift t
     script.src = "https://giscus.app/client.js";
     script.async = true;
     script.dataset.repo = "ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed";
-    script.dataset.repoId = "";
+    script.dataset.repoId = "MDEwOlJlcG9zaXRvcnkxNjE5MTg0MTE=";
     script.dataset.category = "General";
-    script.dataset.categoryId = "";
+    script.dataset.categoryId = "DIC_kwDOCaaty84C1AJZ";
     script.dataset.mapping = "title";
     script.dataset.reactionsEnabled = "1";
     script.dataset.emitMetadata = "0";

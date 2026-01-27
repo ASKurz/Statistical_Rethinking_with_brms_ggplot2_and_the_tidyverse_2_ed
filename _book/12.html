@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>12&nbsp; Monsters and Mixtures – *Statistical rethinking* 2 with rstan and the tidyverse</title>
+<title>12&nbsp; Monsters and Mixtures – *Statistical rethinking* 2 with brms and the tidyverse</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -156,6 +156,12 @@ window.Quarto = {
 };
 </script>
 
+<meta property="og:title" content="12&nbsp; Monsters and Mixtures – Statistical rethinking 2 with brms and the tidyverse">
+<meta property="og:description" content="">
+<meta property="og:image" content="https://solomon.quarto.pub/sr2/12_files/figure-html/unnamed-chunk-2-1.png">
+<meta property="og:site_name" content="*Statistical rethinking* 2 with brms and the tidyverse">
+<meta property="og:image:height" content="384">
+<meta property="og:image:width" content="1344">
 </head>
 
 <body class="nav-sidebar floating slimcontent quarto-light">
@@ -182,7 +188,7 @@ window.Quarto = {
   <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
     <div class="pt-lg-2 mt-2 text-left sidebar-header">
     <div class="sidebar-title mb-0 py-0">
-      <a href="./"><em>Statistical rethinking</em> 2 with rstan and the tidyverse</a> 
+      <a href="./"><em>Statistical rethinking</em> 2 with brms and the tidyverse</a> 
         <div class="sidebar-tools-main">
     <a href="https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
 </div>
@@ -568,12 +574,12 @@ $b
 <div class="cell">
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>b12<span class="fl">.1</span> <span class="ot">&lt;-</span> <span class="fu">brm</span>(</span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> d, </span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> beta_binomial2,  <span class="co"># here's our custom likelihood</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> beta_binomial2,  <span class="co"># Here's our custom likelihood</span></span>
 <span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  admit <span class="sc">|</span> <span class="fu">vint</span>(applications) <span class="sc">~</span> <span class="dv">0</span> <span class="sc">+</span> gid,</span>
 <span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">prior =</span> <span class="fu">c</span>(<span class="fu">prior</span>(<span class="fu">normal</span>(<span class="dv">0</span>, <span class="fl">1.5</span>), <span class="at">class =</span> b),</span>
 <span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>            <span class="fu">prior</span>(<span class="fu">exponential</span>(<span class="dv">1</span>), <span class="at">class =</span> phi)),</span>
 <span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">iter =</span> <span class="dv">2000</span>, <span class="at">warmup =</span> <span class="dv">1000</span>, <span class="at">cores =</span> <span class="dv">4</span>, <span class="at">chains =</span> <span class="dv">4</span>,</span>
-<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">stanvars =</span> stanvars,  <span class="co"># note our `stanvars`</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">stanvars =</span> stanvars,  <span class="co"># Note our `stanvars`</span></span>
 <span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">seed =</span> <span class="dv">12</span>,</span>
 <span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">file =</span> <span class="st">"fits/b12.01"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
@@ -2652,7 +2658,7 @@ b12.7     -4.6       1.8 -18545.1     38.1         9.9      0.1  37090.1     76.
 </section>
 <section id="summary" class="level2" data-number="12.5">
 <h2 data-number="12.5" class="anchored" data-anchor-id="summary"><span class="header-section-number">12.5</span> Summary</h2>
-<p>“This chapter introduced several new types of regression, all of which are generalizations of generalized linear models (GLMs)” (p.&nbsp;397). This chapter has been a ride. If you’d like more practice with the negative-binomial model and some of the others models for categorical data we covered in this chapter and in <a href="11.html" class="quarto-xref"><span>Chapter 11</span></a>, Alan Agresti covered them extensively in his <span class="citation" data-cites="agrestiFoundationsLinearGeneralized2015">(<a href="references.html#ref-agrestiFoundationsLinearGeneralized2015" role="doc-biblioref">2015</a>)</span> text, <a href="https://www.wiley.com/en-us/Foundations+of+Linear+and+Generalized+Linear+Models-p-9781118730034"><em>Foundations of linear and generalized linear models</em></a>. For more on different kinds of zero-inflated count models, check out <span class="citation" data-cites="atkinsTutorialCountRegression2013">Atkins et al. (<a href="references.html#ref-atkinsTutorialCountRegression2013" role="doc-biblioref">2013</a>)</span>, <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3513584/pdf/nihms396181.pdf"><em>A tutorial on count regression and zero-altered count models for longitudinal substance use data</em></a>. If you’d like to learn more about using cumulative probabilities to model ordinal data in <strong>brms</strong>, check out Bürkner and Vuorre’s <span class="citation" data-cites="burknerOrdinalRegressionModels2019">(<a href="references.html#ref-burknerOrdinalRegressionModels2019" role="doc-biblioref">2019</a>)</span> <a href="https://doi.org/10.1177/2515245918823199"><em>Ordinal regression models in psychology: A tutorial</em></a> and its repository on the Open Science Framework (<a href="https://osf.io/cu8jv/">https://osf.io/cu8jv/</a>). Also check out <a href="https://bookdown.org/content/3686/ordinal-predicted-variable.html">Chapter 23</a> of my <span class="citation" data-cites="kurzDoingBayesianDataAnalysis2026">(<a href="references.html#ref-kurzDoingBayesianDataAnalysis2026" role="doc-biblioref">2026</a>)</span> ebook <a href="https://solomon.quarto.pub/dbda2/"><em>Doing Bayesian Data Analysis in brms and the tidyverse</em></a> were we model ordinal data with a series of cumulative <em>probit</em> models.</p>
+<p>“This chapter introduced several new types of regression, all of which are generalizations of generalized linear models (GLMs)” (p.&nbsp;397). This chapter has been a ride. If you’d like more practice with the negative-binomial model and some of the others models for categorical data we covered in this chapter and in <a href="11.html" class="quarto-xref"><span>Chapter 11</span></a>, Alan Agresti covered them extensively in his <span class="citation" data-cites="agrestiFoundationsLinearGeneralized2015">(<a href="references.html#ref-agrestiFoundationsLinearGeneralized2015" role="doc-biblioref">2015</a>)</span> text, <a href="https://www.wiley.com/en-us/Foundations+of+Linear+and+Generalized+Linear+Models-p-9781118730034"><em>Foundations of linear and generalized linear models</em></a>. For more on different kinds of zero-inflated count models, check out <span class="citation" data-cites="atkinsTutorialCountRegression2013">Atkins et al. (<a href="references.html#ref-atkinsTutorialCountRegression2013" role="doc-biblioref">2013</a>)</span>, <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3513584/pdf/nihms396181.pdf"><em>A tutorial on count regression and zero-altered count models for longitudinal substance use data</em></a>. If you’d like to learn more about using cumulative probabilities to model ordinal data in <strong>brms</strong>, check out Bürkner and Vuorre’s <span class="citation" data-cites="burknerOrdinalRegressionModels2019">(<a href="references.html#ref-burknerOrdinalRegressionModels2019" role="doc-biblioref">2019</a>)</span> <a href="https://doi.org/10.1177/2515245918823199"><em>Ordinal regression models in psychology: A tutorial</em></a> and its repository on the Open Science Framework (<a href="https://osf.io/cu8jv/">https://osf.io/cu8jv/</a>). Also check out <a href="https://solomon.quarto.pub/dbda2/23.html">Chapter 23</a> of my <span class="citation" data-cites="kurzDoingBayesianDataAnalysis2026">(<a href="references.html#ref-kurzDoingBayesianDataAnalysis2026" role="doc-biblioref">2026</a>)</span> ebook <a href="https://solomon.quarto.pub/dbda2/"><em>Doing Bayesian Data Analysis in brms and the tidyverse</em></a> were we model ordinal data with a series of cumulative <em>probit</em> models.</p>
 </section>
 <section id="session-info" class="level2 unnumbered">
 <h2 class="unnumbered anchored" data-anchor-id="session-info">Session info</h2>
@@ -2684,7 +2690,7 @@ other attached packages:
 loaded via a namespace (and not attached):
  [1] gridExtra_2.3           inline_0.3.21           sandwich_3.1-1          rlang_1.1.7             magrittr_2.0.4         
  [6] multcomp_1.4-29         matrixStats_1.5.0       compiler_4.5.1          loo_2.9.0.9000          callr_3.7.6            
-[11] vctrs_0.6.5             reshape2_1.4.5          pkgconfig_2.0.3         shape_1.4.6.1           arrayhelpers_1.1-0     
+[11] vctrs_0.7.0             reshape2_1.4.5          pkgconfig_2.0.3         shape_1.4.6.1           arrayhelpers_1.1-0     
 [16] crayon_1.5.3            fastmap_1.2.0           backports_1.5.0         labeling_0.4.3          utf8_1.2.6             
 [21] cmdstanr_0.9.0          rmarkdown_2.30          BH_1.90.0-1             tzdb_0.5.0              ps_1.9.1               
 [26] xfun_0.55               jsonlite_2.0.0          parallel_4.5.1          R6_2.6.1                stringi_1.8.7          
@@ -2828,7 +2834,7 @@ Stan Development Team. (2022). <em>Stan functions reference, <span>Version</span
     }
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
-        var filterRegex = new RegExp('/' + window.location.host + '/');
+        var filterRegex = new RegExp("https:\/\/solomon\.quarto\.pub\/sr2\/");
       var isInternal = (href) => {
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }
@@ -3169,9 +3175,9 @@ Stan Development Team. (2022). <em>Stan functions reference, <span>Version</span
     script.src = "https://giscus.app/client.js";
     script.async = true;
     script.dataset.repo = "ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed";
-    script.dataset.repoId = "";
+    script.dataset.repoId = "MDEwOlJlcG9zaXRvcnkxNjE5MTg0MTE=";
     script.dataset.category = "General";
-    script.dataset.categoryId = "";
+    script.dataset.categoryId = "DIC_kwDOCaaty84C1AJZ";
     script.dataset.mapping = "title";
     script.dataset.reactionsEnabled = "1";
     script.dataset.emitMetadata = "0";
