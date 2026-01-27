@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>16&nbsp; Generalized Linear Madness – *Statistical rethinking* 2 with rstan and the tidyverse</title>
+<title>16&nbsp; Generalized Linear Madness – *Statistical rethinking* 2 with brms and the tidyverse</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -156,6 +156,12 @@ window.Quarto = {
 };
 </script>
 
+<meta property="og:title" content="16&nbsp; Generalized Linear Madness – Statistical rethinking 2 with brms and the tidyverse">
+<meta property="og:description" content="">
+<meta property="og:image" content="https://solomon.quarto.pub/sr2/16_files/figure-html/unnamed-chunk-3-1.png">
+<meta property="og:site_name" content="*Statistical rethinking* 2 with brms and the tidyverse">
+<meta property="og:image:height" content="528">
+<meta property="og:image:width" content="1536">
 </head>
 
 <body class="nav-sidebar floating slimcontent quarto-light">
@@ -182,7 +188,7 @@ window.Quarto = {
   <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
     <div class="pt-lg-2 mt-2 text-left sidebar-header">
     <div class="sidebar-title mb-0 py-0">
-      <a href="./"><em>Statistical rethinking</em> 2 with rstan and the tidyverse</a> 
+      <a href="./"><em>Statistical rethinking</em> 2 with brms and the tidyverse</a> 
         <div class="sidebar-tools-main">
     <a href="https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
 </div>
@@ -1742,7 +1748,7 @@ scale reduction factor on split chains (at convergence, Rhat = 1).</code></pre>
 <span id="cb69-6"><a href="#cb69-6" aria-hidden="true" tabindex="-1"></a>  bh <span class="sc">~</span> <span class="dv">1</span>, mh <span class="sc">~</span> <span class="dv">1</span>,</span>
 <span id="cb69-7"><a href="#cb69-7" aria-hidden="true" tabindex="-1"></a>  bl <span class="sc">~</span> <span class="dv">1</span>, ml <span class="sc">~</span> <span class="dv">1</span>,</span>
 <span id="cb69-8"><a href="#cb69-8" aria-hidden="true" tabindex="-1"></a>  sigma <span class="sc">~</span> <span class="dv">0</span> <span class="sc">+</span> population,</span>
-<span id="cb69-9"><a href="#cb69-9" aria-hidden="true" tabindex="-1"></a>  <span class="co"># this is new, too</span></span>
+<span id="cb69-9"><a href="#cb69-9" aria-hidden="true" tabindex="-1"></a>  <span class="co"># This is new, too</span></span>
 <span id="cb69-10"><a href="#cb69-10" aria-hidden="true" tabindex="-1"></a>  p <span class="sc">~</span> <span class="dv">0</span> <span class="sc">+</span> population,</span>
 <span id="cb69-11"><a href="#cb69-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">nl =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
@@ -2195,7 +2201,7 @@ scale reduction factor on split chains (at convergence, Rhat = 1).</code></pre>
 </div>
 </div>
 <p>In the next practice problem (16H4), McElreath suggested we “adapt the autoregressive model to use a <em>two-step</em> lag variable” (p.&nbsp;551, <em>emphasis</em> added). Using the verbiage from above, we might also refer to that as second-order autoregressive model, AR(2). That would be a straight generalization of the approach we just took. I’ll leave the exercise to the interested reader.</p>
-<p>The kinds autoregressive models we fit in this section are special cases of what are called <strong>autoregressive moving average</strong> (ARMA) models. If you’re in the social sciences, Hamaker and Brose have a nice <span class="citation" data-cites="hamakerIdiographicDataAnalysis2009">(<a href="references.html#ref-hamakerIdiographicDataAnalysis2009" role="doc-biblioref">2009</a>)</span> chapter explaining AR, ARMA, and other related models, which you can download from ReserachGate <a href="https://www.researchgate.net/publication/226943668_Idiographic_Data_Analysis_Quantitative_Methods-From_Simple_to_Advanced">here</a>. ARMA models are available in <strong>brms</strong> with help from the <code>arma()</code> function.</p>
+<p>The kinds autoregressive models we fit in this section are special cases of what are called <em>autoregressive moving average</em> (ARMA) models. If you’re in the social sciences, Hamaker and Brose have a nice <span class="citation" data-cites="hamakerIdiographicDataAnalysis2009">(<a href="references.html#ref-hamakerIdiographicDataAnalysis2009" role="doc-biblioref">2009</a>)</span> chapter explaining AR, ARMA, and other related models, which you can download from ReserachGate <a href="https://www.researchgate.net/publication/226943668_Idiographic_Data_Analysis_Quantitative_Methods-From_Simple_to_Advanced">here</a>. ARMA models are available in <strong>brms</strong> with help from the <code>arma()</code> function.</p>
 </section>
 </section>
 <section id="session-info" class="level2 unnumbered">
@@ -2237,7 +2243,7 @@ loaded via a namespace (and not attached):
 [36] stats4_4.5.1            xtable_1.8-4            inline_0.3.21           emmeans_1.11.2-8        scales_1.4.0           
 [41] MASS_7.3-65             cli_3.6.5               mvtnorm_1.3-3           crayon_1.5.3            rmarkdown_2.30         
 [46] generics_0.1.4          RcppParallel_5.1.11-1   rstudioapi_0.17.1       reshape2_1.4.5          tzdb_0.5.0             
-[51] rstan_2.36.0.9000       splines_4.5.1           assertthat_0.2.1        matrixStats_1.5.0       vctrs_0.6.5            
+[51] rstan_2.36.0.9000       splines_4.5.1           assertthat_0.2.1        matrixStats_1.5.0       vctrs_0.7.0            
 [56] V8_8.0.1                Matrix_1.7-3            sandwich_3.1-1          jsonlite_2.0.0          callr_3.7.6            
 [61] hms_1.1.4               arrayhelpers_1.1-0      ggdist_3.3.3            glue_1.8.0              ps_1.9.1               
 [66] ggstats_0.11.0          codetools_0.2-20        distributional_0.5.0    shape_1.4.6.1           stringi_1.8.7          
@@ -2363,7 +2369,7 @@ Weber, S., &amp; Bürkner, P.-C. (2022). <em>Running brms models with within-cha
     }
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
-        var filterRegex = new RegExp('/' + window.location.host + '/');
+        var filterRegex = new RegExp("https:\/\/solomon\.quarto\.pub\/sr2\/");
       var isInternal = (href) => {
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }
@@ -2704,9 +2710,9 @@ Weber, S., &amp; Bürkner, P.-C. (2022). <em>Running brms models with within-cha
     script.src = "https://giscus.app/client.js";
     script.async = true;
     script.dataset.repo = "ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed";
-    script.dataset.repoId = "";
+    script.dataset.repoId = "MDEwOlJlcG9zaXRvcnkxNjE5MTg0MTE=";
     script.dataset.category = "General";
-    script.dataset.categoryId = "";
+    script.dataset.categoryId = "DIC_kwDOCaaty84C1AJZ";
     script.dataset.mapping = "title";
     script.dataset.reactionsEnabled = "1";
     script.dataset.emitMetadata = "0";

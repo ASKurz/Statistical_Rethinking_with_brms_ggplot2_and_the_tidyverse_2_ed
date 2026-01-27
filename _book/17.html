@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>17&nbsp; Horoscopes Insights – *Statistical rethinking* 2 with rstan and the tidyverse</title>
+<title>17&nbsp; Horoscopes Insights – *Statistical rethinking* 2 with brms and the tidyverse</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -156,6 +156,12 @@ window.Quarto = {
 };
 </script>
 
+<meta property="og:title" content="17&nbsp; Horoscopes Insights – Statistical rethinking 2 with brms and the tidyverse">
+<meta property="og:description" content="">
+<meta property="og:image" content="https://solomon.quarto.pub/sr2/17_files/figure-html/unnamed-chunk-13-1.png">
+<meta property="og:site_name" content="*Statistical rethinking* 2 with brms and the tidyverse">
+<meta property="og:image:height" content="1152">
+<meta property="og:image:width" content="1248">
 </head>
 
 <body class="nav-sidebar floating slimcontent quarto-light">
@@ -182,7 +188,7 @@ window.Quarto = {
   <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
     <div class="pt-lg-2 mt-2 text-left sidebar-header">
     <div class="sidebar-title mb-0 py-0">
-      <a href="./"><em>Statistical rethinking</em> 2 with rstan and the tidyverse</a> 
+      <a href="./"><em>Statistical rethinking</em> 2 with brms and the tidyverse</a> 
         <div class="sidebar-tools-main">
     <a href="https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
 </div>
@@ -366,7 +372,7 @@ window.Quarto = {
 <section id="use-r-notebooks-or-quarto-files" class="level2" data-number="17.1">
 <h2 data-number="17.1" class="anchored" data-anchor-id="use-r-notebooks-or-quarto-files"><span class="header-section-number">17.1</span> Use R Notebooks (or Quarto files)</h2>
 <p>OMG</p>
-<p>I first started using <strong>R</strong> in the winter of 2015/2016. Right from the start, I learned how to code from within the <a href="https://www.rstudio.com">RStudio</a> environment. But within RStudio I was using simple scripts. No longer. I now use <a href="http://rmarkdown.rstudio.com/r_notebooks.html">R Notebooks</a> for just about everything, including my scientific projects, this <a href="https://bookdown.org"><strong>bookdown</strong></a>-powered ebook, and even my academic <a href="https://solomonkurz.netlify.com">webpage</a> and <a href="https://solomonkurz.netlify.com/blog/">blog</a>. Nathan Stephens wrote a nice blog post, <a href="https://rviews.rstudio.com/2017/03/15/why-i-love-r-notebooks/"><em>Why I love R Notebooks</em></a>. I agree. This has fundamentally changed my workflow as a scientist. I only wish I’d learned about this before starting my dissertation project. So it goes…</p>
+<p>I first started using <strong>R</strong> in the winter of 2015/2016. Right from the start, I learned how to code from within the <a href="https://www.rstudio.com">RStudio</a> environment. But within RStudio I was using simple scripts. No longer. I now use <a href="http://rmarkdown.rstudio.com/r_notebooks.html">R Notebooks</a> for just about everything, including my scientific projects and my academic <a href="https://solomonkurz.netlify.app/">webpage</a> and <a href="https://solomonkurz.netlify.app/blog/">blog</a>. Nathan Stephens wrote a nice blog post, <a href="https://rviews.rstudio.com/2017/03/15/why-i-love-r-notebooks/"><em>Why I love R Notebooks</em></a>. I agree. This has fundamentally changed my workflow as a scientist. I only wish I’d learned about this before starting my dissertation project. So it goes…</p>
 <p>Do yourself a favor, adopt R Notebooks into your workflow. Do it today. If you prefer to learn with videos, here’s a <a href="https://youtu.be/TJmNvfhLCoI?t=195">nice intro</a> by <a href="https://www.krisyu.org/">Kristine Yu</a> and <a href="https://youtu.be/GG4pgtfDpWY?t=324">another one</a> by <a href="https://twitter.com/fly_upside_down">JJ Allaire</a>. Try it out for like one afternoon and you’ll be hooked.’</p>
 <p><em>Update</em>. I still use R Notebooks, which are still totally awesome. But I’ve been slowly switching over to Quarto files over the past couple of years. For my basic scientific projects, they’re almost the same as R Notebooks. But Quarto files make is much nicer when you want to make a website or publish an ebook. To learn more about Quarto, go to <a href="https://quarto.org/">https://quarto.org/</a>. If you’re using R Studio, they’re already available from the <code>Quarto Document...</code> option when you navigate to the <code>New File</code> dropdown.</p>
 </section>
@@ -708,7 +714,7 @@ other attached packages:
 
 loaded via a namespace (and not attached):
  [1] gtable_0.3.6            tensorA_0.36.2.1        xfun_0.55               ggplot2_4.0.1           QuickJSR_1.8.1         
- [6] htmlwidgets_1.6.4       inline_0.3.21           lattice_0.22-7          vctrs_0.6.5             tools_4.5.1            
+ [6] htmlwidgets_1.6.4       inline_0.3.21           lattice_0.22-7          vctrs_0.7.0             tools_4.5.1            
 [11] generics_0.1.4          stats4_4.5.1            curl_7.0.0              parallel_4.5.1          sandwich_3.1-1         
 [16] tibble_3.3.1            pkgconfig_2.0.3         Matrix_1.7-3            checkmate_2.3.3         RColorBrewer_1.1-3     
 [21] S7_0.2.1                assertthat_0.2.1        distributional_0.5.0    RcppParallel_5.1.11-1   lifecycle_1.0.5        
@@ -866,7 +872,7 @@ Simmons, J. P., Nelson, L. D., &amp; Simonsohn, U. (2011). False-positive psycho
     }
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
-        var filterRegex = new RegExp('/' + window.location.host + '/');
+        var filterRegex = new RegExp("https:\/\/solomon\.quarto\.pub\/sr2\/");
       var isInternal = (href) => {
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }
@@ -1207,9 +1213,9 @@ Simmons, J. P., Nelson, L. D., &amp; Simonsohn, U. (2011). False-positive psycho
     script.src = "https://giscus.app/client.js";
     script.async = true;
     script.dataset.repo = "ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed";
-    script.dataset.repoId = "";
+    script.dataset.repoId = "MDEwOlJlcG9zaXRvcnkxNjE5MTg0MTE=";
     script.dataset.category = "General";
-    script.dataset.categoryId = "";
+    script.dataset.categoryId = "DIC_kwDOCaaty84C1AJZ";
     script.dataset.mapping = "title";
     script.dataset.reactionsEnabled = "1";
     script.dataset.emitMetadata = "0";

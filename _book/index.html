@@ -7,9 +7,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="A. Solomon Kurz">
-<meta name="dcterms.date" content="2026-01-13">
+<meta name="dcterms.date" content="2026-01-26">
 
-<title>Statistical rethinking 2 with rstan and the tidyverse</title>
+<title>Statistical rethinking 2 with brms and the tidyverse</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -157,6 +157,9 @@ window.Quarto = {
 };
 </script>
 
+<meta property="og:title" content="Statistical rethinking 2 with brms and the tidyverse">
+<meta property="og:description" content="version 0.5.0">
+<meta property="og:site_name" content="*Statistical rethinking* 2 with brms and the tidyverse">
 </head>
 
 <body class="nav-sidebar floating quarto-light">
@@ -183,7 +186,7 @@ window.Quarto = {
   <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
     <div class="pt-lg-2 mt-2 text-left sidebar-header">
     <div class="sidebar-title mb-0 py-0">
-      <a href="./"><em>Statistical rethinking</em> 2 with rstan and the tidyverse</a> 
+      <a href="./"><em>Statistical rethinking</em> 2 with brms and the tidyverse</a> 
         <div class="sidebar-tools-main">
     <a href="https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
 </div>
@@ -328,13 +331,13 @@ window.Quarto = {
   <li><a href="#r-setup" id="toc-r-setup" class="nav-link" data-scroll-target="#r-setup"><strong>R</strong> setup</a></li>
   <li><a href="#we-have-updates" id="toc-we-have-updates" class="nav-link" data-scroll-target="#we-have-updates">We have updates</a>
   <ul>
-  <li><a href="#version-0.1.0." id="toc-version-0.1.0." class="nav-link" data-scroll-target="#version-0.1.0.">Version 0.1.0.</a></li>
-  <li><a href="#version-0.1.1." id="toc-version-0.1.1." class="nav-link" data-scroll-target="#version-0.1.1.">Version 0.1.1.</a></li>
-  <li><a href="#version-0.2.0." id="toc-version-0.2.0." class="nav-link" data-scroll-target="#version-0.2.0.">Version 0.2.0.</a></li>
-  <li><a href="#version-0.3.0." id="toc-version-0.3.0." class="nav-link" data-scroll-target="#version-0.3.0.">Version 0.3.0.</a></li>
-  <li><a href="#version-0.4.0." id="toc-version-0.4.0." class="nav-link" data-scroll-target="#version-0.4.0.">Version 0.4.0.</a></li>
-  <li><a href="#version-0.5.0." id="toc-version-0.5.0." class="nav-link" data-scroll-target="#version-0.5.0.">Version 0.5.0.</a></li>
-  <li><a href="#were-not-done-yet-and-i-could-use-your-help." id="toc-were-not-done-yet-and-i-could-use-your-help." class="nav-link" data-scroll-target="#were-not-done-yet-and-i-could-use-your-help.">We’re not done yet and I could use your help.</a></li>
+  <li><a href="#version-0.1.0" id="toc-version-0.1.0" class="nav-link" data-scroll-target="#version-0.1.0">Version 0.1.0</a></li>
+  <li><a href="#version-0.1.1" id="toc-version-0.1.1" class="nav-link" data-scroll-target="#version-0.1.1">Version 0.1.1</a></li>
+  <li><a href="#version-0.2.0" id="toc-version-0.2.0" class="nav-link" data-scroll-target="#version-0.2.0">Version 0.2.0</a></li>
+  <li><a href="#version-0.3.0" id="toc-version-0.3.0" class="nav-link" data-scroll-target="#version-0.3.0">Version 0.3.0</a></li>
+  <li><a href="#version-0.4.0" id="toc-version-0.4.0" class="nav-link" data-scroll-target="#version-0.4.0">Version 0.4.0</a></li>
+  <li><a href="#version-0.5.0" id="toc-version-0.5.0" class="nav-link" data-scroll-target="#version-0.5.0">Version 0.5.0</a></li>
+  <li><a href="#were-not-done-yet-and-i-could-use-your-help" id="toc-were-not-done-yet-and-i-could-use-your-help" class="nav-link" data-scroll-target="#were-not-done-yet-and-i-could-use-your-help">We’re not done yet and I could use your help</a></li>
   </ul></li>
   <li><a href="#thank-yous-are-in-order" id="toc-thank-yous-are-in-order" class="nav-link" data-scroll-target="#thank-yous-are-in-order">Thank-you’s are in order</a></li>
   <li><a href="#license-and-citation" id="toc-license-and-citation" class="nav-link" data-scroll-target="#license-and-citation">License and citation</a></li>
@@ -348,7 +351,7 @@ window.Quarto = {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title"><em>Statistical rethinking</em> 2 with rstan and the tidyverse</h1>
+<h1 class="title"><em>Statistical rethinking</em> 2 with brms and the tidyverse</h1>
 <p class="subtitle lead">version 0.5.0</p>
 </div>
 
@@ -366,7 +369,7 @@ window.Quarto = {
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">January 13, 2026</p>
+      <p class="date">January 26, 2026</p>
     </div>
   </div>
   
@@ -383,8 +386,8 @@ window.Quarto = {
 </section>
 <section id="what-and-why" class="level1 unnumbered">
 <h1 class="unnumbered">What and why</h1>
-<p>This ebook is based on the second edition of <a href="https://twitter.com/rlmcelreath">Richard McElreath</a>’s <span class="citation" data-cites="mcelreathStatisticalRethinkingBayesian2020">(<a href="references.html#ref-mcelreathStatisticalRethinkingBayesian2020" role="doc-biblioref">2020</a>)</span> text, <a href="https://xcelab.net/rm/statistical-rethinking/"><em>Statistical rethinking: A Bayesian course with examples in R and Stan</em></a>. My contributions show how to fit the models he covered with <a href="https://www.simtech.uni-stuttgart.de/exc/people/Buerkner/">Paul Bürkner</a>’s <a href="https://github.com/paul-buerkner/brms"><strong>brms</strong> package</a> <span class="citation" data-cites="R-brms burknerBrmsPackageBayesian2017 burknerAdvancedBayesianMultilevel2018">(<a href="references.html#ref-burknerBrmsPackageBayesian2017" role="doc-biblioref">Bürkner, 2017</a>, <a href="references.html#ref-burknerAdvancedBayesianMultilevel2018" role="doc-biblioref">2018</a>, <a href="references.html#ref-R-brms" role="doc-biblioref">2022</a>)</span>, which makes it easy to fit Bayesian regression models in <strong>R</strong> <span class="citation" data-cites="R-base">(<a href="references.html#ref-R-base" role="doc-biblioref">R Core Team, 2022</a>)</span> using Hamiltonian Monte Carlo. I also prefer plotting and data wrangling with the packages from the <a href="https://www.tidyverse.org/"><strong>tidyverse</strong></a> <span class="citation" data-cites="R-tidyverse wickhamWelcomeTidyverse2019">(<a href="references.html#ref-wickhamWelcomeTidyverse2019" role="doc-biblioref">Wickham et al., 2019</a>; <a href="references.html#ref-R-tidyverse" role="doc-biblioref">Wickham, 2022</a>)</span>. So we’ll be using those methods, too.</p>
-<p>Are you looking for the companion ebook for McElreath’s 1st edition? <a href="https://bookdown.org/content/3890/">Click here.</a></p>
+<p>This ebook is based on the second edition of <a href="https://xcelab.net/rm/">Richard McElreath</a>’s <span class="citation" data-cites="mcelreathStatisticalRethinkingBayesian2020">(<a href="references.html#ref-mcelreathStatisticalRethinkingBayesian2020" role="doc-biblioref">2020</a>)</span> text, <a href="https://xcelab.net/rm/statistical-rethinking/"><em>Statistical rethinking: A Bayesian course with examples in R and Stan</em></a>. My contributions show how to fit the models he covered with <a href="https://www.simtech.uni-stuttgart.de/exc/people/Buerkner/">Paul Bürkner</a>’s <a href="https://github.com/paul-buerkner/brms"><strong>brms</strong> package</a> <span class="citation" data-cites="R-brms burknerBrmsPackageBayesian2017 burknerAdvancedBayesianMultilevel2018">(<a href="references.html#ref-burknerBrmsPackageBayesian2017" role="doc-biblioref">Bürkner, 2017</a>, <a href="references.html#ref-burknerAdvancedBayesianMultilevel2018" role="doc-biblioref">2018</a>, <a href="references.html#ref-R-brms" role="doc-biblioref">2022</a>)</span>, which makes it easy to fit Bayesian regression models in <strong>R</strong> <span class="citation" data-cites="R-base">(<a href="references.html#ref-R-base" role="doc-biblioref">R Core Team, 2022</a>)</span> using Hamiltonian Monte Carlo. I also prefer plotting and data wrangling with the packages from the <a href="https://www.tidyverse.org/"><strong>tidyverse</strong></a> <span class="citation" data-cites="R-tidyverse wickhamWelcomeTidyverse2019">(<a href="references.html#ref-wickhamWelcomeTidyverse2019" role="doc-biblioref">Wickham et al., 2019</a>; <a href="references.html#ref-R-tidyverse" role="doc-biblioref">Wickham, 2022</a>)</span>. So we’ll be using those methods, too.</p>
+<p>Are you looking for the companion ebook for McElreath’s 1st edition? <a href="https://solomon.quarto.pub/sr/">Click here.</a></p>
 <section id="my-assumptions-about-you" class="level2 unnumbered">
 <h2 class="unnumbered anchored" data-anchor-id="my-assumptions-about-you">My assumptions about you</h2>
 <p>If you’re looking at this project, I’m guessing you’re either a graduate student, a post-graduate academic or a researcher of some sort, which suggests you have at least a 101-level foundation in statistics. If you’re rusty, consider checking out the free text books by <a href="https://bookdown.org/roback/bookdown-BeyondMLR/">Roback and Legler</a> <span class="citation" data-cites="roback2021beyond">(<a href="references.html#ref-roback2021beyond" role="doc-biblioref">2021</a>)</span> or <a href="https://learningstatisticswithr.com/">Navarro</a> <span class="citation" data-cites="navarroLearningStatistics2019">(<a href="references.html#ref-navarroLearningStatistics2019" role="doc-biblioref">2019</a>)</span> before diving into <em>Statistical rethinking</em>. I’m also assuming you understand the rudiments of <strong>R</strong> and have at least a vague idea about what the <strong>tidyverse</strong> is. If you’re totally new to <strong>R</strong>, consider starting with Peng’s <span class="citation" data-cites="pengProgrammingDataScience2022">(<a href="references.html#ref-pengProgrammingDataScience2022" role="doc-biblioref">2022</a>)</span> <a href="https://bookdown.org/rdpeng/rprogdatascience/"><em>R programming for data science</em></a>. For an introduction to the <strong>tidyvese</strong>-style of data analysis, the best source I’ve found is Grolemund and Wickham’s <span class="citation" data-cites="grolemundDataScience2017">(<a href="references.html#ref-grolemundDataScience2017" role="doc-biblioref">2017</a>)</span> <a href="http://r4ds.had.co.nz"><em>R for data science</em></a> (<em>R4DS</em>), which I extensively link to throughout this project. Another nice alternative is Baumer, Kaplan, and Horton’s <span class="citation" data-cites="baumerMocernDataScienceR2021">(<a href="references.html#ref-baumerMocernDataScienceR2021" role="doc-biblioref">2021</a>)</span>, <a href="https://mdsr-book.github.io/mdsr2e/"><em>Modern data science with R</em></a>.</p>
@@ -408,7 +411,7 @@ window.Quarto = {
 <li><strong>R</strong> and the names of specific package (e.g., <strong>brms</strong>) are in <strong>boldface</strong> font.</li>
 <li>Functions are in a typewriter font and followed by parentheses, all atop a gray background (e.g., <code>brm()</code>).</li>
 <li>When I want to make explicit the package a given function comes from, I insert the double-colon operator <code>::</code> between the package name and the function (e.g., <code>tidybayes::median_qi()</code>).</li>
-<li><strong>R</strong> objects, such as data or function arguments, are in typewriter font atop gray backgrounds (e.g., <code>chimpanzees</code>, <code>.width = .5</code>).</li>
+<li><strong>R</strong> objects, such as data or function arguments, are in typewriter font atop gray backgrounds (e.g., <code>chimpanzees</code>, <code>.width = 0.5</code>).</li>
 <li>You can detect hyperlinks by their typical <a href="https://solomonkurz.netlify.app/">blue-colored font</a>.</li>
 <li>In the text, McElreath indexed his models with names like <code>m4.1</code> (i.e., the first model of <a href="04.html" class="quarto-xref"><span>4&nbsp; Geocentric Models</span></a>). I primarily followed that convention, but replaced the <code>m</code> with a <code>b</code> to stand for the <strong>brms</strong> package.</li>
 </ul>
@@ -417,7 +420,7 @@ window.Quarto = {
 <h2 class="unnumbered anchored" data-anchor-id="r-setup"><strong>R</strong> setup</h2>
 <p>To get the full benefit from this ebook, you’ll need some software. Happily, everything will be free (provided you have access to a decent personal computer and an good internet connection).</p>
 <p>First, you’ll need to install <strong>R</strong>, which you can learn about at <a href="https://cran.r-project.org/">https://cran.r-project.org/</a>.</p>
-<p>Though not necessary, your <strong>R</strong> experience might be more enjoyable if done through the free RStudio interface, which you can learn about at <a href="https://rstudio.com/products/rstudio/">https://rstudio.com/products/rstudio/</a>.</p>
+<p>Though not necessary, your <strong>R</strong> experience might be more enjoyable if done through the free RStudio interface, which you can learn about at <a href="https://posit.co/products/open-source/rstudio/">https://posit.co/products/open-source/rstudio/</a>.</p>
 <p>Once you have installed <strong>R</strong>, execute the following to install the bulk of the add-on packages. This will probably take a few minutes to finish. Go make yourself a coffee.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>packages <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"ape"</span>, <span class="st">"bayesplot"</span>, <span class="st">"brms"</span>, <span class="st">"broom"</span>, <span class="st">"dagitty"</span>, <span class="st">"devtools"</span>, <span class="st">"flextable"</span>, <span class="st">"GGally"</span>, <span class="st">"ggdag"</span>, <span class="st">"ggmcmc"</span>, <span class="st">"ggrepel"</span>, <span class="st">"ggthemes"</span>, <span class="st">"ggtree"</span>, <span class="st">"ghibli"</span>, <span class="st">"gtools"</span>, <span class="st">"invgamma"</span>, <span class="st">"loo"</span>, <span class="st">"patchwork"</span>, <span class="st">"posterior"</span>, <span class="st">"psych"</span>, <span class="st">"rcartocolor"</span>, <span class="st">"Rcpp"</span>, <span class="st">"remotes"</span>, <span class="st">"rstan"</span>, <span class="st">"santoku"</span>, <span class="st">"StanHeaders"</span>, <span class="st">"statebins"</span>, <span class="st">"tidybayes"</span>, <span class="st">"tidyverse"</span>, <span class="st">"viridis"</span>, <span class="st">"viridisLite"</span>, <span class="st">"wesanderson"</span>)</span>
@@ -444,21 +447,21 @@ window.Quarto = {
 <section id="we-have-updates" class="level2 unnumbered">
 <h2 class="unnumbered anchored" data-anchor-id="we-have-updates">We have updates</h2>
 <p>For a brief rundown of the version history, we have:</p>
-<section id="version-0.1.0." class="level3 unnumbered">
-<h3 class="unnumbered anchored" data-anchor-id="version-0.1.0.">Version 0.1.0.</h3>
+<section id="version-0.1.0" class="level3 unnumbered">
+<h3 class="unnumbered anchored" data-anchor-id="version-0.1.0">Version 0.1.0</h3>
 <p>I released the 0.1.0 version of this project in November 24, 2020. It was the first full-length and nearly complete draft including material from all the 17 chapters in McElreath’s source material. All <strong>brms</strong> models were fit with version 2.14.0+.</p>
 </section>
-<section id="version-0.1.1." class="level3 unnumbered">
-<h3 class="unnumbered anchored" data-anchor-id="version-0.1.1.">Version 0.1.1.</h3>
+<section id="version-0.1.1" class="level3 unnumbered">
+<h3 class="unnumbered anchored" data-anchor-id="version-0.1.1">Version 0.1.1</h3>
 <p>On December 2, 2020, I released a mini update designed to</p>
 <ul>
-<li>fix code breaks resulting from updates to the <a href="https://CRAN.R-project.org/package=broom"><strong>broom</strong> package</a> <span class="citation" data-cites="R-broom">(<a href="references.html#ref-R-broom" role="doc-biblioref">Robinson et al., 2022</a>)</span>, caught by <a href="https://twitter.com/jennybigman">Jenny Bigman</a>;</li>
+<li>fix code breaks resulting from updates to the <a href="https://CRAN.R-project.org/package=broom"><strong>broom</strong> package</a> <span class="citation" data-cites="R-broom">(<a href="references.html#ref-R-broom" role="doc-biblioref">Robinson et al., 2022</a>)</span>, caught by <a href="https://github.com/jennybigman">Jenny Bigman</a>;</li>
 <li>replace the soon-to-be retired <code>sample_n()</code> code with <code>slice_sample()</code>, caught by <a href="https://github.com/rpruim">Randall Pruim</a>;</li>
 <li>and correct a few typos along the way.</li>
 </ul>
 </section>
-<section id="version-0.2.0." class="level3 unnumbered">
-<h3 class="unnumbered anchored" data-anchor-id="version-0.2.0.">Version 0.2.0.</h3>
+<section id="version-0.2.0" class="level3 unnumbered">
+<h3 class="unnumbered anchored" data-anchor-id="version-0.2.0">Version 0.2.0</h3>
 <p>On March 16, 2021, I released version 0.2.0, which included the following major improvements:</p>
 <ul>
 <li>a corrected workflow for fitting single-level b-spline models (<a href="04.html#sec-Splines" class="quarto-xref"><span>Splines</span></a>), thanks to <a href="https://github.com/sjwild">Stephen Wild</a>;</li>
@@ -474,8 +477,8 @@ window.Quarto = {
 <li>all models have been refit using <strong>brms</strong> version 2.15.0.</li>
 </ul>
 </section>
-<section id="version-0.3.0." class="level3 unnumbered">
-<h3 class="unnumbered anchored" data-anchor-id="version-0.3.0.">Version 0.3.0.</h3>
+<section id="version-0.3.0" class="level3 unnumbered">
+<h3 class="unnumbered anchored" data-anchor-id="version-0.3.0">Version 0.3.0</h3>
 <p>On September 28, 2022, I released version 0.3.0, which included the following major improvements:</p>
 <ul>
 <li>an <code>as_draws_df()</code>-oriented workflow to replace the depreciated <code>posterior_samples()</code> function;</li>
@@ -488,8 +491,8 @@ window.Quarto = {
 <li>all models have been refit using <strong>brms</strong> version 2.18.0.</li>
 </ul>
 </section>
-<section id="version-0.4.0." class="level3 unnumbered">
-<h3 class="unnumbered anchored" data-anchor-id="version-0.4.0.">Version 0.4.0.</h3>
+<section id="version-0.4.0" class="level3 unnumbered">
+<h3 class="unnumbered anchored" data-anchor-id="version-0.4.0">Version 0.4.0</h3>
 <p>On January 26, 2023, I released version 0.4.0, which included:</p>
 <ul>
 <li>replacing my incorrect use of <code>tidyr::expand()</code> with a more appropriate <code>tidyr::expand_grid()</code> workflow, thanks to insights from <a href="https://github.com/dipetkov">Desislava Petkova</a>;</li>
@@ -497,8 +500,8 @@ window.Quarto = {
 <li>minor prose, hyperlink, and code edits throughout.</li>
 </ul>
 </section>
-<section id="version-0.5.0." class="level3 unnumbered">
-<h3 class="unnumbered anchored" data-anchor-id="version-0.5.0.">Version 0.5.0.</h3>
+<section id="version-0.5.0" class="level3 unnumbered">
+<h3 class="unnumbered anchored" data-anchor-id="version-0.5.0">Version 0.5.0</h3>
 <p>Welcome to version 0.5.0! Noteworthy changes include:</p>
 <ul>
 <li>switching to a <a href="https://quarto.org/docs/books/">Quarto ebook</a> format;</li>
@@ -514,8 +517,8 @@ window.Quarto = {
 <li>a few other minor prose and code edits throughout.</li>
 </ul>
 </section>
-<section id="were-not-done-yet-and-i-could-use-your-help." class="level3 unnumbered">
-<h3 class="unnumbered anchored" data-anchor-id="were-not-done-yet-and-i-could-use-your-help.">We’re not done yet and I could use your help.</h3>
+<section id="were-not-done-yet-and-i-could-use-your-help" class="level3 unnumbered">
+<h3 class="unnumbered anchored" data-anchor-id="were-not-done-yet-and-i-could-use-your-help">We’re not done yet and I could use your help</h3>
 <p>Some areas of the book could use some fleshing out. The sections I’m particularly anxious to improve are</p>
 <ul>
 <li><a href="15.html#sec-Categorical-errors-and-discrete-absences" class="quarto-xref"><span>Categorical errors and discrete absences</span></a>, which may someday include a <strong>brms</strong> workflow for categorical missing data; and</li>
@@ -569,7 +572,7 @@ window.Quarto = {
 <p>This book is licensed under the Creative Commons Zero v1.0 Universal license. You can learn the details, <a href="https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed/blob/master/LICENSE">here</a>. In short, you can use my work. Just make sure you give me the appropriate credit the same way you would for any other scholarly resource. Here’s the citation information:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="sc">@</span>book{kurzStatisticalRethinkingSecondEd2026,</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  title <span class="ot">=</span> {Statistical rethinking with brms, ggplot2, and the tidyverse<span class="sc">:</span> {{Second}} edition},</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  title <span class="ot">=</span> {Statistical rethinking <span class="dv">2</span> with brms and the tidyverse},</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  author <span class="ot">=</span> {Kurz, A. Solomon},</span>
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  year <span class="ot">=</span> {<span class="dv">2026</span>},</span>
 <span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  month <span class="ot">=</span> {jan},</span>
@@ -720,7 +723,7 @@ Xie, Y., Allaire, J. J., &amp; Grolemund, G. (2020). <em>R markdown: <span>The</
     }
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
-        var filterRegex = new RegExp('/' + window.location.host + '/');
+        var filterRegex = new RegExp("https:\/\/solomon\.quarto\.pub\/sr2\/");
       var isInternal = (href) => {
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }
@@ -1061,9 +1064,9 @@ Xie, Y., Allaire, J. J., &amp; Grolemund, G. (2020). <em>R markdown: <span>The</
     script.src = "https://giscus.app/client.js";
     script.async = true;
     script.dataset.repo = "ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed";
-    script.dataset.repoId = "";
+    script.dataset.repoId = "MDEwOlJlcG9zaXRvcnkxNjE5MTg0MTE=";
     script.dataset.category = "General";
-    script.dataset.categoryId = "";
+    script.dataset.categoryId = "DIC_kwDOCaaty84C1AJZ";
     script.dataset.mapping = "title";
     script.dataset.reactionsEnabled = "1";
     script.dataset.emitMetadata = "0";
