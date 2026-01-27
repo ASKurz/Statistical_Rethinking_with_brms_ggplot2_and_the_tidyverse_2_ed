@@ -75,11 +75,11 @@ It's possible you'll have problems installing some of these packages. Here are s
 
 For a brief rundown of the version history, we have:
 
-### Version 0.1.0. {-}
+### Version 0.1.0 {-}
 
 I released the 0.1.0 version of this project in November 24, 2020. It was the first full-length and nearly complete draft including material from all the 17 chapters in McElreath's source material. All **brms** models were fit with version 2.14.0+. 
 
-### Version 0.1.1. {-}
+### Version 0.1.1 {-}
 
 On December 2, 2020, I released a mini update designed to 
 
@@ -87,7 +87,7 @@ On December 2, 2020, I released a mini update designed to
 * replace the soon-to-be retired `sample_n()` code with `slice_sample()`, caught by [Randall Pruim](https://github.com/rpruim);
 * and correct a few typos along the way.
 
-### Version 0.2.0. {-}
+### Version 0.2.0 {-}
 
 On March 16, 2021, I released version 0.2.0, which included the following major improvements:
 
@@ -103,7 +103,7 @@ On March 16, 2021, I released version 0.2.0, which included the following major 
 * improved table workflow with the **flextable** package [@R-flextable]; and
 * all models have been refit using **brms** version 2.15.0.
 
-### Version 0.3.0. {-}
+### Version 0.3.0 {-}
 
 On September 28, 2022, I released version 0.3.0, which included the following major improvements:
 
@@ -116,7 +116,7 @@ On September 28, 2022, I released version 0.3.0, which included the following ma
 * some corrected typos and updates to the links and citations; and
 * all models have been refit using **brms** version 2.18.0.
 
-### Version 0.4.0. {-}
+### Version 0.4.0 {-}
 
 On January 26, 2023, I released version 0.4.0, which included:
 
@@ -124,7 +124,7 @@ On January 26, 2023, I released version 0.4.0, which included:
 * adopting the new `linewidth` argument for several **ggplot2** geoms (see [here](https://www.tidyverse.org/blog/2022/08/ggplot2-3-4-0-size-to-linewidth/)); and
 * minor prose, hyperlink, and code edits throughout.
 
-### Version 0.5.0. {-}
+### Version 0.5.0 {-}
 
 Welcome to version 0.5.0! Noteworthy changes include:
 
@@ -140,7 +140,7 @@ Welcome to version 0.5.0! Noteworthy changes include:
 * correcting an table in @sec-Counting-possibilities, thanks to [Christopher Rider](https://github.com/chrisrider); and
 * a few other minor prose and code edits throughout.
 
-### We're not done yet and I could use your help. {-}
+### We're not done yet and I could use your help {-}
 
 Some areas of the book could use some fleshing out. The sections I'm particularly anxious to improve are
 
