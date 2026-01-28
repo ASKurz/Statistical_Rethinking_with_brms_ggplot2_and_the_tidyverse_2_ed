@@ -6,6 +6,8 @@ This ebook is based on the second edition of [Richard McElreath](https://xcelab.
 
 Are you looking for the companion ebook for McElreath's 1st edition? [Click here.](https://solomon.quarto.pub/sr/)
 
+Are you looking for my translation of McElreath's 2nd edition into **rstan**? [Click here.](https://solomon.quarto.pub/sr2rstan/)
+
 ## My assumptions about you {-}
 
 If you're looking at this project, I'm guessing you're either a graduate student, a post-graduate academic or a researcher of some sort, which suggests you have at least a 101-level foundation in statistics. If you're rusty, consider checking out the free text books by [Roback and Legler](https://bookdown.org/roback/bookdown-BeyondMLR/) [-@roback2021beyond] or [Navarro](https://learningstatisticswithr.com/) [-@navarroLearningStatistics2019] before diving into *Statistical rethinking*. I'm also assuming you understand the rudiments of **R** and have at least a vague idea about what the **tidyverse** is. If you're totally new to **R**, consider starting with Peng's [-@pengProgrammingDataScience2022] [*R programming for data science*](https://bookdown.org/rdpeng/rprogdatascience/). For an introduction to the **tidyvese**-style of data analysis, the best source I've found is Grolemund and Wickham's [-@grolemundDataScience2017] [*R for data science*](http://r4ds.had.co.nz) (*R4DS*), which I extensively link to throughout this project. Another nice alternative is Baumer, Kaplan, and Horton's [-@baumerMocernDataScienceR2021], [*Modern data science with R*](https://mdsr-book.github.io/mdsr2e/).
