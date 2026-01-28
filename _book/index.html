@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="A. Solomon Kurz">
-<meta name="dcterms.date" content="2026-01-26">
+<meta name="dcterms.date" content="2026-01-27">
 
 <title>Statistical rethinking 2 with brms and the tidyverse</title>
 <style>
@@ -369,7 +369,7 @@ window.Quarto = {
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">January 26, 2026</p>
+      <p class="date">January 27, 2026</p>
     </div>
   </div>
   
@@ -388,6 +388,7 @@ window.Quarto = {
 <h1 class="unnumbered">What and why</h1>
 <p>This ebook is based on the second edition of <a href="https://xcelab.net/rm/">Richard McElreath</a>’s <span class="citation" data-cites="mcelreathStatisticalRethinkingBayesian2020">(<a href="references.html#ref-mcelreathStatisticalRethinkingBayesian2020" role="doc-biblioref">2020</a>)</span> text, <a href="https://xcelab.net/rm/statistical-rethinking/"><em>Statistical rethinking: A Bayesian course with examples in R and Stan</em></a>. My contributions show how to fit the models he covered with <a href="https://www.simtech.uni-stuttgart.de/exc/people/Buerkner/">Paul Bürkner</a>’s <a href="https://github.com/paul-buerkner/brms"><strong>brms</strong> package</a> <span class="citation" data-cites="R-brms burknerBrmsPackageBayesian2017 burknerAdvancedBayesianMultilevel2018">(<a href="references.html#ref-burknerBrmsPackageBayesian2017" role="doc-biblioref">Bürkner, 2017</a>, <a href="references.html#ref-burknerAdvancedBayesianMultilevel2018" role="doc-biblioref">2018</a>, <a href="references.html#ref-R-brms" role="doc-biblioref">2022</a>)</span>, which makes it easy to fit Bayesian regression models in <strong>R</strong> <span class="citation" data-cites="R-base">(<a href="references.html#ref-R-base" role="doc-biblioref">R Core Team, 2022</a>)</span> using Hamiltonian Monte Carlo. I also prefer plotting and data wrangling with the packages from the <a href="https://www.tidyverse.org/"><strong>tidyverse</strong></a> <span class="citation" data-cites="R-tidyverse wickhamWelcomeTidyverse2019">(<a href="references.html#ref-wickhamWelcomeTidyverse2019" role="doc-biblioref">Wickham et al., 2019</a>; <a href="references.html#ref-R-tidyverse" role="doc-biblioref">Wickham, 2022</a>)</span>. So we’ll be using those methods, too.</p>
 <p>Are you looking for the companion ebook for McElreath’s 1st edition? <a href="https://solomon.quarto.pub/sr/">Click here.</a></p>
+<p>Are you looking for my translation of McElreath’s 2nd edition into <strong>rstan</strong>? <a href="https://solomon.quarto.pub/sr2rstan/">Click here.</a></p>
 <section id="my-assumptions-about-you" class="level2 unnumbered">
 <h2 class="unnumbered anchored" data-anchor-id="my-assumptions-about-you">My assumptions about you</h2>
 <p>If you’re looking at this project, I’m guessing you’re either a graduate student, a post-graduate academic or a researcher of some sort, which suggests you have at least a 101-level foundation in statistics. If you’re rusty, consider checking out the free text books by <a href="https://bookdown.org/roback/bookdown-BeyondMLR/">Roback and Legler</a> <span class="citation" data-cites="roback2021beyond">(<a href="references.html#ref-roback2021beyond" role="doc-biblioref">2021</a>)</span> or <a href="https://learningstatisticswithr.com/">Navarro</a> <span class="citation" data-cites="navarroLearningStatistics2019">(<a href="references.html#ref-navarroLearningStatistics2019" role="doc-biblioref">2019</a>)</span> before diving into <em>Statistical rethinking</em>. I’m also assuming you understand the rudiments of <strong>R</strong> and have at least a vague idea about what the <strong>tidyverse</strong> is. If you’re totally new to <strong>R</strong>, consider starting with Peng’s <span class="citation" data-cites="pengProgrammingDataScience2022">(<a href="references.html#ref-pengProgrammingDataScience2022" role="doc-biblioref">2022</a>)</span> <a href="https://bookdown.org/rdpeng/rprogdatascience/"><em>R programming for data science</em></a>. For an introduction to the <strong>tidyvese</strong>-style of data analysis, the best source I’ve found is Grolemund and Wickham’s <span class="citation" data-cites="grolemundDataScience2017">(<a href="references.html#ref-grolemundDataScience2017" role="doc-biblioref">2017</a>)</span> <a href="http://r4ds.had.co.nz"><em>R for data science</em></a> (<em>R4DS</em>), which I extensively link to throughout this project. Another nice alternative is Baumer, Kaplan, and Horton’s <span class="citation" data-cites="baumerMocernDataScienceR2021">(<a href="references.html#ref-baumerMocernDataScienceR2021" role="doc-biblioref">2021</a>)</span>, <a href="https://mdsr-book.github.io/mdsr2e/"><em>Modern data science with R</em></a>.</p>
