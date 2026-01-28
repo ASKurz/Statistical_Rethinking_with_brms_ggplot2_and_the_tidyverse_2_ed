@@ -1,5 +1,5 @@
 # *Statistical rethinking* with brms, ggplot2, and the tidyverse: Second edition
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7574118.svg)](https://doi.org/10.5281/zenodo.7574118)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.18396113.svg)](https://doi.org/10.5281/zenodo.18396113)
 
 Welcome to the sister project of my [*Statistical Rethinking* with brms, ggplot2, and the tidyverse](https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse). Our aim is to translate the code from McElreath's [second edition](http://elevanth.org/blog/2018/07/14/statistical-rethinking-edition-2-eta-2020/) to fit within a [**brms**](https://github.com/paul-buerkner/brms) and [**tidyverse**](https://www.tidyverse.org) framework. The current 0.5.0 version contains drafts of all 17 chapters, which have been stitched together into a Quarto-based ebook, which you can access at [https://solomon.quarto.pub/sr2/](https://solomon.quarto.pub/sr2/). See issues [#16](https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed/issues/16) and [#17](https://github.com/ASKurz/Statistical_Rethinking_with_brms_ggplot2_and_the_tidyverse_2_ed/issues/17) for the biggest unresolved problems.
